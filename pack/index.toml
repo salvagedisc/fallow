@@ -1197,8 +1197,16 @@ file = "kubejs/assets/sable_fix_mod/lang/fr_fr.json"
 hash = "75a07d1ba9b1692d0fda1cfc55fa3e1f37e6775658084aa956c3ac861bf019d0"
 
 [[files]]
+file = "kubejs/assets/sable_pathfinder/lang/fr_fr.json"
+hash = "c34c0226052dc0c669306f29b097294b50aa4f32d0c326b18dbb89e5fa19b298"
+
+[[files]]
 file = "kubejs/assets/sable_player_ragdoll/lang/fr_fr.json"
 hash = "5601ebb64773a911bf66152398a8a0e8be6d611bbd5e23a5a2c2b2cc0397167e"
+
+[[files]]
+file = "kubejs/assets/sable_player_ragdoll_patch/lang/fr_fr.json"
+hash = "721478a699166c8dba156389bf7dcfdc1be1d3f65b91ce12a425a8e1bddbed3d"
 
 [[files]]
 file = "kubejs/assets/sablephysicscompat/lang/fr_fr.json"
@@ -1234,7 +1242,7 @@ hash = "cd9b8b03f2c550799f08d504dd26506931d7a2b773386c857dc1c9fe9a4abf53"
 
 [[files]]
 file = "kubejs/assets/sound_physics_remastered/lang/fr_fr.json"
-hash = "832b17b73f25e5bc041ea9df6423e62958dcea4e3eff417fe77df7d20c66795b"
+hash = "25ee609f33ce3d0d39b66a84e5301f62c10cf9dc369ffc4057f222f27ebac4f0"
 
 [[files]]
 file = "kubejs/assets/sounds/lang/fr_fr.json"
@@ -1257,6 +1265,10 @@ file = "kubejs/assets/spelunkery/lang/fr_fr.json"
 hash = "f4ec962ff34f537d5f27b719c51eaf4424d38b7b8ebc5e8b4767526f3e09ed0d"
 
 [[files]]
+file = "kubejs/assets/ssrd/lang/fr_fr.json"
+hash = "bd649b9042cab1e52c1796196835720db7d34bf4bfda41a5eb204578afda804c"
+
+[[files]]
 file = "kubejs/assets/starcatcher/lang/fr_fr.json"
 hash = "e4d75a936fc781b5dc9ae7019a3eece5224791497c31838af9755708da3d18fb"
 
@@ -1275,6 +1287,10 @@ hash = "b265aa9e35aaeb8ae8e4c95824d5ab481951b2d18407269b097e6284f0ac2ebf"
 [[files]]
 file = "kubejs/assets/supplementaries/lang/fr_fr.json"
 hash = "0d8d2d4f9741abe6bb96e00063fa6f3c7cc287f1a640331cfcd1d51cd2cb7313"
+
+[[files]]
+file = "kubejs/assets/surefooting/lang/fr_fr.json"
+hash = "c1edbbaef13e67bce79aca1ed3f0d177097e1ece792839248bc77c017f99400c"
 
 [[files]]
 file = "kubejs/assets/surfacesamples/lang/fr_fr.json"
@@ -3879,6 +3895,11 @@ metafile = true
 [[files]]
 file = "mods/sable-fix-mod.pw.toml"
 hash = "204e2f1c98a6538a8c6d39b302ba21f20a3443740a53c5ad68f221a638c167c0"
+metafile = true
+
+[[files]]
+file = "mods/sable-pathfinder.pw.toml"
+hash = "bb53384b726692f7c4227355fa0653cbb6aba5bd0bd3ea7c586d395aa4d2d135"
 metafile = true
 
 [[files]]
