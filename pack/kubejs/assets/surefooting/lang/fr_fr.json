@@ -1,0 +1,16 @@
+{
+  "surefooting.configuration.enabled": "Activé",
+  "surefooting.configuration.rotate_jump_velocity": "Tourner l'élan du saut",
+  "surefooting.configuration.rotate_ground_velocity": "Tourner l'élan au sol",
+  "surefooting.configuration.jump_rotation_strength": "Force de rotation du saut",
+  "surefooting.configuration.ground_rotation_strength": "Force de rotation au sol",
+  "surefooting.configuration.carry_timeout_ticks": "Délai d'entraînement (ticks)",
+  "surefooting.configuration.exit_distance_blocks": "Distance de sortie (blocs)",
+  "surefooting.configuration.debug_logging": "Journal de débogage",
+  "surefooting.configuration.anchor_particles": "Particules accrochées",
+  "surefooting.configuration.carry_entities": "Entraîner les entités",
+  "surefooting.configuration.entity_jump_rotation_strength": "Force de rotation du saut des entités",
+  "surefooting.configuration.entity_ground_rotation_strength": "Force de rotation au sol des entités",
+  "surefooting.configuration.rotate_entity_yaw": "Tourner l'orientation des entités",
+  "surefooting.configuration.carry_blacklist": "Entités jamais entraînées"
+}
