@@ -1,0 +1,13 @@
+name = "BoatHandsFree"
+filename = "boathandsfree-v1.0.3-mc1.21.1-neoforge.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/focMWRqn/versions/5OQM0HDM/boathandsfree-v1.0.3-mc1.21.1-neoforge.jar"
+hash-format = "sha512"
+hash = "f8626367989ff4dade83a9c832464acc9cecf015fb4bbf92f4995b1b05b1a858210fff8d7c65f824148c5a6c8682bc67daa0d16dad2c6917f79f7f6feab8b0be"
+
+[update]
+[update.modrinth]
+mod-id = "focMWRqn"
+version = "5OQM0HDM"

@@ -3378,6 +3378,11 @@ hash = "f567df6f58cbb28cd6e28dfa72dde29ed8c787afc6e4694c797b0896fa07c8f6"
 metafile = true
 
 [[files]]
+file = "mods/boathandsfree.pw.toml"
+hash = "3c88e5ab10f6aa74378beb7b11b8e65abc67554609d45c4b073f79fd20ee392f"
+metafile = true
+
+[[files]]
 file = "mods/boatview360.pw.toml"
 hash = "ed72e9b544ddc38d7ab6478c06c6009068fab2688212c002dcd8a1dd193caf2d"
 metafile = true
