@@ -1,0 +1,10 @@
+{
+  "values": {
+    "fallow:pomme_de_pin": {
+      "burn_time": 300
+    },
+    "#fallow:bois_mort": {
+      "burn_time": 150
+    }
+  }
+}

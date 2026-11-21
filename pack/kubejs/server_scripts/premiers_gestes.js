@@ -5,7 +5,8 @@
 //
 // La chaîne :
 //   gravier -> silex
-//   silex frappé sur une roche -> pierre à tailler (Overgeared), ou galet de Twigs -> pierre à tailler
+//   silex frappé sur une roche -> pierre à tailler (Overgeared), ou caillou ramassé au sol -> pierre à tailler
+//   bois mort ramassé sous un arbre -> 2 bâtons (recette du mod fallow)
 //   pierre à tailler, clic droit -> tête d'outil ; tête + bâton -> outil de pierre (Overgeared)
 //   hache + bûche -> 2 planches ; scie mécanique de Create -> 6 planches
 
@@ -20,7 +21,7 @@ const PREMIERS_GESTES_OBJETS = [
 const PREMIERS_GESTES_PLANCHES_A_LA_HACHE = 2
 
 // Chance de plus qu'une feuille cassée lâche un bâton (vanilla : 2 %),
-// pour les biomes sans brindilles de Twigs.
+// pour les biomes sans arbres où ramasser du bois mort (module débris du mod fallow).
 const PREMIERS_GESTES_BATONS_FEUILLES = 0.06
 
 // Écrit une entrée de recette JSON (`{"item": …}` ou `{"tag": …}`) comme KubeJS la lit.
@@ -62,9 +63,12 @@ ServerEvents.recipes(event => {
   // avant le four et le charbon de bois.
   event.replaceInput({ id: 'minecraft:campfire' }, '#minecraft:coals', 'minecraft:flint')
 
-  // Un galet de Twigs est déjà une pierre : il se taille comme celle d'Overgeared.
+  // Un galet de Twigs ou un caillou ramassé au sol est déjà une pierre : il se taille comme celle d'Overgeared.
+  // Le gravillon et l'éclat de glace ne se taillent pas.
   event.shapeless('overgeared:knappable_rock', ['twigs:pebble'])
     .id('fallow:premiers_gestes/galet_a_tailler')
+  event.shapeless('overgeared:knappable_rock', ['#fallow:cailloux_a_tailler'])
+    .id('fallow:premiers_gestes/caillou_a_tailler')
 })
 
 LootJS.lootTables(event => {

@@ -1,0 +1,29 @@
+{
+  "values": [
+    "minecraft:spruce_leaves",
+    {
+      "id": "regions_unexplored:pine_leaves",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:dead_pine_leaves",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:larch_leaves",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:golden_larch_leaves",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:redwood_leaves",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:cypress_leaves",
+      "required": false
+    }
+  ]
+}

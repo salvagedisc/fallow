@@ -1,0 +1,17 @@
+{
+  "values": [
+    "minecraft:dark_oak_leaves",
+    {
+      "id": "regions_unexplored:blackwood_leaves",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:dead_leaves",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:willow_leaves",
+      "required": false
+    }
+  ]
+}

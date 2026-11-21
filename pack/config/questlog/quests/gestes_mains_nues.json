@@ -2,7 +2,7 @@
   "chapter": "questlog:fallow_premiers_gestes",
   "sort_order": 0,
   "title": "Mains nues",
-  "description": "À mains nues, on ramasse mais on ne coupe pas. Le bois demande une hache, la roche une pioche : vos mains n’en tireront rien. Même un établi ou un coffre ne se démonte qu’à la hache.\n\nLa terre, le sable, le gravier, les feuilles, les plantes et les récoltes se prennent à la main. Au sol, cherchez les galets et les brindilles : ce sont vos premiers outils.",
+  "description": "À mains nues, on ramasse mais on ne coupe pas. Le bois demande une hache, la roche une pioche : vos mains n’en tireront rien. Même un établi ou un coffre ne se démonte qu’à la hache.\n\nLa terre, le sable, le gravier, les feuilles, les plantes et les récoltes se prennent à la main. Au sol, cherchez les cailloux à découvert et le bois mort sous les arbres : main vide, un clic droit les ramasse. Ce sont vos premiers outils.",
   "icon": {
     "item": "minecraft:stick"
   },

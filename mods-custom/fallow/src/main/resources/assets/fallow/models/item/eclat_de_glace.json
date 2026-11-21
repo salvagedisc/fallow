@@ -1,0 +1,7 @@
+{
+  "parent": "fallow:item/debris/caillou",
+  "textures": {
+    "0": "minecraft:block/ice",
+    "particle": "minecraft:block/ice"
+  }
+}

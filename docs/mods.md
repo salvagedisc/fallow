@@ -118,7 +118,7 @@ Side: C = client, S = server, CS = both. Versions checked on Modrinth for NeoFor
 | Supplementaries | `supplementaries` | ✅ | CS | The essentials ([0006](decisions/0006-supplementaries.md)); its sconces are enabled again since 2026-11-13 (they were off while No Man's Land had its own) |
 | Amendments | `amendments` | ✅ | CS | 3D lanterns, signs, cauldrons |
 | Handcrafted | `handcrafted` | ✅ | CS | Furniture |
-| Twigs | `twigs` | ✅ | CS | Small decor; rhyolite generation off, tables, Nether blocks and duplicates removed; cobblestone bricks back since 2026-11-13 ([pack sort](plan/tri-du-pack.md)) |
+| Twigs | `twigs` | ✅ | CS | Small decor; rhyolite generation off, tables, Nether blocks and duplicates removed; cobblestone bricks back since 2026-11-13 ([pack sort](plan/tri-du-pack.md)); its pebbles and twigs no longer generate since 2026-11-21, replaced by the `fallow` mod's ground debris ([0048](decisions/0048-ground-debris.md)); its seashells stay |
 | Every Compat | `every-compat` | ✅ | CS | Furniture and decor in every wood, including those of Regions Unexplored |
 | HT's TreeChop | `treechop` | ✅ | CS | Chop a tree block by block, the trunk falls last |
 

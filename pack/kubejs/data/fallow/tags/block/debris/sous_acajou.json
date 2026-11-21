@@ -1,0 +1,17 @@
+{
+  "values": [
+    "minecraft:jungle_leaves",
+    {
+      "id": "regions_unexplored:kapok_leaves",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:palm_leaves",
+      "required": false
+    },
+    {
+      "id": "spawn:date_leaves",
+      "required": false
+    }
+  ]
+}

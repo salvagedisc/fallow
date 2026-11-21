@@ -1,0 +1,723 @@
+{
+  "type": "fallow:debris",
+  "config": {
+    "essais": {
+      "type": "minecraft:uniform",
+      "min_inclusive": 3,
+      "max_inclusive": 5
+    },
+    "etendue": 6,
+    "regles": [
+      {
+        "feuilles": "#fallow:debris/sous_chene",
+        "pose": {
+          "type": "minecraft:weighted_state_provider",
+          "entries": [
+            {
+              "weight": 4,
+              "data": {
+                "Name": "fallow:bois_mort_de_chene",
+                "Properties": {
+                  "taille": "0"
+                }
+              }
+            },
+            {
+              "weight": 3,
+              "data": {
+                "Name": "fallow:bois_mort_de_chene",
+                "Properties": {
+                  "taille": "1"
+                }
+              }
+            },
+            {
+              "weight": 1,
+              "data": {
+                "Name": "fallow:bois_mort_de_chene",
+                "Properties": {
+                  "taille": "2"
+                }
+              }
+            }
+          ]
+        },
+        "chance": 0.6
+      },
+      {
+        "feuilles": "#fallow:debris/sous_bouleau",
+        "pose": {
+          "type": "minecraft:weighted_state_provider",
+          "entries": [
+            {
+              "weight": 4,
+              "data": {
+                "Name": "fallow:bois_mort_de_bouleau",
+                "Properties": {
+                  "taille": "0"
+                }
+              }
+            },
+            {
+              "weight": 3,
+              "data": {
+                "Name": "fallow:bois_mort_de_bouleau",
+                "Properties": {
+                  "taille": "1"
+                }
+              }
+            },
+            {
+              "weight": 1,
+              "data": {
+                "Name": "fallow:bois_mort_de_bouleau",
+                "Properties": {
+                  "taille": "2"
+                }
+              }
+            }
+          ]
+        },
+        "chance": 0.6
+      },
+      {
+        "feuilles": "#fallow:debris/sous_epicea",
+        "pose": {
+          "type": "minecraft:weighted_state_provider",
+          "entries": [
+            {
+              "weight": 5,
+              "data": {
+                "Name": "fallow:pomme_de_pin"
+              }
+            },
+            {
+              "weight": 3,
+              "data": {
+                "Name": "fallow:bois_mort_d_epicea",
+                "Properties": {
+                  "taille": "0"
+                }
+              }
+            },
+            {
+              "weight": 2,
+              "data": {
+                "Name": "fallow:bois_mort_d_epicea",
+                "Properties": {
+                  "taille": "1"
+                }
+              }
+            },
+            {
+              "weight": 1,
+              "data": {
+                "Name": "fallow:bois_mort_d_epicea",
+                "Properties": {
+                  "taille": "2"
+                }
+              }
+            }
+          ]
+        },
+        "chance": 0.7
+      },
+      {
+        "feuilles": "#fallow:debris/sous_acajou",
+        "pose": {
+          "type": "minecraft:weighted_state_provider",
+          "entries": [
+            {
+              "weight": 4,
+              "data": {
+                "Name": "fallow:bois_mort_d_acajou",
+                "Properties": {
+                  "taille": "0"
+                }
+              }
+            },
+            {
+              "weight": 3,
+              "data": {
+                "Name": "fallow:bois_mort_d_acajou",
+                "Properties": {
+                  "taille": "1"
+                }
+              }
+            },
+            {
+              "weight": 1,
+              "data": {
+                "Name": "fallow:bois_mort_d_acajou",
+                "Properties": {
+                  "taille": "2"
+                }
+              }
+            }
+          ]
+        },
+        "chance": 0.6
+      },
+      {
+        "feuilles": "#fallow:debris/sous_acacia",
+        "pose": {
+          "type": "minecraft:weighted_state_provider",
+          "entries": [
+            {
+              "weight": 4,
+              "data": {
+                "Name": "fallow:bois_mort_d_acacia",
+                "Properties": {
+                  "taille": "0"
+                }
+              }
+            },
+            {
+              "weight": 3,
+              "data": {
+                "Name": "fallow:bois_mort_d_acacia",
+                "Properties": {
+                  "taille": "1"
+                }
+              }
+            },
+            {
+              "weight": 1,
+              "data": {
+                "Name": "fallow:bois_mort_d_acacia",
+                "Properties": {
+                  "taille": "2"
+                }
+              }
+            }
+          ]
+        },
+        "chance": 0.6
+      },
+      {
+        "feuilles": "#fallow:debris/sous_chene_noir",
+        "pose": {
+          "type": "minecraft:weighted_state_provider",
+          "entries": [
+            {
+              "weight": 4,
+              "data": {
+                "Name": "fallow:bois_mort_de_chene_noir",
+                "Properties": {
+                  "taille": "0"
+                }
+              }
+            },
+            {
+              "weight": 3,
+              "data": {
+                "Name": "fallow:bois_mort_de_chene_noir",
+                "Properties": {
+                  "taille": "1"
+                }
+              }
+            },
+            {
+              "weight": 1,
+              "data": {
+                "Name": "fallow:bois_mort_de_chene_noir",
+                "Properties": {
+                  "taille": "2"
+                }
+              }
+            }
+          ]
+        },
+        "chance": 0.6
+      },
+      {
+        "feuilles": "#fallow:debris/sous_paletuvier",
+        "pose": {
+          "type": "minecraft:weighted_state_provider",
+          "entries": [
+            {
+              "weight": 4,
+              "data": {
+                "Name": "fallow:bois_mort_de_paletuvier",
+                "Properties": {
+                  "taille": "0"
+                }
+              }
+            },
+            {
+              "weight": 3,
+              "data": {
+                "Name": "fallow:bois_mort_de_paletuvier",
+                "Properties": {
+                  "taille": "1"
+                }
+              }
+            },
+            {
+              "weight": 1,
+              "data": {
+                "Name": "fallow:bois_mort_de_paletuvier",
+                "Properties": {
+                  "taille": "2"
+                }
+              }
+            }
+          ]
+        },
+        "chance": 0.6
+      },
+      {
+        "feuilles": "#fallow:debris/sous_cerisier",
+        "pose": {
+          "type": "minecraft:weighted_state_provider",
+          "entries": [
+            {
+              "weight": 4,
+              "data": {
+                "Name": "fallow:bois_mort_de_cerisier",
+                "Properties": {
+                  "taille": "0"
+                }
+              }
+            },
+            {
+              "weight": 3,
+              "data": {
+                "Name": "fallow:bois_mort_de_cerisier",
+                "Properties": {
+                  "taille": "1"
+                }
+              }
+            },
+            {
+              "weight": 1,
+              "data": {
+                "Name": "fallow:bois_mort_de_cerisier",
+                "Properties": {
+                  "taille": "2"
+                }
+              }
+            }
+          ]
+        },
+        "chance": 0.6
+      },
+      {
+        "sol": "minecraft:granite",
+        "pose": {
+          "type": "minecraft:weighted_state_provider",
+          "entries": [
+            {
+              "weight": 4,
+              "data": {
+                "Name": "fallow:caillou_de_granite",
+                "Properties": {
+                  "taille": "0"
+                }
+              }
+            },
+            {
+              "weight": 3,
+              "data": {
+                "Name": "fallow:caillou_de_granite",
+                "Properties": {
+                  "taille": "1"
+                }
+              }
+            },
+            {
+              "weight": 2,
+              "data": {
+                "Name": "fallow:caillou_de_granite",
+                "Properties": {
+                  "taille": "2"
+                }
+              }
+            },
+            {
+              "weight": 1,
+              "data": {
+                "Name": "fallow:caillou_de_granite",
+                "Properties": {
+                  "taille": "3"
+                }
+              }
+            }
+          ]
+        },
+        "chance": 0.8
+      },
+      {
+        "sol": "minecraft:diorite",
+        "pose": {
+          "type": "minecraft:weighted_state_provider",
+          "entries": [
+            {
+              "weight": 4,
+              "data": {
+                "Name": "fallow:caillou_de_diorite",
+                "Properties": {
+                  "taille": "0"
+                }
+              }
+            },
+            {
+              "weight": 3,
+              "data": {
+                "Name": "fallow:caillou_de_diorite",
+                "Properties": {
+                  "taille": "1"
+                }
+              }
+            },
+            {
+              "weight": 2,
+              "data": {
+                "Name": "fallow:caillou_de_diorite",
+                "Properties": {
+                  "taille": "2"
+                }
+              }
+            },
+            {
+              "weight": 1,
+              "data": {
+                "Name": "fallow:caillou_de_diorite",
+                "Properties": {
+                  "taille": "3"
+                }
+              }
+            }
+          ]
+        },
+        "chance": 0.8
+      },
+      {
+        "sol": "minecraft:andesite",
+        "pose": {
+          "type": "minecraft:weighted_state_provider",
+          "entries": [
+            {
+              "weight": 4,
+              "data": {
+                "Name": "fallow:caillou_d_andesite",
+                "Properties": {
+                  "taille": "0"
+                }
+              }
+            },
+            {
+              "weight": 3,
+              "data": {
+                "Name": "fallow:caillou_d_andesite",
+                "Properties": {
+                  "taille": "1"
+                }
+              }
+            },
+            {
+              "weight": 2,
+              "data": {
+                "Name": "fallow:caillou_d_andesite",
+                "Properties": {
+                  "taille": "2"
+                }
+              }
+            },
+            {
+              "weight": 1,
+              "data": {
+                "Name": "fallow:caillou_d_andesite",
+                "Properties": {
+                  "taille": "3"
+                }
+              }
+            }
+          ]
+        },
+        "chance": 0.8
+      },
+      {
+        "sol": [
+          "minecraft:sand",
+          "minecraft:sandstone"
+        ],
+        "pose": {
+          "type": "minecraft:weighted_state_provider",
+          "entries": [
+            {
+              "weight": 4,
+              "data": {
+                "Name": "fallow:caillou_de_gres",
+                "Properties": {
+                  "taille": "0"
+                }
+              }
+            },
+            {
+              "weight": 3,
+              "data": {
+                "Name": "fallow:caillou_de_gres",
+                "Properties": {
+                  "taille": "1"
+                }
+              }
+            },
+            {
+              "weight": 2,
+              "data": {
+                "Name": "fallow:caillou_de_gres",
+                "Properties": {
+                  "taille": "2"
+                }
+              }
+            },
+            {
+              "weight": 1,
+              "data": {
+                "Name": "fallow:caillou_de_gres",
+                "Properties": {
+                  "taille": "3"
+                }
+              }
+            }
+          ]
+        },
+        "chance": 0.3
+      },
+      {
+        "sol": [
+          "minecraft:red_sand",
+          "minecraft:red_sandstone"
+        ],
+        "pose": {
+          "type": "minecraft:weighted_state_provider",
+          "entries": [
+            {
+              "weight": 4,
+              "data": {
+                "Name": "fallow:caillou_de_gres_rouge",
+                "Properties": {
+                  "taille": "0"
+                }
+              }
+            },
+            {
+              "weight": 3,
+              "data": {
+                "Name": "fallow:caillou_de_gres_rouge",
+                "Properties": {
+                  "taille": "1"
+                }
+              }
+            },
+            {
+              "weight": 2,
+              "data": {
+                "Name": "fallow:caillou_de_gres_rouge",
+                "Properties": {
+                  "taille": "2"
+                }
+              }
+            },
+            {
+              "weight": 1,
+              "data": {
+                "Name": "fallow:caillou_de_gres_rouge",
+                "Properties": {
+                  "taille": "3"
+                }
+              }
+            }
+          ]
+        },
+        "chance": 0.3
+      },
+      {
+        "sol": "minecraft:gravel",
+        "pose": {
+          "type": "minecraft:weighted_state_provider",
+          "entries": [
+            {
+              "weight": 4,
+              "data": {
+                "Name": "fallow:gravillon",
+                "Properties": {
+                  "taille": "0"
+                }
+              }
+            },
+            {
+              "weight": 3,
+              "data": {
+                "Name": "fallow:gravillon",
+                "Properties": {
+                  "taille": "1"
+                }
+              }
+            },
+            {
+              "weight": 2,
+              "data": {
+                "Name": "fallow:gravillon",
+                "Properties": {
+                  "taille": "2"
+                }
+              }
+            },
+            {
+              "weight": 1,
+              "data": {
+                "Name": "fallow:gravillon",
+                "Properties": {
+                  "taille": "3"
+                }
+              }
+            }
+          ]
+        },
+        "chance": 0.6
+      },
+      {
+        "sol": [
+          "minecraft:ice",
+          "minecraft:packed_ice",
+          "minecraft:blue_ice"
+        ],
+        "pose": {
+          "type": "minecraft:weighted_state_provider",
+          "entries": [
+            {
+              "weight": 4,
+              "data": {
+                "Name": "fallow:eclat_de_glace",
+                "Properties": {
+                  "taille": "0"
+                }
+              }
+            },
+            {
+              "weight": 3,
+              "data": {
+                "Name": "fallow:eclat_de_glace",
+                "Properties": {
+                  "taille": "1"
+                }
+              }
+            },
+            {
+              "weight": 2,
+              "data": {
+                "Name": "fallow:eclat_de_glace",
+                "Properties": {
+                  "taille": "2"
+                }
+              }
+            },
+            {
+              "weight": 1,
+              "data": {
+                "Name": "fallow:eclat_de_glace",
+                "Properties": {
+                  "taille": "3"
+                }
+              }
+            }
+          ]
+        },
+        "chance": 0.4
+      },
+      {
+        "sol": [
+          "minecraft:stone",
+          "minecraft:cobblestone",
+          "minecraft:mossy_cobblestone",
+          "minecraft:tuff",
+          "minecraft:calcite",
+          "minecraft:deepslate",
+          "minecraft:cobbled_deepslate",
+          "minecraft:dripstone_block"
+        ],
+        "pose": {
+          "type": "minecraft:weighted_state_provider",
+          "entries": [
+            {
+              "weight": 4,
+              "data": {
+                "Name": "fallow:caillou",
+                "Properties": {
+                  "taille": "0"
+                }
+              }
+            },
+            {
+              "weight": 3,
+              "data": {
+                "Name": "fallow:caillou",
+                "Properties": {
+                  "taille": "1"
+                }
+              }
+            },
+            {
+              "weight": 2,
+              "data": {
+                "Name": "fallow:caillou",
+                "Properties": {
+                  "taille": "2"
+                }
+              }
+            },
+            {
+              "weight": 1,
+              "data": {
+                "Name": "fallow:caillou",
+                "Properties": {
+                  "taille": "3"
+                }
+              }
+            }
+          ]
+        },
+        "chance": 0.8
+      },
+      {
+        "sol": "#minecraft:dirt",
+        "sous_le_ciel": true,
+        "pose": {
+          "type": "minecraft:weighted_state_provider",
+          "entries": [
+            {
+              "weight": 6,
+              "data": {
+                "Name": "fallow:caillou",
+                "Properties": {
+                  "taille": "0"
+                }
+              }
+            },
+            {
+              "weight": 3,
+              "data": {
+                "Name": "fallow:caillou",
+                "Properties": {
+                  "taille": "1"
+                }
+              }
+            },
+            {
+              "weight": 1,
+              "data": {
+                "Name": "fallow:caillou",
+                "Properties": {
+                  "taille": "2"
+                }
+              }
+            }
+          ]
+        },
+        "chance": 0.12
+      }
+    ]
+  }
+}

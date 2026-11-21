@@ -51,6 +51,7 @@ One record per settled decision: the context, the options compared, the choice a
 | [0045](0045-awakening.md) | Awakening: enchanting as a deed | An item awakens from its own deeds, great beasts leave shards, nothing is found enchanted; Immersive Enchanting removed (replaces 0008) |
 | [0046](0046-wind-on-ships.md) | Wind on ships, and a headwind at the edge | The pack's wind pushes Sable ships; at the disc's edge a rising headwind pushes players, mounts, boats and ships back (refines 0022) |
 | [0047](0047-small-boats.md) | Small boats | Fish 'N' Ships (canoe, sailboat, rafts, fishing boat) and three mods that improve boat handling; big ships stay Sable's |
+| [0048](0048-ground-debris.md) | Ground debris | House rocks, fallen wood and pine cones that follow the ground and the tree above, after This Rocks!; Twigs' pebbles and twigs no longer generate |
 
 ## Template
 

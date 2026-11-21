@@ -1,0 +1,76 @@
+{
+  "variants": {
+    "taille=0": [
+      {
+        "model": "fallow:block/debris/eclat_de_glace_0",
+        "y": 0
+      },
+      {
+        "model": "fallow:block/debris/eclat_de_glace_0",
+        "y": 90
+      },
+      {
+        "model": "fallow:block/debris/eclat_de_glace_0",
+        "y": 180
+      },
+      {
+        "model": "fallow:block/debris/eclat_de_glace_0",
+        "y": 270
+      }
+    ],
+    "taille=1": [
+      {
+        "model": "fallow:block/debris/eclat_de_glace_1",
+        "y": 0
+      },
+      {
+        "model": "fallow:block/debris/eclat_de_glace_1",
+        "y": 90
+      },
+      {
+        "model": "fallow:block/debris/eclat_de_glace_1",
+        "y": 180
+      },
+      {
+        "model": "fallow:block/debris/eclat_de_glace_1",
+        "y": 270
+      }
+    ],
+    "taille=2": [
+      {
+        "model": "fallow:block/debris/eclat_de_glace_2",
+        "y": 0
+      },
+      {
+        "model": "fallow:block/debris/eclat_de_glace_2",
+        "y": 90
+      },
+      {
+        "model": "fallow:block/debris/eclat_de_glace_2",
+        "y": 180
+      },
+      {
+        "model": "fallow:block/debris/eclat_de_glace_2",
+        "y": 270
+      }
+    ],
+    "taille=3": [
+      {
+        "model": "fallow:block/debris/eclat_de_glace_3",
+        "y": 0
+      },
+      {
+        "model": "fallow:block/debris/eclat_de_glace_3",
+        "y": 90
+      },
+      {
+        "model": "fallow:block/debris/eclat_de_glace_3",
+        "y": 180
+      },
+      {
+        "model": "fallow:block/debris/eclat_de_glace_3",
+        "y": 270
+      }
+    ]
+  }
+}

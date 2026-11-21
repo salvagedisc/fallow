@@ -230,7 +230,7 @@ hash = "8b61406f2403c6c9249f46cd4695eb221a3661f1698c0ad056262a908cf3595a"
 
 [[files]]
 file = "config/questlog/quests/gestes_mains_nues.json"
-hash = "0127e285f158695467aff0fffc7d3b9cc7c24031a667bf2759bc6f9643b57a76"
+hash = "b8d700d94d23cc834092150dcc875ac0edd513cdf5ea3bd4949e8680d4033f73"
 
 [[files]]
 file = "config/questlog/quests/gestes_marteau.json"
@@ -238,7 +238,7 @@ hash = "d769f8bd2bfd733b26c1be46165ef02bd36a5b03bf09a1ee6fad06f5be0d82f5"
 
 [[files]]
 file = "config/questlog/quests/gestes_pierre.json"
-hash = "064ae42aef77e05e4db4d47863d9ff97a5ece6bc78e510edee2bd775d4116f3b"
+hash = "b96935cd1bad1bd3ff266fba126172bd45217876996a040471e82a1bf3ef7002"
 
 [[files]]
 file = "config/questlog/quests/gestes_pioche.json"
@@ -250,7 +250,7 @@ hash = "79eebfb70adfca63f9022d9ee5599eabfdc3ddfe169804e48b609beae8dafe87"
 
 [[files]]
 file = "config/questlog/quests/gestes_silex.json"
-hash = "e5973edd53e8d6eabfa924c34dc96a9d2dbe0fce437da93b82cd78cec3c3b5d1"
+hash = "ab8c4257120b3e98a89803573e711950ddf8c36a63385b928e2f1d65f8358fe4"
 
 [[files]]
 file = "config/questlog/quests/metiers_machines.json"
@@ -1777,6 +1777,10 @@ file = "kubejs/data/fallow/neoforge/biome_modifier/coeur_brulant_lave.json"
 hash = "a45622e3dfc44fa55bd9fa373df4fe86437a7535abd42b817c1205b723448a3c"
 
 [[files]]
+file = "kubejs/data/fallow/neoforge/biome_modifier/debris_au_sol.json"
+hash = "66b5447214d8bae6a355ce88122179db75f31484aad05b1bd23607e0924b396c"
+
+[[files]]
 file = "kubejs/data/fallow/neoforge/biome_modifier/diamants_de_la_lave.json"
 hash = "d59708e8e36b8778d69be6db2e603404ec96aeec43dd58db52b460b5b50960c8"
 
@@ -1945,6 +1949,38 @@ file = "kubejs/data/fallow/structure/chorusoatl.nbt"
 hash = "6b8bb16f9a63d69ea19a308b4472754f31eb53a7868fb5cceef7f50bc0f85736"
 
 [[files]]
+file = "kubejs/data/fallow/tags/block/debris/sous_acacia.json"
+hash = "6fbed3b579bcace72643beee558634d37999d2c7947a789398cc7ee65cc6bb7d"
+
+[[files]]
+file = "kubejs/data/fallow/tags/block/debris/sous_acajou.json"
+hash = "c52c3bad4832a03551d94c18b367121decf0f7d67966602ae11c9d2e53f97123"
+
+[[files]]
+file = "kubejs/data/fallow/tags/block/debris/sous_bouleau.json"
+hash = "3b3ec6e56a220744478bb0821260768feda40467aa6a2e0b32ef157d24ba7243"
+
+[[files]]
+file = "kubejs/data/fallow/tags/block/debris/sous_cerisier.json"
+hash = "933a65965b8b565cf3a15d3a363229205be8a16ebc49243e43491a397cc341ed"
+
+[[files]]
+file = "kubejs/data/fallow/tags/block/debris/sous_chene.json"
+hash = "049307cb1239a2ae67daad1bf8b30d9e81dfef7dd1e26effa64dda5b89f3dbd7"
+
+[[files]]
+file = "kubejs/data/fallow/tags/block/debris/sous_chene_noir.json"
+hash = "7a51320c27502d32c1a943a50fa0b7964f08fcd55f74015d261776ba76b063b2"
+
+[[files]]
+file = "kubejs/data/fallow/tags/block/debris/sous_epicea.json"
+hash = "beac090332709f8ccca0008ec348dec03c125ec8c01e547ca39a655c61a04652"
+
+[[files]]
+file = "kubejs/data/fallow/tags/block/debris/sous_paletuvier.json"
+hash = "947f6af678a497b51b160cdc6fee7e874fe3b0a7465ef7da7b4412a569e8570f"
+
+[[files]]
 file = "kubejs/data/fallow/tags/block/incorrect_for_black_steel_tool.json"
 hash = "2941220d45d69f3db74eef6e61aa4b4c6217a32b7a2776d3b10cac9846b9d475"
 
@@ -2029,6 +2065,10 @@ file = "kubejs/data/fallow/weapon_attributes/hache_en_acier_noir.json"
 hash = "8e6a603562bb5fef30edaba6031f3e1ea6523b939bbc64fbaf6cdc1e436cfa8b"
 
 [[files]]
+file = "kubejs/data/fallow/worldgen/configured_feature/debris_au_sol.json"
+hash = "7547b9ef2103529b48276231c434439a781ed6ea23be754b42c7e054301eda38"
+
+[[files]]
 file = "kubejs/data/fallow/worldgen/configured_feature/debris_du_coeur.json"
 hash = "58cb9d83f3a7ecfc7ececc489473d59c6fb685d77dc385bfcee09946190f1aae"
 
@@ -2055,6 +2095,10 @@ hash = "508401acfd7c56076c6bf9cc750abf149bc9aaebaf86f3bc26f008bc2f8be3f2"
 [[files]]
 file = "kubejs/data/fallow/worldgen/density_function/disque/distance.json"
 hash = "23e4043c6b2d7a603ab27ea16bf85ddbcbc5cbd0512f6fcadf4750db4b5eb166"
+
+[[files]]
+file = "kubejs/data/fallow/worldgen/placed_feature/debris_au_sol.json"
+hash = "fad323b546af00d0b57efd15cf0342e44fc0137a2c16fac6b384bec04bacf17c"
 
 [[files]]
 file = "kubejs/data/fallow/worldgen/placed_feature/debris_pres_de_la_lave.json"
@@ -3177,6 +3221,14 @@ file = "kubejs/data/twigs/neoforge/biome_modifier/add_ore_rhyolite.json"
 hash = "99b969132018e9da1071065a8593ba9564928b1ed0aa5ae3ab45f9dac071f7d5"
 
 [[files]]
+file = "kubejs/data/twigs/neoforge/biome_modifier/add_pebbles.json"
+hash = "99b969132018e9da1071065a8593ba9564928b1ed0aa5ae3ab45f9dac071f7d5"
+
+[[files]]
+file = "kubejs/data/twigs/neoforge/biome_modifier/add_twigs.json"
+hash = "99b969132018e9da1071065a8593ba9564928b1ed0aa5ae3ab45f9dac071f7d5"
+
+[[files]]
 file = "kubejs/data/wildernature/tags/worldgen/biome/remove_wolf.json"
 hash = "a78669427b1a39bbc9dbb98b5f59e31a9225622094f6b51919064173047611ff"
 
@@ -3238,7 +3290,7 @@ hash = "51ec670c46e79849de4709190a52923c9ca72c3eae8b4b13ae512189febe0ea0"
 
 [[files]]
 file = "kubejs/server_scripts/premiers_gestes.js"
-hash = "60eddda40df4e2979a54505074c2f7f380fd6fb6150f7bc822103f8ee05b9eac"
+hash = "3cb3da3aa597d27525a65290c61509b0777810f3a63c1de3875b7bd45be244fd"
 
 [[files]]
 file = "kubejs/server_scripts/sans_lapin.js"
@@ -3597,8 +3649,8 @@ hash = "2c88d3eceb7be9c5964ca32c24612ca08d7326b4cb06104e98d56efa777de640"
 metafile = true
 
 [[files]]
-file = "mods/fallow-0.60.0.jar"
-hash = "2cbbf5b50348dc77f4cf44cbe6a96f52029f8fd521e65f88dafcc630f9ae6325"
+file = "mods/fallow-0.61.0.jar"
+hash = "ffe895da482ade8f9ed1c95f6f5b1d9366a7d9e8d0b6dfafad47ca7f1081ea9c"
 
 [[files]]
 file = "mods/farmers-delight.pw.toml"

@@ -353,5 +353,22 @@
   "eveil.fallow.livre.places_libres": "Free places: %s",
   "eveil.fallow.livre.trace": "Day %1$s, by %2$s",
   "eveil.fallow.livre.trace.eclat": "Day %1$s, by %2$s, shard of %3$s",
-  "eveil.fallow.livre.pret": "Ready to awaken"
+  "eveil.fallow.livre.pret": "Ready to awaken",
+  "block.fallow.caillou": "Rock",
+  "block.fallow.caillou_de_granite": "Granite Rock",
+  "block.fallow.caillou_de_diorite": "Diorite Rock",
+  "block.fallow.caillou_d_andesite": "Andesite Rock",
+  "block.fallow.caillou_de_gres": "Sandstone Rock",
+  "block.fallow.caillou_de_gres_rouge": "Red Sandstone Rock",
+  "block.fallow.gravillon": "Gravel Chip",
+  "block.fallow.eclat_de_glace": "Ice Chip",
+  "block.fallow.bois_mort_de_chene": "Fallen Oak Wood",
+  "block.fallow.bois_mort_de_bouleau": "Fallen Birch Wood",
+  "block.fallow.bois_mort_d_epicea": "Fallen Spruce Wood",
+  "block.fallow.bois_mort_d_acajou": "Fallen Jungle Wood",
+  "block.fallow.bois_mort_d_acacia": "Fallen Acacia Wood",
+  "block.fallow.bois_mort_de_chene_noir": "Fallen Dark Oak Wood",
+  "block.fallow.bois_mort_de_paletuvier": "Fallen Mangrove Wood",
+  "block.fallow.bois_mort_de_cerisier": "Fallen Cherry Wood",
+  "block.fallow.pomme_de_pin": "Pine Cone"
 }
