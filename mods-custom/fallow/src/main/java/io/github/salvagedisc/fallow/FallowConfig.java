@@ -54,6 +54,7 @@ public final class FallowConfig {
     private static final ModConfigSpec.IntValue NAVIRES_SNOW_MAX_LAYERS;
     private static final ModConfigSpec.BooleanValue NAVIRES_SAIL_WIND;
     private static final ModConfigSpec.BooleanValue BAC_ENABLED;
+    private static final ModConfigSpec.BooleanValue PRISE_ENABLED;
     private static final ModConfigSpec.BooleanValue ZOO_ENABLED;
     private static final ModConfigSpec.IntValue ZOO_SPOT_DISTANCE;
     private static final ModConfigSpec.IntValue ZOO_OBSERVE_SECONDS;
@@ -340,6 +341,13 @@ public final class FallowConfig {
                 .define("enabled", true);
         common.pop();
 
+        common.comment("Module prise : pendant le combat de Starcatcher, une grosse prise tire le bateau du pêcheur (barque, ou",
+                "navire de Sable), d'autant plus qu'elle est lourde et le bateau léger.").push("prise");
+        PRISE_ENABLED = common
+                .comment("Interrupteur du module (serveur). Faux : le bateau reste où il est pendant le combat, comme sans Fallow.")
+                .define("enabled", true);
+        common.pop();
+
         common.comment("Module zoo : les quatre tampons du guide d'Archie's Dinosaurs pour toutes les bêtes du monde (Apercevoir,",
                 "Photographier, Apprivoiser ou héberger, Maîtriser), sans jamais tuer. Les tampons restent enregistrés quand le module est coupé.").push("zoo");
         ZOO_ENABLED = common
@@ -615,6 +623,10 @@ public final class FallowConfig {
 
     public static boolean bacEnabled() {
         return read(COMMON_SPEC, BAC_ENABLED);
+    }
+
+    public static boolean priseEnabled() {
+        return read(COMMON_SPEC, PRISE_ENABLED);
     }
 
     public static boolean naviresSailWind() {

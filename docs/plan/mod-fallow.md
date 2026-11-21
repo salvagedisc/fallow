@@ -40,6 +40,7 @@ The version is set in `gradle.properties` (`mod_version`). The targeted mods are
 | `bord` | both (everything happens on the server) | none; Sable for the players aboard a ship | none |
 | `navires` | both (everything happens on the server, except the sail on the helmsman's side) | Sable; Ecliptic Seasons for where it snows; Fish 'N' Ships for the sail (works without Sable) | 1, common (`navires.VoileMixin`) |
 | `bac` | both (the ferry on the server, the rope drawn on the client) | Sable | none |
+| `prise` | both (the fish and Sable ships on the server, entity boats on the helmsman's client) | Starcatcher; Sable for ships of blocks | none |
 | `vent` | client | none | 2, client (`vent.CampfireBlockMixin`, `vent.CampfireSmokeParticleMixin`, on vanilla code) |
 | `rendu` | client | Iris | 1, client (`rendu.IrisUniformsMixin`) |
 | `zoo` | both (stamps and species list on the server, the guidebook pages on the client) | none for the stamps; Archie's Dinosaurs for the pages, Exposure for the photo stamp | 2, client: `zoo.GuidebookDataMixin`, `zoo.CategoryTabsMixin` |
@@ -252,6 +253,18 @@ Client and server, needs Sable ([0050](../decisions/0050-rope-ferry.md), since 0
 - **Physics** (`Bac.onPhysicsTick`, maths in `Traille`): from the ship's centre of mass, a spring of 6/s² and damping 4/s across the rope (at most 15 blocks/s²), and along the rope `4 × (target − speed)` (at most 6 blocks/s²), target `1.2 + 1.5 × |current across the rope|` blocks/s, the current being the fluid flow under the raft × 1.5. Stop 2.5 blocks from a post; let go past 8 blocks off the rope or when the line is gone (posts loaded but unlinked). Impulses go to Sable's `propulsion` force group.
 - **Checked** on the full pack's dedicated server on 2026-11-21 (a temporary test scene, not kept): a 3 × 3 raft of planks with its pulley under a 48-block rope in still water was taken (mass 5.5), stayed within 0.15 block of the rope, crossed at 0.99 blocks/s, stopped against the far bank, and came back at 0.96 blocks/s once turned.
 - **Switch**: `bac.enabled` in `config/fallow-common.toml`.
+
+## `prise` module
+
+Client and server, needs Starcatcher ([0051](../decisions/0051-big-catch-tows.md), since 0.65.0); Sable for ships of blocks.
+
+- **The fight** (`PriseModule`, server tick): for each player, the bobber named by Starcatcher's `fishing_bob` attachment, if it is a `FishingBobEntity` whose synced `STATE` is 4 (fight) and whose `fpToFish` weighs at least 8 kg (`sizeWeight().weightAverage()`, in grams). Each fight gets a run: its starting heading (from the boat to the bobber), a seed from the bobber's UUID and its start tick.
+- **Maths** (`Prise`): heading = start ± 0.9 rad of slow noise (period about 4 s); strength 0.5 to 1.2 (period about 1.5 s); target speed `2.5 × strength × fish / (fish + boat)` blocks/s; acceleration `5 × (target − speed along the heading)`, between 0 and 4 blocks/s² (the fish never holds back).
+- **Sable ship** (`PriseSable`, only loaded with Sable): the ship of `SableCompanion.getTrackingOrVehicleSubLevel(player)`, boat weight `40 × mass`. The tow is queued for 2 ticks and applied in Sable's physics step at the centre of mass (propulsion force group).
+- **Entity boat**: the player's vehicle on water, boat weight `150 × width²`. Every 4 ticks `PriseTow` (heading, speed; optional payload) goes to the controlling passenger; `PriseClient` keeps it 8 ticks and adds the acceleration to the vehicle's motion when it is controlled locally.
+- **Bobber**: moved by the boat's target speed along the heading while it stays within 40 blocks of the boat and water lies ahead; otherwise the fish turns by 90° to 180°. Splash particles every 5 ticks when the strength is over 1; « Le poisson vous emporte ! » (`message.fallow.prise.emporte`) once per fight when the target passes 0.4 block/s.
+- **Checked** on the full pack's dedicated server on 2026-11-21 (a temporary test scene, not kept): with a 120 kg pull at full strength, a 2 × 3 raft of planks (mass 3) reached 1.00 block/s for a target of 1.25, a 6 × 8 raft (mass 24) 0.20 block/s for 0.28.
+- **Switch**: `prise.enabled` in `config/fallow-common.toml`.
 
 ## `vent` module
 
@@ -639,6 +652,10 @@ Started on the test server on 2026-10-25 (with No Man's Land): the `tectonic` da
 | BC4 | Lead a horse onto the raft and cross | The horse stays aboard (Sable Pathfinder) and walks off on the far bank |
 | BC5 | Break a post while the raft crosses | « La corde du bac a été défaite » ; the raft drifts with the current |
 | NV7 | Fish 'N' Ships' sailboat, sail down, on each heading | Against the wind it stops; across it, it goes fastest; in a storm faster than in a breeze; `navires.sailWind = false` brings back the mod's own push |
+| PR1 | In a vanilla boat on a lake, hook a big fish (a tuna or a sturgeon) and play the fight | « Le poisson vous emporte ! » ; the boat slides along, the bobber goes ahead of it, its heading wanders, splashes when it pulls hard |
+| PR2 | The same with a small fish (under 8 kg) | Nothing moves |
+| PR3 | The same from a six-plank Sable raft, then a big Sable hull | The raft is taken along faster than the boat; the big hull barely moves |
+| PR4 | The same near a bank, then with `prise.enabled = false` | The fish turns at the bank; with the switch off nothing moves |
 
 ### Tools
 

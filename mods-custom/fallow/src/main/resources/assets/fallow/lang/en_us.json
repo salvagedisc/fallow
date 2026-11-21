@@ -399,5 +399,6 @@
   "message.fallow.bac.cap.sud": "south",
   "message.fallow.bac.cap.sud_ouest": "south-west",
   "message.fallow.bac.cap.ouest": "west",
-  "message.fallow.bac.cap.nord_ouest": "north-west"
+  "message.fallow.bac.cap.nord_ouest": "north-west",
+  "message.fallow.prise.emporte": "The fish is towing you away!"
 }

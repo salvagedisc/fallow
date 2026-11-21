@@ -399,5 +399,6 @@
   "message.fallow.bac.cap.sud": "le sud",
   "message.fallow.bac.cap.sud_ouest": "le sud-ouest",
   "message.fallow.bac.cap.ouest": "l'ouest",
-  "message.fallow.bac.cap.nord_ouest": "le nord-ouest"
+  "message.fallow.bac.cap.nord_ouest": "le nord-ouest",
+  "message.fallow.prise.emporte": "Le poisson vous emporte !"
 }

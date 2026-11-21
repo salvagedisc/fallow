@@ -54,6 +54,7 @@ One record per settled decision: the context, the options compared, the choice a
 | [0048](0048-ground-debris.md) | Ground debris | House rocks, fallen wood and pine cones that follow the ground and the tree above, after This Rocks!; Twigs' pebbles and twigs no longer generate |
 | [0049](0049-weather-on-ships.md) | Weather on ships | Storm gusts jolt and heel Sable ships, real snow settles on their decks and weighs them down, Fish 'N' Ships' sail follows the pack's wind |
 | [0050](0050-rope-ferry.md) | The rope ferry | Two posts, a rope and a pulley: a raft becomes a Sable body that glides along the rope, carried over by the current |
+| [0051](0051-big-catch-tows.md) | A big catch tows the boat | During Starcatcher's fight a heavy fish takes a light boat or Sable raft along; a heavy hull holds |
 
 ## Template
 

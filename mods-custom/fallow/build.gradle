@@ -158,6 +158,9 @@ dependencies {
     compileOnly modrinth('sable')
     sableBundle modrinth('sable')
     compileOnly files(sableLibs).asFileTree
+
+    // Module prise : le bouchon et les poissons de Starcatcher
+    compileOnly modrinth('starcatcher')
 }
 
 var generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {

@@ -36,6 +36,9 @@ public enum FallowModule {
     /** Le bac à traille : pieux, corde et poulie, et le radeau qui traverse le long de la corde (client et serveur :
      *  blocs enregistrés des deux côtés, la corde dessinée au client). Demande Sable. */
     BAC("bac", null, bus -> io.github.salvagedisc.fallow.bac.BacModule.start(bus), ModIds.SABLE),
+    /** La grosse prise de Starcatcher qui tire le bateau pendant le combat : barques, et navires de Sable si Sable est là
+     *  (client et serveur : le client de celui qui mène une barque la fait avancer). */
+    PRISE("prise", null, bus -> io.github.salvagedisc.fallow.prise.PriseModule.start(bus), ModIds.STARCATCHER),
     /** L'interface qui s'efface quand on ne fait rien (client). Aucun mod requis. */
     ECRAN("ecran", Dist.CLIENT, bus -> io.github.salvagedisc.fallow.ecran.EcranModule.start(bus)),
     /** Les messages de la barre d'action en notes discrètes, en marge à gauche (client). Aucun mod requis. */
