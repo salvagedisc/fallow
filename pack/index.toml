@@ -3363,6 +3363,11 @@ hash = "d9f912d43efb74c5ed07a3a9ef1cb078cec2bcdf369e05637d698e84f1fb67d6"
 metafile = true
 
 [[files]]
+file = "mods/better-boat-movement.pw.toml"
+hash = "5f321613702cf28481d040cb4db3bd41168d817299430c412c079635085bc126"
+metafile = true
+
+[[files]]
 file = "mods/better-combat.pw.toml"
 hash = "438170e7e704a1b8ed67bf0521dc5d77cdeeaabf6f729dba9f8dfdad75330acf"
 metafile = true

@@ -1,0 +1,13 @@
+name = "Better Boat Movement"
+filename = "better-boat-movement-2.5.4-1.21+neoforge.jar"
+side = "both"
+
+[download]
+url = "https://cdn.modrinth.com/data/wTfH1dkt/versions/67C3cArI/better-boat-movement-2.5.4-1.21%2Bneoforge.jar"
+hash-format = "sha512"
+hash = "b1e152993e273df1b5af6e957b088b5d458dccd9caa91c06c1569bef21ddfe55c20786387e07ee44aa2b7d84dd2223ac6e682b1ae7917cda0b3a274b19f1731d"
+
+[update]
+[update.modrinth]
+mod-id = "wTfH1dkt"
+version = "67C3cArI"
