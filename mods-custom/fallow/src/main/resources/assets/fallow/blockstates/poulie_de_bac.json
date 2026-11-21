@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "fallow:block/poulie_de_bac",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "fallow:block/poulie_de_bac",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "fallow:block/poulie_de_bac",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "fallow:block/poulie_de_bac",
+      "y": 270
+    }
+  }
+}

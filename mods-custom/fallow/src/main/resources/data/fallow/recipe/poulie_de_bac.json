@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " N ",
+    "PCP",
+    "PPP"
+  ],
+  "key": {
+    "N": {
+      "item": "minecraft:iron_nugget"
+    },
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "C": {
+      "tag": "fallow:cordes_de_bac"
+    }
+  },
+  "result": {
+    "id": "fallow:poulie_de_bac",
+    "count": 1
+  }
+}

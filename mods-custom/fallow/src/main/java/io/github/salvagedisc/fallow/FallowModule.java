@@ -33,6 +33,9 @@ public enum FallowModule {
     /** Les navires de Sable poussés par le vent du pack, et repoussés par celui du bord (client et serveur ; tout se passe
      *  sur le serveur). Demande Sable. */
     NAVIRES("navires", null, bus -> io.github.salvagedisc.fallow.navires.NaviresModule.start(bus), ModIds.SABLE),
+    /** Le bac à traille : pieux, corde et poulie, et le radeau qui traverse le long de la corde (client et serveur :
+     *  blocs enregistrés des deux côtés, la corde dessinée au client). Demande Sable. */
+    BAC("bac", null, bus -> io.github.salvagedisc.fallow.bac.BacModule.start(bus), ModIds.SABLE),
     /** L'interface qui s'efface quand on ne fait rien (client). Aucun mod requis. */
     ECRAN("ecran", Dist.CLIENT, bus -> io.github.salvagedisc.fallow.ecran.EcranModule.start(bus)),
     /** Les messages de la barre d'action en notes discrètes, en marge à gauche (client). Aucun mod requis. */

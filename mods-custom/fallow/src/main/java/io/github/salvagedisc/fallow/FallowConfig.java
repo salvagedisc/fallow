@@ -53,6 +53,7 @@ public final class FallowConfig {
     private static final ModConfigSpec.BooleanValue NAVIRES_SNOW;
     private static final ModConfigSpec.IntValue NAVIRES_SNOW_MAX_LAYERS;
     private static final ModConfigSpec.BooleanValue NAVIRES_SAIL_WIND;
+    private static final ModConfigSpec.BooleanValue BAC_ENABLED;
     private static final ModConfigSpec.BooleanValue ZOO_ENABLED;
     private static final ModConfigSpec.IntValue ZOO_SPOT_DISTANCE;
     private static final ModConfigSpec.IntValue ZOO_OBSERVE_SECONDS;
@@ -332,6 +333,13 @@ public final class FallowConfig {
                 .define("sailWind", true);
         common.pop();
 
+        common.comment("Module bac : une corde tendue entre deux pieux au-dessus d'un fleuve, une poulie sur un radeau, et le",
+                "radeau (devenu navire de Sable) traverse le long de la corde, porté par le courant pris de biais.").push("bac");
+        BAC_ENABLED = common
+                .comment("Interrupteur du module (serveur). Faux : les blocs restent, mais les cordes ne tiennent plus les radeaux.")
+                .define("enabled", true);
+        common.pop();
+
         common.comment("Module zoo : les quatre tampons du guide d'Archie's Dinosaurs pour toutes les bêtes du monde (Apercevoir,",
                 "Photographier, Apprivoiser ou héberger, Maîtriser), sans jamais tuer. Les tampons restent enregistrés quand le module est coupé.").push("zoo");
         ZOO_ENABLED = common
@@ -603,6 +611,10 @@ public final class FallowConfig {
 
     public static int naviresSnowMaxLayers() {
         return read(COMMON_SPEC, NAVIRES_SNOW_MAX_LAYERS);
+    }
+
+    public static boolean bacEnabled() {
+        return read(COMMON_SPEC, BAC_ENABLED);
     }
 
     public static boolean naviresSailWind() {

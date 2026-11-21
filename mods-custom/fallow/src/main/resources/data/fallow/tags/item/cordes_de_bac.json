@@ -1,0 +1,13 @@
+{
+  "values": [
+    {
+      "id": "farmersdelight:rope",
+      "required": false
+    },
+    {
+      "id": "supplementaries:rope",
+      "required": false
+    },
+    "minecraft:lead"
+  ]
+}

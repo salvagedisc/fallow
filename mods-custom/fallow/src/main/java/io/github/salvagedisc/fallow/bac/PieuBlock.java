@@ -1,0 +1,159 @@
+package io.github.salvagedisc.fallow.bac;
+
+import io.github.salvagedisc.fallow.FallowConfig;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+
+/**
+ * Le pieu de bac, planté sur chaque rive. Une corde en main sur un pieu, puis sur celui d'en face : la corde est
+ * tendue entre les deux (une corde pour huit blocs, au moins une). Maj + clic main vide sur un pieu défait sa corde et
+ * rend les cordes ; casser un pieu aussi.
+ */
+public class PieuBlock extends Block implements EntityBlock {
+    /** Portée d'une corde de bac, en blocs. */
+    static final int MAX_LENGTH = 96;
+    private static final String PENDING = "fallow_bac_pieu";
+    private static final VoxelShape SHAPE = Block.box(5.0, 0.0, 5.0, 11.0, 16.0, 11.0);
+
+    public PieuBlock(Properties properties) {
+        super(properties);
+    }
+
+    @Override
+    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return SHAPE;
+    }
+
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new PieuBlockEntity(pos, state);
+    }
+
+    /** Cordes demandées pour une corde de bac de cette longueur. */
+    static int cost(double length) {
+        return Math.max(1, (int) Math.ceil(length / 8.0));
+    }
+
+    @Override
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player,
+            InteractionHand hand, BlockHitResult hit) {
+        if (!stack.is(BacModule.CORDES)) {
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
+        if (level.isClientSide()) {
+            return ItemInteractionResult.SUCCESS;
+        }
+        if (!FallowConfig.bacEnabled()) {
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
+        CompoundTag data = player.getPersistentData();
+        BlockPos first = data.contains(PENDING) ? BlockPos.of(data.getLong(PENDING)) : null;
+        if (first == null || first.equals(pos) || !(level.getBlockEntity(first) instanceof PieuBlockEntity start)) {
+            data.putLong(PENDING, pos.asLong());
+            player.displayClientMessage(Component.translatable("message.fallow.bac.attache"), true);
+            return ItemInteractionResult.SUCCESS;
+        }
+        data.remove(PENDING);
+        double length = Math.sqrt(first.distSqr(pos));
+        if (length > MAX_LENGTH) {
+            player.displayClientMessage(Component.translatable("message.fallow.bac.trop_loin", MAX_LENGTH), true);
+            return ItemInteractionResult.SUCCESS;
+        }
+        int cost = cost(length);
+        if (!player.getAbilities().instabuild) {
+            int held = count(player);
+            if (held < cost) {
+                player.displayClientMessage(Component.translatable("message.fallow.bac.cordes", cost), true);
+                return ItemInteractionResult.SUCCESS;
+            }
+            take(player, cost);
+        }
+        if (!(level.getBlockEntity(pos) instanceof PieuBlockEntity end)) {
+            return ItemInteractionResult.SUCCESS;
+        }
+        release(level, start);
+        release(level, end);
+        start.link(pos, true, player.getAbilities().instabuild ? 0 : cost);
+        end.link(first, false, 0);
+        level.playSound(null, pos, SoundEvents.LEASH_KNOT_PLACE, SoundSource.BLOCKS, 1.0F, 0.8F);
+        player.displayClientMessage(Component.translatable("message.fallow.bac.tendue"), true);
+        return ItemInteractionResult.SUCCESS;
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        if (!player.isShiftKeyDown() || !(level.getBlockEntity(pos) instanceof PieuBlockEntity post) || post.other() == null) {
+            return InteractionResult.PASS;
+        }
+        if (!level.isClientSide()) {
+            release(level, post);
+            level.playSound(null, pos, SoundEvents.LEASH_KNOT_BREAK, SoundSource.BLOCKS, 1.0F, 1.0F);
+            player.displayClientMessage(Component.translatable("message.fallow.bac.defaite"), true);
+        }
+        return InteractionResult.sidedSuccess(level.isClientSide());
+    }
+
+    @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean moved) {
+        if (!state.is(newState.getBlock()) && level.getBlockEntity(pos) instanceof PieuBlockEntity post) {
+            release(level, post);
+        }
+        super.onRemove(state, level, pos, newState, moved);
+    }
+
+    /** Défait la corde de ce pieu des deux côtés, et rend les cordes au pied du pieu qui la portait. */
+    private static void release(Level level, PieuBlockEntity post) {
+        BlockPos other = post.other();
+        if (other == null || level.isClientSide()) {
+            return;
+        }
+        PieuBlockEntity owner = post.owner() ? post : level.getBlockEntity(other) instanceof PieuBlockEntity o && o.owner() ? o : null;
+        if (owner != null && owner.ropes() > 0) {
+            Block.popResource(level, owner.getBlockPos(), new ItemStack(BacModule.cordeRendue(), owner.ropes()));
+        }
+        if (level.getBlockEntity(other) instanceof PieuBlockEntity far && post.getBlockPos().equals(far.other())) {
+            far.unlink();
+        }
+        post.unlink();
+    }
+
+    private static int count(Player player) {
+        int count = 0;
+        for (ItemStack stack : player.getInventory().items) {
+            if (stack.is(BacModule.CORDES)) {
+                count += stack.getCount();
+            }
+        }
+        return count;
+    }
+
+    private static void take(Player player, int amount) {
+        for (ItemStack stack : player.getInventory().items) {
+            if (amount <= 0) {
+                return;
+            }
+            if (stack.is(BacModule.CORDES)) {
+                int taken = Math.min(amount, stack.getCount());
+                stack.shrink(taken);
+                amount -= taken;
+            }
+        }
+    }
+}

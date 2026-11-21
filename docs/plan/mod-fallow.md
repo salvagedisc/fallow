@@ -39,6 +39,7 @@ The version is set in `gradle.properties` (`mod_version`). The targeted mods are
 | `dissipateur` | both | Create | none |
 | `bord` | both (everything happens on the server) | none; Sable for the players aboard a ship | none |
 | `navires` | both (everything happens on the server, except the sail on the helmsman's side) | Sable; Ecliptic Seasons for where it snows; Fish 'N' Ships for the sail (works without Sable) | 1, common (`navires.VoileMixin`) |
+| `bac` | both (the ferry on the server, the rope drawn on the client) | Sable | none |
 | `vent` | client | none | 2, client (`vent.CampfireBlockMixin`, `vent.CampfireSmokeParticleMixin`, on vanilla code) |
 | `rendu` | client | Iris | 1, client (`rendu.IrisUniformsMixin`) |
 | `zoo` | both (stamps and species list on the server, the guidebook pages on the client) | none for the stamps; Archie's Dinosaurs for the pages, Exposure for the photo stamp | 2, client: `zoo.GuidebookDataMixin`, `zoo.CategoryTabsMixin` |
@@ -241,6 +242,16 @@ Client and server, needs Sable; everything happens on the server ([0046](../deci
 - **Snow** (`Neige`, every 40 ticks): where it snows on an open ship (Ecliptic Seasons' `getRainOrSnow`, else the biome), 2 random columns of the plot (6 in a snowstorm) get one more snow layer on their highest block, up to `snowMaxLayers`; Sable weighs them. Sheltered, 6 columns lose a layer; in the open, 3, once it no longer snows and the biome is warm enough to rain. Columns outside the plot are never touched.
 - **Sailboat of Fish 'N' Ships** (`mixin.navires.VoileMixin`, any side, needs Fish 'N' Ships only): the constant 0.03 of `SailboatEntity.moveWithSailDown` becomes `0.03 × Gros.sail(heading, wind) × clamp(windSpeed / 3, 0.5, 2.5) × windStrength`.
 - **Settings**: `navires.wind` (on), `navires.windStrength` (1.0, 0 to 4), `navires.storms` (on), `navires.snow` (on), `navires.snowMaxLayers` (4, 1 to 8) and `navires.sailWind` (on) in `config/fallow-common.toml`.
+
+## `bac` module
+
+Client and server, needs Sable ([0050](../decisions/0050-rope-ferry.md), since 0.64.0). Two blocks, a block entity and Sable's physics step.
+
+- **Ferry post** (`PieuBlock`, block entity `PieuBlockEntity`): a rope of the item tag `fallow:cordes_de_bac` used on a post remembers it in the player's persistent data, then on a second post within 96 blocks takes `ceil(length / 8)` ropes and links both. The first post is the *owner*: it keeps the cost, registers the line in `Cordes` when its chunk loads and draws it (`CordeRenderer`, two crossed ribbons sagging by 3 % of the length, texture `corde_de_bac`, seen from 128 blocks). Shift + click with an empty hand, or breaking either post, unlinks both and drops the ropes (Farmer's Delight's rope, else leads).
+- **Ferry pulley** (`PoulieBlock`, no block entity). Not on a ship: the nearest line within 4 blocks horizontally and from 2 below to 10 above is looked up; the raft is gathered from the pulley through every block that is not air, liquid, replaceable, shovel-mineable or overworld stone (`SubLevelAssemblyHelper.gatherConnectedBlocks`, 400 at most), must float (water under one of its blocks) and is assembled (`assembleBlocks`). The line and the direction go into the ship's user data (`fallow_bac`: `a`, `b`, `sens`), which Sable saves with it. On a ship: a click starts towards the far bank or stops, Shift + click reverses.
+- **Physics** (`Bac.onPhysicsTick`, maths in `Traille`): from the ship's centre of mass, a spring of 6/s² and damping 4/s across the rope (at most 15 blocks/s²), and along the rope `4 × (target − speed)` (at most 6 blocks/s²), target `1.2 + 1.5 × |current across the rope|` blocks/s, the current being the fluid flow under the raft × 1.5. Stop 2.5 blocks from a post; let go past 8 blocks off the rope or when the line is gone (posts loaded but unlinked). Impulses go to Sable's `propulsion` force group.
+- **Checked** on the full pack's dedicated server on 2026-11-21 (a temporary test scene, not kept): a 3 × 3 raft of planks with its pulley under a 48-block rope in still water was taken (mass 5.5), stayed within 0.15 block of the rope, crossed at 0.99 blocks/s, stopped against the far bank, and came back at 0.96 blocks/s once turned.
+- **Switch**: `bac.enabled` in `config/fallow-common.toml`.
 
 ## `vent` module
 
@@ -622,6 +633,11 @@ Started on the test server on 2026-10-25 (with No Man's Land): the `tectonic` da
 | NV4 | The airship of NV1 in a thunderstorm, 150 blocks up | It drifts by jolts and heels with each gust; at sea level the jolts are weaker |
 | NV5 | An airship in a snowy biome while it snows (`/weather rain`, then `/weather thunder`) | Snow layers settle on its deck and balloons, faster in the storm; it sinks slowly unless it climbs harder |
 | NV6 | The laden airship moored under a roof, then out in a mild biome after the snow | The snow melts, faster under the roof; the airship lightens |
+| BC1 | Two posts on the two banks of a Streams river, a rope on one then the other | The rope hangs between them; one rope per 8 blocks left the inventory; Shift + click with an empty hand on a post gives them back |
+| BC2 | A raft of planks on the water under the rope, the pulley on it, a click | « Le radeau est pris à la corde » ; the raft floats and holds under the rope |
+| BC3 | Click the pulley, then again; Shift + click | It heads to the far bank (the message names the direction), faster where the river flows, stops at the bank; a click stops it, Shift + click turns it back |
+| BC4 | Lead a horse onto the raft and cross | The horse stays aboard (Sable Pathfinder) and walks off on the far bank |
+| BC5 | Break a post while the raft crosses | « La corde du bac a été défaite » ; the raft drifts with the current |
 | NV7 | Fish 'N' Ships' sailboat, sail down, on each heading | Against the wind it stops; across it, it goes fastest; in a storm faster than in a breeze; `navires.sailWind = false` brings back the mod's own push |
 
 ### Tools
