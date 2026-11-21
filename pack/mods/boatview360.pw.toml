@@ -1,0 +1,13 @@
+name = "BoatView360"
+filename = "boatview360-v1.0.6-mc1.21.1-neoforge.jar"
+side = "client"
+
+[download]
+url = "https://cdn.modrinth.com/data/vqnOCHgM/versions/yH2CsJNe/boatview360-v1.0.6-mc1.21.1-neoforge.jar"
+hash-format = "sha512"
+hash = "9b3a131b4b2cb1f9128d5446fcfbe70843fd330ad3aacab6a8ddb54ae8fff22a923e7750bd8577053bda5c00595abd72e5204c92d62cde140cef1069c83c42b7"
+
+[update]
+[update.modrinth]
+mod-id = "vqnOCHgM"
+version = "yH2CsJNe"

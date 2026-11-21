@@ -3378,6 +3378,11 @@ hash = "f567df6f58cbb28cd6e28dfa72dde29ed8c787afc6e4694c797b0896fa07c8f6"
 metafile = true
 
 [[files]]
+file = "mods/boatview360.pw.toml"
+hash = "ed72e9b544ddc38d7ab6478c06c6009068fab2688212c002dcd8a1dd193caf2d"
+metafile = true
+
+[[files]]
 file = "mods/cameraoverhaul.pw.toml"
 hash = "51f925e75075df676cc1efff5bb8db9d828842c0f3031310a05dbf368aa67393"
 metafile = true
