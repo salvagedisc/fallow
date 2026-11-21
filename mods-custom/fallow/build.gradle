@@ -81,6 +81,14 @@ configurations {
     }
 }
 
+configurations {
+    sableBundle {
+        canBeConsumed = false
+        canBeResolved = true
+        transitive = false
+    }
+}
+
 def createBundleFiles = configurations.createBundle
 def createLibs = tasks.register('createLibs', Sync) {
     from({ createBundleFiles.collect { zipTree(it) } }) {
@@ -89,6 +97,18 @@ def createLibs = tasks.register('createLibs', Sync) {
     }
     includeEmptyDirs = false
     into layout.buildDirectory.dir('create-libs')
+}
+
+// Sable range son interface commune (Pose3d, boîtes, SubLevelAccess) et Veil dans des jars embarqués :
+// pris dans le jar de Sable du pack, comme Ponder et Flywheel pour Create.
+def sableBundleFiles = configurations.sableBundle
+def sableLibs = tasks.register('sableLibs', Sync) {
+    from({ sableBundleFiles.collect { zipTree(it) } }) {
+        include 'META-INF/jarjar/sable-companion-*.jar', 'META-INF/jarjar/veil-*.jar'
+        eachFile { path = name }
+    }
+    includeEmptyDirs = false
+    into layout.buildDirectory.dir('sable-libs')
 }
 
 dependencies {
@@ -133,6 +153,11 @@ dependencies {
     // maven.createmod.net, dont le certificat a expiré le 2026-11-03.
     createBundle modrinth('create')
     compileOnly files(createLibs).asFileTree
+
+    // Module navires : le vent du pack et le bord du disque poussent les navires de Sable
+    compileOnly modrinth('sable')
+    sableBundle modrinth('sable')
+    compileOnly files(sableLibs).asFileTree
 }
 
 var generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {

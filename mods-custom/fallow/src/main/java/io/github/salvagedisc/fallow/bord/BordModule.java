@@ -23,15 +23,16 @@ import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 /**
- * Module bord : le monde est un disque, et la brume en garde le bord. Le fichier de données
+ * Module bord : le monde est un disque, et le vent du large en garde le bord. Le fichier de données
  * {@code data/fallow/monde/bord.json} (centre et rayon, écrit par {@code scripts/terrain/disc.py} avec la forme
- * du continent) donne un cercle dans l'Overworld. Un joueur qui le dépasse est ramené deux blocs en deçà, avec sa
- * monture ou son bateau, et un message le lui dit ; à l'approche, un autre message le prévient.
+ * du continent) donne un cercle dans l'Overworld. À l'approche, un message prévient ; dans les derniers blocs, un
+ * vent contraire se lève et repousse vers les terres le joueur, sa monture ou son bateau, de plus en plus fort, jusqu'à
+ * ne plus laisser avancer. Les navires de Sable sont repoussés de même par le module navires ({@link #push}).
+ * Seul ce qui passerait malgré tout (un vol très rapide) est ramené en deçà, loin derrière le bord.
  *
  * <p>Le bord est rond, ce que la bordure du jeu ne sait pas faire, et il ne se voit pas : en mer, la brume cache
  * déjà le large. Sans le fichier, le module ne fait rien. Les spectateurs passent. Un joueur à bord d'un navire de
- * Sable (dirigeable) passe aussi, prévenu par un message : le ramener sans son navire le lui ferait perdre
- * (voir {@link Ships}).
+ * Sable n'est pas poussé lui-même : c'est son navire qui l'est (voir {@link Ships}).
  */
 public final class BordModule {
     private static final ResourceLocation FILE = ResourceLocation.fromNamespaceAndPath(Fallow.MOD_ID, "monde/bord.json");
@@ -39,6 +40,12 @@ public final class BordModule {
     private static final double WARNING = 64.0;
     /** Le joueur est ramené à cette distance en deçà du bord. */
     private static final double STEP_BACK = 2.0;
+    /** Largeur de la bande, en blocs, où souffle le vent contraire avant le bord (et l'échelle de sa montée au-delà). */
+    public static final double PUSH_BAND = 24.0;
+    /** Au-delà du bord, ce qui est encore là après tant de blocs (un vol très rapide) est ramené en deçà. */
+    private static final double SAFETY = 48.0;
+    /** Vitesse ajoutée vers les terres à chaque tick au bord même, en blocs par tick (le double à 8 blocs au-delà). */
+    private static final double PLAYER_PUSH = 0.03;
     /** Un rappel toutes les cinq secondes dans la bande d'approche. */
     private static final int WARNING_INTERVAL = 100;
 
@@ -58,12 +65,42 @@ public final class BordModule {
             return new Vec3(centerX + dx * scale, y, centerZ + dz * scale);
         }
 
+        /** Distance au-delà du bord, en blocs (négative en deçà). */
+        public double past(double x, double z) {
+            double dx = x - centerX;
+            double dz = z - centerZ;
+            return Math.sqrt(dx * dx + dz * dz) - radius;
+        }
+
+        /** Direction des terres depuis (x, z), dans le plan : {@code [x, z]} unitaire (vers le centre). */
+        public double[] inward(double x, double z) {
+            double dx = centerX - x;
+            double dz = centerZ - z;
+            double length = Math.sqrt(dx * dx + dz * dz);
+            return length < 1.0e-6 ? new double[] {0.0, 0.0} : new double[] {dx / length, dz / length};
+        }
+
         boolean isNear(double x, double z) {
             double dx = x - centerX;
             double dz = z - centerZ;
             double near = radius - WARNING;
             return near <= 0.0 || dx * dx + dz * dz >= near * near;
         }
+    }
+
+    /**
+     * Force du vent contraire, sans unité, à {@code past} blocs au-delà du bord, sur une bande de {@code band} blocs :
+     * nulle avant la bande, elle monte doucement (au carré) jusqu'à 1 au bord, puis plus vite au-delà, jusqu'à 4.
+     */
+    public static double push(double past, double band) {
+        if (past <= -band) {
+            return 0.0;
+        }
+        if (past <= 0.0) {
+            double s = (past + band) / band;
+            return s * s;
+        }
+        return Math.min(4.0, 1.0 + 3.0 * past / band);
     }
 
     private BordModule() {
@@ -118,21 +155,57 @@ public final class BordModule {
         if (!current.isNear(position.x, position.z)) {
             return;
         }
-        Vec3 back = current.inside(position.x, position.y, position.z);
-        if (back == null) {
+        double past = current.past(position.x, position.z);
+        double strength = push(past, PUSH_BAND);
+        if (Ships.isAboard(player)) {
+            // C'est le navire que le vent repousse (module navires) : le joueur à bord est seulement prévenu.
+            if (strength > 0.0 && player.tickCount % WARNING_INTERVAL == 0) {
+                player.displayClientMessage(Component.translatable("message.fallow.bord.navire"), true);
+            } else if (strength <= 0.0 && player.tickCount % WARNING_INTERVAL == 0) {
+                player.displayClientMessage(Component.translatable("message.fallow.bord.proche"), true);
+            }
+            return;
+        }
+        Entity root = player.getRootVehicle();
+        if (past > SAFETY) {
+            bringBack(current, player, root, position);
+            return;
+        }
+        if (strength <= 0.0) {
             if (player.tickCount % WARNING_INTERVAL == 0) {
                 player.displayClientMessage(Component.translatable("message.fallow.bord.proche"), true);
             }
             return;
         }
-        if (Ships.isAboard(player)) {
-            // Ramener le joueur sans son navire le lui ferait perdre, et ce module ne sait pas encore arrêter un navire.
-            if (player.tickCount % WARNING_INTERVAL == 0) {
-                player.displayClientMessage(Component.translatable("message.fallow.bord.navire"), true);
+        double[] in = current.inward(position.x, position.z);
+        Vec3 motion = root.getDeltaMovement();
+        // Ce qui va encore vers le large perd une part de son élan au-delà du bord : on n'y avance plus.
+        double outward = -(motion.x * in[0] + motion.z * in[1]);
+        double brake = outward > 0.0 && past > 0.0 ? outward * Math.min(0.5, 0.15 * strength) : 0.0;
+        double gain = PLAYER_PUSH * strength + brake;
+        root.setDeltaMovement(motion.add(in[0] * gain, 0.0, in[1] * gain));
+        if (root == player) {
+            // Le mouvement du joueur est calculé par son client : il faut lui envoyer, comme un recul.
+            player.hurtMarked = true;
+        } else {
+            // Un bateau ou une monture est dirigé par le client de son pilote.
+            for (Entity rider : root.getIndirectPassengers()) {
+                if (rider instanceof ServerPlayer riding) {
+                    riding.connection.send(new ClientboundSetEntityMotionPacket(root));
+                }
             }
+        }
+        if (player.tickCount % WARNING_INTERVAL == 0) {
+            player.displayClientMessage(Component.translatable("message.fallow.bord.vent"), true);
+        }
+    }
+
+    /** Ramène en deçà du bord ce qui est passé malgré le vent. */
+    private static void bringBack(Edge current, ServerPlayer player, Entity root, Vec3 position) {
+        Vec3 back = current.inside(position.x, position.y, position.z);
+        if (back == null) {
             return;
         }
-        Entity root = player.getRootVehicle();
         if (root == player) {
             player.connection.teleport(back.x, back.y, back.z, player.getYRot(), player.getXRot());
         } else {

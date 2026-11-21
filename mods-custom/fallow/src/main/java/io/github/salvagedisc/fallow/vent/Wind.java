@@ -19,7 +19,7 @@ public final class Wind {
     /** Rafales suivies en même temps. */
     public static final int MAX_GUSTS = 6;
     /** Vitesse du vent à force 1, en blocs par seconde. */
-    public static final double SPEED_AT_ONE = 6.0;
+    public static final double SPEED_AT_ONE = WindField.SPEED_AT_ONE;
 
     private static final Gust[] GUSTS = new Gust[MAX_GUSTS];
     private static final RandomSource RANDOM = RandomSource.create();

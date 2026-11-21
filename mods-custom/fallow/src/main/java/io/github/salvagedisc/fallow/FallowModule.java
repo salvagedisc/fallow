@@ -27,9 +27,12 @@ public enum FallowModule {
     /** Les monuments d'Ancient Remnants posés seulement sur un terrain qui s'y prête : type de structure
      *  {@code fallow:terrain_checked} (client et serveur). Aucun mod requis. */
     MONUMENTS("monuments", null, bus -> io.github.salvagedisc.fallow.monuments.MonumentsModule.start(bus)),
-    /** Le bord du monde : un cercle que la brume ne laisse pas franchir, donné par {@code data/fallow/monde/bord.json}
-     *  (client et serveur ; tout se passe sur le serveur). Aucun mod requis. */
+    /** Le bord du monde : un cercle donné par {@code data/fallow/monde/bord.json}, où un vent contraire repousse vers les
+     *  terres (client et serveur ; tout se passe sur le serveur). Aucun mod requis. */
     BORD("bord", null, bus -> io.github.salvagedisc.fallow.bord.BordModule.start(bus)),
+    /** Les navires de Sable poussés par le vent du pack, et repoussés par celui du bord (client et serveur ; tout se passe
+     *  sur le serveur). Demande Sable. */
+    NAVIRES("navires", null, bus -> io.github.salvagedisc.fallow.navires.NaviresModule.start(bus), ModIds.SABLE),
     /** L'interface qui s'efface quand on ne fait rien (client). Aucun mod requis. */
     ECRAN("ecran", Dist.CLIENT, bus -> io.github.salvagedisc.fallow.ecran.EcranModule.start(bus)),
     /** Les messages de la barre d'action en notes discrètes, en marge à gauche (client). Aucun mod requis. */

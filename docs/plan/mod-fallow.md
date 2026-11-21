@@ -38,6 +38,7 @@ The version is set in `gradle.properties` (`mod_version`). The targeted mods are
 | `clairiere` | both (the blocks and the list of clearings on the server, their look on the client) | none; ATMOSPHERICS, True Adaptive Music and Sodium each for its part of the look | 5, all client: `clairiere.ClientLevelTintMixin`, `clairiere.BiomeLookMixin` (vanilla code), `clairiere.SodiumTintMixin`, `clairiere.AtmosphericsBiomeMixin`, `clairiere.MusicBiomeMixin` |
 | `dissipateur` | both | Create | none |
 | `bord` | both (everything happens on the server) | none; Sable for the players aboard a ship | none |
+| `navires` | both (everything happens on the server) | Sable | none |
 | `vent` | client | none | 2, client (`vent.CampfireBlockMixin`, `vent.CampfireSmokeParticleMixin`, on vanilla code) |
 | `rendu` | client | Iris | 1, client (`rendu.IrisUniformsMixin`) |
 | `zoo` | both (stamps and species list on the server, the guidebook pages on the client) | none for the stamps; Archie's Dinosaurs for the pages, Exposure for the photo stamp | 2, client: `zoo.GuidebookDataMixin`, `zoo.CategoryTabsMixin` |
@@ -220,14 +221,23 @@ Client and server, no mod required. Registers the structure type `fallow:terrain
 Client and server, no mod required; everything happens on the server. The world is a disc ([0022](../decisions/0022-disc-world.md)) and this module keeps its edge.
 
 - **The edge** is a circle in the Overworld, read at each data load from `data/fallow/monde/bord.json` (`center_x`, `center_z`, `radius`). [`scripts/terrain/disc.py`](../../scripts/terrain/disc.py) writes that file with the shape of the continent, so the two always agree. Without the file the module does nothing; the log says which case applies ("bord : cercle de rayon 6000.0 autour de 0.0, 0.0").
-- **A player who passes the circle** is brought back two blocks inside it, on the line to the centre, at the same height, with the message « La brume ne laisse passer personne. » above the hotbar. A player on a boat, a horse or any other mount is brought back with it: the server moves the root vehicle, stops it and tells the riding clients (`ClientboundMoveVehiclePacket`, `ClientboundSetEntityMotionPacket`), because a ridden vehicle is steered by the client.
+- **A headwind** ([0046](../decisions/0046-wind-on-ships.md), since 0.59.0). From 24 blocks before the circle the server adds speed towards the centre to the player, or to the root vehicle they ride (boat, horse, any mount): `0.03 × push` blocks per tick, where `push` (`BordModule.push`) grows with the square of the depth into the band to 1 at the edge, then by 3 per band width beyond, up to 4. Past the edge a share of the outward speed is taken away too (`min(0.5, 0.15 × push)`). A player's own movement is the client's, so the server marks them hurt to send the motion back; for a vehicle it sends `ClientboundSetEntityMotionPacket` to the riders. Message every five seconds: « Un vent contraire se lève et vous repousse vers les terres. »
+- **Safety net**: what is still 48 blocks past the edge (a very fast flight) is brought back two blocks inside, on the line to the centre, with its vehicle (`ClientboundMoveVehiclePacket`), and « Le vent du large vous rejette vers les terres. »
 - **64 blocks before the edge**, a message every five seconds: « La brume s'épaissit. Le monde s'arrête un peu plus loin. »
 - **Nothing is drawn.** Beyond the edge there is only open sea, and a wall would break the mist.
 - **Spectators pass.** Creative players do not.
-- **Ships of Sable** (airships of Create Aeronautics). Sable keeps the blocks of a ship in a plot grid far from the world, and a player seated aboard has coordinates there: `Ships` asks Sable for the real position (`SableCompanion.projectOutOfSubLevel`, found by reflection, no dependency). A player aboard a ship is **not** brought back, because the ship would stay behind and be lost; a message says « Le navire a quitté le monde connu. Faites demi-tour. » Stopping the ship itself at the edge is the next step ([next modules](#next-modules)).
+- **Ships of Sable** (boats and airships of Create Aeronautics). Sable keeps the blocks of a ship in a plot grid far from the world, and a player seated aboard has coordinates there: `Ships` asks Sable for the real position (`SableCompanion.projectOutOfSubLevel`, found by reflection, no dependency). A player aboard a ship is not pushed: the `navires` module pushes the ship, and the player reads « Le vent du large repousse le navire vers les terres. »
 - **Switch**: `bord.enabled` in `config/fallow-common.toml`.
 
-**Checked** in the test client on 2026-11-13 (mod 0.10.0, full pack, a world whose new chunks follow the disc): the first message shows at 5,990; a player teleported to 6,010 is back at 5,998; a player swimming east from 5,994 ends at 5,998; a boat driven east from 5,990 for 14 seconds is at 5,998.4 with its rider still seated and the second message on screen; a spectator teleported to 6,010 stays there. The log says that Sable was found. Not checked: a horse, elytra, an airship (tests Z2 to Z4).
+**Checked** in the test client on 2026-11-13 (mod 0.10.0, full pack, a world whose new chunks follow the disc): the first message shows at 5,990; a player teleported to 6,010 is back at 5,998; a player swimming east from 5,994 ends at 5,998; a boat driven east from 5,990 for 14 seconds is at 5,998.4 with its rider still seated and the second message on screen; a spectator teleported to 6,010 stays there. The log says that Sable was found. Not checked: a horse, elytra, an airship (tests Z2 to Z4). This was the teleport of 0.10.0; the headwind of 0.59.0 is checked by unit tests only.
+
+## `navires` module
+
+Client and server, needs Sable; everything happens on the server ([0046](../decisions/0046-wind-on-ships.md), since 0.59.0). `NaviresModule` listens to Sable's physics step (`SableEventPlatform.onPhysicsTick`) and, for each ship of the Overworld (`ServerSubLevel`) at least 3 blocks long in one dimension (ragdoll bodies are smaller), adds an impulse at its centre of mass through Sable's `drag` force group, in the ship's own frame. The maths is in `ShipForces`, tested without Sable.
+
+- **Wind**: if the sky is open above the ship's box, the pack's background wind (`WindField.velocity`, 6 blocks/s at strength 1, the same as the `vent` module's without the gusts) blows on the face of the box it meets, above sea level only, at most 600 blocks². Force = `0.12 × windStrength × area × (wind − ship's horizontal speed)`: a ship running with the wind is no longer pushed, one sailing into it is held back.
+- **Edge**: within 48 blocks of the circle of the `bord` module, an acceleration towards the centre of `3 × push` blocks/s² (the same curve as for players, over 48 blocks), plus `0.8 ×` the outward speed past the edge, at most 12 blocks/s². Follows `bord.enabled`.
+- **Settings**: `navires.wind` (on) and `navires.windStrength` (1.0, 0 to 4) in `config/fallow-common.toml`.
 
 ## `vent` module
 
@@ -586,13 +596,16 @@ Started on the test server on 2026-10-25 (with No Man's Land): the `tectonic` da
 
 | # | Test | Expected |
 |---|---|---|
-| Z1 | Walk or swim to the edge (`/tp @s 5990 70 0`, then east) | A message 64 blocks before; at 6,000 the player is set back two blocks, again and again, with the second message; no fall, no damage |
-| Z2 | The same in a boat, then on a horse along a beach near the edge if one exists | The boat or the horse comes back with its rider, who stays seated |
-| Z3 | The same with elytra or in creative flight | Stopped the same way; a spectator passes |
-| Z4 | An airship flown past the edge | The pilot stays aboard, the ship is not stopped (known limit), the message asks to turn back |
+| Z1 | Walk or swim to the edge (`/tp @s 5970 70 0`, then east) | A message 64 blocks before; from about 5,976 a headwind slows the player, at 6,000 it pushes back harder than one walks or swims, with « Un vent contraire se lève… »; no fall, no damage, no teleport |
+| Z2 | The same in a boat, then on a horse along a beach near the edge if one exists | The boat or the horse is pushed back with its rider, who stays seated; the motion is smooth, no jerk |
+| Z3 | The same with elytra or in creative flight | Slowed and pushed back the same way; a fast dive past 6,048 is set back inside; a spectator passes |
+| Z4 | An airship flown full speed at the edge | From about 5,952 the ship slows, then is pushed back towards land; the pilot stays aboard and reads « Le vent du large repousse le navire… » |
 | Z5 | Sail around the continent | The coast never comes closer than about 150 blocks to the edge; no land beyond the edge with Distant Horizons |
 | Z6 | Walk from the north coast to the south coast | Cold in the north, hot in the south, with no straight limit between climates |
 | Z7 | A new world with another seed | Still one continent on the disc; the inland seas differ |
+| NV1 | An airship without engines in the open, by calm weather, then in a storm (`/weather thunder`) | It drifts the way the campfire smoke leans, faster in the storm |
+| NV2 | The same airship under a big roof or in a cave | It stays still |
+| NV3 | A small Sable boat on open water, sails or not | It drifts much less than the airship; `navires.wind = false` stops all drift |
 
 ### Tools
 
@@ -735,4 +748,3 @@ Known fragile points:
 
 Eight modules approved on 2026-10-26 (`voile`, `zoo` (built in 0.17.0), `vie`, `fanal`, `eclaircie`, `sillage`, `echos`, `survivants`) are designed in [modules-fallow.md](modules-fallow.md), with their order of work. The modules of [12.4](../archive/plan/12-verification.md#124-the-custom-fallow-mod) not yet written (grave, tracks, blueprints, finishing touches) stay possible. Each module will have its section here, its switch and its tests.
 
-**World edge and ships** (after 0.10.0). The `bord` module lets a player aboard a Sable ship pass the edge. Next step: stop the ship itself, by removing the outward part of its speed near the edge (`RigidBodyHandle.addLinearAndAngularVelocity`) and, past the edge, moving it back (`RigidBodyHandle.teleport`). It needs an airship built in a test world to be checked.

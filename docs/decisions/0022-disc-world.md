@@ -25,7 +25,7 @@ Option C.
 - `tectonic:noise/raw_continents`: inside the disc a floor turns most of the sea of the seed into low land and a slow noise keeps a few inland seas; from about 550 blocks before the coast a cap brings the value down, to the coast at a mean radius of 5,700 and to deep sea beyond. Three noises make the coast wander by a few hundred blocks. The cap stops at -0.47: under -0.5 Tectonic switches to its island mode and makes land again.
 - `minecraft:overworld/temperature`: the latitude replaces most of the seed's temperature. The north is cold and the south hot, with bent limits.
 
-**The edge** (`bord` module of the `fallow` mod, 0.10.0, [details](../plan/mod-fallow.md#bord-module)). A circle of radius 6,000 around 0, 0, read from `data/fallow/monde/bord.json`, written by the same script. A player who passes it is brought back two blocks inside, with the boat or the mount; a message warns 64 blocks before. Spectators pass.
+**The edge** (`bord` module of the `fallow` mod, 0.10.0, [details](../plan/mod-fallow.md#bord-module)). A circle of radius 6,000 around 0, 0, read from `data/fallow/monde/bord.json`, written by the same script. A player who passes it is brought back two blocks inside, with the boat or the mount; a message warns 64 blocks before. Spectators pass. Since 0.59.0 a headwind pushes back instead, ships included, and the teleport is only a safety net ([0046](0046-wind-on-ships.md)).
 
 **Size.** The disc was measured by sampling the generator every 64 blocks, without generating a chunk (bench command, two seeds). Inside the edge, 63 to 73 km² are land, out of the 113 km² of the circle; the furthest land is about 5,800 blocks from the centre, so the coast stays about 200 blocks from the edge. From coast to coast the continent is about 11,400 blocks: some 45 minutes of walking in a straight line on flat ground, far more with the relief, the mist and no elytra. The test seed has 81 land biomes. Drehmal's map is 12,000 blocks wide: the two worlds have the same span. A radius of 6,000 is kept for the first world; more land comes by extension (below), not by a larger first disc that the pack could not fill with places worth the walk.
 
@@ -37,7 +37,7 @@ Option C.
 - Structures that only fit a climate or a terrain are counted again on the disc: the [monuments](../plan/monuments.md) census dates from before it.
 - A server owner who pregenerates asks Chunky for a circle of radius 6,200 around 0, 0 (the edge plus the view distance): about 472,000 chunks. Measured on the full pack with four cores: about 13 chunks a second and 17 KB a chunk on land, so at most ten hours and 8 GB (sea chunks are lighter).
 - The far landscape of Distant Horizons goes on beyond the edge: it is open sea.
-- A ship of Create Aeronautics is not a mount: its pilot is brought back, the ship is not. To see in game ([tests](../tests-en-jeu.md)).
+- A ship of Create Aeronautics is not a mount: its pilot was not brought back, and the ship passed. Since [0046](0046-wind-on-ships.md) the headwind pushes the ship itself back.
 
 ## Rejected
 - Option A: a square around a disc leaves four corners of open sea, and the wall of the game breaks the mist.

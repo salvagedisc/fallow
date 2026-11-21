@@ -49,6 +49,7 @@ One record per settled decision: the context, the options compared, the choice a
 | [0043](0043-hands-on-vanilla.md) | Hands-On Vanilla for the vanilla stations | Crafting table, furnaces, anvil and other vanilla stations worked by hand; the `etabli` prototype removed |
 | [0044](0044-sable-and-create.md) | Sable and Create machines | Six mods bring Create machines and pack mods onto Sable ships; Loconautics waits for Modrinth |
 | [0045](0045-awakening.md) | Awakening: enchanting as a deed | An item awakens from its own deeds, great beasts leave shards, nothing is found enchanted; Immersive Enchanting removed (replaces 0008) |
+| [0046](0046-wind-on-ships.md) | Wind on ships, and a headwind at the edge | The pack's wind pushes Sable ships; at the disc's edge a rising headwind pushes players, mounts, boats and ships back (refines 0022) |
 
 ## Template
 

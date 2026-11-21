@@ -40,4 +40,25 @@ class EdgeTest {
         BordModule.Edge tiny = new BordModule.Edge(0.0, 0.0, 1.0);
         assertTrue(tiny.isNear(0.0, 0.0));
     }
+
+    @Test
+    void theHeadwindRisesThroughTheBandAndKeepsRisingBeyond() {
+        assertEquals(0.0, BordModule.push(-24.0, 24.0));
+        assertEquals(0.25, BordModule.push(-12.0, 24.0), 1e-9);
+        assertEquals(1.0, BordModule.push(0.0, 24.0), 1e-9);
+        assertEquals(2.5, BordModule.push(12.0, 24.0), 1e-9);
+        assertEquals(4.0, BordModule.push(1000.0, 24.0));
+    }
+
+    @Test
+    void pastAndInwardAreMeasuredFromTheCentre() {
+        assertEquals(10.0, edge.past(100.0 + 6010.0, -200.0), 1e-9);
+        assertEquals(-6000.0, edge.past(100.0, -200.0), 1e-9);
+        double[] in = edge.inward(100.0, -200.0 + 7000.0);
+        assertEquals(0.0, in[0], 1e-9);
+        assertEquals(-1.0, in[1], 1e-9);
+        double[] none = edge.inward(100.0, -200.0);
+        assertEquals(0.0, none[0]);
+        assertEquals(0.0, none[1]);
+    }
 }

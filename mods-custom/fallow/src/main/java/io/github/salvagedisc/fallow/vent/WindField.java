@@ -8,7 +8,21 @@ import net.minecraft.util.Mth;
  * calculent le même vent sans rien s'envoyer. {@link Wind} y ajoute, côté client, le lissage et les rafales.
  */
 public final class WindField {
+    /** Vitesse du vent à force 1, en blocs par seconde. */
+    public static final double SPEED_AT_ONE = 6.0;
+
     private WindField() {
+    }
+
+    /**
+     * Vent de fond en un lieu, sans les rafales : vitesse en blocs par seconde, {@code [x, z]}. C'est le vent que le
+     * serveur fait souffler sur les navires de Sable (module navires) ; les rafales, tirées au hasard autour de chaque
+     * caméra, restent au client.
+     */
+    public static double[] velocity(long gameTime, float rain, float thunder, double y) {
+        double angle = angle(gameTime, thunder);
+        double speed = SPEED_AT_ONE * strength(gameTime, rain, thunder, y);
+        return new double[] {Math.cos(angle) * speed, Math.sin(angle) * speed};
     }
 
     /** Angle du vent (radians) : direction vers laquelle il souffle, dans le plan (x, z). */

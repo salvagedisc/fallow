@@ -46,6 +46,8 @@ public final class FallowConfig {
     private static final ModConfigSpec.BooleanValue VENT_ENABLED;
     private static final ModConfigSpec.BooleanValue VENT_MOTES;
     private static final ModConfigSpec.BooleanValue BORD_ENABLED;
+    private static final ModConfigSpec.BooleanValue NAVIRES_WIND_ENABLED;
+    private static final ModConfigSpec.DoubleValue NAVIRES_WIND_STRENGTH;
     private static final ModConfigSpec.BooleanValue ZOO_ENABLED;
     private static final ModConfigSpec.IntValue ZOO_SPOT_DISTANCE;
     private static final ModConfigSpec.IntValue ZOO_OBSERVE_SECONDS;
@@ -286,11 +288,23 @@ public final class FallowConfig {
                 .defineInRange("ringTicks", 6, 1, 40);
         common.pop();
 
-        common.comment("Module bord : le monde est un disque. Le cercle de data/fallow/monde/bord.json (centre et rayon, écrit par",
-                "scripts/terrain/disc.py) ne se franchit pas : le joueur, sa monture ou son bateau sont ramenés en deçà.").push("bord");
+        common.comment("Module bord : le monde est un disque. Près du cercle de data/fallow/monde/bord.json (centre et rayon, écrit",
+                "par scripts/terrain/disc.py), un vent contraire repousse vers les terres le joueur, sa monture, son bateau et",
+                "les navires de Sable, jusqu'à ne plus laisser avancer.").push("bord");
         BORD_ENABLED = common
                 .comment("Interrupteur du module (serveur). Faux : plus de bord, on peut naviguer sans fin sur l'océan.")
                 .define("enabled", true);
+        common.pop();
+
+        common.comment("Module navires : le vent de Fallow (celui de la fumée et des shaders) pousse les navires de Sable à ciel",
+                "ouvert, selon la face qu'ils offrent au vent. Le vent contraire du bord dépend du module bord, pas de ce réglage.").push("navires");
+        NAVIRES_WIND_ENABLED = common
+                .comment("Le vent pousse les navires (serveur). Faux : seuls leurs moteurs, hélices et voiles de Create les font avancer.")
+                .define("wind", true);
+        NAVIRES_WIND_STRENGTH = common
+                .comment("Force du vent sur les navires. 1 : un dirigeable sans moteur dérive à peu près à la vitesse du vent ;",
+                        "0,5 : moitié moins ; 2 : le double.")
+                .defineInRange("windStrength", 1.0, 0.0, 4.0);
         common.pop();
 
         common.comment("Module zoo : les quatre tampons du guide d'Archie's Dinosaurs pour toutes les bêtes du monde (Apercevoir,",
@@ -540,6 +554,14 @@ public final class FallowConfig {
 
     public static boolean bordEnabled() {
         return read(COMMON_SPEC, BORD_ENABLED);
+    }
+
+    public static boolean naviresWindEnabled() {
+        return read(COMMON_SPEC, NAVIRES_WIND_ENABLED);
+    }
+
+    public static double naviresWindStrength() {
+        return read(COMMON_SPEC, NAVIRES_WIND_STRENGTH);
     }
 
     public static boolean zooEnabled() {
