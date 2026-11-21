@@ -3933,6 +3933,11 @@ hash = "b9ceb0fa4707ced2e0467f334ce8b6cb2fd60c729b47aee065e2bb0d5b905189"
 metafile = true
 
 [[files]]
+file = "mods/sableragdoll-patch.pw.toml"
+hash = "525a5e699708e982f26ccc71bc2e8f2bcf4f3d6361d23ec3e2590b4ef1353597"
+metafile = true
+
+[[files]]
 file = "mods/searchables.pw.toml"
 hash = "ce9ddada6ffd55a512149cc474c6a453281a997a5fdf1b7b4a2cc73f875e704a"
 metafile = true
