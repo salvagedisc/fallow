@@ -12,7 +12,9 @@
   "eclat": {
     "enchantement": "minecraft:frost_walker",
     "niveau": 2,
-    "bete": "entity.mowziesmobs.frostmaw"
+    "bete": "entity.mowziesmobs.frostmaw",
+    "couleur": 10478591,
+    "recit": "eveil.fallow.recit.frostmaw"
   },
   "chance": 1.0
 }

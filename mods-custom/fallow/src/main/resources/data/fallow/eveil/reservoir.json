@@ -1,0 +1,15 @@
+{
+  "objets": [
+    "create:copper_backtank",
+    "create:netherite_backtank"
+  ],
+  "actes": [
+    {
+      "acte": "sous_l_eau",
+      "points": 3,
+      "enchantements": {
+        "create:capacity": 3
+      }
+    }
+  ]
+}

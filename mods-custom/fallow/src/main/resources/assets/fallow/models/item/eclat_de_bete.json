@@ -1,6 +1,7 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "fallow:item/eclat_de_bete"
+    "layer0": "fallow:item/eclat_de_bete",
+    "layer1": "fallow:item/eclat_de_bete_lueur"
   }
 }

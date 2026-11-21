@@ -1,0 +1,13 @@
+{
+  "objets": "#minecraft:enchantable/durability",
+  "actes": [
+    {
+      "acte": "reparer",
+      "points": 0.5,
+      "enchantements": {
+        "minecraft:mending": 3,
+        "minecraft:unbreaking": 1
+      }
+    }
+  ]
+}

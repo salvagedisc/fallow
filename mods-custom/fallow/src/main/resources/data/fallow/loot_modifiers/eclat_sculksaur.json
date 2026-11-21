@@ -12,7 +12,9 @@
   "eclat": {
     "enchantement": "minecraft:swift_sneak",
     "niveau": 3,
-    "bete": "entity.ec_ad.sculksaur"
+    "bete": "entity.ec_ad.sculksaur",
+    "couleur": 2078133,
+    "recit": "eveil.fallow.recit.sculksaur"
   },
   "chance": 0.25
 }

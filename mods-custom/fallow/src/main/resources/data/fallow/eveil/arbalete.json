@@ -10,6 +10,14 @@
         "minecraft:multishot": 1,
         "minecraft:unbreaking": 1
       }
+    },
+    {
+      "acte": "vaincre",
+      "si": "loin",
+      "points": 15,
+      "enchantements": {
+        "minecraft:piercing": 3
+      }
     }
   ]
 }

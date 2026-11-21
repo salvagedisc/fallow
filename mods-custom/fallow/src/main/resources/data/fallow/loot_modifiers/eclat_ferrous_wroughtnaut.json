@@ -12,7 +12,9 @@
   "eclat": {
     "enchantement": "minecraft:unbreaking",
     "niveau": 3,
-    "bete": "entity.mowziesmobs.ferrous_wroughtnaut"
+    "bete": "entity.mowziesmobs.ferrous_wroughtnaut",
+    "couleur": 13214330,
+    "recit": "eveil.fallow.recit.ferrous_wroughtnaut"
   },
   "chance": 1.0
 }

@@ -12,7 +12,9 @@
   "eclat": {
     "enchantement": "minecraft:fire_protection",
     "niveau": 4,
-    "bete": "entity.ec_ad.obsidiceratops"
+    "bete": "entity.ec_ad.obsidiceratops",
+    "couleur": 16738858,
+    "recit": "eveil.fallow.recit.obsidiceratops"
   },
   "chance": 0.25
 }

@@ -1,0 +1,47 @@
+{
+  "objets": "#minecraft:enchantable/mace",
+  "actes": [
+    {
+      "acte": "vaincre",
+      "points": 15,
+      "enchantements": {
+        "minecraft:density": 1,
+        "minecraft:breach": 1,
+        "minecraft:unbreaking": 1
+      }
+    },
+    {
+      "acte": "vaincre",
+      "si": "ecrase",
+      "points": 15,
+      "enchantements": {
+        "minecraft:density": 3,
+        "minecraft:wind_burst": 2
+      }
+    },
+    {
+      "acte": "vaincre",
+      "si": "armure",
+      "points": 15,
+      "enchantements": {
+        "minecraft:breach": 3
+      }
+    },
+    {
+      "acte": "vaincre",
+      "cible": "#minecraft:undead",
+      "points": 15,
+      "enchantements": {
+        "minecraft:smite": 3
+      }
+    },
+    {
+      "acte": "vaincre",
+      "cible": "#minecraft:arthropod",
+      "points": 15,
+      "enchantements": {
+        "minecraft:bane_of_arthropods": 3
+      }
+    }
+  ]
+}

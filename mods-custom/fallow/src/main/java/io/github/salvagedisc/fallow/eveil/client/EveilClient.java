@@ -1,5 +1,7 @@
 package io.github.salvagedisc.fallow.eveil.client;
 
+import io.github.salvagedisc.fallow.FallowConfig;
+import io.github.salvagedisc.fallow.eveil.Eclat;
 import io.github.salvagedisc.fallow.eveil.EtatEveil;
 import io.github.salvagedisc.fallow.eveil.EveilModule;
 import java.util.List;
@@ -8,19 +10,27 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.FastColor;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
 /**
- * L'infobulle d'un objet qui a commencé à vivre : ses éveils (quoi, quel jour, par qui, de quelle bête), la place qui
- * lui reste, et s'il est prêt à s'éveiller.
+ * L'infobulle d'un objet qui a commencé à vivre : ses éveils (quoi, quel jour, par qui, de quelle bête), où il en est
+ * de son chemin vers le prochain, la place qui lui reste, et l'alerte quand il faiblit et risque d'oublier.
  */
 public final class EveilClient {
     private EveilClient() {
     }
 
-    public static void start() {
+    public static void start(IEventBus modBus) {
         NeoForge.EVENT_BUS.addListener(ItemTooltipEvent.class, EveilClient::onTooltip);
+        modBus.addListener(RegisterColorHandlersEvent.Item.class, event -> event.register((stack, layer) -> {
+            Eclat eclat = stack.get(EveilModule.ECLAT.get());
+            return layer == 0 ? FastColor.ARGB32.opaque(eclat == null ? 0xB98CFF : eclat.couleur()) : -1;
+        }, EveilModule.ECLAT_DE_BETE.get()));
     }
 
     private static void onTooltip(ItemTooltipEvent event) {
@@ -37,10 +47,20 @@ public final class EveilClient {
                     : Component.translatable("eveil.fallow.trace", nom, trace.jour(), trace.par());
             tooltip.add(ligne.copy().withStyle(ChatFormatting.DARK_AQUA));
         }
+        ItemStack stack = event.getItemStack();
         if (etat.pret()) {
             tooltip.add(Component.translatable("eveil.fallow.tooltip.pret").withStyle(ChatFormatting.GOLD));
         } else if (etat.eteint()) {
             tooltip.add(Component.translatable("eveil.fallow.tooltip.eteint").withStyle(ChatFormatting.DARK_GRAY));
+        } else if (!etat.plein()) {
+            tooltip.add(Component.translatable("eveil.fallow.tooltip.palier." + etat.palier())
+                    .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
+        }
+        if (!etat.traces().isEmpty() && !etat.eteint() && stack.isDamageableItem()
+                && stack.getDamageValue() >= stack.getMaxDamage() * FallowConfig.eveilAlerte()) {
+            tooltip.add(Component.translatable("eveil.fallow.tooltip.alerte",
+                    nom(etat.traces().get(etat.traces().size() - 1)).getString())
+                    .withStyle(ChatFormatting.RED));
         }
         tooltip.add(Component.translatable("eveil.fallow.tooltip.places", etat.occupees(), etat.places())
                 .withStyle(ChatFormatting.GRAY));

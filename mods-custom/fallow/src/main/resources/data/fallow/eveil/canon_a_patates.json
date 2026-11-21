@@ -1,0 +1,23 @@
+{
+  "objets": "create:potato_cannon",
+  "actes": [
+    {
+      "acte": "vaincre",
+      "points": 15,
+      "enchantements": {
+        "create:potato_recovery": 3,
+        "minecraft:power": 2,
+        "minecraft:punch": 1,
+        "minecraft:unbreaking": 1
+      }
+    },
+    {
+      "acte": "vaincre",
+      "si": "cible_en_feu",
+      "points": 15,
+      "enchantements": {
+        "minecraft:flame": 3
+      }
+    }
+  ]
+}

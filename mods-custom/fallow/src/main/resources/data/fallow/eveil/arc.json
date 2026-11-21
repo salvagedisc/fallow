@@ -11,6 +11,31 @@
         "minecraft:infinity": 0.3,
         "minecraft:unbreaking": 1
       }
+    },
+    {
+      "acte": "vaincre",
+      "si": "loin",
+      "points": 15,
+      "enchantements": {
+        "minecraft:power": 3,
+        "minecraft:infinity": 1
+      }
+    },
+    {
+      "acte": "vaincre",
+      "si": "cible_en_feu",
+      "points": 15,
+      "enchantements": {
+        "minecraft:flame": 3
+      }
+    },
+    {
+      "acte": "vaincre",
+      "si": "nether",
+      "points": 15,
+      "enchantements": {
+        "minecraft:flame": 2
+      }
     }
   ]
 }

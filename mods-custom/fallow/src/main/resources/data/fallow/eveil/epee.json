@@ -27,6 +27,22 @@
       "enchantements": {
         "minecraft:bane_of_arthropods": 4
       }
+    },
+    {
+      "acte": "vaincre",
+      "si": "cible_en_feu",
+      "points": 15,
+      "enchantements": {
+        "minecraft:fire_aspect": 3
+      }
+    },
+    {
+      "acte": "vaincre",
+      "si": "nether",
+      "points": 15,
+      "enchantements": {
+        "minecraft:fire_aspect": 2
+      }
     }
   ]
 }

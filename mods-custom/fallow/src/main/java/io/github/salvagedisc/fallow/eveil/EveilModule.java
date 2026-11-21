@@ -21,14 +21,20 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.block.Blocks;
@@ -42,11 +48,16 @@ import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.GrindstoneEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
+import net.neoforged.neoforge.event.entity.item.ItemExpireEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingShieldBlockEvent;
 import net.neoforged.neoforge.event.entity.player.ItemFishedEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerDestroyItemEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
@@ -91,6 +102,11 @@ public final class EveilModule {
     private static final double PAS_MAX = 12.0;
 
     private static final Map<UUID, Vec3> DERNIERES_POSITIONS = new HashMap<>();
+    /** La dernière usure vue de chaque objet éveillé : une baisse est une réparation, un haut fait. */
+    private static final Map<UUID, Integer> USURES = new HashMap<>();
+    /** Les objets qui ont déjà prévenu qu'ils faiblissent (jusqu'à leur réparation). */
+    private static final java.util.Set<UUID> AVERTIS = new java.util.HashSet<>();
+    private static final EquipmentSlot[] ARMURE = {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
     private static volatile MinecraftServer server;
 
     private EveilModule() {
@@ -105,6 +121,8 @@ public final class EveilModule {
         NeoForge.EVENT_BUS.addListener(ServerStoppedEvent.class, e -> {
             server = null;
             DERNIERES_POSITIONS.clear();
+            USURES.clear();
+            AVERTIS.clear();
         });
         NeoForge.EVENT_BUS.addListener(AddReloadListenerEvent.class, e -> e.addListener(new HautsFaits()));
         NeoForge.EVENT_BUS.addListener(PlayerEvent.PlayerLoggedOutEvent.class,
@@ -123,12 +141,21 @@ public final class EveilModule {
             sansEnchantement(e.getGenericTrades());
             sansEnchantement(e.getRareTrades());
         });
+        NeoForge.EVENT_BUS.addListener(LivingDropsEvent.class, EveilModule::onDrops);
+        NeoForge.EVENT_BUS.addListener(GrindstoneEvent.OnPlaceItem.class, EveilModule::onGrindstone);
+        NeoForge.EVENT_BUS.addListener(PlayerDestroyItemEvent.class, e -> oublier(e.getOriginal()));
+        NeoForge.EVENT_BUS.addListener(ItemExpireEvent.class, e -> oublier(e.getEntity().getItem()));
+        NeoForge.EVENT_BUS.addListener(EntityLeaveLevelEvent.class, e -> {
+            if (e.getEntity() instanceof ItemEntity item && e.getEntity().getRemovalReason() == Entity.RemovalReason.KILLED) {
+                oublier(item.getItem());
+            }
+        });
         NeoForge.EVENT_BUS.addListener(RegisterCommandsEvent.class, EveilModule::onRegisterCommands);
         if (ModList.get().isLoaded("treechop")) {
             ecouterTreeChop();
         }
         if (FMLEnvironment.dist.isClient()) {
-            io.github.salvagedisc.fallow.eveil.client.EveilClient.start();
+            io.github.salvagedisc.fallow.eveil.client.EveilClient.start(modBus);
         }
         Fallow.LOGGER.info("eveil : l'enchantement vient des hauts faits et des grandes bêtes");
     }
@@ -144,7 +171,9 @@ public final class EveilModule {
     private static void onBreak(BlockEvent.BreakEvent event) {
         if (event.getPlayer() instanceof ServerPlayer player) {
             BlockState state = event.getState();
-            Eveil.acte(player, player.getMainHandItem(), HautsFaits.Type.CASSER, entree -> entree.bloc(state), 1.0);
+            HautsFaits.Contexte moment = new HautsFaits.Contexte(player, null, null, player.getBlockStateOn());
+            Eveil.acte(player, player.getMainHandItem(), HautsFaits.Type.CASSER,
+                    entree -> entree.bloc(state) && entree.si(moment), 1.0);
         }
     }
 
@@ -158,23 +187,29 @@ public final class EveilModule {
         }
         LivingEntity bete = event.getEntity();
         double poids = Math.min(10.0, bete.getMaxHealth() / 20.0);
-        Eveil.acte(player, arme, HautsFaits.Type.VAINCRE, entree -> entree.creature(bete.getType()), poids);
+        HautsFaits.Contexte moment = new HautsFaits.Contexte(player, bete, event.getSource(), null);
+        Eveil.acte(player, Eveil.reel(player, arme), HautsFaits.Type.VAINCRE,
+                entree -> entree.creature(bete.getType()) && entree.si(moment), poids);
     }
 
     private static void onDamage(LivingDamageEvent.Post event) {
         if (!(event.getEntity() instanceof ServerPlayer player) || event.getNewDamage() <= 0) {
             return;
         }
-        for (EquipmentSlot slot : new EquipmentSlot[] {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET}) {
+        LivingEntity attaquant = event.getSource().getEntity() instanceof LivingEntity living ? living : null;
+        HautsFaits.Contexte moment = new HautsFaits.Contexte(player, attaquant, event.getSource(), null);
+        for (EquipmentSlot slot : ARMURE) {
             Eveil.acte(player, player.getItemBySlot(slot), HautsFaits.Type.ENCAISSER,
-                    entree -> entree.degats(event.getSource()), event.getNewDamage());
+                    entree -> entree.degats(event.getSource()) && entree.si(moment), event.getNewDamage());
         }
     }
 
     private static void onShield(LivingShieldBlockEvent event) {
         if (event.getEntity() instanceof ServerPlayer player && event.getBlocked() && event.getBlockedDamage() > 0) {
             ItemStack bouclier = player.getUseItem();
-            Eveil.acte(player, bouclier, HautsFaits.Type.BLOQUER, entree -> true, event.getBlockedDamage());
+            LivingEntity attaquant = event.getDamageSource().getEntity() instanceof LivingEntity living ? living : null;
+            HautsFaits.Contexte moment = new HautsFaits.Contexte(player, attaquant, event.getDamageSource(), null);
+            Eveil.acte(player, bouclier, HautsFaits.Type.BLOQUER, entree -> entree.si(moment), event.getBlockedDamage());
         }
     }
 
@@ -184,21 +219,25 @@ public final class EveilModule {
             if (HautsFaits.pour(canne).stream().noneMatch(e -> e.type() == HautsFaits.Type.PECHER)) {
                 canne = player.getOffhandItem();
             }
-            Eveil.acte(player, canne, HautsFaits.Type.PECHER, entree -> true, 1.0);
+            HautsFaits.Contexte moment = HautsFaits.Contexte.de(player);
+            Eveil.acte(player, canne, HautsFaits.Type.PECHER, entree -> entree.si(moment), 1.0);
         }
     }
 
     private static void onTick(PlayerTickEvent.Post event) {
-        if (!(event.getEntity() instanceof ServerPlayer player) || player.tickCount % 20 != 0) {
+        if (!(event.getEntity() instanceof ServerPlayer player) || player.tickCount % 20 != 0 || player.isSpectator()
+                || !FallowConfig.eveilEnabled()) {
             return;
         }
-        for (EquipmentSlot slot : EquipmentSlot.values()) {
-            if (slot.getType() != EquipmentSlot.Type.ANIMAL_ARMOR) {
-                Eveil.usure(player, player.getItemBySlot(slot));
-            }
-        }
+        inventaire(player);
         Vec3 here = player.position();
         Vec3 before = DERNIERES_POSITIONS.put(player.getUUID(), here);
+        HautsFaits.Contexte moment = new HautsFaits.Contexte(player, null, null, player.getBlockStateOn());
+        if (player.isUnderWater()) {
+            for (EquipmentSlot slot : ARMURE) {
+                Eveil.acte(player, player.getItemBySlot(slot), HautsFaits.Type.SOUS_L_EAU, entree -> entree.si(moment), 1.0);
+            }
+        }
         if (before == null || player.isPassenger() || player.isFallFlying()) {
             return;
         }
@@ -208,11 +247,129 @@ public final class EveilModule {
         }
         String mode = player.isInWater() ? "nage" : player.onGround() ? "marche" : "";
         if (!mode.isEmpty()) {
-            Eveil.acte(player, player.getItemBySlot(EquipmentSlot.FEET), HautsFaits.Type.PARCOURIR,
-                    entree -> entree.mode(mode), pas);
+            for (EquipmentSlot slot : ARMURE) {
+                Eveil.acte(player, player.getItemBySlot(slot), HautsFaits.Type.PARCOURIR,
+                        entree -> entree.mode(mode) && entree.si(moment), pas);
+            }
         }
-        if (player.isUnderWater()) {
-            Eveil.acte(player, player.getItemBySlot(EquipmentSlot.HEAD), HautsFaits.Type.SOUS_L_EAU, entree -> true, 1.0);
+    }
+
+    /**
+     * Une fois par seconde, tout ce que le joueur porte : seul l'éveil enchante (le reste s'efface, hors mode créatif) ;
+     * une copie reçoit son propre identifiant ; une réparation compte ; un objet qui faiblit prévient, à bout il oublie.
+     */
+    private static void inventaire(ServerPlayer player) {
+        Inventory inventaire = player.getInventory();
+        boolean createur = player.isCreative();
+        java.util.Set<UUID> vus = new java.util.HashSet<>();
+        for (int i = 0; i < inventaire.getContainerSize(); i++) {
+            ItemStack stack = inventaire.getItem(i);
+            if (stack.isEmpty()) {
+                continue;
+            }
+            if (!createur && stack.is(Items.ENCHANTED_BOOK)) {
+                inventaire.setItem(i, SansEnchantement.nu(stack));
+                continue;
+            }
+            if (!createur) {
+                Eveil.purifier(stack);
+            }
+            EtatEveil etat = stack.get(ETAT.get());
+            if (etat == null && stack.isDamaged() && !HautsFaits.pour(stack).isEmpty()) {
+                etat = Eveil.etat(stack);
+            }
+            if (etat == null) {
+                continue;
+            }
+            if (!vus.add(etat.id())) {
+                EtatEveil copie = etat.avecId(UUID.randomUUID());
+                Actes.get(player.server).copier(etat.id(), copie.id());
+                stack.set(ETAT.get(), copie);
+                etat = copie;
+            }
+            if (stack.isDamageableItem()) {
+                int usure = stack.getDamageValue();
+                Integer avant = USURES.put(etat.id(), usure);
+                if (avant != null && usure < avant) {
+                    AVERTIS.remove(etat.id());
+                    HautsFaits.Contexte moment = HautsFaits.Contexte.de(player);
+                    Eveil.acte(player, stack, HautsFaits.Type.REPARER, entree -> entree.si(moment), avant - usure);
+                }
+            }
+            Eveil.usure(player, stack);
+            if (Eveil.alerte(player, stack, AVERTIS.contains(etat.id()))) {
+                AVERTIS.add(etat.id());
+            }
+        }
+    }
+
+    /** Une réparation par Raccommodage n'est pas un haut fait : son usure est notée tout de suite. */
+    static void vu(UUID id, int usure) {
+        USURES.put(id, usure);
+    }
+
+    /** L'objet a disparu pour de bon : ses actes avec lui. */
+    private static void oublier(ItemStack stack) {
+        EtatEveil etat = stack.get(ETAT.get());
+        MinecraftServer current = server;
+        if (etat != null && current != null) {
+            Actes.get(current).oublier(etat.id());
+            USURES.remove(etat.id());
+            AVERTIS.remove(etat.id());
+        }
+    }
+
+    /** L'équipement d'une créature tombe sans enchantement, sauf un objet éveillé qu'elle avait ramassé. */
+    private static void onDrops(LivingDropsEvent event) {
+        if (!FallowConfig.eveilEnabled() || event.getEntity() instanceof Player) {
+            return;
+        }
+        for (ItemEntity drop : event.getDrops()) {
+            ItemStack stack = drop.getItem();
+            if (stack.is(ECLAT_DE_BETE.get())) {
+                eclatTombe(event, drop);
+                continue;
+            }
+            if (stack.has(ETAT.get())) {
+                continue;
+            }
+            ItemStack nu = SansEnchantement.nu(stack);
+            if (nu != stack) {
+                drop.setItem(nu);
+            }
+        }
+    }
+
+    /**
+     * Un éclat qui tombe se voit : il luit à travers les murs, ne disparaît jamais, une colonne de lumière monte, un
+     * son cristallin et une note le disent au joueur qui a vaincu la bête.
+     */
+    private static void eclatTombe(LivingDropsEvent event, ItemEntity drop) {
+        drop.setGlowingTag(true);
+        drop.setUnlimitedLifetime();
+        drop.setInvulnerable(true);
+        if (event.getEntity().level() instanceof ServerLevel level) {
+            Vec3 p = drop.position();
+            level.sendParticles(net.minecraft.core.particles.ParticleTypes.END_ROD, p.x, p.y + 1.0, p.z, 40, 0.15, 1.2, 0.15, 0.02);
+            level.playSound(null, drop.blockPosition(), SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.PLAYERS, 1.5F, 0.6F);
+        }
+        if (event.getSource().getEntity() instanceof ServerPlayer player) {
+            player.displayClientMessage(Component.translatable("eveil.fallow.message.eclat_tombe",
+                    event.getEntity().getDisplayName()), true);
+        }
+    }
+
+    /** La meule n'efface pas un éveil : un objet éveillé n'y donne rien. Les autres enchantements n'existent plus. */
+    private static void onGrindstone(GrindstoneEvent.OnPlaceItem event) {
+        if (!FallowConfig.eveilEnabled()) {
+            return;
+        }
+        for (ItemStack stack : new ItemStack[] {event.getTopItem(), event.getBottomItem()}) {
+            EtatEveil etat = stack.get(ETAT.get());
+            if (etat != null && !etat.traces().isEmpty() && stack.isEnchanted()) {
+                event.setCanceled(true);
+                return;
+            }
         }
     }
 
@@ -346,7 +503,7 @@ public final class EveilModule {
 
     /**
      * {@code /fallow eveil voir} : les points de l'objet en main, par acte, et le seuil du prochain éveil.
-     * {@code /fallow eveil points <n>} : ajoute {@code n} points à l'objet en main (opérateurs, pour les essais).
+     * {@code /fallow eveil points <n>} : ajoute {@code n} points au premier acte (hors réparation) de l'objet en main (opérateurs, pour les essais).
      */
     private static void onRegisterCommands(RegisterCommandsEvent event) {
         event.getDispatcher().register(Commands.literal(Fallow.MOD_ID)
@@ -375,7 +532,9 @@ public final class EveilModule {
                                                 context.getSource().sendFailure(Component.literal("Cet objet n'a pas de hauts faits"));
                                                 return 0;
                                             }
-                                            HautsFaits.Entree premiere = entrees.get(0);
+                                            HautsFaits.Entree premiere = entrees.stream()
+                                                    .filter(e -> e.type() != HautsFaits.Type.REPARER).findFirst()
+                                                    .orElse(entrees.get(0));
                                             Eveil.acte(player, stack, premiere.type(), entree -> entree == premiere,
                                                     n / Math.max(premiere.points(), 1e-6));
                                             context.getSource().sendSuccess(() -> Component.literal(

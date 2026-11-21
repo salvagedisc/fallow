@@ -39,6 +39,9 @@ final class EclatItem extends Item {
                     .ifPresent(holder -> tooltip.add(Enchantment.getFullname(holder, eclat.niveau()).copy()
                             .withStyle(ChatFormatting.AQUA)));
         }
+        if (!eclat.recit().isEmpty()) {
+            tooltip.add(Component.translatable(eclat.recit()).withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
+        }
         tooltip.add(Component.translatable("item.fallow.eclat_de_bete.usage").withStyle(ChatFormatting.GRAY));
     }
 }

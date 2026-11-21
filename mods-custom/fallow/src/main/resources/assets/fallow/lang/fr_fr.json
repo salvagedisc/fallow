@@ -241,5 +241,19 @@
   "eveil.fallow.tooltip.places": "Éveils : %s sur %s",
   "postes.fallow.foyer.chaud": "Combustible chaud : %s %%",
   "postes.fallow.foyer.froid": "Combustible froid : %s %%",
-  "postes.fallow.sechoir.sec": "Le cuir est sec : prenez-le à main vide."
+  "postes.fallow.sechoir.sec": "Le cuir est sec : prenez-le à main vide.",
+  "eveil.fallow.message.alerte": "%s faiblit. À bout de forces, cet objet oubliera %s.",
+  "eveil.fallow.tooltip.palier.0": "Encore étranger à votre main",
+  "eveil.fallow.tooltip.palier.1": "Commence à se faire à votre main",
+  "eveil.fallow.tooltip.palier.2": "Se fait à votre main",
+  "eveil.fallow.tooltip.palier.3": "Sur le point de s'éveiller",
+  "eveil.fallow.tooltip.alerte": "Faiblit : à bout de forces, oubliera %s",
+  "eveil.fallow.recit.frostmaw": "Le givre de Frostmaw y dort encore : l'eau prend en glace sous vos pas.",
+  "eveil.fallow.recit.ferrous_wroughtnaut": "Arraché à l'armure du Wroughtnaut, qui ne cédait sous aucun coup.",
+  "eveil.fallow.recit.umvuthi": "La lumière d'Umvuthi brûle encore ce que la mort a relevé.",
+  "eveil.fallow.recit.naga": "Le souffle de la Naga, qui vivait entre l'air et l'eau.",
+  "eveil.fallow.recit.sculptor": "Le Sculpteur ne tombait jamais : son éclat vous retient.",
+  "eveil.fallow.recit.sculksaur": "Le pas du Sculksaur ne réveillait rien.",
+  "eveil.fallow.recit.obsidiceratops": "La peau de l'Obsidiceratops ne craignait pas la lave.",
+  "eveil.fallow.message.eclat_tombe": "%s laisse un éclat de grande bête."
 }

@@ -5,11 +5,46 @@
       "acte": "vaincre",
       "points": 15,
       "enchantements": {
-        "minecraft:impaling": 2,
-        "minecraft:loyalty": 2,
-        "minecraft:riptide": 1,
-        "minecraft:channeling": 0.5,
+        "minecraft:impaling": 1,
         "minecraft:unbreaking": 1
+      }
+    },
+    {
+      "acte": "vaincre",
+      "cible": "#minecraft:sensitive_to_impaling",
+      "points": 15,
+      "enchantements": {
+        "minecraft:impaling": 4
+      }
+    },
+    {
+      "acte": "vaincre",
+      "si": "lance",
+      "points": 15,
+      "enchantements": {
+        "minecraft:loyalty": 3
+      }
+    },
+    {
+      "acte": "vaincre",
+      "si": [
+        "lance",
+        "pluie"
+      ],
+      "points": 15,
+      "enchantements": {
+        "minecraft:channeling": 3
+      }
+    },
+    {
+      "acte": "vaincre",
+      "si": [
+        "dans_l_eau",
+        "!lance"
+      ],
+      "points": 15,
+      "enchantements": {
+        "minecraft:riptide": 3
       }
     }
   ]

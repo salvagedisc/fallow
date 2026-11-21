@@ -11,7 +11,7 @@ import net.minecraft.world.level.saveddata.SavedData;
 /**
  * Les actes de chaque objet, par entrée des hauts faits : ce que la pioche a creusé, ce que l'épée a vaincu. Gardés
  * par le monde (pas sur l'objet, qui ne change ainsi qu'à l'éveil), sous l'identifiant de l'objet ; un objet perdu
- * laisse une petite ligne orpheline, sans effet.
+ * cassé, brûlé ou disparu au sol emporte ses actes ({@link #oublier}).
  */
 final class Actes extends SavedData {
     private static final String NAME = "fallow_eveil";
@@ -39,6 +39,22 @@ final class Actes extends SavedData {
     double total(UUID id) {
         Map<String, Double> map = objets.get(id);
         return map == null ? 0.0 : map.values().stream().mapToDouble(Double::doubleValue).sum();
+    }
+
+    /** L'objet a disparu (cassé, brûlé, disparu au sol) : ses actes avec lui. */
+    void oublier(UUID id) {
+        if (objets.remove(id) != null) {
+            setDirty();
+        }
+    }
+
+    /** Une copie de l'objet (mode créatif) reçoit un nouvel identifiant et emporte ce que l'original avait vécu. */
+    void copier(UUID depuis, UUID vers) {
+        Map<String, Double> map = objets.get(depuis);
+        if (map != null) {
+            objets.put(vers, new HashMap<>(map));
+            setDirty();
+        }
     }
 
     /** Ramène le total de l'objet à {@code cible} (jamais plus haut), chaque acte gardant sa part. */

@@ -12,7 +12,9 @@
   "eclat": {
     "enchantement": "minecraft:respiration",
     "niveau": 3,
-    "bete": "entity.mowziesmobs.naga"
+    "bete": "entity.mowziesmobs.naga",
+    "couleur": 8314986,
+    "recit": "eveil.fallow.recit.naga"
   },
   "chance": 1.0
 }

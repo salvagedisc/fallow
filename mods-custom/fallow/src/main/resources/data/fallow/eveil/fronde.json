@@ -1,0 +1,21 @@
+{
+  "objets": "#supplementaries:enchantable/stasis",
+  "actes": [
+    {
+      "acte": "vaincre",
+      "points": 15,
+      "enchantements": {
+        "supplementaries:stasis": 3,
+        "minecraft:unbreaking": 1
+      }
+    },
+    {
+      "acte": "vaincre",
+      "si": "loin",
+      "points": 15,
+      "enchantements": {
+        "supplementaries:stasis": 2
+      }
+    }
+  ]
+}

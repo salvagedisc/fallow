@@ -33,6 +33,15 @@
       "enchantements": {
         "minecraft:depth_strider": 3
       }
+    },
+    {
+      "acte": "parcourir",
+      "cible": "marche",
+      "si": "sous:#minecraft:soul_speed_blocks",
+      "points": 0.5,
+      "enchantements": {
+        "minecraft:soul_speed": 4
+      }
     }
   ]
 }

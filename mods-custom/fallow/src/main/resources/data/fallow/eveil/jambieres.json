@@ -24,6 +24,15 @@
       "enchantements": {
         "minecraft:blast_protection": 3
       }
+    },
+    {
+      "acte": "parcourir",
+      "cible": "marche",
+      "si": "accroupi",
+      "points": 0.5,
+      "enchantements": {
+        "minecraft:swift_sneak": 3
+      }
     }
   ]
 }

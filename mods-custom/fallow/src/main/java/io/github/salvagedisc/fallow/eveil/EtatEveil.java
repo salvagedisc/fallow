@@ -15,16 +15,18 @@ import net.minecraft.resources.ResourceLocation;
 /**
  * Ce que l'objet a gardé de sa vie : son identifiant (la clé de ses actes dans {@link Actes}), le nombre d'éveils
  * qu'il peut porter (fixé par sa qualité de forge au premier acte), les enchantements qu'il a appris et quand, et
- * deux états : prêt à s'éveiller, ou éteint (à bout de durabilité, il vient d'oublier son dernier éveil).
+ * deux états : prêt à s'éveiller, ou éteint (à bout de durabilité, il vient d'oublier son dernier éveil), et le palier
+ * de son chemin vers le prochain éveil (0 à 3, par quarts), que l'infobulle dit en mots.
  * Le composant ne change qu'à ces moments-là, jamais à chaque acte : l'objet en main ne « rebondit » pas.
  */
-public record EtatEveil(UUID id, int places, List<Trace> traces, boolean pret, boolean eteint) {
+public record EtatEveil(UUID id, int places, List<Trace> traces, boolean pret, boolean eteint, int palier) {
     public static final Codec<EtatEveil> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             UUIDUtil.CODEC.fieldOf("id").forGetter(EtatEveil::id),
             Codec.intRange(0, 16).optionalFieldOf("places", 1).forGetter(EtatEveil::places),
             Trace.CODEC.listOf().optionalFieldOf("traces", List.of()).forGetter(EtatEveil::traces),
             Codec.BOOL.optionalFieldOf("pret", false).forGetter(EtatEveil::pret),
-            Codec.BOOL.optionalFieldOf("eteint", false).forGetter(EtatEveil::eteint)
+            Codec.BOOL.optionalFieldOf("eteint", false).forGetter(EtatEveil::eteint),
+            Codec.intRange(0, 3).optionalFieldOf("palier", 0).forGetter(EtatEveil::palier)
     ).apply(instance, EtatEveil::new));
 
     public static final StreamCodec<ByteBuf, EtatEveil> STREAM_CODEC = StreamCodec.composite(
@@ -33,6 +35,7 @@ public record EtatEveil(UUID id, int places, List<Trace> traces, boolean pret, b
             Trace.STREAM_CODEC.apply(ByteBufCodecs.list()), EtatEveil::traces,
             ByteBufCodecs.BOOL, EtatEveil::pret,
             ByteBufCodecs.BOOL, EtatEveil::eteint,
+            ByteBufCodecs.VAR_INT, EtatEveil::palier,
             EtatEveil::new);
 
     public EtatEveil {
@@ -40,7 +43,7 @@ public record EtatEveil(UUID id, int places, List<Trace> traces, boolean pret, b
     }
 
     static EtatEveil neuf(int places) {
-        return new EtatEveil(UUID.randomUUID(), places, List.of(), false, false);
+        return new EtatEveil(UUID.randomUUID(), places, List.of(), false, false, 0);
     }
 
     public int occupees() {
@@ -52,21 +55,40 @@ public record EtatEveil(UUID id, int places, List<Trace> traces, boolean pret, b
     }
 
     EtatEveil avecPret(boolean value) {
-        return new EtatEveil(id, places, traces, value, eteint);
+        return new EtatEveil(id, places, traces, value, eteint, palier);
     }
 
     EtatEveil avecEteint(boolean value) {
-        return new EtatEveil(id, places, traces, pret, value);
+        return new EtatEveil(id, places, traces, pret, value, palier);
     }
 
     EtatEveil avecTraces(List<Trace> value) {
-        return new EtatEveil(id, places, value, pret, eteint);
+        return new EtatEveil(id, places, value, pret, eteint, palier);
+    }
+
+    EtatEveil avecPalier(int value) {
+        return new EtatEveil(id, places, traces, pret, eteint, value);
+    }
+
+    EtatEveil avecId(UUID value) {
+        return new EtatEveil(value, places, traces, pret, eteint, palier);
+    }
+
+    /** Le niveau que les éveils ont donné à cet enchantement (0 s'il n'en vient pas). */
+    public int niveau(ResourceLocation enchantement) {
+        int max = 0;
+        for (Trace trace : traces) {
+            if (trace.enchantement().equals(enchantement)) {
+                max = Math.max(max, trace.niveau());
+            }
+        }
+        return max;
     }
 
     EtatEveil plus(Trace trace) {
         List<Trace> list = new ArrayList<>(traces);
         list.add(trace);
-        return new EtatEveil(id, places, list, false, eteint);
+        return new EtatEveil(id, places, list, false, eteint, 0);
     }
 
     /**

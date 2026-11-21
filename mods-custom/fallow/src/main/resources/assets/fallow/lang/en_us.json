@@ -241,5 +241,19 @@
   "eveil.fallow.tooltip.places": "Awakenings: %s of %s",
   "postes.fallow.foyer.chaud": "Hot fuel: %s%%",
   "postes.fallow.foyer.froid": "Cold fuel: %s%%",
-  "postes.fallow.sechoir.sec": "The leather is dry: take it with an empty hand."
+  "postes.fallow.sechoir.sec": "The leather is dry: take it with an empty hand.",
+  "eveil.fallow.message.alerte": "%s is weakening. Worn out, this item will forget %s.",
+  "eveil.fallow.tooltip.palier.0": "Still a stranger to your hand",
+  "eveil.fallow.tooltip.palier.1": "Getting used to your hand",
+  "eveil.fallow.tooltip.palier.2": "Knows your hand well",
+  "eveil.fallow.tooltip.palier.3": "On the verge of awakening",
+  "eveil.fallow.tooltip.alerte": "Weakening: worn out, it will forget %s",
+  "eveil.fallow.recit.frostmaw": "Frostmaw's frost still sleeps in it: water turns to ice under your steps.",
+  "eveil.fallow.recit.ferrous_wroughtnaut": "Torn from the Wroughtnaut's armour, which gave way to no blow.",
+  "eveil.fallow.recit.umvuthi": "Umvuthi's light still burns what death has raised.",
+  "eveil.fallow.recit.naga": "The breath of the Naga, who lived between air and water.",
+  "eveil.fallow.recit.sculptor": "The Sculptor never fell: its shard holds you back.",
+  "eveil.fallow.recit.sculksaur": "The Sculksaur's step woke nothing.",
+  "eveil.fallow.recit.obsidiceratops": "The Obsidiceratops' hide did not fear lava.",
+  "eveil.fallow.message.eclat_tombe": "%s leaves a great beast's shard."
 }

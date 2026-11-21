@@ -12,7 +12,9 @@
   "eclat": {
     "enchantement": "minecraft:feather_falling",
     "niveau": 4,
-    "bete": "entity.mowziesmobs.sculptor"
+    "bete": "entity.mowziesmobs.sculptor",
+    "couleur": 12575688,
+    "recit": "eveil.fallow.recit.sculptor"
   },
   "chance": 1.0
 }

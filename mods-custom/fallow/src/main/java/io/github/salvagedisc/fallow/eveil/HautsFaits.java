@@ -12,6 +12,7 @@ import java.util.Map;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.tags.TagKey;
@@ -19,9 +20,10 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
@@ -41,29 +43,82 @@ import net.minecraft.world.level.block.state.BlockState;
  * {@code vaincre} (cible : créature ; un point par 20 points de vie de la bête, plafonné à 10), {@code encaisser}
  * (cible : type de dégâts ; un point par point de dégât encaissé, sur chaque pièce d'armure portée), {@code parcourir}
  * (cible : {@code marche} ou {@code nage} ; un point par bloc), {@code sous_l_eau} (un point par seconde),
- * {@code bloquer} (un point par point de dégât arrêté au bouclier), {@code pecher} (un point par prise).
- * Sans cible, l'acte compte toujours. Une entrée garde sa place dans le fichier : c'est sa clé dans {@link Actes}.
+ * {@code bloquer} (un point par point de dégât arrêté au bouclier), {@code pecher} (un point par prise),
+ * {@code reparer} (un point par point de durabilité regagné). Sans cible, l'acte compte toujours.
+ *
+ * <p>{@code si} (facultatif, une condition ou une liste, toutes requises, {@code !} pour la négation) précise le moment :
+ * {@code nether}, {@code end}, {@code surface} (la dimension du joueur), {@code accroupi}, {@code pluie} (il pleut sur
+ * le joueur), {@code dans_l_eau} (eau ou pluie), {@code cible_en_feu}, {@code armure} (la créature porte de l'armure),
+ * {@code lance} (le coup vient d'un projectile), {@code loin} (la créature est à plus de 20 blocs), {@code ecrase} (le
+ * joueur tombait en frappant), {@code sous:<bloc ou #tag>} (le bloc sous les pieds). {@code objets} prend aussi une liste.
+ * Une entrée garde sa place dans le fichier : c'est sa clé dans {@link Actes}.
  */
 public final class HautsFaits extends SimpleJsonResourceReloadListener {
     public enum Type {
-        CASSER, VAINCRE, ENCAISSER, PARCOURIR, SOUS_L_EAU, BLOQUER, PECHER;
+        CASSER, VAINCRE, ENCAISSER, PARCOURIR, SOUS_L_EAU, BLOQUER, PECHER, REPARER;
 
         static Type of(String name) {
             return valueOf(name.toUpperCase(Locale.ROOT));
         }
     }
 
-    /** Une entrée : son acte, sa cible (identifiant ou tag, vide pour toutes), ses points par unité et ses penchants. */
-    public record Entree(String cle, Type type, String cible, double points, Map<ResourceLocation, Double> enchantements) {
-        boolean bloc(BlockState state) {
-            if (cible.isEmpty()) {
-                return true;
+    /** Le moment d'un acte : le joueur, et selon l'acte la créature, la source des dégâts, le bloc sous les pieds. */
+    public record Contexte(ServerPlayer joueur, LivingEntity cible, DamageSource source, BlockState sous) {
+        static Contexte de(ServerPlayer joueur) {
+            return new Contexte(joueur, null, null, null);
+        }
+    }
+
+    /**
+     * Une entrée : son acte, sa cible (identifiant ou tag, vide pour toutes), ses conditions, ses points par unité et
+     * ses penchants.
+     */
+    public record Entree(String cle, Type type, String cible, List<String> si, double points,
+            Map<ResourceLocation, Double> enchantements) {
+        /** Toutes les conditions de l'entrée tiennent à ce moment. */
+        boolean si(Contexte c) {
+            for (String condition : si) {
+                boolean non = condition.startsWith("!");
+                if (vraie(non ? condition.substring(1) : condition, c) == non) {
+                    return false;
+                }
             }
+            return true;
+        }
+
+        private static boolean vraie(String condition, Contexte c) {
+            ServerPlayer joueur = c.joueur();
+            LivingEntity cible = c.cible();
+            if (condition.startsWith("sous:")) {
+                return c.sous() != null && bloc(condition.substring(5), c.sous());
+            }
+            return switch (condition) {
+                case "nether" -> joueur.level().dimension() == Level.NETHER;
+                case "end" -> joueur.level().dimension() == Level.END;
+                case "surface" -> joueur.level().dimension() == Level.OVERWORLD;
+                case "accroupi" -> joueur.isCrouching();
+                case "pluie" -> joueur.level().isRainingAt(joueur.blockPosition())
+                        || cible != null && cible.level().isRainingAt(cible.blockPosition());
+                case "dans_l_eau" -> joueur.isInWaterRainOrBubble();
+                case "cible_en_feu" -> cible != null && cible.isOnFire();
+                case "armure" -> cible != null && cible.getArmorValue() > 0;
+                case "lance" -> c.source() != null && c.source().getDirectEntity() instanceof Projectile;
+                case "loin" -> cible != null && cible.distanceToSqr(joueur) > LOIN * LOIN;
+                case "ecrase" -> c.source() != null && c.source().getDirectEntity() == joueur
+                        && joueur.fallDistance > 1.5F && !joueur.isFallFlying();
+                default -> false;
+            };
+        }
+
+        private static boolean bloc(String cible, BlockState state) {
             if (cible.startsWith("#")) {
                 return state.is(TagKey.create(Registries.BLOCK, ResourceLocation.parse(cible.substring(1))));
             }
-            Block block = BuiltInRegistries.BLOCK.get(ResourceLocation.parse(cible));
-            return state.is(block);
+            return state.is(BuiltInRegistries.BLOCK.get(ResourceLocation.parse(cible)));
+        }
+
+        boolean bloc(BlockState state) {
+            return cible.isEmpty() || bloc(cible, state);
         }
 
         boolean creature(EntityType<?> type) {
@@ -91,15 +146,34 @@ public final class HautsFaits extends SimpleJsonResourceReloadListener {
         }
     }
 
-    record Famille(String objets, List<Entree> entrees) {
+    record Famille(List<String> objets, List<Entree> entrees) {
         boolean pour(ItemStack stack) {
-            if (objets.startsWith("#")) {
-                return stack.is(TagKey.create(Registries.ITEM, ResourceLocation.parse(objets.substring(1))));
+            for (String objet : objets) {
+                if (objet.startsWith("#") ? stack.is(TagKey.create(Registries.ITEM, ResourceLocation.parse(objet.substring(1))))
+                        : BuiltInRegistries.ITEM.getOptional(ResourceLocation.parse(objet)).map(stack::is).orElse(false)) {
+                    return true;
+                }
             }
-            Item item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(objets));
-            return stack.is(item);
+            return false;
         }
     }
+
+    /** Une chaîne ou une liste de chaînes. */
+    private static List<String> liste(JsonObject json, String key) {
+        if (!json.has(key)) {
+            return List.of();
+        }
+        JsonElement element = json.get(key);
+        if (element.isJsonArray()) {
+            List<String> out = new ArrayList<>();
+            element.getAsJsonArray().forEach(e -> out.add(e.getAsString()));
+            return List.copyOf(out);
+        }
+        return List.of(element.getAsString());
+    }
+
+    /** Au-delà de cette distance, la créature a été vaincue de loin. */
+    private static final double LOIN = 20.0;
 
     private static final Gson GSON = new Gson();
     private static volatile List<Famille> familles = List.of();
@@ -132,7 +206,7 @@ public final class HautsFaits extends SimpleJsonResourceReloadListener {
         files.forEach((id, json) -> {
             try {
                 JsonObject root = GsonHelper.convertToJsonObject(json, "eveil");
-                String objets = GsonHelper.getAsString(root, "objets");
+                List<String> objets = liste(root, "objets");
                 List<Entree> entrees = new ArrayList<>();
                 int index = 0;
                 for (JsonElement element : GsonHelper.getAsJsonArray(root, "actes")) {
@@ -141,7 +215,8 @@ public final class HautsFaits extends SimpleJsonResourceReloadListener {
                     GsonHelper.getAsJsonObject(acte, "enchantements").entrySet()
                             .forEach(e -> penchants.put(ResourceLocation.parse(e.getKey()), e.getValue().getAsDouble()));
                     entrees.add(new Entree(id + "#" + index++, Type.of(GsonHelper.getAsString(acte, "acte")),
-                            GsonHelper.getAsString(acte, "cible", ""), GsonHelper.getAsDouble(acte, "points", 1.0),
+                            GsonHelper.getAsString(acte, "cible", ""), liste(acte, "si"),
+                            GsonHelper.getAsDouble(acte, "points", 1.0),
                             Map.copyOf(penchants)));
                 }
                 loaded.add(new Famille(objets, List.copyOf(entrees)));

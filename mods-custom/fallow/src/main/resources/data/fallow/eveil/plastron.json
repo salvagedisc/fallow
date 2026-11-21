@@ -32,6 +32,22 @@
       "enchantements": {
         "minecraft:projectile_protection": 3
       }
+    },
+    {
+      "acte": "encaisser",
+      "cible": "minecraft:mob_attack",
+      "points": 5,
+      "enchantements": {
+        "minecraft:thorns": 2
+      }
+    },
+    {
+      "acte": "encaisser",
+      "cible": "minecraft:player_attack",
+      "points": 5,
+      "enchantements": {
+        "minecraft:thorns": 2
+      }
     }
   ]
 }

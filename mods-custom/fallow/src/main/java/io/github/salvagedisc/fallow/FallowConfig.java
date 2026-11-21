@@ -39,6 +39,8 @@ public final class FallowConfig {
     private static final ModConfigSpec.BooleanValue EVEIL_ENABLED;
     private static final ModConfigSpec.DoubleValue EVEIL_SEUIL;
     private static final ModConfigSpec.DoubleValue EVEIL_FACTEUR;
+    private static final ModConfigSpec.DoubleValue EVEIL_RACCOMMODAGE;
+    private static final ModConfigSpec.DoubleValue EVEIL_ALERTE;
     private static final java.util.Map<String, ModConfigSpec.IntValue> EVEIL_PLACES = new java.util.LinkedHashMap<>();
     private static final ModConfigSpec.BooleanValue RENDU_ENABLED;
     private static final ModConfigSpec.BooleanValue VENT_ENABLED;
@@ -240,14 +242,22 @@ public final class FallowConfig {
                 "ni d'un échange.").push("eveil");
         EVEIL_ENABLED = server
                 .comment("Interrupteur du module. Faux : plus d'éveil ni d'éclat, les butins et les échanges gardent leurs",
-                        "enchantements, la table d'enchantement redevient celle du jeu.")
+                        "enchantements, la table d'enchantement redevient celle du jeu, rien n'est retiré des inventaires.")
                 .define("enabled", true);
         EVEIL_SEUIL = server
-                .comment("Points d'actes pour le premier éveil (une pierre creusée vaut 1, un minerai 3, un zombie vaincu 15).")
-                .defineInRange("seuil", 3000.0, 1.0, 1.0E7);
+                .comment("Points d'actes pour le premier éveil (une pierre creusée vaut 1, un minerai 3, un zombie vaincu 15).",
+                        "2 000 : une pioche de fer bien entretenue s'éveille vers la fin de sa vie, une de diamant bien avant.")
+                .defineInRange("seuil", 2000.0, 1.0, 1.0E7);
         EVEIL_FACTEUR = server
-                .comment("Chaque éveil suivant demande ce facteur de plus que le précédent (3 : 3 000, 9 000, 27 000).")
+                .comment("Chaque éveil suivant demande ce facteur de plus que le précédent (3 : 2 000, 6 000, 18 000).")
                 .defineInRange("facteur", 3.0, 1.0, 100.0);
+        EVEIL_RACCOMMODAGE = server
+                .comment("Raccommodage (sans expérience dans Fallow) : points de durabilité rendus par point d'acte, par niveau.",
+                        "0,2 : une pioche Raccommodage I regagne un point tous les cinq blocs creusés.")
+                .defineInRange("raccommodage", 0.2, 0.0, 10.0);
+        EVEIL_ALERTE = server
+                .comment("Part de la durabilité usée à partir de laquelle un objet éveillé prévient qu'il risque d'oublier.")
+                .defineInRange("alerte", 0.9, 0.5, 1.0);
         server.comment("Nombre d'éveils qu'un objet peut porter, selon sa qualité de forge d'Overgeared (none : sans qualité).")
                 .push("places");
         for (String[] q : new String[][] {{"none", "1"}, {"poor", "1"}, {"well", "1"}, {"expert", "2"}, {"perfect", "2"}, {"master", "3"}}) {
@@ -496,6 +506,14 @@ public final class FallowConfig {
 
     public static double eveilFacteur() {
         return SERVER_SPEC.isLoaded() ? EVEIL_FACTEUR.get() : EVEIL_FACTEUR.getDefault();
+    }
+
+    public static double eveilRaccommodage() {
+        return SERVER_SPEC.isLoaded() ? EVEIL_RACCOMMODAGE.get() : EVEIL_RACCOMMODAGE.getDefault();
+    }
+
+    public static double eveilAlerte() {
+        return SERVER_SPEC.isLoaded() ? EVEIL_ALERTE.get() : EVEIL_ALERTE.getDefault();
     }
 
     /** Nombre d'éveils pour une qualité de forge ({@code none} si l'objet n'en a pas ou si elle est inconnue). */

@@ -24,9 +24,12 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 
 /**
  * Le cœur des hauts faits (docs/plan/eveil.md) : compter les actes d'un objet, le dire prêt quand il a assez vécu,
@@ -35,6 +38,7 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
  */
 public final class Eveil {
     private static final ResourceLocation QUALITE = ResourceLocation.fromNamespaceAndPath("overgeared", "forging_quality");
+    private static final ResourceLocation MENDING = ResourceLocation.withDefaultNamespace("mending");
 
     private Eveil() {
     }
@@ -62,10 +66,66 @@ public final class Eveil {
         }
         EtatEveil etat = etat(stack);
         Actes actes = Actes.get(player.server);
+        double gagnes = 0;
         for (HautsFaits.Entree entree : entrees) {
             actes.ajouter(etat.id(), entree.cle(), entree.points() * quantite);
+            gagnes += entree.points() * quantite;
+        }
+        if (type != HautsFaits.Type.REPARER) {
+            raccommoder(player, stack, etat, gagnes);
         }
         verifier(player, stack, etat, actes);
+    }
+
+    /**
+     * L'objet réellement porté par le joueur : une flèche ou un carreau tient une copie de l'arc qui l'a tiré, on
+     * retrouve l'original par son identifiant ; un trident lancé tient le vrai, qui reviendra.
+     */
+    static ItemStack reel(ServerPlayer player, ItemStack stack) {
+        if (stack == null || stack.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        EtatEveil etat = stack.get(EveilModule.ETAT.get());
+        Inventory inventaire = player.getInventory();
+        for (int i = 0; i < inventaire.getContainerSize(); i++) {
+            ItemStack porte = inventaire.getItem(i);
+            if (porte == stack) {
+                return stack;
+            }
+            EtatEveil autre = porte.get(EveilModule.ETAT.get());
+            if (etat != null && autre != null && autre.id().equals(etat.id())) {
+                return porte;
+            }
+        }
+        if (etat == null) {
+            for (ItemStack main : new ItemStack[] {player.getMainHandItem(), player.getOffhandItem()}) {
+                if (main.is(stack.getItem()) && main.get(EveilModule.ETAT.get()) == null) {
+                    return main;
+                }
+            }
+        }
+        return stack;
+    }
+
+    /**
+     * Raccommodage, sans expérience : l'objet se refait en vivant, {@code raccommodage} point de durabilité par point
+     * d'acte et par niveau, la fraction tirée au sort.
+     */
+    private static void raccommoder(ServerPlayer player, ItemStack stack, EtatEveil etat, double points) {
+        if (!stack.isDamaged()) {
+            return;
+        }
+        Optional<Holder.Reference<Enchantment>> mending = enchantement(stack, MENDING);
+        int niveau = mending.map(h -> EnchantmentHelper.getTagEnchantmentLevel(h, stack)).orElse(0);
+        if (niveau <= 0) {
+            return;
+        }
+        double rendu = points * niveau * FallowConfig.eveilRaccommodage();
+        int entier = (int) rendu + (player.getRandom().nextDouble() < rendu - (int) rendu ? 1 : 0);
+        if (entier > 0) {
+            stack.setDamageValue(Math.max(0, stack.getDamageValue() - entier));
+            EveilModule.vu(etat.id(), stack.getDamageValue());
+        }
     }
 
     /** L'état de l'objet, créé au premier acte (identifiant, places selon la qualité de forge). */
@@ -83,12 +143,31 @@ public final class Eveil {
         return FallowConfig.eveilSeuil() * Math.pow(FallowConfig.eveilFacteur(), n);
     }
 
+    /** Le seuil d'où part le chemin vers l'éveil numéro {@code n} (0 pour le premier). */
+    static double depart(int n) {
+        return n <= 0 ? 0.0 : seuil(n - 1);
+    }
+
+    /** Où en est l'objet sur le chemin de son prochain éveil, de 0 à 1. */
+    static double avancee(Actes actes, EtatEveil etat) {
+        double depart = depart(etat.occupees());
+        double total = actes.total(etat.id());
+        return Math.max(0.0, Math.min(1.0, (total - depart) / Math.max(1.0, seuil(etat.occupees()) - depart)));
+    }
+
     private static void verifier(ServerPlayer player, ItemStack stack, EtatEveil etat, Actes actes) {
         etat = reconcilier(stack, etat);
-        if (etat.pret() || etat.plein() || actes.total(etat.id()) < seuil(etat.occupees())) {
+        if (etat.pret() || etat.plein()) {
             return;
         }
-        stack.set(EveilModule.ETAT.get(), etat.avecPret(true));
+        if (actes.total(etat.id()) < seuil(etat.occupees())) {
+            int palier = Math.min(3, (int) (avancee(actes, etat) * 4));
+            if (palier != etat.palier()) {
+                stack.set(EveilModule.ETAT.get(), etat.avecPalier(palier));
+            }
+            return;
+        }
+        stack.set(EveilModule.ETAT.get(), etat.avecPret(true).avecPalier(0));
         stack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
         player.displayClientMessage(Component.translatable("eveil.fallow.message.pret", stack.getHoverName()), true);
         player.playNotifySound(SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.PLAYERS, 1.0F, 0.8F);
@@ -217,7 +296,7 @@ public final class Eveil {
         EtatEveil.Trace derniere = traces.remove(traces.size() - 1);
         Optional<Holder.Reference<Enchantment>> holder = enchantement(stack, derniere.enchantement());
         holder.ifPresent(h -> EnchantmentHelper.updateEnchantments(stack, m -> m.set(h, derniere.avant())));
-        EtatEveil updated = new EtatEveil(etat.id(), etat.places(), traces, false, true);
+        EtatEveil updated = new EtatEveil(etat.id(), etat.places(), traces, false, true, 0);
         stack.set(EveilModule.ETAT.get(), updated);
         stack.remove(DataComponents.ENCHANTMENT_GLINT_OVERRIDE);
         Actes.get(player.server).rabattre(etat.id(), traces.isEmpty() ? 0.0 : seuil(traces.size() - 1));
@@ -226,6 +305,63 @@ public final class Eveil {
         player.displayClientMessage(Component.translatable("eveil.fallow.message.oubli", stack.getHoverName(), nom)
                 .withStyle(ChatFormatting.GRAY), false);
         player.playNotifySound(SoundEvents.AMETHYST_CLUSTER_BREAK, SoundSource.PLAYERS, 1.0F, 0.6F);
+    }
+
+    /**
+     * À l'approche de la fin, un objet éveillé prévient une fois qu'il risque d'oublier ; {@code true} s'il vient de
+     * le dire. Réparé, il préviendra de nouveau.
+     */
+    static boolean alerte(ServerPlayer player, ItemStack stack, boolean dejaDit) {
+        EtatEveil etat = stack.get(EveilModule.ETAT.get());
+        if (etat == null || etat.traces().isEmpty() || etat.eteint() || !stack.isDamageableItem()
+                || stack.getDamageValue() < stack.getMaxDamage() * FallowConfig.eveilAlerte()) {
+            return false;
+        }
+        if (!dejaDit) {
+            EtatEveil.Trace derniere = etat.traces().get(etat.traces().size() - 1);
+            Component nom = enchantement(stack, derniere.enchantement())
+                    .<Component>map(h -> Enchantment.getFullname(h, derniere.niveau()))
+                    .orElse(Component.literal(derniere.enchantement().toString()));
+            player.displayClientMessage(Component.translatable("eveil.fallow.message.alerte", stack.getHoverName(), nom)
+                    .withStyle(ChatFormatting.GOLD), true);
+            player.playNotifySound(SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 0.8F, 0.5F);
+        }
+        return true;
+    }
+
+    /**
+     * Seul l'éveil enchante : ce que l'objet porte au-delà de ce que ses éveils lui ont donné s'efface (une épée
+     * ramassée sur un zombie, un coffre posé avec une structure, une récompense, une commande). Le livre enchanté est
+     * laissé à l'appelant, qui le remplace par un livre. {@code true} si l'objet a changé.
+     */
+    static boolean purifier(ItemStack stack) {
+        if (stack.isEmpty() || stack.is(EveilModule.ECLAT_DE_BETE.get()) || stack.is(Items.ENCHANTED_BOOK)) {
+            return false;
+        }
+        if (stack.has(DataComponents.STORED_ENCHANTMENTS) && !stack.getOrDefault(DataComponents.STORED_ENCHANTMENTS,
+                ItemEnchantments.EMPTY).isEmpty()) {
+            stack.remove(DataComponents.STORED_ENCHANTMENTS);
+            return true;
+        }
+        ItemEnchantments portes = stack.getTagEnchantments();
+        if (portes.isEmpty()) {
+            return false;
+        }
+        EtatEveil etat = stack.get(EveilModule.ETAT.get());
+        boolean change = false;
+        ItemEnchantments.Mutable nouveaux = new ItemEnchantments.Mutable(portes);
+        for (var entry : portes.entrySet()) {
+            ResourceLocation id = entry.getKey().unwrapKey().map(ResourceKey::location).orElse(null);
+            int permis = etat == null || id == null ? 0 : etat.niveau(id);
+            if (entry.getIntValue() > permis) {
+                nouveaux.set(entry.getKey(), permis);
+                change = true;
+            }
+        }
+        if (change) {
+            stack.set(DataComponents.ENCHANTMENTS, nouveaux.toImmutable());
+        }
+        return change;
     }
 
     // ---- outils ----
