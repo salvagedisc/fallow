@@ -40,7 +40,7 @@ public class ChevaletBlock extends HorizontalDirectionalBlock implements Ouvrage
     public static final BooleanProperty PEAU = BooleanProperty.create("peau");
     /** Coups déjà donnés sur la peau posée (le réglage s'arrête à 15). */
     public static final IntegerProperty RACLAGE = IntegerProperty.create("raclage", 0, 15);
-    private static final VoxelShape SHAPE = Block.box(1.0, 0.0, 1.0, 15.0, 12.0, 15.0);
+    private static final VoxelShape SHAPE = Block.box(0.5, 0.0, 0.5, 15.5, 14.0, 15.5);
 
     public ChevaletBlock(Properties properties) {
         super(properties);

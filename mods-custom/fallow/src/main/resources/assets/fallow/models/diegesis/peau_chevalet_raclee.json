@@ -1,38 +1,155 @@
 {
-  "parent": "minecraft:block/block",
+  "render_type": "minecraft:cutout",
   "textures": {
-    "peau": "fallow:block/peau_raclee_tendue",
-    "particle": "fallow:block/peau_raclee_tendue"
+    "peau": "fallow:item/peau_raclee",
+    "particle": "fallow:item/peau_raclee"
   },
   "elements": [
     {
       "from": [
-        5.44,
-        7.5,
-        0.94
+        4.94,
+        11.44,
+        0.44
       ],
       "to": [
-        10.56,
-        13.56,
-        15.06
+        11.06,
+        12.06,
+        15.56
       ],
+      "rotation": {
+        "angle": -22.5,
+        "axis": "x",
+        "origin": [
+          8,
+          11.5,
+          8
+        ]
+      },
       "faces": {
-        "north": {
-          "texture": "#peau"
+        "up": {
+          "texture": "#peau",
+          "uv": [
+            5,
+            0,
+            11,
+            16
+          ]
         },
-        "south": {
-          "texture": "#peau"
+        "down": {
+          "texture": "#peau",
+          "uv": [
+            5,
+            16,
+            11,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "from": [
+        4.44,
+        5.44,
+        0.44
+      ],
+      "to": [
+        5.06,
+        12.06,
+        15.56
+      ],
+      "rotation": {
+        "angle": -22.5,
+        "axis": "x",
+        "origin": [
+          8,
+          11.5,
+          8
+        ]
+      },
+      "faces": {
+        "west": {
+          "texture": "#peau",
+          "uv": [
+            0,
+            0,
+            5,
+            16
+          ],
+          "rotation": 90
         },
         "east": {
-          "texture": "#peau"
+          "texture": "#peau",
+          "uv": [
+            0,
+            0,
+            5,
+            16
+          ],
+          "rotation": 90
         },
+        "down": {
+          "texture": "#peau",
+          "uv": [
+            0,
+            0,
+            0.5,
+            16
+          ]
+        }
+      }
+    },
+    {
+      "from": [
+        10.94,
+        5.44,
+        0.44
+      ],
+      "to": [
+        11.56,
+        12.06,
+        15.56
+      ],
+      "rotation": {
+        "angle": -22.5,
+        "axis": "x",
+        "origin": [
+          8,
+          11.5,
+          8
+        ]
+      },
+      "faces": {
         "west": {
-          "texture": "#peau"
+          "texture": "#peau",
+          "uv": [
+            11,
+            0,
+            16,
+            16
+          ],
+          "rotation": 270
         },
-        "up": {
-          "texture": "#peau"
+        "east": {
+          "texture": "#peau",
+          "uv": [
+            11,
+            0,
+            16,
+            16
+          ],
+          "rotation": 270
+        },
+        "down": {
+          "texture": "#peau",
+          "uv": [
+            11,
+            0,
+            11.5,
+            16
+          ]
         }
       }
     }
-  ]
+  ],
+  "parent": "minecraft:block/block"
 }

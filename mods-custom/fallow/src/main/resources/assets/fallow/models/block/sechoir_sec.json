@@ -1,28 +1,49 @@
 {
   "render_type": "minecraft:cutout",
   "textures": {
-    "peau": "fallow:block/cuir_sec_tendu",
-    "particle": "fallow:block/cuir_sec_tendu"
+    "peau": "minecraft:item/leather",
+    "particle": "minecraft:item/leather"
   },
   "elements": [
     {
       "from": [
         2.5,
         3.5,
-        7.5
+        3.9
       ],
       "to": [
         13.5,
-        13.5,
-        8.5
+        14.75,
+        4.1
       ],
       "faces": {
         "north": {
-          "texture": "#peau"
+          "texture": "#peau",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
         },
         "south": {
-          "texture": "#peau"
+          "texture": "#peau",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
         }
+      },
+      "rotation": {
+        "angle": 22.5,
+        "axis": "x",
+        "origin": [
+          8,
+          0,
+          4
+        ]
       }
     }
   ]

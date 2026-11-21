@@ -28,6 +28,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -40,8 +41,11 @@ public class SechoirBlock extends HorizontalDirectionalBlock implements Ouvrage 
     public static final EnumProperty<Etat> ETAT = EnumProperty.create("etat", Etat.class);
     public static final IntegerProperty SECHAGE = IntegerProperty.create("sechage", 0, 15);
     static final int INTERVAL = 400;
-    private static final VoxelShape SHAPE_NS = Block.box(0.0, 0.0, 6.0, 16.0, 16.0, 10.0);
-    private static final VoxelShape SHAPE_EW = Block.box(6.0, 0.0, 0.0, 10.0, 16.0, 16.0);
+    // Le cadre penche vers l'arrière, retenu par deux jambes de force : il prend toute la profondeur sauf une marge devant.
+    private static final VoxelShape SHAPE_N = Block.box(0.0, 0.0, 2.0, 16.0, 16.0, 16.0);
+    private static final VoxelShape SHAPE_S = Block.box(0.0, 0.0, 0.0, 16.0, 16.0, 14.0);
+    private static final VoxelShape SHAPE_E = Block.box(0.0, 0.0, 0.0, 14.0, 16.0, 16.0);
+    private static final VoxelShape SHAPE_W = Block.box(2.0, 0.0, 0.0, 16.0, 16.0, 16.0);
 
     public enum Etat implements StringRepresentable {
         VIDE, HUMIDE, SEC;
@@ -74,7 +78,12 @@ public class SechoirBlock extends HorizontalDirectionalBlock implements Ouvrage 
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return state.getValue(FACING).getAxis() == Direction.Axis.Z ? SHAPE_NS : SHAPE_EW;
+        return switch (state.getValue(FACING)) {
+            case SOUTH -> SHAPE_S;
+            case EAST -> SHAPE_E;
+            case WEST -> SHAPE_W;
+            default -> SHAPE_N;
+        };
     }
 
     @Override
@@ -221,8 +230,9 @@ public class SechoirBlock extends HorizontalDirectionalBlock implements Ouvrage 
     @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
         if (state.getValue(ETAT) == Etat.HUMIDE && random.nextInt(8) == 0) {
-            level.addParticle(net.minecraft.core.particles.ParticleTypes.DRIPPING_WATER, pos.getX() + 0.2 + random.nextDouble() * 0.6,
-                    pos.getY() + 0.2, pos.getZ() + 0.2 + random.nextDouble() * 0.6, 0.0, 0.0, 0.0);
+            // Sous le bas du cuir, qui est à 5 pixels de l'avant du cadre.
+            Vec3 bas = surCuir(state, pos, 0.25 + random.nextDouble() * 0.5, 0.25);
+            level.addParticle(net.minecraft.core.particles.ParticleTypes.DRIPPING_WATER, bas.x, bas.y, bas.z, 0.0, 0.0, 0.0);
         }
         // Près d'un feu ou au soleil, le cuir mouillé fume un peu : on le voit sécher en passant (la recherche du feu, qui coûte,
         // n'est faite qu'une fois sur quatre).
@@ -230,10 +240,27 @@ public class SechoirBlock extends HorizontalDirectionalBlock implements Ouvrage 
             String cause = cause(level, pos);
             int fois = "feu".equals(cause) ? 2 : "soleil".equals(cause) && random.nextBoolean() ? 1 : 0;
             for (int i = 0; i < fois; i++) {
-                level.addParticle(net.minecraft.core.particles.ParticleTypes.WHITE_SMOKE, pos.getX() + 0.2 + random.nextDouble() * 0.6,
-                        pos.getY() + 0.35 + random.nextDouble() * 0.5, pos.getZ() + 0.45 + random.nextDouble() * 0.1, 0.0, 0.015, 0.0);
+                Vec3 face = surCuir(state, pos, 0.25 + random.nextDouble() * 0.5, 0.3 + random.nextDouble() * 0.55);
+                level.addParticle(net.minecraft.core.particles.ParticleTypes.WHITE_SMOKE, face.x, face.y, face.z, 0.0, 0.015, 0.0);
             }
         }
+    }
+
+    /**
+     * Un point devant le cuir tendu, le cadre penchant vers l'arrière de 22,5° : {@code u} de gauche à droite (0 à 1) vu de
+     * devant, {@code h} la hauteur dans le bloc (0 à 1). Vu du nord, le cuir est à z = 3,8 + 0,414 · y pixels.
+     */
+    static Vec3 surCuir(BlockState state, BlockPos pos, double u, double h) {
+        double profondeur = (3.8 + 0.414 * h * 16.0) / 16.0;
+        double x;
+        double z;
+        switch (state.getValue(FACING)) {
+            case SOUTH -> { x = 1.0 - u; z = 1.0 - profondeur; }
+            case EAST -> { x = 1.0 - profondeur; z = u; }
+            case WEST -> { x = profondeur; z = 1.0 - u; }
+            default -> { x = u; z = profondeur; }
+        }
+        return new Vec3(pos.getX() + x, pos.getY() + h, pos.getZ() + z);
     }
 
     @Override
