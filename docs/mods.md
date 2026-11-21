@@ -29,6 +29,10 @@ Side: C = client, S = server, CS = both. Versions checked on Modrinth for NeoFor
 | Antique Transport | jar in `pack/mods/` | ✅ (added 2026-10-25, NeoForge port) | CS | Create trains, tracks, stations and Sable ships appear on the atlas |
 | Surveyor Map Framework | jar in `pack/mods/` | ✅ (NeoForge port) | CS | Shared exploration for the atlas |
 | Icy's Better Horses | `icys-better-horses` | ✅ (2.0.1; 2.1.x held, see the roadmap) | CS | Horses, breeds, bond, carts |
+| Fish 'N' Ships | `fish-n-ships` | ✅ (1.1.0, added 2026-11-21, ARR, [0047](decisions/0047-small-boats.md)) | CS | Small craft in every vanilla wood: canoe (three seats, or a chest), sailboat with a banner as its sail, raft and supply raft, fishing boat |
+| Better Boat Movement | `better-boat-movement` | ✅ (2.5.4, added 2026-11-21, GPL-3.0) | CS | A boat climbs a step, a slab or a bank out of the water instead of stopping against it |
+| BoatView360 | `boatview360` | ✅ (1.0.6, added 2026-11-21, LGPL-3.0) | C | A passenger can look all around, not only 210° |
+| BoatHandsFree | `boathandsfree` | ✅ (1.0.3, added 2026-11-21, LGPL-3.0) | C | Hit, use an item or interact while rowing |
 
 ## Long-term goals
 
@@ -213,7 +217,7 @@ Side: C = client, S = server, CS = both. Versions checked on Modrinth for NeoFor
 
 ## Libraries
 
-Already present: Configurable (Neruina), Architectury API, Balm, Cloth Config, CorgiLib, Data Anchor, Fragmentum, MRU, Puzzles Lib, CodxLib, CreativeCore, Curios API, Fzzy Config, GeckoLib, Hybrid API, Kiwi, Teal Lib (Spawn), Knight Lib, Kotlin for Forge, Lithostitched, McQoy, Modonomicon (required by Icy's Better Horses; its stable handbook has no recipe and is hidden from EMI), Moonlight Lib, Patchouli, Resourceful Config, Resourceful Lib, Rhino, YACL, Zeta, Create: Dragons Plus (Create: Central Kitchen), Diegesis (Hands-On Delight, listed with it above). Astemir Re-Lib (Archie's Dinosaurs) is not a packwiz file but a jar committed in `pack/mods/`: its author withdraws each build from Modrinth within a day ([0021](decisions/0021-spelunkery-and-dinosaurs.md)).
+Already present: Configurable (Neruina), Architectury API, Balm, Cloth Config, CorgiLib, Data Anchor, Fragmentum, MRU, Puzzles Lib, CodxLib, CreativeCore, Curios API, Fzzy Config, GeckoLib, Hybrid API, Kiwi, Teal Lib (Spawn), Knight Lib, Kotlin for Forge, KotlinLangForge (Better Boat Movement, added 2026-11-21), Lithostitched, McQoy, Modonomicon (required by Icy's Better Horses; its stable handbook has no recipe and is hidden from EMI), Moonlight Lib, Patchouli, Resourceful Config, Resourceful Lib, Rhino, YACL, Zeta, Create: Dragons Plus (Create: Central Kitchen), Diegesis (Hands-On Delight, listed with it above). Astemir Re-Lib (Archie's Dinosaurs) is not a packwiz file but a jar committed in `pack/mods/`: its author withdraws each build from Modrinth within a day ([0021](decisions/0021-spelunkery-and-dinosaurs.md)).
 
 ## Dropped or rejected
 
@@ -224,6 +228,9 @@ Already present: Configurable (Neruina), Architectury API, Balm, Cloth Config, C
 | Create: Train Functionality | Buildable train carriages on Sable: only on CurseForge, no source ([0044](decisions/0044-sable-and-create.md)) |
 | Cold Sweat Sable Compat, Cold Sweat x Aeronautics | Cold Sweat supports Sable itself since 2.4.1 |
 | MassWeightCompat, Sable Weighted | Duplicate Sable: Physics Compat for the mods of the pack |
+| Small Ships | Cogs, brigantines, galleys and drakkars with cannons: real ships, not the small craft the team wants ([0047](decisions/0047-small-boats.md)) |
+| Boatload | Large boats and furnace boats under the restrictive Abnormals licence ([0047](decisions/0047-small-boats.md)) |
+| Old Boats | Pre-1.9 boats again: version 0.3, 71 downloads on 2026-11-21, too young ([0047](decisions/0047-small-boats.md)) |
 | Sable Assembly Fix, Aeronautics: Addition, Create Aeronautics Roller Fix | Covered by Sable Fix Mod, Sable Beyond and Plough & Roll! |
 | Create: Sable Train Overlay Compat | Shows trains on ships on Create's train map, which needs a map mod the pack does not have (the atlas already marks ships) |
 | Cinematic Interactions | Removed on 2026-11-20 ([0040](decisions/0040-removing-cinematic-interactions.md)): a jar embedded in the pack because it is only on CurseForge, which held back the first Modrinth version; the vanilla stations open their usual windows again |
