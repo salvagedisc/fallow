@@ -70,20 +70,22 @@ public final class NaviresModule {
                 continue;
             }
             try {
-                push(level, ship, dt, wind ? multiplier : 0.0, storms, rain, thunder, gameTime, edge);
+                push(level, system, ship, dt, wind ? multiplier : 0.0, storms, rain, thunder, gameTime, edge);
             } catch (RuntimeException e) {
                 Fallow.LOGGER.debug("navires : poussée impossible sur {}", ship, e);
             }
         }
     }
 
-    private static void push(ServerLevel level, ServerSubLevel ship, double dt, double multiplier, boolean storms, float rain,
+    private static void push(ServerLevel level, SubLevelPhysicsSystem system, ServerSubLevel ship, double dt, double multiplier, boolean storms, float rain,
             float thunder, long gameTime, BordModule.Edge edge) {
         BoundingBox3dc box = ship.boundingBox();
         double sizeX = box.maxX() - box.minX();
         double sizeY = box.maxY() - box.minY();
         double sizeZ = box.maxZ() - box.minZ();
-        if (Math.max(sizeX, Math.max(sizeY, sizeZ)) < ShipForces.MIN_SIZE) {
+        // Un tout petit corps (pantin de Sable Ragdoll, objet) n'offre pas de prise au vent ; le bord le repousse quand même.
+        boolean small = Math.max(sizeX, Math.max(sizeY, sizeZ)) < ShipForces.MIN_SIZE;
+        if (small && edge == null) {
             return;
         }
         MassData mass = ship.getMassTracker();
@@ -92,13 +94,14 @@ public final class NaviresModule {
         }
         double centerX = (box.minX() + box.maxX()) * 0.5;
         double centerZ = (box.minZ() + box.maxZ()) * 0.5;
-        Vector3d velocity = ship.latestLinearVelocity;
+        // La vitesse du corps à ce pas de physique (latestLinearVelocity ne suit le pas qu'une fois par tick).
+        Vector3d velocity = system.getPhysicsHandle(ship).getLinearVelocity(new Vector3d());
         double forceX = 0.0;
         double forceZ = 0.0;
         double gustX = 0.0;
         double gustZ = 0.0;
 
-        if (multiplier > 0.0) {
+        if (multiplier > 0.0 && !small) {
             BlockPos above = BlockPos.containing(centerX, box.maxY() + 1.0, centerZ);
             if (level.isLoaded(above) && level.canSeeSky(above)) {
                 double centerY = (box.minY() + box.maxY()) * 0.5;

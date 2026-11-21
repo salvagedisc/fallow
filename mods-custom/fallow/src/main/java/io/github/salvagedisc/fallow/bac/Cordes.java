@@ -35,10 +35,8 @@ final class Cordes {
         }
     }
 
-    /** Vrai si une corde tend encore de {@code a} à {@code b}, dans un sens ou dans l'autre. */
-    static boolean linked(Level level, BlockPos a, BlockPos b) {
-        Map<BlockPos, BlockPos> lines = LINES.getOrDefault(level.dimension(), Map.of());
-        return b.equals(lines.get(a)) || a.equals(lines.get(b));
+    static void clear() {
+        LINES.clear();
     }
 
     /** Le point d'attache de la corde sur un pieu : le haut du pieu. */
@@ -54,6 +52,9 @@ final class Cordes {
         Line best = null;
         double bestDistance = REACH;
         for (Map.Entry<BlockPos, BlockPos> entry : new HashMap<>(LINES.getOrDefault(level.dimension(), Map.of())).entrySet()) {
+            if (!(level.getBlockEntity(entry.getKey()) instanceof PieuBlockEntity post) || !post.tied()) {
+                continue;
+            }
             Vec3 a = knot(entry.getKey());
             Vec3 b = knot(entry.getValue());
             Traille.Place place = Traille.place(a.x, a.z, b.x, b.z, x, z);

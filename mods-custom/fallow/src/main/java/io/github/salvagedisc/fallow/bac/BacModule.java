@@ -17,7 +17,9 @@ import net.minecraft.world.level.material.MapColor;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -64,6 +66,8 @@ public final class BacModule {
             }
         });
         SableEventPlatform.INSTANCE.onPhysicsTick(Bac::onPhysicsTick);
+        // Le registre des cordes est statique : il ne doit pas passer d'un monde à l'autre (monde solo quitté puis un autre ouvert).
+        NeoForge.EVENT_BUS.addListener(ServerStoppedEvent.class, event -> Cordes.clear());
         if (FMLEnvironment.dist == Dist.CLIENT) {
             io.github.salvagedisc.fallow.bac.client.BacClient.start(modBus);
         }

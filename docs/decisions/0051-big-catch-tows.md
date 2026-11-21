@@ -16,9 +16,9 @@ Starcatcher's fight is a minigame on screen: whatever the fish, the angler and t
 ## Decision
 Option A, `prise` module of the `fallow` mod 0.65.0 (needs Starcatcher; Sable for ships of blocks).
 
-- **When**: while a Starcatcher bobber is in its fight state and its angler is aboard a Sable ship or in a boat on water (vanilla or Fish 'N' Ships). Species under 8 kg (Starcatcher's average weight of the species) pull nothing.
+- **When**: while a Starcatcher bobber is in its fight state and its angler is aboard a Sable ship whose hull touches water or in a boat on water (vanilla or Fish 'N' Ships; since 0.66.0 only boats, not a swimming horse). Species under 8 kg (Starcatcher's average weight of the species) pull nothing.
 - **How fast**: the fish swims off at 2.5 blocks/s, away from the boat at first, then its heading drifts slowly by up to 50° either way; its strength surges and slackens between 0.5 and 1.2. Line taut, fish and boat go together at `2.5 × strength × fish / (fish + boat)` blocks/s. A Sable ship weighs 40 kg per unit of Sable mass (a plank is 0.5); an entity boat 150 kg per square block of its footprint, passenger included (a vanilla boat, about 280 kg).
-- **Examples**: a 120 kg tuna takes a six-plank raft (120 kg) along at about 1 block/s, a 48-plank raft at 0.2 block/s, a vanilla boat at about 0.7 block/s; the Quarrish (700 kg) runs away with any small boat.
+- **Examples**: a 120 kg tuna takes a six-plank raft (120 kg) along at about 0.9 block/s, a 48-plank raft at 0.2 block/s, a vanilla boat at about 0.7 block/s; the Quarrish (700 kg) runs away with any small boat.
 - **The bobber** follows the fish at the boat's pace, up to 40 blocks from the boat; at a bank the fish turns. Splashes at the bobber when it surges; « Le poisson vous emporte ! » once per fight.
 - **Who moves the boat**: a Sable ship is pushed by the server in Sable's physics step (propulsion force group, at most 4 blocks/s²). An entity boat moves on its helmsman's client, so the server sends that client the heading and the speed every 4 ticks and the client pushes the boat (an optional payload: a client without the mod is not refused).
 - **Switch**: `prise.enabled` in `config/fallow-common.toml`.

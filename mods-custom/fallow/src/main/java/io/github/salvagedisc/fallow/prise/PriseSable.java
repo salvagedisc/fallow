@@ -3,14 +3,17 @@ package io.github.salvagedisc.fallow.prise;
 import dev.ryanhcode.sable.api.physics.force.ForceGroups;
 import dev.ryanhcode.sable.api.physics.mass.MassData;
 import dev.ryanhcode.sable.companion.SableCompanion;
+import dev.ryanhcode.sable.companion.math.BoundingBox3dc;
 import dev.ryanhcode.sable.platform.SableEventPlatform;
 import dev.ryanhcode.sable.sublevel.ServerSubLevel;
 import dev.ryanhcode.sable.sublevel.system.SubLevelPhysicsSystem;
 import io.github.salvagedisc.fallow.Fallow;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Position;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3d;
 
@@ -46,8 +49,35 @@ final class PriseSable {
         if (mass == null || mass.isInvalid() || mass.getMass() <= 0.0) {
             return -1.0;
         }
+        if (!afloat(ship)) {
+            // À bord d'un navire, mais il vole ou il est échoué : le poisson ne l'emporte pas (0, et pas -1 : ce n'est
+            // pas non plus une barque).
+            return 0.0;
+        }
         TOWS.put(ship, new Tow(dx, dz, fishKg, surge, gameTime + 2));
         return Prise.target(fishKg, mass.getMass() * Prise.KG_PER_MASS, surge);
+    }
+
+    /** Vrai si de l'eau touche le bas de la coque, sous son milieu ou l'un de ses coins. */
+    private static boolean afloat(ServerSubLevel ship) {
+        BoundingBox3dc box = ship.boundingBox();
+        Level level = ship.getLevel();
+        double[][] points = {{0.5, 0.5}, {0.2, 0.2}, {0.8, 0.2}, {0.2, 0.8}, {0.8, 0.8}};
+        for (double[] p : points) {
+            double x = box.minX() + (box.maxX() - box.minX()) * p[0];
+            double z = box.minZ() + (box.maxZ() - box.minZ()) * p[1];
+            for (int dy = -1; dy <= 1; dy++) {
+                BlockPos pos = BlockPos.containing(x, box.minY() + dy, z);
+                if (level.isLoaded(pos) && !level.getFluidState(pos).isEmpty()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    static void clear() {
+        TOWS.clear();
     }
 
     /** Où le joueur se trouve dans le monde, même assis dans la parcelle d'un navire. */
@@ -77,7 +107,7 @@ final class PriseSable {
                     continue;
                 }
                 double target = Prise.target(tow.fishKg(), mass.getMass() * Prise.KG_PER_MASS, tow.surge());
-                Vector3d velocity = ship.latestLinearVelocity;
+                Vector3d velocity = system.getPhysicsHandle(ship).getLinearVelocity(new Vector3d());
                 double a = Prise.pull(velocity.x * tow.dx() + velocity.z * tow.dz(), target);
                 if (a <= 0.0) {
                     continue;

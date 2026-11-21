@@ -400,5 +400,6 @@
   "message.fallow.bac.cap.sud_ouest": "south-west",
   "message.fallow.bac.cap.ouest": "west",
   "message.fallow.bac.cap.nord_ouest": "north-west",
-  "message.fallow.prise.emporte": "The fish is towing you away!"
+  "message.fallow.prise.emporte": "The fish is towing you away!",
+  "message.fallow.bac.a_terre": "The raft rests on the bank or the bottom: move it away from the shore."
 }

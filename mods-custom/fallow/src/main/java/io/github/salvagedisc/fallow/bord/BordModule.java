@@ -17,10 +17,14 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 
 /**
  * Module bord : le monde est un disque, et le vent du large en garde le bord. Le fichier de données
@@ -103,6 +107,17 @@ public final class BordModule {
         return Math.min(4.0, 1.0 + 3.0 * past / band);
     }
 
+    /**
+     * Vitesse ajoutée vers les terres en un tick, en blocs par tick, à ce qui avance de ({@code motionX},
+     * {@code motionZ}) blocs par tick : la poussée du vent, et au-delà du bord un frein sur ce qui va encore vers le
+     * large, pour qu'on n'y avance plus.
+     */
+    public static double gain(double motionX, double motionZ, double inX, double inZ, double strength, double past) {
+        double outward = -(motionX * inX + motionZ * inZ);
+        double brake = outward > 0.0 && past > 0.0 ? outward * Math.min(0.5, 0.15 * strength) : 0.0;
+        return PLAYER_PUSH * strength + brake;
+    }
+
     private BordModule() {
     }
 
@@ -110,6 +125,13 @@ public final class BordModule {
         NeoForge.EVENT_BUS.addListener(AddReloadListenerEvent.class,
                 event -> event.addListener((ResourceManagerReloadListener) BordModule::load));
         NeoForge.EVENT_BUS.addListener(PlayerTickEvent.Post.class, BordModule::onPlayerTick);
+        modBus.addListener(RegisterPayloadHandlersEvent.class, event -> event.registrar("1")
+                .optional()
+                .playToClient(BordVent.TYPE, BordVent.STREAM_CODEC,
+                        (wind, context) -> context.enqueueWork(() -> io.github.salvagedisc.fallow.bord.client.BordClient.receive(wind))));
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            io.github.salvagedisc.fallow.bord.client.BordClient.start();
+        }
         Fallow.LOGGER.info("bord : le bord du monde suit data/fallow/monde/bord.json");
     }
 
@@ -158,6 +180,12 @@ public final class BordModule {
         double past = current.past(position.x, position.z);
         double strength = push(past, PUSH_BAND);
         if (Ships.isAboard(player)) {
+            if (past > SAFETY) {
+                // Filet : un navire passé malgré le vent (module navires coupé, par exemple) n'emporte pas le joueur au large.
+                player.stopRiding();
+                bringBack(current, player, player, position);
+                return;
+            }
             // C'est le navire que le vent repousse (module navires) : le joueur à bord est seulement prévenu.
             if (strength > 0.0 && player.tickCount % WARNING_INTERVAL == 0) {
                 player.displayClientMessage(Component.translatable("message.fallow.bord.navire"), true);
@@ -177,24 +205,9 @@ public final class BordModule {
             }
             return;
         }
+        // Le joueur à pied, sa monture ou son bateau avancent selon son client : c'est lui qui applique le vent.
         double[] in = current.inward(position.x, position.z);
-        Vec3 motion = root.getDeltaMovement();
-        // Ce qui va encore vers le large perd une part de son élan au-delà du bord : on n'y avance plus.
-        double outward = -(motion.x * in[0] + motion.z * in[1]);
-        double brake = outward > 0.0 && past > 0.0 ? outward * Math.min(0.5, 0.15 * strength) : 0.0;
-        double gain = PLAYER_PUSH * strength + brake;
-        root.setDeltaMovement(motion.add(in[0] * gain, 0.0, in[1] * gain));
-        if (root == player) {
-            // Le mouvement du joueur est calculé par son client : il faut lui envoyer, comme un recul.
-            player.hurtMarked = true;
-        } else {
-            // Un bateau ou une monture est dirigé par le client de son pilote.
-            for (Entity rider : root.getIndirectPassengers()) {
-                if (rider instanceof ServerPlayer riding) {
-                    riding.connection.send(new ClientboundSetEntityMotionPacket(root));
-                }
-            }
-        }
+        PacketDistributor.sendToPlayer(player, new BordVent((float) in[0], (float) in[1], (float) strength, (float) past));
         if (player.tickCount % WARNING_INTERVAL == 0) {
             player.displayClientMessage(Component.translatable("message.fallow.bord.vent"), true);
         }

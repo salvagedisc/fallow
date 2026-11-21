@@ -102,7 +102,7 @@ final class Bac {
             return null;
         }
         SubLevelAssemblyHelper.GatherResult gathered = SubLevelAssemblyHelper.gatherConnectedBlocks(pos, level, MAX_BLOCKS,
-                (from, fromState, to, toState, direction) -> isRaft(toState));
+                (from, fromState, to, toState, direction) -> isRaft(toState) && !isWaterPlant(level, to, toState));
         if (gathered.assemblyState() != SubLevelAssemblyHelper.GatherResult.State.SUCCESS || gathered.blocks().isEmpty()) {
             say(player, Component.translatable("message.fallow.bac.trop_grand", MAX_BLOCKS));
             return null;
@@ -111,6 +111,19 @@ final class Bac {
                 && !gathered.blocks().contains(block.below()));
         if (!floating) {
             say(player, Component.translatable("message.fallow.bac.pas_sur_l_eau"));
+            return null;
+        }
+        // Un radeau qui pose sur la rive ou sur le fond emporterait avec lui un ponton, un quai ou une maison.
+        boolean grounded = gathered.blocks().stream().anyMatch(block -> {
+            BlockPos below = block.below();
+            if (gathered.blocks().contains(below) || !level.getFluidState(below).isEmpty()) {
+                return false;
+            }
+            BlockState ground = level.getBlockState(below);
+            return !ground.isAir() && !ground.canBeReplaced();
+        });
+        if (grounded) {
+            say(player, Component.translatable("message.fallow.bac.a_terre"));
             return null;
         }
         ServerSubLevel ship;
@@ -137,6 +150,11 @@ final class Bac {
         }
         return !state.is(BlockTags.MINEABLE_WITH_SHOVEL) && !state.is(BlockTags.BASE_STONE_OVERWORLD)
                 && !state.is(BacModule.PIEU.get());
+    }
+
+    /** Une plante d'eau sous le radeau (varech, herbes) : ni prise avec lui, ni prise pour le fond qui le porterait. */
+    private static boolean isWaterPlant(ServerLevel level, BlockPos pos, BlockState state) {
+        return !state.getFluidState().isEmpty() && state.getCollisionShape(level, pos).isEmpty();
     }
 
     // ---- Les données du navire ----
@@ -174,7 +192,12 @@ final class Bac {
     }
 
     private static Vec3 center(ServerSubLevel ship) {
-        Vector3d com = ship.logicalPose().transformPosition(new Vector3d(ship.getMassTracker().getCenterOfMass()), new Vector3d());
+        MassData mass = ship.getMassTracker();
+        if (mass == null || mass.getCenterOfMass() == null) {
+            BoundingBox3dc box = ship.boundingBox();
+            return new Vec3((box.minX() + box.maxX()) * 0.5, (box.minY() + box.maxY()) * 0.5, (box.minZ() + box.maxZ()) * 0.5);
+        }
+        Vector3d com = ship.logicalPose().transformPosition(new Vector3d(mass.getCenterOfMass()), new Vector3d());
         return new Vec3(com.x, com.y, com.z);
     }
 
@@ -206,20 +229,22 @@ final class Bac {
                 continue;
             }
             try {
-                pull(level, ship, data, dt);
+                pull(level, system, ship, data, dt);
             } catch (RuntimeException e) {
                 Fallow.LOGGER.debug("bac : poussée impossible sur {}", ship, e);
             }
         }
     }
 
-    private static void pull(ServerLevel level, ServerSubLevel ship, CompoundTag data, double dt) {
+    private static void pull(ServerLevel level, SubLevelPhysicsSystem system, ServerSubLevel ship, CompoundTag data, double dt) {
         BlockPos a = BlockPos.of(data.getLong("a"));
         BlockPos b = BlockPos.of(data.getLong("b"));
         if (!level.isLoaded(a) || !level.isLoaded(b)) {
             return;
         }
-        if (!Cordes.linked(level, a, b)) {
+        // La corde se lit sur les pieux eux-mêmes : le registre des cordes ne se remplit qu'au tick qui suit le
+        // chargement d'un chunk, et un radeau ne doit pas être lâché pendant ce tick-là.
+        if (!(level.getBlockEntity(a) instanceof PieuBlockEntity post) || !b.equals(post.other()) || !post.tied()) {
             release(level, ship, "message.fallow.bac.coupee");
             return;
         }
@@ -235,7 +260,7 @@ final class Bac {
             release(level, ship, "message.fallow.bac.lache");
             return;
         }
-        Vector3d velocity = ship.latestLinearVelocity;
+        Vector3d velocity = system.getPhysicsHandle(ship).getLinearVelocity(new Vector3d());
         double[] hold = Traille.hold(place, velocity.x, velocity.z);
         double[] current = current(level, ship.boundingBox());
         double target = Traille.target(place, data.getInt("sens"), current[0], current[1]);

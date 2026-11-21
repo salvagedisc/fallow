@@ -400,5 +400,6 @@
   "message.fallow.bac.cap.sud_ouest": "le sud-ouest",
   "message.fallow.bac.cap.ouest": "l'ouest",
   "message.fallow.bac.cap.nord_ouest": "le nord-ouest",
-  "message.fallow.prise.emporte": "Le poisson vous emporte !"
+  "message.fallow.prise.emporte": "Le poisson vous emporte !",
+  "message.fallow.bac.a_terre": "Le radeau touche la rive ou le fond : écartez-le de la berge."
 }

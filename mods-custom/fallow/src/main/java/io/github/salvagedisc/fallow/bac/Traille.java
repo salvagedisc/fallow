@@ -14,8 +14,11 @@ public final class Traille {
     public static final double MAX_LATERAL = 15.0;
     /** Au-delà de cet écart à la corde, en blocs, la corde lâche. */
     public static final double SLIP = 8.0;
-    /** Vitesse de traversée sans courant, en blocs par seconde : le passeur tire sur la corde. */
-    public static final double HAND_SPEED = 1.2;
+    /**
+     * Vitesse visée sans courant, en blocs par seconde : le passeur tire sur la corde. L'eau freine le radeau, qui va
+     * en eau calme à environ 1 bloc par seconde (mesuré sur un radeau de 3 × 3 planches).
+     */
+    public static final double HAND_SPEED = 1.4;
     /** Vitesse de traversée gagnée par bloc par seconde de courant le long du fleuve. */
     public static final double CURRENT_GAIN = 1.5;
     /** Vitesse d'un courant de rivière (écoulement unitaire), en blocs par seconde. */

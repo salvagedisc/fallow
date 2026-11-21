@@ -31,6 +31,15 @@ public class PieuBlockEntity extends BlockEntity {
         return owner;
     }
 
+    /**
+     * Vrai si la corde de ce pieu va bien au pieu d'en face et qu'il la tient aussi : une copie de pieu emportée par un
+     * navire garde ses données, mais le pieu d'en face ne la connaît plus.
+     */
+    public boolean tied() {
+        return other != null && level != null && level.getBlockEntity(other) instanceof PieuBlockEntity far
+                && worldPosition.equals(far.other());
+    }
+
     int ropes() {
         return ropes;
     }

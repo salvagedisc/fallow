@@ -30,6 +30,7 @@ public class PieuBlock extends Block implements EntityBlock {
     /** Portée d'une corde de bac, en blocs. */
     static final int MAX_LENGTH = 96;
     private static final String PENDING = "fallow_bac_pieu";
+    private static final String PENDING_WORLD = "fallow_bac_pieu_monde";
     private static final VoxelShape SHAPE = Block.box(5.0, 0.0, 5.0, 11.0, 16.0, 11.0);
 
     public PieuBlock(Properties properties) {
@@ -64,13 +65,16 @@ public class PieuBlock extends Block implements EntityBlock {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
         CompoundTag data = player.getPersistentData();
-        BlockPos first = data.contains(PENDING) ? BlockPos.of(data.getLong(PENDING)) : null;
+        String world = level.dimension().location().toString();
+        BlockPos first = data.contains(PENDING) && world.equals(data.getString(PENDING_WORLD)) ? BlockPos.of(data.getLong(PENDING)) : null;
         if (first == null || first.equals(pos) || !(level.getBlockEntity(first) instanceof PieuBlockEntity start)) {
             data.putLong(PENDING, pos.asLong());
+            data.putString(PENDING_WORLD, world);
             player.displayClientMessage(Component.translatable("message.fallow.bac.attache"), true);
             return ItemInteractionResult.SUCCESS;
         }
         data.remove(PENDING);
+        data.remove(PENDING_WORLD);
         double length = Math.sqrt(first.distSqr(pos));
         if (length > MAX_LENGTH) {
             player.displayClientMessage(Component.translatable("message.fallow.bac.trop_loin", MAX_LENGTH), true);
@@ -113,7 +117,13 @@ public class PieuBlock extends Block implements EntityBlock {
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean moved) {
         if (!state.is(newState.getBlock()) && level.getBlockEntity(pos) instanceof PieuBlockEntity post) {
-            release(level, post);
+            if (moved) {
+                // Déplacé (un navire de Sable ou une machine l'emporte, avec ses données) : la copie garde les cordes et
+                // les rendra si on la casse. Ici on défait seulement le pieu d'en face, sans rien rendre.
+                detach(level, post);
+            } else {
+                release(level, post);
+            }
         }
         super.onRemove(state, level, pos, newState, moved);
     }
@@ -124,7 +134,8 @@ public class PieuBlock extends Block implements EntityBlock {
         if (other == null || level.isClientSide()) {
             return;
         }
-        PieuBlockEntity owner = post.owner() ? post : level.getBlockEntity(other) instanceof PieuBlockEntity o && o.owner() ? o : null;
+        PieuBlockEntity owner = post.owner() ? post
+                : level.getBlockEntity(other) instanceof PieuBlockEntity o && o.owner() && post.getBlockPos().equals(o.other()) ? o : null;
         if (owner != null && owner.ropes() > 0) {
             Block.popResource(level, owner.getBlockPos(), new ItemStack(BacModule.cordeRendue(), owner.ropes()));
         }
@@ -134,9 +145,27 @@ public class PieuBlock extends Block implements EntityBlock {
         post.unlink();
     }
 
+    /** Défait le pieu d'en face s'il tient encore à celui-ci, sans rendre de cordes. */
+    private static void detach(Level level, PieuBlockEntity post) {
+        BlockPos other = post.other();
+        if (other == null || level.isClientSide()) {
+            return;
+        }
+        if (level.getBlockEntity(other) instanceof PieuBlockEntity far && post.getBlockPos().equals(far.other())) {
+            far.unlink();
+        }
+    }
+
+    /** Les piles où chercher des cordes : l'inventaire et la main gauche. */
+    private static Iterable<ItemStack> stacks(Player player) {
+        java.util.List<ItemStack> all = new java.util.ArrayList<>(player.getInventory().items);
+        all.addAll(player.getInventory().offhand);
+        return all;
+    }
+
     private static int count(Player player) {
         int count = 0;
-        for (ItemStack stack : player.getInventory().items) {
+        for (ItemStack stack : stacks(player)) {
             if (stack.is(BacModule.CORDES)) {
                 count += stack.getCount();
             }
@@ -145,7 +174,7 @@ public class PieuBlock extends Block implements EntityBlock {
     }
 
     private static void take(Player player, int amount) {
-        for (ItemStack stack : player.getInventory().items) {
+        for (ItemStack stack : stacks(player)) {
             if (amount <= 0) {
                 return;
             }

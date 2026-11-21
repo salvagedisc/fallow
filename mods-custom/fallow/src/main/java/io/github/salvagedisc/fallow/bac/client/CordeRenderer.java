@@ -33,7 +33,7 @@ public class CordeRenderer implements BlockEntityRenderer<PieuBlockEntity> {
     public void render(PieuBlockEntity post, float partialTick, PoseStack poseStack, MultiBufferSource buffers, int light, int overlay) {
         BlockPos other = post.other();
         Level level = post.getLevel();
-        if (!post.owner() || other == null || level == null) {
+        if (!post.owner() || other == null || level == null || !post.tied()) {
             return;
         }
         BlockPos pos = post.getBlockPos();

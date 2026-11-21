@@ -25,6 +25,8 @@ public final class Prise {
     public static final double WANDER = 0.9;
     /** Ligne au plus, en blocs : au-delà, le poisson ne prend plus de champ et le bateau le rattrape. */
     public static final double REACH = 40.0;
+    /** Mou que le poisson peut prendre au-delà de la distance du bouchon au début du combat, en blocs. */
+    public static final double SLACK = 6.0;
 
     private Prise() {
     }

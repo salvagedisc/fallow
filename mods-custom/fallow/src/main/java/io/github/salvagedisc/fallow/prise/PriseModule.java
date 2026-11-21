@@ -17,11 +17,13 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -37,18 +39,23 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 public final class PriseModule {
     /** Le bouchon de Starcatcher en plein combat : la valeur de {@link FishingBobEntity#STATE} pour FISHING. */
     private static final int FIGHTING = 4;
+    /** La barque de base de l'API de Fish 'N' Ships. */
+    private static final String BASE_BOAT = "dev.hybridlabs.hapi.entity.base.vehicle.BaseBoatEntity";
 
     /** Une fuite en cours : le cap de départ, la graine de ses écarts, le tick où elle a commencé, l'annonce faite. */
     private static final class Run {
         double start;
         final double seed;
         final long since;
+        /** La ligne au plus pour ce combat : la distance du bouchon au départ, plus le mou que le poisson peut prendre. */
+        final double line;
         boolean told;
 
-        Run(double start, double seed, long since) {
+        Run(double start, double seed, long since, double line) {
             this.start = start;
             this.seed = seed;
             this.since = since;
+            this.line = line;
         }
     }
 
@@ -71,6 +78,12 @@ public final class PriseModule {
             io.github.salvagedisc.fallow.prise.client.PriseClient.start();
         }
         NeoForge.EVENT_BUS.addListener(ServerTickEvent.Post.class, event -> tick(event.getServer()));
+        NeoForge.EVENT_BUS.addListener(ServerStoppedEvent.class, event -> {
+            RUNS.clear();
+            if (sable) {
+                PriseSable.clear();
+            }
+        });
         Fallow.LOGGER.info("prise : les grosses prises de Starcatcher tirent le bateau{}", sable ? " (barques et navires de Sable)" : " (barques)");
     }
 
@@ -125,7 +138,8 @@ public final class PriseModule {
         Run run = RUNS.computeIfAbsent(bob.getUUID(), id -> new Run(
                 Math.atan2(bob.getZ() - boat.z, bob.getX() - boat.x),
                 (id.getLeastSignificantBits() & 0xFFFF) / 65536.0,
-                gameTime));
+                gameTime,
+                Math.min(Prise.REACH, Math.hypot(bob.getX() - boat.x, bob.getZ() - boat.z) + Prise.SLACK)));
         seen.put(bob.getUUID(), run);
         long ticks = gameTime - run.since;
         double heading = Prise.heading(run.start, ticks, run.seed);
@@ -136,7 +150,7 @@ public final class PriseModule {
         double speed = sable ? PriseSable.tow(player, dx, dz, kg, surge, gameTime) : -1.0;
         if (speed < 0.0) {
             Entity vehicle = player.getVehicle();
-            if (vehicle == null || vehicle.level().getFluidState(vehicle.blockPosition()).isEmpty()
+            if (!isBoat(vehicle) || vehicle.level().getFluidState(vehicle.blockPosition()).isEmpty()
                     && vehicle.level().getFluidState(vehicle.blockPosition().below()).isEmpty()) {
                 return;
             }
@@ -160,8 +174,9 @@ public final class PriseModule {
     }
 
     /**
-     * Le bouchon suit le poisson, au pas du bateau, tant que la ligne n'est pas toute sortie ; devant la berge, le poisson
-     * tourne.
+     * Le bouchon suit le poisson, au pas visé du bateau, tant que la ligne n'est pas toute sortie : quelques blocs de mou
+     * au-delà de la distance du départ, si bien qu'il attend le bateau quand celui-ci traîne ; devant la berge, le
+     * poisson tourne.
      */
     private static void follow(FishingBobEntity bob, Vec3 boat, Run run, double dx, double dz, double speed) {
         double step = speed / 20.0;
@@ -169,7 +184,7 @@ public final class PriseModule {
         double nz = bob.getZ() + dz * step;
         double ox = nx - boat.x;
         double oz = nz - boat.z;
-        if (ox * ox + oz * oz > Prise.REACH * Prise.REACH) {
+        if (ox * ox + oz * oz > run.line * run.line) {
             return;
         }
         BlockPos ahead = BlockPos.containing(nx + dx, bob.getY() - 0.2, nz + dz);
@@ -178,6 +193,22 @@ public final class PriseModule {
             return;
         }
         bob.setPos(nx, bob.getY(), nz);
+    }
+
+    /** Une barque : celles du jeu, et celles de Fish 'N' Ships (qui descendent de la barque de base de son API). */
+    private static boolean isBoat(Entity vehicle) {
+        if (vehicle == null) {
+            return false;
+        }
+        if (vehicle instanceof Boat) {
+            return true;
+        }
+        for (Class<?> type = vehicle.getClass(); type != null && type != Entity.class; type = type.getSuperclass()) {
+            if (type.getName().equals(BASE_BOAT)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Poids moyen de l'espèce, en kilogrammes (Starcatcher le donne en grammes). */
