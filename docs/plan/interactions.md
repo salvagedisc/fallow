@@ -59,6 +59,7 @@ Waiting happens on the block, never with the player held: the vat soaks, the fra
 | Brewing, fermenting | Farmer's Delight's keg through Hands-On Delight | Gesture |
 | Storage | Chests, the bag, sacks | Menu |
 | Trading, talking | Archie's trades, the emissaries of the Peoples | Menu |
+| Writing | Book and quill or written book in hand, on two pages (Scholar); a book on a lectern is read on the lectern (Hands-On Vanilla) | Menu in hand; gesture at the lectern |
 | Photography | Exposure's camera in the world, the lightroom | Gesture, then menu (machine) |
 | Heating, cooling | Cold Sweat's hearth worked as a station (`postes` module): fuel laid before its grate, its gauges on its front; fuel in hand still thrown in by a click | Gesture |
 | Rest, sleep, drink | Rest by the hearth, beds and Comforts, Thirst Was Reclaimed | In the world, no station |

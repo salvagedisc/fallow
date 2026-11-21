@@ -1221,6 +1221,10 @@ file = "kubejs/assets/sablephysicscompat/lang/fr_fr.json"
 hash = "e6e82b9957d5c4004a6edd1c1fb9e223ae24afd4194033f4993315fb9e49499e"
 
 [[files]]
+file = "kubejs/assets/scholar/lang/fr_fr.json"
+hash = "61a31ee402870aeef7b31cc73567d1788816bd08d4118d16e786d15c3d39cab8"
+
+[[files]]
 file = "kubejs/assets/selling_bin/lang/fr_fr.json"
 hash = "62e7f85d850de79659a6a3730a5a5e2299f644d19cc3d3b2d7461743ad1f1482"
 
@@ -3968,6 +3972,11 @@ metafile = true
 [[files]]
 file = "mods/sableragdoll-patch.pw.toml"
 hash = "525a5e699708e982f26ccc71bc2e8f2bcf4f3d6361d23ec3e2590b4ef1353597"
+metafile = true
+
+[[files]]
+file = "mods/scholar.pw.toml"
+hash = "f73fcd8593e21f6986581b81bfc17ceea88fead7dcecb64d8a85be32bc7bdd68"
 metafile = true
 
 [[files]]

@@ -175,6 +175,7 @@ Side: C = client, S = server, CS = both. Versions checked on Modrinth for NeoFor
 | Default Options | `default-options` | ✅ | C | Key bindings and video settings shipped with the pack |
 | Chat Heads | `chat-heads` | ✅ | C | Player head in the chat |
 | Lamb Lanterns | `lamb-lanterns` | ✅ | CS | A lantern carried at the hip (Curios slot) gives light as if held in hand |
+| Scholar | `scholar` | ✅ (1.2.10, added 2026-11-21, not seen in game) | CS | Writable and written books on two pages, with formatting without § codes, undo, bookmarks, import and export to a text file; books dyed like leather; a written book's title on a lectern or in a chiseled bookshelf on hover; zombies, husks and skeletons sometimes carry a plain book and read it. A book on a lectern stays Hands-On Vanilla's (read on the lectern); Scholar's screens are the ones opened from the hand. Same author as Exposure; French by the pack |
 
 ## Rules and scripts
 
