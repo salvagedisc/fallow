@@ -1,11 +1,9 @@
 package io.github.salvagedisc.fallow.eveil.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import net.minecraft.Util;
@@ -42,6 +40,7 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
+import org.lwjgl.glfw.GLFW;
 
 import com.pockyl.diegesis.api.client.DiegesisClient;
 import com.pockyl.diegesis.api.client.DiegesisParticles;
@@ -153,9 +152,29 @@ final class TableBehavior implements StationBehavior {
     private int volEclat = -1;
     private int enMain = -1;
     private final RandomSource hasard = RandomSource.create();
+    /** Les bibliothèques qui nourrissent la table (comme celles de vanilla), en pixels de la scène, et les runes qui en partent. */
+    private final List<Vector3f> bibliotheques = new ArrayList<>();
+    private float runesReste;
+    /** Combien la pièce s'assombrit autour de la table, de 0 à 1 (lu par l'écran du poste, {@link TableClient}). */
+    private static float obscurite;
+    /** L'éclair blanc quand l'éveil s'accomplit, de 1 à 0. */
+    private static float eclair;
+    /** La voie sur laquelle le clic est tenu (-1 : aucune), si c'est l'éclat, et depuis combien de temps le rituel monte. */
+    private int tenue = -1;
+    private boolean tenueEclat;
+    private float tenueT;
+    /** Combien de temps tenir le clic, une fois la voie déchiffrée, secondes. */
+    private static final float TENUE = 1.8F;
+    /** Combien de temps une voie met à se déchiffrer sous le curseur, secondes. */
+    private static final float DECHIFFRE = 1.4F;
+    private float sombre;
 
     /** Ce qu'une double page dit : l'objet et l'éclat tels qu'ils étaient posés, et ce que le serveur en a dit. */
-    private record Contenu(ItemStack objet, ItemStack eclat, CompoundTag data) {
+    private record Contenu(ItemStack objet, ItemStack eclat, CompoundTag data, float[] revele) {
+        Contenu(ItemStack objet, ItemStack eclat, CompoundTag data) {
+            this(objet, eclat, data, new float[2]);
+        }
+
         String etat() {
             return data.getString(TableEveil.ETAT);
         }
@@ -170,6 +189,10 @@ final class TableBehavior implements StationBehavior {
     }
 
     /** Appelé quand la touche d'usage part : retient le bloc visé, pour savoir si l'on est venu au poste par ce clic. */
+    static float obscurite() {
+        return obscurite;
+    }
+
     static void usage(BlockPos pos) {
         dernierUsage = pos;
         dernierUsageA = Util.getMillis();
@@ -213,8 +236,29 @@ final class TableBehavior implements StationBehavior {
         LocalPlayer player = Minecraft.getInstance().player;
         boolean venu = view.pos().equals(dernierUsage) && Util.getMillis() - dernierUsageA < 1500L;
         ItemStack main = player == null ? ItemStack.EMPTY : player.getMainHandItem();
-        enMain = venu && (TableEveil.objet(main) || TableEveil.eclat(main)) && player.inventoryMenu.getCarried().isEmpty()
-                ? player.getInventory().selected : -1;
+        enMain = -1;
+        if (venu && player.inventoryMenu.getCarried().isEmpty()) {
+            // Ce qui a éveillé la table vient s'y poser : l'objet en main s'il est prêt (ou l'éclat), sinon le premier qui l'est.
+            if (TableEveil.attendu(main)) {
+                enMain = player.getInventory().selected;
+            } else {
+                for (int i = 0; i < player.getInventory().items.size() && enMain < 0; i++) {
+                    if (TableEveil.attendu(player.getInventory().getItem(i)) && !TableEveil.eclat(player.getInventory().getItem(i))) {
+                        enMain = i;
+                    }
+                }
+            }
+        }
+        tenue = -1;
+        tenueT = 0.0F;
+        bibliotheques.clear();
+        Matrix4f scene = OpenBook.sceneFromBlock(view);
+        for (BlockPos decalage : net.minecraft.world.level.block.EnchantingTableBlock.BOOKSHELF_OFFSETS) {
+            if (net.minecraft.world.level.block.EnchantingTableBlock.isValidBookShelf(view.level(), view.pos(), decalage)) {
+                bibliotheques.add(scene.transformPosition(new Vector3f(decalage.getX() * 16.0F + 8.0F, decalage.getY() * 16.0F + 8.0F,
+                        decalage.getZ() * 16.0F + 8.0F)));
+            }
+        }
         // Le livre s'ouvre sur les pages que celui de la table montre, comme s'il était celui-là.
         if (view.level().getBlockEntity(view.pos()) instanceof EnchantingTableBlockEntity entity) {
             book.jumpTo(OpenBook.flipTurns(entity.flip));
@@ -224,6 +268,8 @@ final class TableBehavior implements StationBehavior {
     @Override
     public void onClose(StationView view) {
         vient = false;
+        obscurite = 0.0F;
+        sombre = 0.0F;
         survol = -1;
         enMain = -1;
         view.node(LIVRE).ifPresent(node -> node.setTooltip(null));
@@ -332,6 +378,8 @@ final class TableBehavior implements StationBehavior {
         ouvert = Mth.approach(ouvert, vient ? (view.isFocused() ? 1.0F : 0.0F) : 0.5F, dt / OUVERTURE);
         lire(view);
         couler(view, dt);
+        ambiance(view, dt);
+        eclair = Math.max(0.0F, eclair - dt / 0.6F);
         retomber(view);
         if (coulante >= 0 && horloge - clicA > ATTENTE) {
             coulante = -1;
@@ -353,6 +401,16 @@ final class TableBehavior implements StationBehavior {
         if (survol >= 0 && survol != avant) {
             joue(view, SoundEvents.BOOK_PAGE_TURN, LIVRE, 0.08F, 1.8F);
         }
+        // Sous le regard, la voie se déchiffre lettre à lettre ; une fois lue, elle le reste.
+        int lue = survol >= 0 ? survol : pageSurvolee ? 0 : -1;
+        if (ici != null && lue >= 0 && ici.revele()[lue] < 1.0F) {
+            float avantLue = ici.revele()[lue];
+            ici.revele()[lue] = Math.min(1.0F, avantLue + dt / DECHIFFRE);
+            if ((int) (avantLue * 12.0F) != (int) (ici.revele()[lue] * 12.0F)) {
+                joue(view, SoundEvents.ENCHANTMENT_TABLE_USE, LIVRE, 0.05F, 1.6F + 0.4F * hasard.nextFloat());
+            }
+        }
+        tenir(view, dt);
     }
 
     /**
@@ -478,15 +536,12 @@ final class TableBehavior implements StationBehavior {
         if (hit.isEmpty() || !hit.get().right()) {
             return;
         }
-        Pose pose = pose(view);
         if (ici.aEclat()) {
             if (!TableEveil.ECLAT_OK.equals(ici.data().getString(TableEveil.ECLAT_ETAT))) {
                 refus(view);
                 return;
             }
-            view.sendAction(TableEveil.VERSER, new CompoundTag());
-            Eclat eclat = ici.eclat().get(EveilModule.ECLAT.get());
-            commencerCoulee(view, pose, LARGE / 2.0F, 60.0F, 0, eclat == null ? -1 : eclat.couleur());
+            commencerTenue(view, 0, true);
             return;
         }
         if (!TableEveil.ETAT_PRET.equals(ici.etat())) {
@@ -494,13 +549,101 @@ final class TableBehavior implements StationBehavior {
             return;
         }
         int voie = voieSous(hit.get().y());
-        if (voie < 0) {
+        if (voie >= 0) {
+            commencerTenue(view, voie, false);
+        }
+    }
+
+    /** Le clic est tenu sur une voie : le rituel commence ; il ne s'accomplit que si l'on tient jusqu'au bout. */
+    private void commencerTenue(StationView view, int voie, boolean eclat) {
+        tenue = voie;
+        tenueEclat = eclat;
+        tenueT = 0.0F;
+        joue(view, SoundEvents.BEACON_POWER_SELECT, LIVRE, 0.3F, 0.6F);
+    }
+
+    /**
+     * Le bouton gauche, lu sur la fenêtre : vanilla ne suit plus le bouton tant qu'un écran est ouvert (celui du poste l'est).
+     */
+    private static boolean gaucheEnfoncee() {
+        return GLFW.glfwGetMouseButton(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
+    }
+
+    /**
+     * Le rituel tenu : la voie se déchiffre si elle ne l'est pas encore, puis l'objet se soulève et tourne, des runes s'enroulent
+     * autour de lui en se resserrant, le bourdon monte, la pièce s'assombrit. Relâché avant la fin, tout retombe ; tenu jusqu'au
+     * bout, un éclair blanc, un son profond, et la voie coule dans l'objet.
+     */
+    private void tenir(StationView view, float dt) {
+        if (tenue < 0) {
             return;
         }
-        CompoundTag how = new CompoundTag();
-        how.putInt(TableEveil.VOIE, voie);
-        view.sendAction(TableEveil.CHOISIR, how);
-        commencerCoulee(view, pose, LARGE / 2.0F, (voies[voie][0] + voies[voie][1]) / 2.0F, voie, -1);
+        Contenu ici = affiche();
+        boolean tenu = gaucheEnfoncee() && ici != null && view.isFocused()
+                && (tenueEclat ? pageSurvolee : survol == tenue);
+        if (!tenu) {
+            if (tenueT > 0.2F) {
+                joue(view, SoundEvents.BEACON_DEACTIVATE, LIVRE, 0.25F, 1.2F);
+                view.node(TableEveil.OBJET).ifPresent(objet -> {
+                    objet.moveTo(0.0F, 0.0F, 0.0F, 0.3F);
+                    objet.rotateTo(0.0F, 0.0F, 0.0F, 0.3F);
+                });
+            }
+            tenue = -1;
+            tenueT = 0.0F;
+            return;
+        }
+        float[] revele = ici.revele();
+        if (revele[tenue] < 1.0F) {
+            revele[tenue] = Math.min(1.0F, revele[tenue] + dt / 0.5F);
+            return;
+        }
+        tenueT += dt;
+        float k = Math.min(1.0F, tenueT / TENUE);
+        view.node(TableEveil.OBJET).ifPresent(objet -> {
+            objet.moveTo(0.0F, 3.5F * k, 0.0F, 0.05F);
+            objet.rotateTo(0.0F, 540.0F * k * k, 0.0F, 0.05F);
+            Vector3f centre = new Vector3f(objet.definition().transform().pos()).add(0.0F, 1.0F + 3.5F * k, 0.0F);
+            // Un anneau de runes qui tourne et se resserre autour de l'objet.
+            int nombre = 1 + (int) (k * 4.0F);
+            for (int i = 0; i < nombre; i++) {
+                float angle = horloge * (4.0F + 10.0F * k) + i * Mth.TWO_PI / nombre;
+                float rayon = 9.0F * (1.0F - 0.7F * k);
+                Vector3f depuis = new Vector3f(centre).add(Mth.cos(angle) * rayon, (hasard.nextFloat() - 0.5F) * 2.0F, Mth.sin(angle) * rayon);
+                Vector3f vitesse = new Vector3f(centre).sub(depuis).mul(1.2F).add(-Mth.sin(angle) * 10.0F, 0.0F, Mth.cos(angle) * 10.0F);
+                view.spawnParticles(TableClient.glyphe(hasard), depuis, vitesse, 0.3F, 1, 0xFF000000 | lueur());
+            }
+        });
+        if (hasard.nextFloat() < dt * 6.0F) {
+            view.node(LIVRE).ifPresent(node -> node.shake(0.08F + 0.25F * k, 0.15F));
+        }
+        if (tenueT >= TENUE) {
+            accomplir(view, ici);
+        }
+    }
+
+    /** Le rituel est allé au bout : la voie (ou l'éclat) s'éveille dans l'objet. */
+    private void accomplir(StationView view, Contenu ici) {
+        Pose pose = pose(view);
+        if (tenueEclat) {
+            view.sendAction(TableEveil.VERSER, new CompoundTag());
+            Eclat eclat = ici.eclat().get(EveilModule.ECLAT.get());
+            commencerCoulee(view, pose, LARGE / 2.0F, 60.0F, 0, eclat == null ? -1 : eclat.couleur());
+        } else {
+            CompoundTag how = new CompoundTag();
+            how.putInt(TableEveil.VOIE, tenue);
+            view.sendAction(TableEveil.CHOISIR, how);
+            commencerCoulee(view, pose, LARGE / 2.0F, (voies[tenue][0] + voies[tenue][1]) / 2.0F, tenue, -1);
+        }
+        eclair = 1.0F;
+        joue(view, SoundEvents.BEACON_ACTIVATE, LIVRE, 0.8F, 0.5F);
+        joue(view, SoundEvents.AMETHYST_BLOCK_RESONATE, LIVRE, 1.0F, 0.5F);
+        tenue = -1;
+        tenueT = 0.0F;
+    }
+
+    static float eclair() {
+        return eclair;
     }
 
     private void commencerCoulee(StationView view, Pose pose, float x, float y, int voie, int couleur) {
@@ -596,6 +739,45 @@ final class TableBehavior implements StationBehavior {
                 view.spawnParticles(TableClient.glyphe(hasard), depuis, vitesse, 0.6F, 1, 0xFF000000 | couleur);
             }
         });
+    }
+
+    /**
+     * Ce qui fait sentir que la table n'est pas un meuble : la pièce s'assombrit autour d'elle, un bourdon grave monte (plus fort
+     * quand un éveil attend), et des runes quittent les bibliothèques pour venir au livre, comme au-dessus de la table de vanilla
+     * mais en nombre ; pendant l'éveil, tout s'appuie.
+     */
+    private void ambiance(StationView view, float dt) {
+        Contenu ici = contenus.get(book.spread());
+        boolean attend = ici != null && (TableEveil.ETAT_PRET.equals(ici.etat())
+                || TableEveil.ECLAT_OK.equals(ici.data().getString(TableEveil.ECLAT_ETAT)));
+        boolean rituel = coulante >= 0 || sautA >= 0.0F;
+        float vise = !vient || !view.isFocused() ? 0.0F : rituel ? 1.0F : attend ? 0.75F : 0.5F;
+        sombre = Mth.approach(sombre, vise * glisse, dt / (rituel ? 0.25F : 1.2F));
+        obscurite = sombre;
+        float volume = 0.0F;
+        if (vient && view.isFocused()) {
+            volume = (rituel ? 0.7F : attend ? 0.45F : 0.25F) * glisse;
+        }
+        boucle(view, "bourdon", SoundEvents.BEACON_AMBIENT, volume, rituel ? 0.6F : 0.5F);
+        boucle(view, "souffle", SoundEvents.PORTAL_AMBIENT, volume * 0.12F, 0.5F);
+        if (bibliotheques.isEmpty() || glisse < 1.0F) {
+            return;
+        }
+        // Deux runes par seconde et par bibliothèque, trois fois plus quand un éveil attend, un flot pendant l'éveil.
+        runesReste += dt * bibliotheques.size() * (rituel ? 8.0F : attend ? 2.0F : 0.6F);
+        Vector3fc livre = view.node(LIVRE).map(n -> n.definition().transform().pos()).orElse(new Vector3f(8.0F, 18.5F, 9.5F));
+        while (runesReste >= 1.0F) {
+            runesReste -= 1.0F;
+            Vector3f depuis = new Vector3f(bibliotheques.get(hasard.nextInt(bibliotheques.size())))
+                    .add((hasard.nextFloat() - 0.5F) * 12.0F, (hasard.nextFloat() - 0.2F) * 12.0F, (hasard.nextFloat() - 0.5F) * 12.0F);
+            Vector3f vers = new Vector3f(livre).add((hasard.nextFloat() - 0.5F) * 6.0F, (hasard.nextFloat() - 0.5F) * 3.0F, 0.0F);
+            view.spawnParticles(TableClient.glyphe(hasard), depuis, new Vector3f(vers).sub(depuis).div(VOL_DE_RUNE), 0.5F, 1,
+                    0xFF000000 | lueur());
+        }
+    }
+
+    private static void boucle(StationView view, String nom, SoundEvent sound, float volume, float pitch) {
+        view.loopSound(nom, sound, volume * FallowConfig.postesSoundVolume(), pitch);
     }
 
     private int lueur() {
@@ -751,8 +933,12 @@ final class TableBehavior implements StationBehavior {
         EtatEveil etat = objet.get(EveilModule.ETAT.get());
         y = Math.max(y, 18.0F);
         if (etat != null) {
-            canvas.text(Component.translatable("eveil.fallow.tooltip.places", etat.occupees(), etat.places()).getVisualOrderText(),
-                    20.0F, y - 1.0F, PETIT, PALE, 1.0F);
+            // Les places en signes, pleins pour les éveils portés, creux pour ceux qui restent : pas de compte.
+            StringBuilder signes = new StringBuilder();
+            for (int i = 0; i < etat.places(); i++) {
+                signes.append(i < etat.occupees() ? '\u25C6' : '\u25C7').append(' ');
+            }
+            canvas.text(Component.literal(signes.toString().trim()).getVisualOrderText(), 20.0F, y - 1.0F, VIOLET, 1.0F);
         }
         y += 9.0F;
         filet(canvas, y);
@@ -782,7 +968,7 @@ final class TableBehavior implements StationBehavior {
         } else {
             for (int i = 0; i < faits.size() && y < PIED - 14.0F; i++) {
                 CompoundTag fait = faits.getCompound(i);
-                Component ligne = Component.translatable(fait.getString(TableEveil.NOM), nombre(fait.getDouble(TableEveil.FOIS)));
+                Component ligne = majuscule(Component.translatable(fait.getString(TableEveil.NOM), quantite(fait.getDouble(TableEveil.FOIS))));
                 y = paragraphe(canvas, ligne, GAUCHE_X + 2.0F, y, PETIT, ENCRE, 2) + 1.0F;
             }
         }
@@ -800,7 +986,7 @@ final class TableBehavior implements StationBehavior {
             mots = Component.translatable("eveil.fallow.livre.pret");
             avancee = 1.0F;
         } else if (TableEveil.ETAT_PLEIN.equals(dit) || TableEveil.ETAT_RIEN_A_APPRENDRE.equals(dit)) {
-            mots = Component.translatable("eveil.fallow.livre.places_libres", Math.max(0, etat.places() - etat.occupees()));
+            mots = Component.translatable(etat.occupees() >= etat.places() ? "eveil.fallow.livre.comble" : "eveil.fallow.livre.repos");
         } else {
             mots = Component.translatable("eveil.fallow.tooltip.palier." + Mth.clamp(etat.palier(), 0, 3));
             avancee = contenu.data().getFloat(TableEveil.AVANCEE);
@@ -857,12 +1043,18 @@ final class TableBehavior implements StationBehavior {
             if (vive || coule) {
                 canvas.rect(1.0F, haut - 1.0F, LARGE - 2.0F, hauteur - 2.0F, OpenBook.MARK_LIFT * 0.5F, coule ? BANDE_VIVE : BANDE);
             }
+            if (courante && i == tenue && !tenueEclat && tenueT > 0.0F) {
+                // Le rituel monte : la bande s'emplit de violet sous la voie tenue.
+                canvas.rect(1.0F, haut - 1.0F, (LARGE - 2.0F) * Math.min(1.0F, tenueT / TENUE), hauteur - 2.0F, OpenBook.MARK_LIFT * 0.6F,
+                        BANDE_VIVE);
+            }
+            float revele = contenu.revele()[i];
             if (i > 0) {
                 filet(canvas, haut - 2.5F);
             }
             ResourceLocation id = ResourceLocation.tryParse(voie.getString(TableEveil.ENCHANTEMENT));
             int niveau = voie.getInt(TableEveil.NIVEAU);
-            Component nom = id == null ? Component.literal("?") : nomEncre(id, niveau);
+            Component nom = runique(id == null ? Component.literal("?") : nomEncre(id, niveau), revele);
             float lettres = coule ? Mth.clamp(1.0F - (horloge - clicA) / COULEE, 0.0F, 1.0F) : 1.0F;
             float ly = haut + 3.0F;
             for (FormattedCharSequence ligne : Minecraft.getInstance().font.split(nom, (int) (LARGE - 2.0F * DROITE_X))) {
@@ -873,17 +1065,17 @@ final class TableBehavior implements StationBehavior {
                 ly += LIGNE;
             }
             if (id != null && niveau > 1) {
-                ly = paragraphe(canvas, Component.translatable("eveil.fallow.livre.avant", nomEncre(id, niveau - 1)), DROITE_X, ly, PETIT,
-                        PALE, 1);
+                ly = paragraphe(canvas, runique(Component.translatable("eveil.fallow.livre.avant", nomEncre(id, niveau - 1)), revele),
+                        DROITE_X, ly, PETIT, PALE, 1);
             }
             String pouvoir = id == null ? "" : "eveil.fallow.pouvoir." + id.getNamespace() + "." + id.getPath();
             if (I18n.exists(pouvoir)) {
-                ly = paragraphe(canvas, Component.translatable(pouvoir), DROITE_X, ly + 1.0F, PETIT, ENCRE, 3);
+                ly = paragraphe(canvas, runique(Component.translatable(pouvoir), revele), DROITE_X, ly + 1.0F, PETIT, ENCRE, 3);
             }
             if (voie.contains(TableEveil.NE_DE)) {
                 Component ne = Component.translatable("eveil.fallow.livre.ne_de",
-                        Component.translatable(voie.getString(TableEveil.NE_DE), nombre(voie.getDouble(TableEveil.FOIS))));
-                paragraphe(canvas, ne.copy().withStyle(s -> s.withItalic(true)), DROITE_X, ly + 2.0F, PETIT, SEPIA, 2);
+                        Component.translatable(voie.getString(TableEveil.NE_DE), quantite(voie.getDouble(TableEveil.FOIS))));
+                paragraphe(canvas, runique(ne, revele).copy().withStyle(s -> s.withItalic(true)), DROITE_X, ly + 2.0F, PETIT, SEPIA, 2);
             }
         }
         paragraphe(canvas, Component.translatable("eveil.fallow.livre.choisir"), DROITE_X, PIED, PETIT, PALE, 2);
@@ -902,6 +1094,10 @@ final class TableBehavior implements StationBehavior {
         if (vive || coule) {
             canvas.rect(1.0F, 20.0F, LARGE - 2.0F, 92.0F, OpenBook.MARK_LIFT * 0.5F, coule ? BANDE_VIVE : BANDE);
         }
+        if (courante && tenueEclat && tenue >= 0 && tenueT > 0.0F) {
+            canvas.rect(1.0F, 20.0F, (LARGE - 2.0F) * Math.min(1.0F, tenueT / TENUE), 92.0F, OpenBook.MARK_LIFT * 0.6F, BANDE_VIVE);
+        }
+        float revele = contenu.revele()[0];
         canvas.item(station.level(), stack, (LARGE - 16.0F) / 2.0F, 2.0F, 16.0F);
         float y = 20.0F;
         for (FormattedCharSequence ligne : Minecraft.getInstance().font.split(stack.getHoverName().copy().withStyle(Style.EMPTY),
@@ -915,7 +1111,7 @@ final class TableBehavior implements StationBehavior {
             y = paragraphe(canvas, Component.translatable(eclat.recit()).copy().withStyle(s -> s.withItalic(true)), DROITE_X, y, PETIT,
                     PALE, 4) + 3.0F;
         }
-        Component nom = nomEncre(eclat.enchantement(), eclat.niveau());
+        Component nom = runique(nomEncre(eclat.enchantement(), eclat.niveau()), revele);
         float lettres = coule ? Mth.clamp(1.0F - (horloge - clicA) / COULEE, 0.0F, 1.0F) : 1.0F;
         for (FormattedCharSequence ligne : Minecraft.getInstance().font.split(nom, (int) (LARGE - 2.0F * DROITE_X))) {
             if (vive) {
@@ -926,7 +1122,7 @@ final class TableBehavior implements StationBehavior {
         }
         String pouvoir = "eveil.fallow.pouvoir." + eclat.enchantement().getNamespace() + "." + eclat.enchantement().getPath();
         if (I18n.exists(pouvoir)) {
-            y = paragraphe(canvas, Component.translatable(pouvoir), DROITE_X, y + 1.0F, PETIT, ENCRE, 3);
+            y = paragraphe(canvas, runique(Component.translatable(pouvoir), revele), DROITE_X, y + 1.0F, PETIT, ENCRE, 3);
         }
         paragraphe(canvas, Component.translatable("eveil.fallow.livre.eclat.place"), DROITE_X, y + 3.0F, PETIT, PALE, 3);
         String cle = switch (contenu.data().getString(TableEveil.ECLAT_ETAT)) {
@@ -1032,11 +1228,32 @@ final class TableBehavior implements StationBehavior {
                 .withStyle(style -> style.withColor(malediction ? TextColor.fromRgb(ROUGE) : null));
     }
 
-    /** Un nombre de hauts faits, entier, groupé à la façon de la langue du jeu (« 1 204 », « 1,204 »). */
-    private static String nombre(double fois) {
-        String code = Minecraft.getInstance().getLanguageManager().getSelected();
-        Locale locale = Locale.forLanguageTag(code.replace('_', '-'));
-        return NumberFormat.getIntegerInstance(locale).format(Math.max(1L, Math.round(fois)));
+    /**
+     * Combien de fois, sans chiffre : le livre ne compte pas, il se souvient (« quelques », « des dizaines de », « des centaines
+     * de », « des milliers de »), en minuscules ; {@link #majuscule} pour un début de phrase.
+     */
+    private static Component quantite(double fois) {
+        String ordre = fois < 10.0 ? "quelques" : fois < 100.0 ? "dizaines" : fois < 1000.0 ? "centaines" : "milliers";
+        return Component.translatable("eveil.fallow.livre.quantite." + ordre);
+    }
+
+    /**
+     * Un texte de la table, écrit dans l'alphabet de la table de vanilla (la police {@code minecraft:alt}) et déchiffré lettre à
+     * lettre : les {@code revele} premiers de ses caractères en clair, le reste en runes.
+     */
+    private static Component runique(Component texte, float revele) {
+        String mots = texte.getString();
+        int clair = Mth.clamp(Math.round(revele * mots.length()), 0, mots.length());
+        if (clair >= mots.length()) {
+            return texte;
+        }
+        return Component.literal(mots.substring(0, clair))
+                .append(Component.literal(mots.substring(clair)).withStyle(style -> style.withFont(Minecraft.ALT_FONT)));
+    }
+
+    private static Component majuscule(Component texte) {
+        String mots = texte.getString();
+        return mots.isEmpty() ? texte : Component.literal(Character.toUpperCase(mots.charAt(0)) + mots.substring(1));
     }
 
     private static void joue(StationView view, SoundEvent sound, String node, float volume, float pitch) {

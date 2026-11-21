@@ -133,7 +133,27 @@ public final class TableEveil {
 
     /** Accroupi, la table garde la fenêtre de choix d'avant ; le poste coupé aussi. */
     static boolean ouvre(Player player, BlockPos pos, BlockState state) {
-        return FallowConfig.eveilEnabled() && FallowConfig.eveilPoste() && !player.isSecondaryUseActive();
+        return FallowConfig.eveilEnabled() && FallowConfig.eveilPoste() && !player.isSecondaryUseActive() && eveille(player);
+    }
+
+    /**
+     * La table dort : elle ne s'éveille que pour qui porte un objet prêt à s'éveiller ou l'éclat d'une grande bête. Le reste du
+     * temps, un clic droit ne l'ouvre pas ({@link EveilModule}, « La table reste muette »).
+     */
+    public static boolean eveille(Player player) {
+        net.minecraft.world.entity.player.Inventory inventory = player.getInventory();
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            if (attendu(inventory.getItem(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Ce qui fait s'éveiller la table : un objet prêt, ou un éclat. */
+    public static boolean attendu(ItemStack stack) {
+        EtatEveil etat = stack.get(EveilModule.ETAT.get());
+        return eclat(stack) || etat != null && etat.pret();
     }
 
     /** Le travail de la table sur le serveur : ce qu'elle dit de l'objet posé, et l'éveil. */

@@ -409,13 +409,21 @@ public final class EveilModule {
         if (!FallowConfig.eveilEnabled() || !event.getLevel().getBlockState(event.getPos()).is(Blocks.ENCHANTING_TABLE)) {
             return;
         }
-        if (DIEGESIS && TableEveil.ouvre(event.getEntity(), event.getPos(), event.getLevel().getBlockState(event.getPos()))) {
+        Player joueur = event.getEntity();
+        boolean poste = DIEGESIS && FallowConfig.eveilPoste() && !joueur.isSecondaryUseActive();
+        if (poste && TableEveil.ouvre(joueur, event.getPos(), event.getLevel().getBlockState(event.getPos()))) {
             // Le poste de Diegesis s'ouvre (TableEveil) ; la table vanilla jamais.
             return;
         }
         event.setCanceled(true);
         event.setCancellationResult(InteractionResult.SUCCESS);
         if (event.getHand() != InteractionHand.MAIN_HAND || !(event.getEntity() instanceof ServerPlayer player)) {
+            return;
+        }
+        if (poste) {
+            // La table dort : rien de ce que le joueur porte n'est prêt. Un souffle à peine, et elle se tait.
+            dire(player, "eveil.fallow.table.muette");
+            player.level().playSound(null, event.getPos(), SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.BLOCKS, 0.25F, 0.5F);
             return;
         }
         ItemStack objet = player.getMainHandItem();

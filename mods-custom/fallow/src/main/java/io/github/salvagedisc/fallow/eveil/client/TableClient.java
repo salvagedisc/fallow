@@ -2,12 +2,16 @@ package io.github.salvagedisc.fallow.eveil.client;
 
 import java.util.List;
 import java.util.stream.IntStream;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.client.event.ClientChatReceivedEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
 import com.pockyl.diegesis.api.client.DiegesisClient;
@@ -31,6 +35,8 @@ final class TableClient {
     private static final List<ResourceLocation> GLYPHES_VOLANTS = IntStream.range(0, LETTRES.length())
             .mapToObj(i -> ResourceLocation.fromNamespaceAndPath(Fallow.MOD_ID, "glyphe_volant_" + i)).toList();
 
+    private static final ResourceLocation VOILE = ResourceLocation.withDefaultNamespace("textures/misc/vignette.png");
+
     private TableClient() {
     }
 
@@ -50,6 +56,7 @@ final class TableClient {
             }
         });
         NeoForge.EVENT_BUS.addListener(ClientChatReceivedEvent.System.class, TableClient::enLegende);
+        NeoForge.EVENT_BUS.addListener(ScreenEvent.Render.Pre.class, TableClient::assombrir);
     }
 
     static ResourceLocation glyphe(RandomSource random) {
@@ -58,6 +65,42 @@ final class TableClient {
 
     static ResourceLocation glypheVolant(RandomSource random) {
         return GLYPHES_VOLANTS.get(random.nextInt(GLYPHES_VOLANTS.size()));
+    }
+
+    /**
+     * Autour de la table, la pièce s'assombrit : le voile de vanilla (celui des bords de l'écran) posé sur le monde avant l'écran du
+     * poste, de plus en plus fort ; la barre et le livre restent clairs.
+     */
+    private static void assombrir(ScreenEvent.Render.Pre event) {
+        float k = TableBehavior.obscurite();
+        if (k <= 0.01F && TableBehavior.eclair() <= 0.0F || !DiegesisClient.isStationScreen(event.getScreen())
+                || DiegesisClient.focusedStation().filter(view -> TableEveil.ID.equals(view.type().id())).isEmpty()) {
+            return;
+        }
+        GuiGraphics graphics = event.getGuiGraphics();
+        int large = graphics.guiWidth();
+        int haut = graphics.guiHeight();
+        RenderSystem.disableDepthTest();
+        RenderSystem.depthMask(false);
+        RenderSystem.enableBlend();
+        RenderSystem.blendFunc(GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR);
+        // Deux passes du voile : la seconde mord plus loin vers le milieu quand la table s'éveille.
+        graphics.setColor(Math.min(1.0F, k * 1.3F), Math.min(1.0F, k * 1.3F), Math.min(1.0F, k * 1.15F), 1.0F);
+        graphics.blit(VOILE, 0, 0, -90, 0.0F, 0.0F, large, haut, large, haut);
+        float second = Math.max(0.0F, k - 0.5F) * 1.6F;
+        if (second > 0.0F) {
+            graphics.setColor(second, second, second * 0.9F, 1.0F);
+            graphics.blit(VOILE, 0, 0, -90, 0.0F, 0.0F, large, haut, large, haut);
+        }
+        graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.defaultBlendFunc();
+        float eclair = TableBehavior.eclair();
+        if (eclair > 0.0F) {
+            // L'éveil s'accomplit : un éclair blanc, bleuté, qui s'éteint vite.
+            graphics.fill(0, 0, large, haut, Math.round(200.0F * eclair * eclair) << 24 | 0xEEE8FF);
+        }
+        RenderSystem.depthMask(true);
+        RenderSystem.enableDepthTest();
     }
 
     /** Au poste la barre d'action est cachée : ce que la table dit (l'éveil, ce qui ne prend pas) passe en légende de la scène. */
