@@ -1,18 +1,31 @@
 # Awakening: enchanting as a deed
 
-`fallow` 0.44.0, polished in 0.58.0, `eveil` module, decision [0045](../decisions/0045-awakening.md). Enchanting is rare and earned: an item learns from what it has lived through, the strongest powers come from great beasts, and a worn-out item forgets. Nothing comes out of loot or trade already enchanted, and there are no enchanted books. Immersive Enchanting left the pack with this change.
+`fallow` 0.44.0, polished in 0.58.0, the table as a station in 0.60.0, `eveil` module, decision [0045](../decisions/0045-awakening.md). Enchanting is rare and earned: an item learns from what it has lived through, the strongest powers come from great beasts, and a worn-out item forgets. Nothing comes out of loot or trade already enchanted, and there are no enchanted books. Immersive Enchanting left the pack with this change.
 
 ## What the player lives
 
 1. A freshly forged item bears nothing. From its first deed (a block mined, a creature beaten, a blow taken), it counts. Its tooltip says in words how far it is on the way to its next awakening, by quarters: « Encore étranger à votre main », « Commence à se faire à votre main », « Se fait à votre main », « Sur le point de s'éveiller ».
 2. Past a threshold it awakens: a sound, a note « … a appris quelque chose : un éveil vous attend à la table d'enchantement », and the item shimmers.
-3. Right-click an enchanting table with the item in the main hand: a one-row window shows the item between two enchanted books, the two powers its deeds lean toward. A click picks one; the item takes it (or the next level of one it already has), and its tooltip notes « Efficacité I : jour 143, <player> ».
+3. Right-click an enchanting table: the camera leans over it and the table's floating book comes to the player and opens (see « The table » below). The item lies on the table; the left page tells its life, the right page the two powers its deeds lean toward, each with what it does and the deed it was born of. A click on one awakens it: its letters stream into the item as runes, the item rises, turns once and comes down awakened, and its tooltip notes « Efficacité I : jour 143, <player> ».
 4. Each further awakening asks three times more than the previous one (2,000, 6,000, 18,000 points in all with the defaults).
-5. Great beasts leave a shard (« Éclat de grande bête (Frostmaw) ») that carries one strong enchantment: at the table, item in the main hand and shard in the other, it is laid once and takes one place.
+5. Great beasts leave a shard (« Éclat de grande bête (Frostmaw) ») that carries one strong enchantment: laid on the table beside the item, the right page tells the beast's story and the power; a click pours it into the item. It is used up and takes one place.
 6. When an awakened item has used 90 % of its durability, it warns once: a note « Pioche en fer faiblit. À bout de forces, cet objet oubliera Fortune I. », a low chime, and a red tooltip line until it is repaired.
 7. When the item reaches the end of its durability (Overgeared's « broken » state, or one point before breaking), it forgets its last awakening: the enchantment goes back to its former level, a grey note says so, and its deeds drop back to the threshold of the awakening before, so it has to earn it again. It forgets only once until it is repaired.
 
 The two choices are drawn from the item's deeds with a seed tied to the item and to the awakening, so closing and reopening the window shows the same two. An item whose deeds lean only toward powers it can no longer take (maximum level, conflicts) tells « Cet objet n'a plus rien à apprendre ».
+
+## The table
+
+With Diegesis in the pack the enchanting table is a station (`TableEveil`, station `fallow:table_d_eveil`), laid out like Hands-On Vanilla's enchanting table (MIT, its open book and book model ported in `eveil/client`).
+
+- **Coming to the table.** A right-click turns the camera over the table from where the player stands. The table's floating book leaves its place (it is the same book: vanilla's is not drawn while the scene is there) and glides to the reading place, opening as it comes. Leaving, it half shuts and goes back to float over the table.
+- **Laying things.** Two places on the table top: the item on the left as the camera sees it, a great beast's shard on the right. The item held when coming is laid by itself once the camera has arrived; a shift-click in the hotbar sends a stack to its place in an arc; a stack dropped from the cursor goes too. Whatever is not taken back returns to the inventory on leaving. The hotbar greys out what the table does not take.
+- **The left page: its life.** The item's name and icon, « Éveils : 1 sur 2 », each awakening with its day, its player and the beast of its shard, its three greatest deeds with how many times (« 1 204 minerais extraits », counted apart from the points so a creature counts once whatever its weight), and at the foot where it is on its way, in words and as a line of ink that fills.
+- **The right page: its paths.** Ready, « Deux voies s'ouvrent »: each path with its name, what it does (`eveil.fallow.pouvoir.*`), the level it carried before, and « Né de 702 minerais extraits », the deed that weighed most toward it. The path under the cursor lights up; a click awakens it. Not ready, full, or with nothing left to learn, the page says so in one sentence in its middle, and a click makes the book shiver.
+- **A shard.** With a shard on the table the right page is the shard's: the beast, its story, the power and its level, and what the table says (pour it, lay the item on the left, it does not take, the item already bears it, no place left).
+- **Each new page comes by a page turned**; while the sheets riffle (an item just laid) the last one brings it, and the leaf that goes keeps what it said. Pages with nothing written carry the table's runes, faded, as the floating book does.
+- **Others at the table** see the item rise and come down, and the runes stream, with the server's sound.
+- Crouching, or with `[eveil] poste = false`, the table keeps the one-row window of before (item in the main hand, shard in the other hand).
 
 ## Places by forging quality
 
@@ -80,7 +93,7 @@ Only when a player killed the beast. The shard falls in sight: it glows through 
 - The loot modifier `fallow:sans_enchantement` runs on every loot table: an item loses its enchantments, an enchanted book becomes a book (chests, Supplementaries urns and galleons, Friends & Foes citadels, Wilder Nature bounties, Enhanced Celestials dungeons, fishing, archaeology, creatures).
 - Villagers and the wandering trader no longer offer anything enchanted: such an offer is dropped when it is made.
 - The anvil refuses a second item that bears enchantments (`[xp] blockEnchantMerge`, now true by default): powers do not pile up by recycling.
-- The vanilla enchanting table has no other use: a right-click never opens its window (Hands-On Vanilla leaves it alone, `enchanting_table=false`).
+- The vanilla enchanting table has no other use: a right-click never opens its window (Hands-On Vanilla's own enchanting station stays off, `enchanting_table=false`; ours takes the block).
 - The equipment of a creature (a zombie's sword, a skeleton's bow, a drowned's trident) falls without its enchantments; an awakened item a creature had picked up keeps its own.
 - Whatever else gets in (a chest placed with a structure, a reward, a modded recipe, a command): every second, an item in a player's inventory keeps only what its awakenings gave it, and an enchanted book becomes a book. Not in creative mode.
 - The grindstone gives nothing for an awakened item: an awakening is not wiped off.
@@ -94,6 +107,7 @@ Only when a player killed the beast. The shard falls in sight: it glows through 
 | `facteur` | 3.0 | Each awakening asks this much more than the previous one |
 | `raccommodage` | 0.2 | Durability given back per deed point and per level of Mending |
 | `alerte` | 0.9 | Share of the durability used at which an awakened item warns |
+| `poste` | true | The table opens as a station (with Diegesis); off, or crouching, the one-row window of before |
 | `places.none` … `places.master` | 1, 1, 1, 2, 2, 3 | Awakenings per forging quality |
 
 ## Balance
@@ -119,14 +133,16 @@ Test commands (operators): `/fallow eveil voir` shows the held item's places, st
 
 **Checked** on the test bench on 2026-11-21 evening (polish pass, 0.58.0): in a development client in survival, an enchanted diamond sword and an enchanted book given by command become a plain sword and a book within a second; two pickaxes with the same id get two ids; a zombie with an enchanted iron sword and helmet drops them plain; a test shard on zombies glows on the ground, raises its column of light and the note « Zombie laisse un éclat de grande bête. », with its colour and its line in the tooltip; 1,000 points on a new pickaxe show « Se fait à votre main »; an awakened pickaxe at 240 of 250 warns with the note and the red line; a Mending I pickaxe regains 20 points for 100 deed points; a repair of 115 points gives 57.5 points to `reparer.json#0`; a burning zombie killed at night with a sword counts on the base, undead and burning entries. Not checked: the grindstone, the soul sand, the trident and mace conditions, the Create and Supplementaries items (tests EV16 to EV18).
 
+**Checked** on the test bench on 2026-11-21 night (the table as a station, 0.60.0), development client and server with Diegesis, at 1280 x 720: a right-click with a ready pickaxe leans the camera over the table, the book glides from where it floats and opens, vanilla's floating book is not drawn meanwhile, and the pickaxe is laid by itself; the left page shows « Pioche en fer », « Éveils : 0 sur 1 », « 700 minerais extraits » and « Prêt à s'éveiller » over a full line of ink; the right page shows Fortune I and Efficacité I with what they do and « Né de 700 minerais extraits »; the path under the cursor lights; a click streams runes into the pickaxe, which rises, turns and comes down, the riffled pages carry the table's runes, and the next page says the pickaxe has given all it could while the left one lists « Fortune I, jour 1, par Banc »; leaving gives the pickaxe back with Fortune I. A Frostmaw shard laid by hand and iron boots sent by a shift-click: the shard page, then Frost Walker II on the boots, the shard used up. A pickaxe at 900 points shows « Cet objet n'a pas encore assez vécu. » and « Commence à se faire à votre main » with its line of ink. Not checked: a second player watching, the crouching fallback, the full pack's client (Hands-On Vanilla, Sodium and Iris loaded).
+
 ## In-game tests
 
 | # | Test | Expected |
 |---|---|---|
 | EV1 | Mine stone with a new pickaxe, then `/fallow eveil voir` | The deed `pioche.json#1` grows by one per block; the tooltip shows « Éveils : 0 sur N » |
 | EV2 | `/fallow eveil points 2000` with that pickaxe | Note « … a appris quelque chose … », sound, the pickaxe shimmers, tooltip « Un éveil attend » |
-| EV3 | Right-click an enchanting table with it | A one-row window: two books, the pickaxe in the middle; closing and reopening shows the same two; a click enchants and closes; tooltip line with the day and the player |
-| EV4 | Right-click the table with a pickaxe that is not ready, with nothing, with a full item | « Cet objet n'a pas encore assez vécu. », « La table attend un objet qui a vécu. », « Cet objet a déjà donné tout ce qu'il pouvait. » |
+| EV3 | Right-click an enchanting table with it | The camera leans over the table, the floating book glides to you and opens, the pickaxe lies on the table; left page: its name, « Éveils : 0 sur N », its deeds with counts; right page: two paths with what they do and « Né de … »; leaving and coming back shows the same two; a path lights under the cursor, a click streams runes into the pickaxe, which rises, turns and comes down; the next page says it has given all it could (or shows its next paths); tooltip line with the day and the player |
+| EV4 | Right-click the table with a pickaxe that is not ready, with nothing, with a full item; crouch-click with a ready one | Right page « Cet objet n'a pas encore assez vécu. » with the line of ink at the foot of the left page, « La table attend un objet qui a vécu. » with the invitation on the left, « Cet objet a déjà donné tout ce qu'il pouvait. »; crouching, the one-row window of before |
 | EV5 | Wear an enchanted pickaxe down to its last point (or Overgeared's broken state) | Grey note « À bout de forces, … oublie Efficacité I. », the enchantment goes, `/fallow eveil voir` shows the points brought back; repaired then worn out again, it forgets the next one |
 | EV6 | Kill Frostmaw; at the table, boots in hand and the shard in the other hand | A shard « Éclat de grande bête (Frostmaw) » drops; the boots take Frost Walker II, the shard is used up; on a sword, « Cet éclat ne prend pas sur cet objet. » |
 | EV7 | Open ten chests (desert temple, mineshaft, shipwreck), fish, trade with a librarian and a weaponsmith | No enchanted item or book anywhere; books appear as plain books |
@@ -141,3 +157,6 @@ Test commands (operators): `/fallow eveil voir` shows the held item's places, st
 | EV16 | Kill a burning zombie with a sword at night | `epee.json#3` (burning creature) grows; walking on soul sand with boots grows `bottes.json#5` |
 | EV17 | A great beast's shard falls | It glows through walls, light rises, note « … laisse un éclat de grande bête. », its colour and its line in the tooltip |
 | EV18 | Put an awakened sword in a grindstone | No result |
+| EV19 | At the table, shift-click a Frostmaw shard then iron boots in the hotbar | Each flies to its place; the right page shows the shard, its story and Frost Walker II; a click pours it: the boots rise, the shard is gone, the left page lists « Semelles givrantes II, jour …, éclat de Frostmaw » |
+| EV20 | Watch a friend awaken an item at a table | The item rises, turns and comes down, runes stream from the book, the table's sound |
+| EV21 | Leave the table | The book half shuts and goes back over the table; the floating book of vanilla is never seen twice; what lay on the table is back in the inventory |

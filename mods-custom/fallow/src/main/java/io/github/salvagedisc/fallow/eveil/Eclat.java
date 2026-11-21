@@ -12,7 +12,7 @@ import net.minecraft.resources.ResourceLocation;
  * couleur de l'éclat et son récit (clé de traduction, facultatif).
  */
 public record Eclat(ResourceLocation enchantement, int niveau, String bete, int couleur, String recit) {
-    static final int COULEUR = 0xB98CFF;
+    public static final int COULEUR = 0xB98CFF;
 
     public static final Codec<Eclat> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceLocation.CODEC.fieldOf("enchantement").forGetter(Eclat::enchantement),

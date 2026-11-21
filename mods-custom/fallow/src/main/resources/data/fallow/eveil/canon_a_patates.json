@@ -9,7 +9,8 @@
         "minecraft:power": 2,
         "minecraft:punch": 1,
         "minecraft:unbreaking": 1
-      }
+      },
+      "nom": "eveil.fallow.acte.creatures"
     },
     {
       "acte": "vaincre",
@@ -17,7 +18,8 @@
       "points": 15,
       "enchantements": {
         "minecraft:flame": 3
-      }
+      },
+      "nom": "eveil.fallow.acte.en_feu"
     }
   ]
 }

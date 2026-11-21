@@ -48,6 +48,7 @@ public final class FallowMixinPlugin implements IMixinConfigPlugin {
             Map.entry("dinos.ArmorModelCacheMixin", List.of(ModIds.ARCHIES_DINOSAURS)),
             Map.entry("zoo.CategoryTabsMixin", List.of(ModIds.ARCHIES_DINOSAURS)),
             Map.entry("zoo.GuidebookDataMixin", List.of(ModIds.ARCHIES_DINOSAURS)),
+            Map.entry("eveil.LivreDeTableMixin", List.of(ModIds.DIEGESIS)),
             Map.entry("postes.ForgeRendererMixin", List.of(ModIds.OVERGEARED, ModIds.DIEGESIS)),
             Map.entry("postes.MenuOuvertureMixin", List.of(ModIds.DIEGESIS)),
             Map.entry("postes.MenuCreationMixin", List.of(ModIds.DIEGESIS)),

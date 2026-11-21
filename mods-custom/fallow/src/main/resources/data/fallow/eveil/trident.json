@@ -7,7 +7,8 @@
       "enchantements": {
         "minecraft:impaling": 1,
         "minecraft:unbreaking": 1
-      }
+      },
+      "nom": "eveil.fallow.acte.creatures"
     },
     {
       "acte": "vaincre",
@@ -15,7 +16,8 @@
       "points": 15,
       "enchantements": {
         "minecraft:impaling": 4
-      }
+      },
+      "nom": "eveil.fallow.acte.marines"
     },
     {
       "acte": "vaincre",
@@ -23,7 +25,8 @@
       "points": 15,
       "enchantements": {
         "minecraft:loyalty": 3
-      }
+      },
+      "nom": "eveil.fallow.acte.lance"
     },
     {
       "acte": "vaincre",
@@ -34,7 +37,8 @@
       "points": 15,
       "enchantements": {
         "minecraft:channeling": 3
-      }
+      },
+      "nom": "eveil.fallow.acte.pluie"
     },
     {
       "acte": "vaincre",
@@ -45,7 +49,8 @@
       "points": 15,
       "enchantements": {
         "minecraft:riptide": 3
-      }
+      },
+      "nom": "eveil.fallow.acte.dans_l_eau"
     }
   ]
 }

@@ -8,7 +8,8 @@
       "enchantements": {
         "minecraft:fortune": 3,
         "minecraft:unbreaking": 1
-      }
+      },
+      "nom": "eveil.fallow.acte.recoltes"
     },
     {
       "acte": "casser",
@@ -17,7 +18,8 @@
       "enchantements": {
         "minecraft:efficiency": 3,
         "minecraft:unbreaking": 1
-      }
+      },
+      "nom": "eveil.fallow.acte.houe"
     }
   ]
 }

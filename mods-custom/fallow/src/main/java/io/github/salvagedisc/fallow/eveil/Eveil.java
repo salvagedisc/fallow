@@ -69,6 +69,7 @@ public final class Eveil {
         double gagnes = 0;
         for (HautsFaits.Entree entree : entrees) {
             actes.ajouter(etat.id(), entree.cle(), entree.points() * quantite);
+            actes.compter(etat.id(), entree.cle(), type == HautsFaits.Type.VAINCRE ? 1.0 : quantite);
             gagnes += entree.points() * quantite;
         }
         if (type != HautsFaits.Type.REPARER) {

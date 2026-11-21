@@ -6,7 +6,8 @@
       "points": 5,
       "enchantements": {
         "minecraft:unbreaking": 1
-      }
+      },
+      "nom": "eveil.fallow.acte.pares"
     }
   ]
 }

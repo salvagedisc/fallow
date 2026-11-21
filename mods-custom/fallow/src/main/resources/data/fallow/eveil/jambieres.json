@@ -7,7 +7,8 @@
       "enchantements": {
         "minecraft:protection": 3,
         "minecraft:unbreaking": 1
-      }
+      },
+      "nom": "eveil.fallow.acte.degats"
     },
     {
       "acte": "encaisser",
@@ -15,7 +16,8 @@
       "points": 5,
       "enchantements": {
         "minecraft:fire_protection": 3
-      }
+      },
+      "nom": "eveil.fallow.acte.feu"
     },
     {
       "acte": "encaisser",
@@ -23,7 +25,8 @@
       "points": 5,
       "enchantements": {
         "minecraft:blast_protection": 3
-      }
+      },
+      "nom": "eveil.fallow.acte.explosions"
     },
     {
       "acte": "parcourir",
@@ -32,7 +35,8 @@
       "points": 0.5,
       "enchantements": {
         "minecraft:swift_sneak": 3
-      }
+      },
+      "nom": "eveil.fallow.acte.pas_de_loup"
     }
   ]
 }

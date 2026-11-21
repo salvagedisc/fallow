@@ -27,6 +27,9 @@ public final class EveilClient {
 
     public static void start(IEventBus modBus) {
         NeoForge.EVENT_BUS.addListener(ItemTooltipEvent.class, EveilClient::onTooltip);
+        if (io.github.salvagedisc.fallow.ModIds.isLoaded(io.github.salvagedisc.fallow.ModIds.DIEGESIS)) {
+            TableClient.init();
+        }
         modBus.addListener(RegisterColorHandlersEvent.Item.class, event -> event.register((stack, layer) -> {
             Eclat eclat = stack.get(EveilModule.ECLAT.get());
             return layer == 0 ? FastColor.ARGB32.opaque(eclat == null ? 0xB98CFF : eclat.couleur()) : -1;

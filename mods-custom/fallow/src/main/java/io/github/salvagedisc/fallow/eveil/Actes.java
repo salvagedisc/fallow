@@ -15,6 +15,7 @@ import net.minecraft.world.level.saveddata.SavedData;
  */
 final class Actes extends SavedData {
     private static final String NAME = "fallow_eveil";
+    private static final String FOIS = "#";
 
     private final Map<UUID, Map<String, Double>> objets = new HashMap<>();
 
@@ -31,6 +32,21 @@ final class Actes extends SavedData {
         setDirty();
     }
 
+    /**
+     * Combien de fois l'acte a eu lieu (une créature vaincue compte une, quel que soit son poids) : pour le récit de la table,
+     * gardé à part des points ({@link #FOIS} devant la clé), et jamais rabattu.
+     */
+    void compter(UUID id, String cle, double fois) {
+        if (fois > 0) {
+            objets.computeIfAbsent(id, k -> new HashMap<>()).merge(FOIS + cle, fois, Double::sum);
+            setDirty();
+        }
+    }
+
+    double fois(UUID id, String cle) {
+        return points(id, FOIS + cle);
+    }
+
     double points(UUID id, String cle) {
         Map<String, Double> map = objets.get(id);
         return map == null ? 0.0 : map.getOrDefault(cle, 0.0);
@@ -38,7 +54,8 @@ final class Actes extends SavedData {
 
     double total(UUID id) {
         Map<String, Double> map = objets.get(id);
-        return map == null ? 0.0 : map.values().stream().mapToDouble(Double::doubleValue).sum();
+        return map == null ? 0.0 : map.entrySet().stream().filter(e -> !e.getKey().startsWith(FOIS))
+                .mapToDouble(Map.Entry::getValue).sum();
     }
 
     /** L'objet a disparu (cassé, brûlé, disparu au sol) : ses actes avec lui. */
@@ -68,7 +85,7 @@ final class Actes extends SavedData {
             return;
         }
         double ratio = total <= 0 ? 0 : Math.max(0, cible) / total;
-        map.replaceAll((k, v) -> v * ratio);
+        map.replaceAll((k, v) -> k.startsWith(FOIS) ? v : v * ratio);
         setDirty();
     }
 

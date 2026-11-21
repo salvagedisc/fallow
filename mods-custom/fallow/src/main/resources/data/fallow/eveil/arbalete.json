@@ -9,7 +9,8 @@
         "minecraft:piercing": 2,
         "minecraft:multishot": 1,
         "minecraft:unbreaking": 1
-      }
+      },
+      "nom": "eveil.fallow.acte.creatures"
     },
     {
       "acte": "vaincre",
@@ -17,7 +18,8 @@
       "points": 15,
       "enchantements": {
         "minecraft:piercing": 3
-      }
+      },
+      "nom": "eveil.fallow.acte.loin"
     }
   ]
 }

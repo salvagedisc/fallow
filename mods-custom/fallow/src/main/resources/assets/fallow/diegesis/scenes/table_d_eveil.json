@@ -1,0 +1,43 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Pocky-l/diegesis/main/docs/schema/scene.schema.json",
+  "$comment": "The enchanting table where an item awakens (Fallow's eveil module), laid out as Hands-On Vanilla's enchanting table (MIT): the block is swapped for corps (vanilla's own table model) and the table's book is drawn by the scene (TableBehavior's painter on livre), gliding from where the table's book hovers to the reading place, its pages square to the camera (extra.faces is the camera's position). On the table top, from left to right as the camera sees it: the great beast's shard and the item. The scene turns to the player at their own angle (PLAYER_FREE; the body is turned back square to the world).",
+  "work_plane": 12,
+  "idle_visible": false,
+  "camera": {
+    "position": [8, 37.5, -9.5],
+    "target": [8, 15, 8],
+    "fov": 40,
+    "interactive_at": 0.6
+  },
+  "interface": {
+    "hide_player": true,
+    "inventory_panel": false,
+    "sounds": false,
+    "carry_lift": 1.5,
+    "highlight_color": "#26FFFFFF",
+    "hover_outline": false
+  },
+  "inventory_drawer": {
+    "layout": "hotbar",
+    "always_open": true,
+    "carry_size": 2.6
+  },
+  "nodes": [
+    {
+      "id": "corps",
+      "pos": [8, 0, 8],
+      "pickable": false,
+      "hidden": true,
+      "visual": {"model": "fallow:diegesis/table_d_eveil_corps", "lit_as_block": true}
+    },
+    {"id": "objet", "pos": [10.6, 12.02, 3.6], "slot": {"slot": "objet[0]", "ghost": ["minecraft:iron_pickaxe", "minecraft:iron_sword", "minecraft:bow", "minecraft:iron_chestplate", "minecraft:fishing_rod"], "size": 4.6, "item_size": 4.2, "count_facing": "camera", "idle_highlight": 0.55}},
+    {"id": "eclat", "pos": [4.6, 12.02, 3.6], "slot": {"slot": "eclat[0]", "ghost": ["fallow:eclat_de_bete"], "ghost_alpha": 0.3, "size": 3.6, "item_size": 3.2, "count_facing": "camera", "idle_highlight": 0.35}},
+    {
+      "id": "livre",
+      "pos": [8, 18.5, 9.5],
+      "hidden": true,
+      "collider": {"from": [-7, -4, -4], "to": [7, 4, 4]},
+      "extra": {"faces": [8, 37.5, -9.5]}
+    }
+  ]
+}

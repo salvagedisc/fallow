@@ -10,7 +10,8 @@
         "minecraft:sweeping_edge": 1,
         "minecraft:knockback": 0.5,
         "minecraft:unbreaking": 1
-      }
+      },
+      "nom": "eveil.fallow.acte.creatures"
     },
     {
       "acte": "vaincre",
@@ -18,7 +19,8 @@
       "points": 15,
       "enchantements": {
         "minecraft:smite": 4
-      }
+      },
+      "nom": "eveil.fallow.acte.morts_vivants"
     },
     {
       "acte": "vaincre",
@@ -26,7 +28,8 @@
       "points": 15,
       "enchantements": {
         "minecraft:bane_of_arthropods": 4
-      }
+      },
+      "nom": "eveil.fallow.acte.arthropodes"
     },
     {
       "acte": "vaincre",
@@ -34,7 +37,8 @@
       "points": 15,
       "enchantements": {
         "minecraft:fire_aspect": 3
-      }
+      },
+      "nom": "eveil.fallow.acte.en_feu"
     },
     {
       "acte": "vaincre",
@@ -42,7 +46,8 @@
       "points": 15,
       "enchantements": {
         "minecraft:fire_aspect": 2
-      }
+      },
+      "nom": "eveil.fallow.acte.nether"
     }
   ]
 }

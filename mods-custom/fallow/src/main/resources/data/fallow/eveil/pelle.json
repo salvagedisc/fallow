@@ -10,7 +10,8 @@
         "minecraft:unbreaking": 1,
         "minecraft:silk_touch": 0.5,
         "minecraft:fortune": 0.5
-      }
+      },
+      "nom": "eveil.fallow.acte.creuses"
     }
   ]
 }

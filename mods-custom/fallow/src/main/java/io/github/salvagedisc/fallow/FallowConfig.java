@@ -41,6 +41,7 @@ public final class FallowConfig {
     private static final ModConfigSpec.DoubleValue EVEIL_FACTEUR;
     private static final ModConfigSpec.DoubleValue EVEIL_RACCOMMODAGE;
     private static final ModConfigSpec.DoubleValue EVEIL_ALERTE;
+    private static final ModConfigSpec.BooleanValue EVEIL_POSTE;
     private static final java.util.Map<String, ModConfigSpec.IntValue> EVEIL_PLACES = new java.util.LinkedHashMap<>();
     private static final ModConfigSpec.BooleanValue RENDU_ENABLED;
     private static final ModConfigSpec.BooleanValue VENT_ENABLED;
@@ -260,6 +261,10 @@ public final class FallowConfig {
         EVEIL_ALERTE = server
                 .comment("Part de la durabilité usée à partir de laquelle un objet éveillé prévient qu'il risque d'oublier.")
                 .defineInRange("alerte", 0.9, 0.5, 1.0);
+        EVEIL_POSTE = server
+                .comment("La table d'enchantement s'ouvre en poste (avec Diegesis) : la caméra se penche sur la table, l'objet s'y pose,",
+                        "le livre ouvert raconte sa vie et montre ses deux voies. Faux, ou accroupi : la fenêtre de choix d'avant.")
+                .define("poste", true);
         server.comment("Nombre d'éveils qu'un objet peut porter, selon sa qualité de forge d'Overgeared (none : sans qualité).")
                 .push("places");
         for (String[] q : new String[][] {{"none", "1"}, {"poor", "1"}, {"well", "1"}, {"expert", "2"}, {"perfect", "2"}, {"master", "3"}}) {
@@ -524,6 +529,10 @@ public final class FallowConfig {
 
     public static double eveilRaccommodage() {
         return SERVER_SPEC.isLoaded() ? EVEIL_RACCOMMODAGE.get() : EVEIL_RACCOMMODAGE.getDefault();
+    }
+
+    public static boolean eveilPoste() {
+        return read(SERVER_SPEC, EVEIL_POSTE);
     }
 
     public static double eveilAlerte() {

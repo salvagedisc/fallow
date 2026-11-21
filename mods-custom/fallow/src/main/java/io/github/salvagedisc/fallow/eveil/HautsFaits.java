@@ -51,6 +51,8 @@ import net.minecraft.world.level.block.state.BlockState;
  * le joueur), {@code dans_l_eau} (eau ou pluie), {@code cible_en_feu}, {@code armure} (la créature porte de l'armure),
  * {@code lance} (le coup vient d'un projectile), {@code loin} (la créature est à plus de 20 blocs), {@code ecrase} (le
  * joueur tombait en frappant), {@code sous:<bloc ou #tag>} (le bloc sous les pieds). {@code objets} prend aussi une liste.
+ * {@code nom} (facultatif) est la clé de traduction qui dit l'acte au livre de la table, avec le nombre en {@code %s}
+ * (« 1 240 minerais extraits »).
  * Une entrée garde sa place dans le fichier : c'est sa clé dans {@link Actes}.
  */
 public final class HautsFaits extends SimpleJsonResourceReloadListener {
@@ -74,7 +76,7 @@ public final class HautsFaits extends SimpleJsonResourceReloadListener {
      * ses penchants.
      */
     public record Entree(String cle, Type type, String cible, List<String> si, double points,
-            Map<ResourceLocation, Double> enchantements) {
+            Map<ResourceLocation, Double> enchantements, String nom) {
         /** Toutes les conditions de l'entrée tiennent à ce moment. */
         boolean si(Contexte c) {
             for (String condition : si) {
@@ -217,7 +219,7 @@ public final class HautsFaits extends SimpleJsonResourceReloadListener {
                     entrees.add(new Entree(id + "#" + index++, Type.of(GsonHelper.getAsString(acte, "acte")),
                             GsonHelper.getAsString(acte, "cible", ""), liste(acte, "si"),
                             GsonHelper.getAsDouble(acte, "points", 1.0),
-                            Map.copyOf(penchants)));
+                            Map.copyOf(penchants), GsonHelper.getAsString(acte, "nom", "")));
                 }
                 loaded.add(new Famille(objets, List.copyOf(entrees)));
             } catch (RuntimeException e) {

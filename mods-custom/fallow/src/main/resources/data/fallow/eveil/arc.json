@@ -10,7 +10,8 @@
         "minecraft:flame": 0.5,
         "minecraft:infinity": 0.3,
         "minecraft:unbreaking": 1
-      }
+      },
+      "nom": "eveil.fallow.acte.creatures"
     },
     {
       "acte": "vaincre",
@@ -19,7 +20,8 @@
       "enchantements": {
         "minecraft:power": 3,
         "minecraft:infinity": 1
-      }
+      },
+      "nom": "eveil.fallow.acte.loin"
     },
     {
       "acte": "vaincre",
@@ -27,7 +29,8 @@
       "points": 15,
       "enchantements": {
         "minecraft:flame": 3
-      }
+      },
+      "nom": "eveil.fallow.acte.en_feu"
     },
     {
       "acte": "vaincre",
@@ -35,7 +38,8 @@
       "points": 15,
       "enchantements": {
         "minecraft:flame": 2
-      }
+      },
+      "nom": "eveil.fallow.acte.nether"
     }
   ]
 }

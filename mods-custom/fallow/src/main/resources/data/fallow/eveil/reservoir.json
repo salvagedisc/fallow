@@ -9,7 +9,8 @@
       "points": 3,
       "enchantements": {
         "create:capacity": 3
-      }
+      },
+      "nom": "eveil.fallow.acte.sous_l_eau"
     }
   ]
 }

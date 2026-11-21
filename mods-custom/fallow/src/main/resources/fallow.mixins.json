@@ -27,6 +27,7 @@
     "clairiere.SodiumTintMixin",
     "compat.PunchyEquipMixin",
     "dinos.ArmorModelCacheMixin",
+    "eveil.LivreDeTableMixin",
     "dinos.EntityModelSetAccessor",
     "horizon.FarFadeMixin",
     "horizon.FogRendererMixin",

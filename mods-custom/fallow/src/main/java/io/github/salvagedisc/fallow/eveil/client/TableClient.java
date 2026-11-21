@@ -1,0 +1,72 @@
+package io.github.salvagedisc.fallow.eveil.client;
+
+import java.util.List;
+import java.util.stream.IntStream;
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.neoforge.client.event.ClientChatReceivedEvent;
+import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.common.NeoForge;
+
+import com.pockyl.diegesis.api.client.DiegesisClient;
+import com.pockyl.diegesis.api.client.ParticleStyle;
+
+import io.github.salvagedisc.fallow.Fallow;
+import io.github.salvagedisc.fallow.eveil.TableEveil;
+
+/**
+ * Le poste de la table d'enchantement sur le client (seulement avec Diegesis) : sa conduite ({@link TableBehavior}), le corps de
+ * la table, les runes qui coulent du livre dans l'objet, et ce que la table dit en légende de la scène.
+ */
+final class TableClient {
+    /**
+     * Les lettres de l'alphabet de la table de vanilla ({@code sga_*}) qui font les runes, comme chez Hands-On Vanilla : celles qui
+     * coulent vers l'objet (droites, lumineuses), celles qui s'envolent (elles flottent et se dissipent).
+     */
+    private static final String LETTRES = "aeklqrvz";
+    private static final List<ResourceLocation> GLYPHES = IntStream.range(0, LETTRES.length())
+            .mapToObj(i -> ResourceLocation.fromNamespaceAndPath(Fallow.MOD_ID, "glyphe_" + i)).toList();
+    private static final List<ResourceLocation> GLYPHES_VOLANTS = IntStream.range(0, LETTRES.length())
+            .mapToObj(i -> ResourceLocation.fromNamespaceAndPath(Fallow.MOD_ID, "glyphe_volant_" + i)).toList();
+
+    private TableClient() {
+    }
+
+    static void init() {
+        DiegesisClient.registerBehavior(TableEveil.ID, view -> new TableBehavior());
+        DiegesisClient.registerModel(ResourceLocation.fromNamespaceAndPath(Fallow.MOD_ID, "diegesis/table_d_eveil_corps"));
+        for (int i = 0; i < LETTRES.length(); i++) {
+            ResourceLocation lettre = ResourceLocation.withDefaultNamespace("sga_" + LETTRES.charAt(i));
+            DiegesisClient.registerParticle(GLYPHES.get(i), ParticleStyle.builder(lettre).color(0xFFEDE6FF).size(1.1F, 1.5F)
+                    .life(0.5F, 0.5F).drag(0.0F).emissive().grow(0.6F).build());
+            DiegesisClient.registerParticle(GLYPHES_VOLANTS.get(i), ParticleStyle.builder(lettre).color(0xFFB98EFF).size(0.8F, 1.2F)
+                    .life(1.0F, 1.6F).gravity(-2.0F).drag(1.4F).wobble(0.5F).emissive().grow(0.4F).fadeIn(0.1F).build());
+        }
+        NeoForge.EVENT_BUS.addListener(InputEvent.InteractionKeyMappingTriggered.class, event -> {
+            if (event.isUseItem() && Minecraft.getInstance().hitResult instanceof BlockHitResult hit) {
+                TableBehavior.usage(hit.getBlockPos());
+            }
+        });
+        NeoForge.EVENT_BUS.addListener(ClientChatReceivedEvent.System.class, TableClient::enLegende);
+    }
+
+    static ResourceLocation glyphe(RandomSource random) {
+        return GLYPHES.get(random.nextInt(GLYPHES.size()));
+    }
+
+    static ResourceLocation glypheVolant(RandomSource random) {
+        return GLYPHES_VOLANTS.get(random.nextInt(GLYPHES_VOLANTS.size()));
+    }
+
+    /** Au poste la barre d'action est cachée : ce que la table dit (l'éveil, ce qui ne prend pas) passe en légende de la scène. */
+    private static void enLegende(ClientChatReceivedEvent.System event) {
+        if (event.isOverlay()) {
+            DiegesisClient.focusedStation().filter(view -> TableEveil.ID.equals(view.type().id())).ifPresent(view -> {
+                view.showCaption(event.getMessage(), 3.0F);
+                event.setCanceled(true);
+            });
+        }
+    }
+}

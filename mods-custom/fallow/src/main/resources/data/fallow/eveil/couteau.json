@@ -9,7 +9,8 @@
         "minecraft:sharpness": 2,
         "minecraft:looting": 2,
         "minecraft:unbreaking": 1
-      }
+      },
+      "nom": "eveil.fallow.acte.creatures"
     }
   ]
 }

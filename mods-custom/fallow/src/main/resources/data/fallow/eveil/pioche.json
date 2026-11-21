@@ -9,7 +9,8 @@
         "minecraft:fortune": 3,
         "minecraft:efficiency": 1,
         "minecraft:unbreaking": 1
-      }
+      },
+      "nom": "eveil.fallow.acte.minerais"
     },
     {
       "acte": "casser",
@@ -19,7 +20,8 @@
         "minecraft:efficiency": 3,
         "minecraft:unbreaking": 1,
         "minecraft:silk_touch": 0.5
-      }
+      },
+      "nom": "eveil.fallow.acte.roche"
     }
   ]
 }

@@ -8,7 +8,8 @@
         "minecraft:density": 1,
         "minecraft:breach": 1,
         "minecraft:unbreaking": 1
-      }
+      },
+      "nom": "eveil.fallow.acte.creatures"
     },
     {
       "acte": "vaincre",
@@ -17,7 +18,8 @@
       "enchantements": {
         "minecraft:density": 3,
         "minecraft:wind_burst": 2
-      }
+      },
+      "nom": "eveil.fallow.acte.ecrase"
     },
     {
       "acte": "vaincre",
@@ -25,7 +27,8 @@
       "points": 15,
       "enchantements": {
         "minecraft:breach": 3
-      }
+      },
+      "nom": "eveil.fallow.acte.en_armure"
     },
     {
       "acte": "vaincre",
@@ -33,7 +36,8 @@
       "points": 15,
       "enchantements": {
         "minecraft:smite": 3
-      }
+      },
+      "nom": "eveil.fallow.acte.morts_vivants"
     },
     {
       "acte": "vaincre",
@@ -41,7 +45,8 @@
       "points": 15,
       "enchantements": {
         "minecraft:bane_of_arthropods": 3
-      }
+      },
+      "nom": "eveil.fallow.acte.arthropodes"
     }
   ]
 }

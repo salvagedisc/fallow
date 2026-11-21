@@ -7,7 +7,8 @@
       "enchantements": {
         "minecraft:protection": 2,
         "minecraft:unbreaking": 1
-      }
+      },
+      "nom": "eveil.fallow.acte.degats"
     },
     {
       "acte": "encaisser",
@@ -15,7 +16,8 @@
       "points": 10,
       "enchantements": {
         "minecraft:feather_falling": 4
-      }
+      },
+      "nom": "eveil.fallow.acte.chutes"
     },
     {
       "acte": "parcourir",
@@ -24,7 +26,8 @@
       "enchantements": {
         "minecraft:unbreaking": 2,
         "minecraft:feather_falling": 1
-      }
+      },
+      "nom": "eveil.fallow.acte.marche"
     },
     {
       "acte": "parcourir",
@@ -32,7 +35,8 @@
       "points": 1,
       "enchantements": {
         "minecraft:depth_strider": 3
-      }
+      },
+      "nom": "eveil.fallow.acte.nage"
     },
     {
       "acte": "parcourir",
@@ -41,7 +45,8 @@
       "points": 0.5,
       "enchantements": {
         "minecraft:soul_speed": 4
-      }
+      },
+      "nom": "eveil.fallow.acte.ames"
     }
   ]
 }

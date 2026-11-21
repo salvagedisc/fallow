@@ -106,6 +106,8 @@ public final class EveilModule {
     private static final Map<UUID, Integer> USURES = new HashMap<>();
     /** Les objets qui ont déjà prévenu qu'ils faiblissent (jusqu'à leur réparation). */
     private static final java.util.Set<UUID> AVERTIS = new java.util.HashSet<>();
+    /** Diegesis est là : la table d'enchantement s'ouvre en poste ({@link TableEveil}). */
+    static final boolean DIEGESIS = io.github.salvagedisc.fallow.ModIds.isLoaded(io.github.salvagedisc.fallow.ModIds.DIEGESIS);
     private static final EquipmentSlot[] ARMURE = {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
     private static volatile MinecraftServer server;
 
@@ -153,6 +155,9 @@ public final class EveilModule {
         NeoForge.EVENT_BUS.addListener(RegisterCommandsEvent.class, EveilModule::onRegisterCommands);
         if (ModList.get().isLoaded("treechop")) {
             ecouterTreeChop();
+        }
+        if (DIEGESIS) {
+            TableEveil.register();
         }
         if (FMLEnvironment.dist.isClient()) {
             io.github.salvagedisc.fallow.eveil.client.EveilClient.start(modBus);
@@ -402,6 +407,10 @@ public final class EveilModule {
 
     private static void onTable(PlayerInteractEvent.RightClickBlock event) {
         if (!FallowConfig.eveilEnabled() || !event.getLevel().getBlockState(event.getPos()).is(Blocks.ENCHANTING_TABLE)) {
+            return;
+        }
+        if (DIEGESIS && TableEveil.ouvre(event.getEntity(), event.getPos(), event.getLevel().getBlockState(event.getPos()))) {
+            // Le poste de Diegesis s'ouvre (TableEveil) ; la table vanilla jamais.
             return;
         }
         event.setCanceled(true);
