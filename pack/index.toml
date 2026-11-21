@@ -3998,6 +3998,11 @@ hash = "cd2c6fa89eecaaa1aadf369b043ceb45e99778cacd590e3fc01b0dcae2e6557d"
 metafile = true
 
 [[files]]
+file = "mods/ssrd.pw.toml"
+hash = "902b9f7cae33327dfb12e7a2dd454b20625644ce3c760d21b985e75e18a57e7c"
+metafile = true
+
+[[files]]
 file = "mods/starcatcher.pw.toml"
 hash = "4e5d0aaa6f9dee74886f345cf81ece00adbf8a4598644b99f73ca15537c2a8ac"
 metafile = true

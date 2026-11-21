@@ -1,0 +1,8 @@
+{
+  "ssrd.options.physics_render_distance.name": "Distance d'affichage des navires",
+  "ssrd.options.physics_render_distance.tooltip": "Distance maximale (en tronçons) à laquelle les sous-niveaux sont affichés. Le maximum du curseur suit la distance d'affichage lointaine de Distant Horizons ou de Voxy, dans la limite ssrdMaxRenderDistance fixée par le serveur.",
+  "ssrd.config.physics_render_distance": "Distance des sous-niveaux",
+  "ssrd.config.min_physics_render_distance": "Distance minimale des sous-niveaux",
+  "ssrd.config.max_physics_render_distance": "Distance maximale des sous-niveaux",
+  "ssrd.screen.config.title": "Réglages d'affichage de SSRD"
+}
