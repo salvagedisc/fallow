@@ -51,6 +51,8 @@ Side: C = client, S = server, CS = both. Versions checked on Modrinth for NeoFor
 | Create Aeronautics Addon: Plough & Roll! | `createaeroploughroll` | ✅ (1.2.0 alpha, added 2026-11-21, MIT) | CS | Mechanical ploughs and rollers mounted on a Sable ship work the ground below as it moves; normal rollers replace existing roadbed again |
 | Aeronautics Display Link Fix | `aeronautics-display-link-fix` | ✅ (1.3, added 2026-11-21, MIT) | CS | A display link keeps its target when its ship is assembled or set down |
 | Sable Fix Mod | `sable-fix-mod` | ✅ (1.1.0, added 2026-11-21, MIT) | S | No more duplicated items, rails, torches, redstone or crops when a ship is assembled or set down |
+| Sable Pathfinder | `sable-pathfinder` | ✅ (1.4.0, added 2026-11-21, ARR) | CS | Animals, companions and mounts find their way onto a ship, off it and between ships |
+| Sable: Sure Footing | `sable-sure-footing` | ✅ (1.2.1, added 2026-11-21, MIT) | CS | A jump on a moving or turning deck lands where it started; dropped items, animals and smoke stay with the ship |
 | Create Aeronautics: Compatibility | `create-aeronautics-compatability` | ✅ (1.1.3, added 2026-11-21, MIT) | CS | Alex's Mobs creatures no longer exhaust the memory trying to path-find on a ship |
 | Furniture with Create and Sable compat | `lets-do-furniture-another-furniture-handcrafted-create-sable` | ✅ (5.0, added 2026-11-21, ARR) | CS | Handcrafted, Quark and Every Compat seats stay usable on a Create contraption or a Sable ship |
 | Create: Steam 'n' Rails | `create-steam-n-rails-1.21.1` | ✅ | CS | The railway (beta) |
@@ -132,6 +134,7 @@ Side: C = client, S = server, CS = both. Versions checked on Modrinth for NeoFor
 | playerAnimator | `playeranimator` | ✅ (2.0.4, added 2026-11-17) | CS | Animation library of Better Combat |
 | Sable: Ragdoll Corpse | `sable-ragdoll-corpse` | ✅ (0.4.0, added 2026-11-18, ARR) | CS | On death the player leaves a ragdoll body that keeps the whole inventory, Curios included, until it is emptied; it can be dragged, thrown or lifted by an airship; the recovery compass points to it ([0037](decisions/0037-ragdoll-corpse.md)) |
 | Sable: Ragdolls | `sable-ragdolls` | ✅ (0.8.1, added 2026-11-18, Apache-2.0) | CS | Ragdoll library of the body above; the key that throws oneself to the ground is off on the server (`config/sable_player_ragdoll-server.toml`) |
+| Sable: Ragdoll Patch | `sableragdoll-patch` | ✅ (1.9.1, added 2026-11-21, MIT) | CS | Fixes for the ragdoll body: Punchy's arm hidden, Curios and capes drawn right, held torches lit (LambDynamicLights), no grabbing a chest or door while dragging a body; bodies have no collision by default (`/nocollide`) ([0044](decisions/0044-sable-and-create.md)) |
 
 ## Atmosphere, rendering and sound
 
@@ -143,7 +146,8 @@ Side: C = client, S = server, CS = both. Versions checked on Modrinth for NeoFor
 | LambDynamicLights | `lambdynamiclights` | ✅ | C | Light held in hand |
 | More Darkness | `more-darkness` | ✅ | CS | Real nights |
 | AmbientSounds | `ambientsounds` | ✅ | C | Biome sounds |
-| Sound Physics Remastered | `sound-physics-remastered` | ✅ | CS | Echo, muffling |
+| Sound Physics: Aeronautics | `sound-physics-aeronautics` | ✅ (2.0.1, added 2026-11-21, GPL-3.0) | CS | Echo, muffling; a fork of Sound Physics Remastered (removed, same mod id) that also muffles sound through ship hulls and contraptions, adds the Doppler effect and far propeller sound; its wing windrush plays beside Aeronautics Wind Sound, to weigh in game ([0044](decisions/0044-sable-and-create.md)) |
+| Separate Sable Render Distance | `ssrd` | ✅ (1.8.8, added 2026-11-21, ARR) | CS | Ships stay visible as far as Distant Horizons draws, not only to the normal view distance; to check in game with Brumaire ([0044](decisions/0044-sable-and-create.md)) |
 | True Adaptive Music | `true-adaptive-music` | ✅ | CS | Music by situation (mist, clearing, season, moon, airship), long silences ([0010](decisions/0010-musique.md)) |
 | `fallow` music pack | — | ✅ (`pack/trueadaptivemusicpacks/`, [page](plan/musique.md)) | CS | The tree of situations and the 25 tracks chosen by the team (29 until No Man's Land left) |
 | Sounds | `sound` | ✅ | C | 170 interface, item and block sounds |
@@ -222,7 +226,6 @@ Already present: Configurable (Neruina), Architectury API, Balm, Cloth Config, C
 | MassWeightCompat, Sable Weighted | Duplicate Sable: Physics Compat for the mods of the pack |
 | Sable Assembly Fix, Aeronautics: Addition, Create Aeronautics Roller Fix | Covered by Sable Fix Mod, Sable Beyond and Plough & Roll! |
 | Create: Sable Train Overlay Compat | Shows trains on ships on Create's train map, which needs a map mod the pack does not have (the atlas already marks ships) |
-| Sound Physics Aeronautics | A fork that replaces Sound Physics Remastered to add ship acoustics; held for the team's choice ([0044](decisions/0044-sable-and-create.md)) |
 | Cinematic Interactions | Removed on 2026-11-20 ([0040](decisions/0040-removing-cinematic-interactions.md)): a jar embedded in the pack because it is only on CurseForge, which held back the first Modrinth version; the vanilla stations open their usual windows again |
 | Chipped (with Athena), Beautify! | Removed on 2026-11-01: 6,980 blocks for Chipped, including 1,110 Nether and End variants; Beautify! duplicates Supplementaries, Amendments and Handcrafted ([pack sort](plan/tri-du-pack.md)) |
 | Bosses of Mass Destruction, Create Ore Excavation, GraveStone Mod, Cosy Critters & Creepy Crawlies, Macaw's Roofs, Macaw's Windows, Real Camera, MB-3D Items | Removed by the team on 2026-10-19 |
@@ -260,7 +263,6 @@ Already present: Configurable (Neruina), Architectury API, Balm, Cloth Config, C
 | Wildex Bestiary | Removed by the team on 2026-10-29; the `zoo` module keeps its own ledger ([modules-fallow](plan/modules-fallow.md)) |
 | Waystones, Explorer's Compass, Nature's Compass | Erase the journey |
 | Carry On | Incompatible with Aeronautics |
-| Separate Sable Render Distance | To evaluate with Distant Horizons (needs 1.8.7, beta) |
 | Downhill Rivers, Terralith | Streams Reflowing and Tectonic chosen instead ([0011](decisions/0011-tectonic-streams-distant-horizons.md)); Terralith measured again on 2026-11-12, alone or with Tectonic ([0019](decisions/0019-leaving-no-mans-land.md)) |
 | No Man's Land | Left the pack on 2026-11-13 at the team's decision of 2026-11-11: Regions Unexplored and Geophilic replace its biomes, the Friendly Moon thread goes with it ([0019](decisions/0019-leaving-no-mans-land.md)) |
 | Biomes O' Plenty, Oh The Biomes We've Gone, Nature's Spirit, Lithosphere | Measured against Regions Unexplored on 2026-11-12 and not kept; Lithosphere was compared in game on 2026-11-13 and not kept ([0019](decisions/0019-leaving-no-mans-land.md)) |

@@ -1,7 +1,7 @@
 # 0044 — Sable and Create machines
 
 - **Date**: 2026-11-21
-- **Status**: kept (six mods added); Loconautics pending its Modrinth release; Sound Physics Aeronautics, SSRD and Sable Ragdolls Patch held for the team.
+- **Status**: kept (six mods added, five more on the team's word the same evening); Loconautics pending its Modrinth release.
 
 ## Context
 The team asked for the mods that bring Sable, the physics library of Create Aeronautics, into Create's machines and the rest of the pack, Create: Loconautics given as an example. Sable 2.0.6, Create Aeronautics 1.3.3, Sable: Physics Compat and the two ragdoll mods were already in the pack. Research of 2026-11-21: Modrinth searched for every 1.21.1 NeoForge project naming Sable or Aeronautics (about 160), each candidate's jar opened (mod ids, dependencies, mixin targets, config classes) and its overlap with the pack checked.
@@ -27,6 +27,9 @@ The team asked for the mods that bring Sable, the physics library of Create Aero
 - **Create: Loconautics** (0.1.4 beta): each train car becomes a Sable sub-level that can collide and derail; it supports Steam 'n' Rails boilers. Published only on CurseForge for now (its README already links a Modrinth page that is not yet live), and its art is all rights reserved, so its jar cannot be embedded. To add as soon as it is on Modrinth.
 - **Create: Train Functionality**: CurseForge only, no source.
 - **Ferronautics**: halted, superseded by Loconautics.
-- **Sound Physics Aeronautics**: a fork that replaces Sound Physics Remastered (same mod id) and adds ship acoustics, Doppler and far propellers; it brings 924 new texts to translate and a wing windrush that overlaps Aeronautics Wind Sound. Held for the team's choice.
-- **Separate Sable Render Distance**, **Sable Ragdolls Patch**: client-side; to try in game first (the patch fixes Punchy, Curios and LambDynamicLights with the ragdolls).
+- **Sound Physics Aeronautics**: a fork that replaces Sound Physics Remastered (same mod id) and adds ship acoustics, Doppler and far propellers; it brings 924 new texts to translate and a wing windrush that overlaps Aeronautics Wind Sound. Held at first, then chosen by the team on 2026-11-21: it replaces Sound Physics Remastered, its 924 texts are translated.
+- **Separate Sable Render Distance**, **Sable Ragdolls Patch**: client-side, held at first; chosen by the team on 2026-11-21, to check in game (CI only starts the server).
+
+## Second step (2026-11-21, evening)
+A study of the Sable mods outside Create (108 projects) led the team to add Sable Pathfinder 1.4.0 and Sable: Sure Footing 1.2.1 with the three held mods above. Its other proposals (falling trees, cave-ins, ragdoll reactions, revival, altitude gravity, Waterworks) wait for the team.
 - Aeronautics: Addition, Create Aeronautics Roller Fix, Sable Assembly Fix: covered by the kept mods. MassWeightCompat, Sable Weighted: duplicate Sable: Physics Compat. Create: Sable Train Overlay Compat: needs a map mod the pack does not have.
