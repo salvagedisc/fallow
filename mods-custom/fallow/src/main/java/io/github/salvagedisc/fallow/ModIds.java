@@ -27,6 +27,7 @@ public final class ModIds {
     public static final String DIEGESIS = "diegesis";
     public static final String OVERGEARED = "overgeared";
     public static final String HANDS_ON_VANILLA = "handson_vanilla";
+    public static final String FISH_N_SHIPS = "fish_n_ships";
 
     private ModIds() {
     }

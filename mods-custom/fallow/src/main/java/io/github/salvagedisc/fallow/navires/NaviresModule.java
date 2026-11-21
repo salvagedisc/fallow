@@ -17,6 +17,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import org.joml.Vector3d;
 
 /**
@@ -26,8 +28,9 @@ import org.joml.Vector3d;
  * <p>À chaque pas de la physique de Sable, chaque navire à ciel ouvert reçoit le vent de fond de {@link WindField},
  * le même que celui que voient la fumée, les shaders et les bêtes : une force selon la face qu'il offre au vent
  * (hors de l'eau) et le vent relatif. Près du bord du disque ({@link BordModule}), un vent contraire le pousse vers
- * le centre, de plus en plus fort, et freine ce qui file encore vers le large. Les forces passent au centre de masse :
- * elles ne font pas tourner le navire. Les rafales restent au client et ne poussent rien.
+ * le centre, de plus en plus fort, et freine ce qui file encore vers le large. Ces forces passent au centre de masse.
+ * Sous la pluie et l'orage, des rafales ({@link Gros#gust}) frappent en plus le haut du navire, qui dérive par à-coups
+ * et gîte. La neige qui se dépose sur les ponts est l'affaire de {@link Neige}.
  */
 public final class NaviresModule {
     private NaviresModule() {
@@ -35,6 +38,11 @@ public final class NaviresModule {
 
     public static void start(IEventBus modBus) {
         SableEventPlatform.INSTANCE.onPhysicsTick(NaviresModule::onPhysicsTick);
+        NeoForge.EVENT_BUS.addListener(LevelTickEvent.Post.class, event -> {
+            if (event.getLevel() instanceof ServerLevel level) {
+                Neige.tick(level);
+            }
+        });
         Fallow.LOGGER.info("navires : le vent de Fallow et le bord du disque poussent les navires de Sable");
     }
 
@@ -53,6 +61,7 @@ public final class NaviresModule {
             return;
         }
         double multiplier = FallowConfig.naviresWindStrength();
+        boolean storms = FallowConfig.naviresStorms();
         float rain = level.getRainLevel(1.0F);
         float thunder = level.getThunderLevel(1.0F);
         long gameTime = level.getGameTime();
@@ -61,15 +70,15 @@ public final class NaviresModule {
                 continue;
             }
             try {
-                push(level, ship, dt, wind ? multiplier : 0.0, rain, thunder, gameTime, edge);
+                push(level, ship, dt, wind ? multiplier : 0.0, storms, rain, thunder, gameTime, edge);
             } catch (RuntimeException e) {
                 Fallow.LOGGER.debug("navires : poussée impossible sur {}", ship, e);
             }
         }
     }
 
-    private static void push(ServerLevel level, ServerSubLevel ship, double dt, double multiplier, float rain, float thunder,
-            long gameTime, BordModule.Edge edge) {
+    private static void push(ServerLevel level, ServerSubLevel ship, double dt, double multiplier, boolean storms, float rain,
+            float thunder, long gameTime, BordModule.Edge edge) {
         BoundingBox3dc box = ship.boundingBox();
         double sizeX = box.maxX() - box.minX();
         double sizeY = box.maxY() - box.minY();
@@ -86,6 +95,8 @@ public final class NaviresModule {
         Vector3d velocity = ship.latestLinearVelocity;
         double forceX = 0.0;
         double forceZ = 0.0;
+        double gustX = 0.0;
+        double gustZ = 0.0;
 
         if (multiplier > 0.0) {
             BlockPos above = BlockPos.containing(centerX, box.maxY() + 1.0, centerZ);
@@ -97,6 +108,15 @@ public final class NaviresModule {
                 double[] f = ShipForces.wind(area, w[0], w[1], velocity.x, velocity.z, multiplier);
                 forceX += f[0];
                 forceZ += f[1];
+                if (storms) {
+                    // Les rafales d'orage poussent le haut du navire : il dérive par à-coups et gîte.
+                    double[] g = Gros.gust(gameTime, ship.getUniqueId().getMostSignificantBits(), rain, thunder, centerY,
+                            WindField.angle(gameTime, thunder));
+                    double gustArea = ShipForces.area(sizeX, sizeZ, height, g[0], g[1]);
+                    double k = ShipForces.WIND_COEFFICIENT * multiplier * gustArea;
+                    gustX = k * g[0];
+                    gustZ = k * g[1];
+                }
             }
         }
 
@@ -108,12 +128,16 @@ public final class NaviresModule {
             forceZ += in[1] * a;
         }
 
-        if (forceX == 0.0 && forceZ == 0.0) {
-            return;
-        }
-        // Sable prend des impulsions dans le repère du navire, au point donné (ici le centre de masse).
-        Vector3d impulse = ship.logicalPose().transformNormalInverse(new Vector3d(forceX * dt, 0.0, forceZ * dt), new Vector3d());
         QueuedForceGroup group = ship.getOrCreateQueuedForceGroup(ForceGroups.DRAG.get());
-        group.applyAndRecordPointForce(mass.getCenterOfMass(), impulse);
+        // Sable prend des impulsions dans le repère du navire, au point donné.
+        if (forceX != 0.0 || forceZ != 0.0) {
+            Vector3d impulse = ship.logicalPose().transformNormalInverse(new Vector3d(forceX * dt, 0.0, forceZ * dt), new Vector3d());
+            group.applyAndRecordPointForce(mass.getCenterOfMass(), impulse);
+        }
+        if (gustX != 0.0 || gustZ != 0.0) {
+            Vector3d impulse = ship.logicalPose().transformNormalInverse(new Vector3d(gustX * dt, 0.0, gustZ * dt), new Vector3d());
+            Vector3d point = new Vector3d(mass.getCenterOfMass()).add(0.0, sizeY * ShipForces.GUST_LEVER, 0.0);
+            group.applyAndRecordPointForce(point, impulse);
+        }
     }
 }

@@ -48,7 +48,7 @@ public final class WindField {
     }
 
     /** Valeur lisse entre 0 et 1, qui varie d'une unité de t à l'autre. */
-    static double smoothNoise(double t) {
+    public static double smoothNoise(double t) {
         long i = (long) Math.floor(t);
         double f = t - i;
         f = f * f * (3.0 - 2.0 * f);

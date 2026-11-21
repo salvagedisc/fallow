@@ -49,6 +49,10 @@ public final class FallowConfig {
     private static final ModConfigSpec.BooleanValue BORD_ENABLED;
     private static final ModConfigSpec.BooleanValue NAVIRES_WIND_ENABLED;
     private static final ModConfigSpec.DoubleValue NAVIRES_WIND_STRENGTH;
+    private static final ModConfigSpec.BooleanValue NAVIRES_STORMS;
+    private static final ModConfigSpec.BooleanValue NAVIRES_SNOW;
+    private static final ModConfigSpec.IntValue NAVIRES_SNOW_MAX_LAYERS;
+    private static final ModConfigSpec.BooleanValue NAVIRES_SAIL_WIND;
     private static final ModConfigSpec.BooleanValue ZOO_ENABLED;
     private static final ModConfigSpec.IntValue ZOO_SPOT_DISTANCE;
     private static final ModConfigSpec.IntValue ZOO_OBSERVE_SECONDS;
@@ -302,7 +306,8 @@ public final class FallowConfig {
         common.pop();
 
         common.comment("Module navires : le vent de Fallow (celui de la fumée et des shaders) pousse les navires de Sable à ciel",
-                "ouvert, selon la face qu'ils offrent au vent. Le vent contraire du bord dépend du module bord, pas de ce réglage.").push("navires");
+                "ouvert, selon la face qu'ils offrent au vent ; l'orage les secoue et la neige les alourdit. Le vent contraire du bord",
+                "dépend du module bord. Le réglage sailWind (voilier de Fish 'N' Ships) vaut même sans Sable.").push("navires");
         NAVIRES_WIND_ENABLED = common
                 .comment("Le vent pousse les navires (serveur). Faux : seuls leurs moteurs, hélices et voiles de Create les font avancer.")
                 .define("wind", true);
@@ -310,6 +315,21 @@ public final class FallowConfig {
                 .comment("Force du vent sur les navires. 1 : un dirigeable sans moteur dérive à peu près à la vitesse du vent ;",
                         "0,5 : moitié moins ; 2 : le double.")
                 .defineInRange("windStrength", 1.0, 0.0, 4.0);
+        NAVIRES_STORMS = common
+                .comment("Sous la pluie et l'orage, des rafales frappent le haut des navires à ciel ouvert : ils dérivent par à-coups",
+                        "et gîtent, plus fort en altitude (serveur).")
+                .define("storms", true);
+        NAVIRES_SNOW = common
+                .comment("Quand il neige, de vraies couches de neige se posent sur ce que le navire a de plus haut et l'alourdissent ;",
+                        "elles fondent à l'abri ou quand il fait doux (serveur).")
+                .define("snow", true);
+        NAVIRES_SNOW_MAX_LAYERS = common
+                .comment("Couches de neige au plus par case de pont (8 : un bloc entier).")
+                .defineInRange("snowMaxLayers", 4, 1, 8);
+        NAVIRES_SAIL_WIND = common
+                .comment("Le voilier de Fish 'N' Ships avance selon le vent de Fallow et son allure : rien face au vent, le plus",
+                        "vent de travers, plus vite par grand vent. Faux : la voile pousse toujours pareil, comme sans Fallow.")
+                .define("sailWind", true);
         common.pop();
 
         common.comment("Module zoo : les quatre tampons du guide d'Archie's Dinosaurs pour toutes les bêtes du monde (Apercevoir,",
@@ -571,6 +591,22 @@ public final class FallowConfig {
 
     public static double naviresWindStrength() {
         return read(COMMON_SPEC, NAVIRES_WIND_STRENGTH);
+    }
+
+    public static boolean naviresStorms() {
+        return read(COMMON_SPEC, NAVIRES_STORMS);
+    }
+
+    public static boolean naviresSnow() {
+        return read(COMMON_SPEC, NAVIRES_SNOW);
+    }
+
+    public static int naviresSnowMaxLayers() {
+        return read(COMMON_SPEC, NAVIRES_SNOW_MAX_LAYERS);
+    }
+
+    public static boolean naviresSailWind() {
+        return read(COMMON_SPEC, NAVIRES_SAIL_WIND);
     }
 
     public static boolean zooEnabled() {

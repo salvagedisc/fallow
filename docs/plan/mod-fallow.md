@@ -38,7 +38,7 @@ The version is set in `gradle.properties` (`mod_version`). The targeted mods are
 | `clairiere` | both (the blocks and the list of clearings on the server, their look on the client) | none; ATMOSPHERICS, True Adaptive Music and Sodium each for its part of the look | 5, all client: `clairiere.ClientLevelTintMixin`, `clairiere.BiomeLookMixin` (vanilla code), `clairiere.SodiumTintMixin`, `clairiere.AtmosphericsBiomeMixin`, `clairiere.MusicBiomeMixin` |
 | `dissipateur` | both | Create | none |
 | `bord` | both (everything happens on the server) | none; Sable for the players aboard a ship | none |
-| `navires` | both (everything happens on the server) | Sable | none |
+| `navires` | both (everything happens on the server, except the sail on the helmsman's side) | Sable; Ecliptic Seasons for where it snows; Fish 'N' Ships for the sail (works without Sable) | 1, common (`navires.VoileMixin`) |
 | `vent` | client | none | 2, client (`vent.CampfireBlockMixin`, `vent.CampfireSmokeParticleMixin`, on vanilla code) |
 | `rendu` | client | Iris | 1, client (`rendu.IrisUniformsMixin`) |
 | `zoo` | both (stamps and species list on the server, the guidebook pages on the client) | none for the stamps; Archie's Dinosaurs for the pages, Exposure for the photo stamp | 2, client: `zoo.GuidebookDataMixin`, `zoo.CategoryTabsMixin` |
@@ -237,7 +237,10 @@ Client and server, needs Sable; everything happens on the server ([0046](../deci
 
 - **Wind**: if the sky is open above the ship's box, the pack's background wind (`WindField.velocity`, 6 blocks/s at strength 1, the same as the `vent` module's without the gusts) blows on the face of the box it meets, above sea level only, at most 600 blocks². Force = `0.12 × windStrength × area × (wind − ship's horizontal speed)`: a ship running with the wind is no longer pushed, one sailing into it is held back.
 - **Edge**: within 48 blocks of the circle of the `bord` module, an acceleration towards the centre of `3 × push` blocks/s² (the same curve as for players, over 48 blocks), plus `0.8 ×` the outward speed past the edge, at most 12 blocks/s². Follows `bord.enabled`.
-- **Settings**: `navires.wind` (on) and `navires.windStrength` (1.0, 0 to 4) in `config/fallow-common.toml`.
+- **Gusts** ([0049](../decisions/0049-weather-on-ships.md), since 0.63.0): in rain and thunder, `Gros.gust` gives each ship (seeded by its UUID) bursts of wind from the world time, up to 7 blocks/s × `0.3 rain + 0.7 thunder`, doubled at 210 blocks; the force (same coefficient and area as the wind) is applied 40 % of the ship's height above the centre of mass, so it heels.
+- **Snow** (`Neige`, every 40 ticks): where it snows on an open ship (Ecliptic Seasons' `getRainOrSnow`, else the biome), 2 random columns of the plot (6 in a snowstorm) get one more snow layer on their highest block, up to `snowMaxLayers`; Sable weighs them. Sheltered, 6 columns lose a layer; in the open, 3, once it no longer snows and the biome is warm enough to rain. Columns outside the plot are never touched.
+- **Sailboat of Fish 'N' Ships** (`mixin.navires.VoileMixin`, any side, needs Fish 'N' Ships only): the constant 0.03 of `SailboatEntity.moveWithSailDown` becomes `0.03 × Gros.sail(heading, wind) × clamp(windSpeed / 3, 0.5, 2.5) × windStrength`.
+- **Settings**: `navires.wind` (on), `navires.windStrength` (1.0, 0 to 4), `navires.storms` (on), `navires.snow` (on), `navires.snowMaxLayers` (4, 1 to 8) and `navires.sailWind` (on) in `config/fallow-common.toml`.
 
 ## `vent` module
 
@@ -616,6 +619,10 @@ Started on the test server on 2026-10-25 (with No Man's Land): the `tectonic` da
 | NV1 | An airship without engines in the open, by calm weather, then in a storm (`/weather thunder`) | It drifts the way the campfire smoke leans, faster in the storm |
 | NV2 | The same airship under a big roof or in a cave | It stays still |
 | NV3 | A small Sable boat on open water, sails or not | It drifts much less than the airship; `navires.wind = false` stops all drift |
+| NV4 | The airship of NV1 in a thunderstorm, 150 blocks up | It drifts by jolts and heels with each gust; at sea level the jolts are weaker |
+| NV5 | An airship in a snowy biome while it snows (`/weather rain`, then `/weather thunder`) | Snow layers settle on its deck and balloons, faster in the storm; it sinks slowly unless it climbs harder |
+| NV6 | The laden airship moored under a roof, then out in a mild biome after the snow | The snow melts, faster under the roof; the airship lightens |
+| NV7 | Fish 'N' Ships' sailboat, sail down, on each heading | Against the wind it stops; across it, it goes fastest; in a storm faster than in a breeze; `navires.sailWind = false` brings back the mod's own push |
 
 ### Tools
 

@@ -9,6 +9,7 @@
     "compat.InStructureMixin",
     "dinos.ChorusoatlArmorMixin",
     "horizon.ChunkyAccessorMixin",
+    "navires.VoileMixin",
     "repos.PlayerExhaustionMixin",
     "xp.AnvilMenuMixin"
   ],

@@ -22,6 +22,8 @@ public final class ShipForces {
     public static final double MAX_EDGE_ACCELERATION = 12.0;
     /** Au-delà du bord, part de la vitesse vers le large retirée chaque seconde. */
     public static final double EDGE_BRAKE = 0.8;
+    /** Les rafales frappent au-dessus du centre de masse, à cette part de la hauteur du navire : elles le font gîter. */
+    public static final double GUST_LEVER = 0.4;
 
     private ShipForces() {
     }
