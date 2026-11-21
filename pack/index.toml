@@ -789,6 +789,10 @@ file = "kubejs/assets/balm/lang/fr_fr.json"
 hash = "49fd275feac43a47285d16553b3bda996a2bf4443ce3488cc22459b7f98c5c17"
 
 [[files]]
+file = "kubejs/assets/bbm/lang/fr_fr.json"
+hash = "63385aecc9924877aae64a17ddb7b7ee049d0623f95a92157bb786e2bb9c558d"
+
+[[files]]
 file = "kubejs/assets/betteradvancedtooltips/lang/fr_fr.json"
 hash = "0bfa3617009ba1661b14af3d60ef9fa677a4275ea221b00da2c0f4010dac2382"
 
@@ -1003,6 +1007,10 @@ hash = "dde2cb743c5207cb9c28421dad13c58afad5086a8aa121df505aefb537b98099"
 [[files]]
 file = "kubejs/assets/farm_and_charm/lang/fr_fr.json"
 hash = "2b60bdaac28192ae2739ae94cd2c9e12121ac9f21cc443784b63eea7b0992778"
+
+[[files]]
+file = "kubejs/assets/fish_n_ships/lang/fr_fr.json"
+hash = "31edf09b186b5c1f210c3e9735a06319abf326bc77ea6d0ba0217c4d660229eb"
 
 [[files]]
 file = "kubejs/assets/flywheel/lang/fr_fr.json"
@@ -3581,6 +3589,11 @@ metafile = true
 [[files]]
 file = "mods/ferrite-core.pw.toml"
 hash = "73360e397134d238ee8fd21d33fd7f9275e9441f74f8f1b6ed92278877c0b9f1"
+metafile = true
+
+[[files]]
+file = "mods/fish-n-ships.pw.toml"
+hash = "5cbbe4753f3b0f3b875609274a5099f2e77fd491a356dc34620fe33a16a21ee4"
 metafile = true
 
 [[files]]
