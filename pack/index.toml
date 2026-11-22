@@ -4691,7 +4691,7 @@ hash = "aa5d6e99a19c200844e46f669b4d36e072a1e318b49d2689760e161d8f909bbc"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/fogmarch.glsl"
-hash = "698e5290a2475a1401cd0fc4b4423291ca4b8cd9c20d69dcb6fd127f1d389e07"
+hash = "50d6f9e20d793c06b9c593c24e3d420f6f78dd3742dd6fff1d832179a499c8f0"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/glass.glsl"

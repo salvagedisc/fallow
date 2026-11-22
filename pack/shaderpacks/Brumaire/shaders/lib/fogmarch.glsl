@@ -72,7 +72,9 @@ float fogMarch(vec3 dir, float reach, float sunAmount, out vec3 light) {
         prev = next;
         vec3 p = origin + dir * t;
         vec3 w = p + cameraPosition;
-        float d = dens0 * exp(clamp((base - w.y) / h, -30.0, 3.0));
+        // Sous le pied de la nappe, au creux d'une vallée vue d'en haut, elle s'épaissit au plus de 2,2 fois, comme la
+        // nappe lointaine (lib/mist.glsl) : pas un mur laiteux sur un lac en contrebas.
+        float d = dens0 * min(exp(clamp((base - w.y) / h, -30.0, 3.0)), 2.2);
 #if FOG_BILLOWS > 0
         if (d > 1e-5) {
             float n1 = cloudNoise((w - drift) * 0.018 + vec3(0.0, frameTimeCounter * 0.0012, 0.0)).r;
