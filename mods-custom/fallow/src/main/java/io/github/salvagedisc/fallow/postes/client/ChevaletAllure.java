@@ -34,7 +34,7 @@ final class ChevaletAllure implements Allure {
     private float horloge;
     /** Temps depuis le dernier coup ; au-delà de {@link #COUP} le couteau suit le curseur. */
     private float coup = 9.0F;
-    private float vise = 8.0F;
+    private float vise = 11.5F;
     private Item tenu;
     private Item fantome;
     private boolean peau;
@@ -110,7 +110,7 @@ final class ChevaletAllure implements Allure {
                 node.setVisual(Visual.ofItem(tenu));
             }
             if (coup >= COUP) {
-                view.cursorOn(DESSUS).ifPresent(point -> vise = Mth.clamp(point.z(), 8.5F, 11.5F));
+                view.cursorOn(DESSUS).ifPresent(point -> vise = Mth.clamp(point.z(), 10.0F, 12.5F));
             }
             // Un coup : la lame appuie et file de 4 pixels vers soi, puis revient se poser.
             float t = Math.min(1.0F, coup / COUP);
@@ -209,11 +209,11 @@ final class ChevaletAllure implements Allure {
         boolean hide = state.getValue(ChevaletBlock.PEAU);
         if (peau && !hide && view.isBlockHidden()) {
             // La peau est finie (ou reprise) : elle quitte le chevalet dans un éclat et vole jusqu'à la barre.
-            view.spawnParticles(DiegesisParticles.GLINT, new Vector3f(8.0F, DESSUS + 0.3F, 8.0F), new Vector3f(0.0F, 4.0F, 0.0F), 4.0F, 8, 0xFFFFF0D0);
-            envol.part(view, raclage > 0 ? TannerieModule.PEAU_RACLEE.get() : TannerieModule.PEAU_BRUTE.get(), new Vector3f(8.0F, DESSUS + 0.5F, 8.0F));
+            view.spawnParticles(DiegesisParticles.GLINT, new Vector3f(8.0F, DESSUS + 0.3F, 10.0F), new Vector3f(0.0F, 4.0F, 0.0F), 4.0F, 8, 0xFFFFF0D0);
+            envol.part(view, raclage > 0 ? TannerieModule.PEAU_RACLEE.get() : TannerieModule.PEAU_BRUTE.get(), new Vector3f(8.0F, DESSUS + 0.5F, 10.0F));
         }
         if (connu && !peau && hide && view.isBlockHidden()) {
-            volee.arrive(view, TannerieModule.PEAU_BRUTE.get(), new Vector3f(8.0F, DESSUS + 0.5F, 8.0F));
+            volee.arrive(view, TannerieModule.PEAU_BRUTE.get(), new Vector3f(8.0F, DESSUS + 0.5F, 10.0F));
         }
         connu = true;
         peau = hide;
