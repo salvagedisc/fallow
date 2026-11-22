@@ -93,6 +93,10 @@ file = "config/friendsandfoes.json"
 hash = "e835d69453c8f89e216418cec71966db955bc75ee264e3ac11275e5bff52cd93"
 
 [[files]]
+file = "config/fwa.json"
+hash = "97948a8f546c1f779dec82fa5a1690aff990309efe49d473e270fdee72cbc62d"
+
+[[files]]
 file = "config/handson_delight.properties"
 hash = "ff02b4eb0216e8f43eb9536f75ed7a1a0b1adb94ecf3e31ef8798218f29c789d"
 
@@ -1043,6 +1047,10 @@ hash = "76d410219e9ef47011b4124499adfaf8c146165477c690aceca92307648405c5"
 [[files]]
 file = "kubejs/assets/friendsandfoes/lang/fr_fr.json"
 hash = "c926bdfca345075fe01211e33e7e571b8a89ee78b95656c5ece425cb4953f631"
+
+[[files]]
+file = "kubejs/assets/fwa/lang/fr_fr.json"
+hash = "5da337eabcd0725f18a65047e3b9f68f06f028cb3bc158f150add087f90c51a8"
 
 [[files]]
 file = "kubejs/assets/fzzy_config/lang/fr_fr.json"
@@ -3712,6 +3720,11 @@ metafile = true
 [[files]]
 file = "mods/friends-and-foes-forge.pw.toml"
 hash = "78a50ddf9108d1dda82e7de46a991dcd61a046e4ea2279aa551071ba8f178f86"
+metafile = true
+
+[[files]]
+file = "mods/fwa.pw.toml"
+hash = "a6ced63ce6677c7d40a6f66d93c183d8c32a8a373b36da7f6b014f35945fe957"
 metafile = true
 
 [[files]]
