@@ -98,6 +98,9 @@ void initEnv() {
     // par le sol et une lueur nocturne qui ne laisse jamais le noir complet.
     vec3 sky = skyRow(0);
     vec3 amb = mix(sky, vec3(luma(sky)) * vec3(1.03, 1.0, 0.93), 0.78) * 1.1 + (e > 0.0 ? sun * fade * 0.06 : vec3(0.0));
+    // Au couchant, le ciel encore clair n'éclaire plus guère le sol : le paysage à contre-jour reste sombre sous un
+    // ciel lumineux, comme chez Recrafted.
+    amb *= mix(1.0, 0.72, gDusk);
     amb += vec3(0.012, 0.016, 0.026);
     amb = mix(amb, vec3(luma(amb)) * gLunar, 0.7 * gLunarK);
     gAmbient = mix(amb, vec3(luma(amb)) * vec3(0.95, 0.95, 0.93) * 0.75, rainStrength * 0.7);
