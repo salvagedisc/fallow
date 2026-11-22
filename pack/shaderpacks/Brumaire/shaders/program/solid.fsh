@@ -122,7 +122,19 @@ void main() {
     // Les particules n'ont souvent pas de normale (le format du jeu n'en porte pas) : une normale nulle donnerait un
     // point noir à l'écran. Elles regardent alors l'œil.
     vec3 normal = dot(vNormal, vNormal) > 1e-4 ? normalize(vNormal) : -normalize(vPos);
+#ifdef PROGRAM_PARTICLES
+    // Une particule est mince et se voit des deux côtés (une feuille qui tombe, un flocon, une fumée) : sa face
+    // éclairée est celle qui regarde l'astre, et elle prend aussi le ciel au-dessus. Sans quoi, vue à contre-jour,
+    // une feuille qui tombe devient une croix noire ou gris-bleu sur le ciel.
+    if (dot(normal, gLightDir) < 0.0) normal = -normal;
+    normal = normalize(normal + vec3(0.0, 0.5, 0.0));
+#endif
     vec2 lm = vLm;
+#ifdef PROGRAM_PARTICLES
+    // Certaines particules de mods (les feuilles qui tombent) arrivent sans lumière du jeu : noires même en plein jour.
+    // Elles volent près de l'œil, elles prennent au moins la lumière qu'il reçoit.
+    lm = max(lm, vec2(eyeBrightnessSmooth) / 240.0 * 0.9);
+#endif
     float ao = 1.0;
 
 #if defined PROGRAM_BASIC || defined PROGRAM_LIGHTNING
@@ -393,6 +405,10 @@ void main() {
     leaf = 1.0;
     taps = 1;
 #endif
+#ifdef PROGRAM_PARTICLES
+    // Les feuilles qui tombent prennent le vert olive du feuillage dont elles viennent.
+    albedo = olive(albedo);
+#endif
 #ifdef PROGRAM_WATER
     if (vMat == 6) {
         outColor = water(vTint.rgb, normal, lm);
@@ -594,6 +610,13 @@ void main() {
 #endif
     float indirect;
     vec3 lit = shade(albedo, normal, lm, ao, vPos, leaf, gl_FragCoord.xy, taps, indirect);
+#ifdef PROGRAM_PARTICLES
+    // Certaines particules (les grandes feuilles de Particular qui tournent en tombant) sortaient presque noires de la
+    // lumière complète : elles ne descendent jamais sous ce que la lumière du jeu leur donne, comme sans pack.
+    vec3 plain = hemisphereLight(vec3(0.0, 1.0, 0.0), lm.y * lm.y) * 0.85
+        + gLightColor * max(gLightDir.y, 0.0) * 0.35 * smoothstep(0.80, 0.94, lm.y);
+    lit = max(lit, albedo * plain);
+#endif
 #if (defined PROGRAM_ENTITIES || defined PROGRAM_HAND) && MATERIALS > 0
     // Le reflet de l'astre sur un objet, et pour un métal ce qu'il reflète autour de lui, teint de sa couleur.
     if (surf.metal > 0.0 || surf.gloss > 0.0) {
