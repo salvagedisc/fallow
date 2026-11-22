@@ -4695,7 +4695,7 @@ hash = "2b74b4bd149c79d904de96d20463dbd3f2dc93ea4331dcca813a75aeadbdd9b1"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/water.glsl"
-hash = "77de15a2d2ed10c7a3d53130414d9dfeec7afa8b4d3c040a3bff47da6a1f01df"
+hash = "2387a28ec1144ca2f542b79874df26c93044b666b6c0f37a211625f88687d9a0"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/waterfoam.glsl"
