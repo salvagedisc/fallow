@@ -37,7 +37,7 @@ Config (`fallow-common.toml`, `[climat]` section): `enabled` (true), `seasonStre
 
 **What the player sees** (client, `stormVisuals`):
 
-- **Sand**: tawny dust blown along the pack's wind (`vent` module), up to 22 grains a tick around the camera, only where the sky is open; the mist closes to about 22 blocks and takes the colour of sand, darker at night.
+- **Sand**: tawny grains (`vent.Mote`) that follow the pack's wind (`vent` module) a little faster than it, up to 22 a tick around the camera, only where the sky is open; the mist closes to about 22 blocks and takes the colour of sand, darker at night.
 - **Snow storm**: blown snowflakes on top of the game's snow; the mist closes to about 36 blocks and turns white.
 - The strength follows the game's rain and thunder levels and eases in and out over about four seconds; under a roof the storm is still seen outside, at about a third. The mist goes through ATMOSPHERICS (the `ciel` module's hook on its smoothed fog, `StormView`), so it needs ATMOSPHERICS. **Brumaire draws its own mist**: since `fallow` 0.36.0 the `rendu` module hands it the strength of the storm (`brumaireStorm`, x sand, y snow) and the shader closes the view the same way, at about 22 blocks in sand and 36 in snow, in the colour of the storm ([0041](../decisions/0041-gameplay-without-shader.md)).
 

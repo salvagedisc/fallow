@@ -27,5 +27,6 @@ An inventory of every Brumaire effect (59 passes, `docs/plan/shader.md`) against
 ## Consequences
 - An Apple Silicon Mac, or a player who presses K, keeps the clearings, the storms and the wind.
 - No creature in the world is drawn by the shader: what flies, swims or glows can be approached, caught or studied for the zoo.
-- Brumaire is lighter by sixteen options and six library files.
+- Brumaire is lighter by sixteen options and five library files.
+- 2026-11-22, on a second check: the shader's rain rings on water and its waterfall spray doubled Particular's rain ripples, waterfall spray and cascade clouds, and left it under the same rule (eighteen options in all).
 - New in-game tests: NS1 to NS4 ([tests](../tests-en-jeu.md)).
