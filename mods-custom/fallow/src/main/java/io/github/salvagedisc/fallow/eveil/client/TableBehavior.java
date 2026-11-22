@@ -36,6 +36,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.entity.EnchantingTableBlockEntity;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -165,6 +166,9 @@ final class TableBehavior implements StationBehavior {
     /** Les bibliothèques qui nourrissent la table (comme celles de vanilla), en pixels de la scène, et les runes qui en partent. */
     private final List<Vector3f> bibliotheques = new ArrayList<>();
     private float runesReste;
+    private float poussiereReste;
+    /** Le temps que met la poussière de la brume à venir au livre, secondes (la vie de sa particule). */
+    private static final float VOL_DE_POUSSIERE = 2.2F;
     /** Combien la pièce s'assombrit autour de la table, de 0 à 1 (lu par l'écran du poste, {@link TableClient}). */
     private static float obscurite;
     /** L'éclair blanc quand l'éveil s'accomplit, de 1 à 0. */
@@ -230,6 +234,9 @@ final class TableBehavior implements StationBehavior {
     public void onOpen(StationView view) {
         station = view;
         vient = true;
+        Isolement.arriver();
+        // En s'asseyant, une houle grave : le monde recule.
+        joue(view, SoundEvents.BEACON_POWER_SELECT, LIVRE, 0.3F, 0.5F);
         tourCorps = Float.NaN;
         contenus.clear();
         enAttente = null;
@@ -682,6 +689,7 @@ final class TableBehavior implements StationBehavior {
             commencerCoulee(view, pose, LARGE / 2.0F, (voies[tenue][0] + voies[tenue][1]) / 2.0F, tenue, -1);
         }
         eclair = 1.0F;
+        Isolement.relacher();
         // Une onde de runes part de l'objet, des étincelles restent, et l'encrier tressaille : une fiole est partie dans les mots.
         view.node(TableEveil.OBJET).ifPresent(objet -> {
             Vector3f centre = new Vector3f(objet.definition().transform().pos()).add(0.0F, 4.0F, 0.0F);
@@ -842,6 +850,11 @@ final class TableBehavior implements StationBehavior {
         }
         boucle(view, "bourdon", SoundEvents.BEACON_AMBIENT, volume, rituel ? 0.6F : 0.5F);
         boucle(view, "souffle", SoundEvents.PORTAL_AMBIENT, volume * 0.12F, 0.5F);
+        // Le monde s'en va autour de la table : voilé quand on s'assoit, presque parti quand un éveil attend, effacé pendant le rite.
+        float monte = tenue >= 0 ? Math.min(1.0F, tenueT / TENUE) : 0.0F;
+        float isole = !vient || !view.isFocused() ? 0.0F : rituel ? 1.0F : tenue >= 0 ? 0.8F + 0.2F * monte : attend ? 0.75F : 0.6F;
+        Isolement.viser(isole, Vec3.atCenterOf(view.pos()), monte);
+        poussiere(view, dt, isole * glisse);
         if (bibliotheques.isEmpty() || glisse < 1.0F) {
             return;
         }
@@ -855,6 +868,23 @@ final class TableBehavior implements StationBehavior {
             Vector3f vers = new Vector3f(livre).add((hasard.nextFloat() - 0.5F) * 6.0F, (hasard.nextFloat() - 0.5F) * 3.0F, 0.0F);
             view.spawnParticles(TableClient.glyphe(hasard), depuis, new Vector3f(vers).sub(depuis).div(VOL_DE_RUNE), 0.5F, 1,
                     0xFF000000 | lueur());
+        }
+    }
+
+    /** Une poussière pâle sort de la brume de tous côtés et vient au livre, comme aspirée par la table. */
+    private void poussiere(StationView view, float dt, float k) {
+        poussiereReste += dt * 7.0F * k;
+        if (poussiereReste < 1.0F) {
+            return;
+        }
+        Vector3fc livre = view.node(LIVRE).map(n -> n.definition().transform().pos()).orElse(new Vector3f(8.0F, 18.5F, 9.5F));
+        while (poussiereReste >= 1.0F) {
+            poussiereReste -= 1.0F;
+            float angle = hasard.nextFloat() * Mth.TWO_PI;
+            float rayon = 56.0F + hasard.nextFloat() * 32.0F;
+            Vector3f depuis = new Vector3f(livre).add(Mth.cos(angle) * rayon, (hasard.nextFloat() - 0.35F) * 48.0F, Mth.sin(angle) * rayon);
+            Vector3f vers = new Vector3f(livre).add((hasard.nextFloat() - 0.5F) * 4.0F, (hasard.nextFloat() - 0.5F) * 4.0F, 0.0F);
+            view.spawnParticles(TableClient.POUSSIERE, depuis, new Vector3f(vers).sub(depuis).div(VOL_DE_POUSSIERE), 0.0F, 1, 0xFFFFFFFF);
         }
     }
 

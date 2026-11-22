@@ -11,6 +11,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.client.event.ClientChatReceivedEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
@@ -38,6 +39,8 @@ final class TableClient {
     /** L'encre qui monte de l'encrier vers les runes qu'on lit ; les étincelles d'un éveil accompli. */
     static final ResourceLocation VOLUTE = ResourceLocation.fromNamespaceAndPath(Fallow.MOD_ID, "volute_d_encre");
     static final ResourceLocation ETINCELLE = ResourceLocation.fromNamespaceAndPath(Fallow.MOD_ID, "etincelle_d_eveil");
+    /** La poussière que la table aspire hors de la brume. */
+    static final ResourceLocation POUSSIERE = ResourceLocation.fromNamespaceAndPath(Fallow.MOD_ID, "poussiere_de_brume");
 
     private static final ResourceLocation VOILE = ResourceLocation.withDefaultNamespace("textures/misc/vignette.png");
 
@@ -58,6 +61,9 @@ final class TableClient {
                 .color(0xFF6A48E8).size(0.45F, 0.8F).life(0.7F, 1.0F).drag(0.5F).wobble(0.6F).emissive().fadeIn(0.15F).build());
         DiegesisClient.registerParticle(ETINCELLE, ParticleStyle.builder(ResourceLocation.withDefaultNamespace("glitter_4"))
                 .color(0xFFD9CCFF).size(0.25F, 0.5F).life(0.9F, 1.6F).gravity(-0.4F).drag(1.2F).wobble(0.3F).emissive().build());
+        DiegesisClient.registerParticle(POUSSIERE, ParticleStyle.builder(ResourceLocation.withDefaultNamespace("generic_0"))
+                .color(0xFFB4A6D8).size(0.3F, 0.55F).life(2.0F, 2.3F).drag(0.0F).wobble(0.2F).emissive().fadeIn(0.4F).build());
+        NeoForge.EVENT_BUS.addListener(RenderFrameEvent.Pre.class, event -> Isolement.avancer());
         NeoForge.EVENT_BUS.addListener(InputEvent.InteractionKeyMappingTriggered.class, event -> {
             if (event.isUseItem() && Minecraft.getInstance().hitResult instanceof BlockHitResult hit) {
                 TableBehavior.usage(hit.getBlockPos());
