@@ -1,0 +1,10 @@
+{
+  "libjf_translate_v1.jfconfig.title": "LibJF Translate v1",
+  "libjf_translate_v1.jfconfig.translationService": "Service de traduction",
+  "libjf_translate_v1.jfconfig.translationService.tooltip": "Le service à utiliser pour la traduction. D'autres mods peuvent accéder directement aux services, mais celui-ci devrait être utilisé",
+  "libjf_translate_v1.jfconfig.libreTranslateHost": "Hôte LibreTranslate",
+  "libjf_translate_v1.jfconfig.libreTranslateHost.tooltip": "L'hôte LibreTranslate à utiliser s'il est sélectionné",
+  "libjf_translate_v1.jfconfig.translationService.Google": "Google",
+  "libjf_translate_v1.jfconfig.translationService.LibreTranslate": "LibreTranslate",
+  "libjf_translate_v1.jfconfig.translationService.Noop": "NOOP"
+}

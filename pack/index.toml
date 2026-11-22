@@ -1137,6 +1137,22 @@ file = "kubejs/assets/lamblanterns/lang/fr_fr.json"
 hash = "26e990fe4586a5c9a89aa8a06259054aab11e39bfdab7a2634aa04cddcf91c1e"
 
 [[files]]
+file = "kubejs/assets/libjf-config-core/lang/fr_fr.json"
+hash = "51e1968deed517d941acf13ef60419ae30d4ee6dce5ec587c9dc560ed0676b58"
+
+[[files]]
+file = "kubejs/assets/libjf-config-ui-tiny/lang/fr_fr.json"
+hash = "21f2cc821a1668a2758fd82c38ddaec6e7fd2fd02763969ad66398537e12cc55"
+
+[[files]]
+file = "kubejs/assets/libjf-translate-v0/lang/fr_fr.json"
+hash = "5bbdd11adb04da7e321c424bd25f74093bc1492c3bf476d90f05a6c783cb6e68"
+
+[[files]]
+file = "kubejs/assets/libjf-web-v1/lang/fr_fr.json"
+hash = "5b475b96f3bb1f36586c08ee7335183eac7129afb1b4457e7122a3b77274b451"
+
+[[files]]
 file = "kubejs/assets/libtooltips/lang/fr_fr.json"
 hash = "a809671cb4c434639ee2dad90f24e1a4c5181970df885e1f821df4748ef71da1"
 
@@ -1205,6 +1221,10 @@ file = "kubejs/assets/patchouli/lang/fr_fr.json"
 hash = "d21a21897ce4ee9673ecb09e7469dd2e78a4d442314dd14c0dbe7eedc2bfb257"
 
 [[files]]
+file = "kubejs/assets/polytone/lang/fr_fr.json"
+hash = "c77ce24b3725875974729798960c6b4034307bbe64267949926d65ca564005a2"
+
+[[files]]
 file = "kubejs/assets/ponder/lang/fr_fr.json"
 hash = "1b941cf869ea0fd6d99c10a23f9e1ba4f813fc6f28d04d905b7c54cbce271b55"
 
@@ -1243,6 +1263,10 @@ hash = "f298d71aa01b3176b7f53f97c68ba148e1f6c50331bc180a5f010b7c51c49f58"
 [[files]]
 file = "kubejs/assets/resourcefulconfig/lang/fr_fr.json"
 hash = "8f029235a7a1b69a7bef9bc63f3097537a471cbadc8ab656388ef67629980ce0"
+
+[[files]]
+file = "kubejs/assets/respackopts/lang/fr_fr.json"
+hash = "8c19ef424849e9c79e06d66f4e986f6d52c4d4f924e3b9e44d6fb9227be9ec04"
 
 [[files]]
 file = "kubejs/assets/sable/lang/fr_fr.json"
@@ -3840,6 +3864,11 @@ hash = "abd10ac40f48de18718d8caf910364b077f0e41bf45f041e2303127c37e41a1c"
 metafile = true
 
 [[files]]
+file = "mods/libjf.pw.toml"
+hash = "3ca25851146b6e949e1ba841767eb76f73920f9cf04f33ce827a8a88f17c5de0"
+metafile = true
+
+[[files]]
 file = "mods/lithium.pw.toml"
 hash = "51e129832b04acd57da470fc41725bad5e101b6a6b1d4901fd8ea7a92b14e13d"
 metafile = true
@@ -3950,6 +3979,11 @@ hash = "93284ca7f2f23f0bb76d42b797cabf2aea1914ee9825bec82bf6ffe4c60dda0d"
 metafile = true
 
 [[files]]
+file = "mods/polytone.pw.toml"
+hash = "9d937a18c45d97e551c97677f5ed65c0a31837ba63e3767dbca7a498dadb9d58"
+metafile = true
+
+[[files]]
 file = "mods/punchy-fpa.pw.toml"
 hash = "253e843caefaf2ddb7b5d18ea5198904ed1a2e913a9d29dc577c8e0a82f4948b"
 metafile = true
@@ -3992,6 +4026,11 @@ metafile = true
 [[files]]
 file = "mods/resourceful-lib.pw.toml"
 hash = "c0b066684294c33972d562e0cb08ea17b2d31bcf86cd1d6c63b8e968f0eac7a2"
+metafile = true
+
+[[files]]
+file = "mods/respackopts.pw.toml"
+hash = "d9f96731b2d9275c14dfc88f352df8b25c1363becabcb1d3d9b685df19b87c7b"
 metafile = true
 
 [[files]]

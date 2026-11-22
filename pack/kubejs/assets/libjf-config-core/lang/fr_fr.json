@@ -1,0 +1,16 @@
+{
+  "libjf_config_core_v2.jfconfig.title": "LibJF Config",
+  "libjf_config_core_v2.jfconfig.watchForChanges": "Surveiller les modifications",
+  "libjf_config_core_v2.jfconfig.watchForChanges.tooltip": "Recharge automatiquement les configurations lorsqu'elles sont modifiées",
+  "libjf_config_core_v2.errored_entry": "Impossible d'afficher l'entrée : %s",
+  "libjf_config_core_v2.presets": "Préréglages",
+  "libjf_config_core_v2.default": "Par défaut",
+  "libjf_config_core_v2.see-also": "Voir aussi : %s",
+  "libjf_config_core_v2.reset": "Réinitialiser",
+  "libjf_config_core_v2.no-screen": "Aucun écran",
+  "libjf_config_core_v2.no-screen.description": "Aucun mod pour afficher les interfaces de configuration n'a été détecté. Installez LibJF pour en ajouter un.",
+  "libjf_config_core_v2.edit": "Modifier",
+  "libjf_config_core_v2.true": "§aVrai",
+  "libjf_config_core_v2.false": "§cFaux",
+  "libjf_config_core_v2.null": "§dNul"
+}

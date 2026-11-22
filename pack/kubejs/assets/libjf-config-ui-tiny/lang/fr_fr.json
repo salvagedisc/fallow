@@ -1,0 +1,6 @@
+{
+  "libjf-config-ui-tiny.entry.json.read.fail.title": "Lecture impossible",
+  "libjf-config-ui-tiny.entry.json.read.fail.description": "L'entrée indiquée n'a pas pu être lue à partir d'une chaîne. Veuillez modifier la configuration manuellement",
+  "libjf-config-ui-tiny.entry.json.write.fail.title": "Écriture impossible",
+  "libjf-config-ui-tiny.entry.json.write.fail.description": "L'entrée indiquée n'a pas pu être convertie en chaîne. Veuillez modifier la configuration manuellement"
+}
