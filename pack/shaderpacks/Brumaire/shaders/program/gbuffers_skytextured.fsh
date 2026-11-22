@@ -25,6 +25,9 @@ void main() {
     if (renderStage == MC_RENDER_STAGE_MOON) {
         // La lune ressort franchement de son halo : un carré presque blanc et net, pas une tache jaunâtre dans la lueur.
         // La teinte d'une lune d'Enhanced Celestials vient du jeu (vTint) et passe toujours.
+        // Le contour gris de la nouvelle lune (vers 55 sur 255 dans la texture du jeu) dessinait un cadre blanc une fois
+        // la lune éclaircie : ce qui est aussi sombre ne compte plus, la lumière cendrée le remplace.
+        tex.rgb = max(tex.rgb - 0.25, 0.0) / 0.75;
         tex.rgb = mix(tex.rgb, vec3(dot(tex.rgb, vec3(0.299, 0.587, 0.114))) * vec3(0.97, 0.99, 1.0), 0.8);
         // Au ras de l'horizon, l'air épais ne laisse passer que son jaune : la lune qui se lève est dorée, puis blanchit
         // en montant (Recrafted : jaune pâle à l'horizon, blanche plus haut).

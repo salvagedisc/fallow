@@ -4901,7 +4901,7 @@ hash = "c6a9f6c7bf836099bc48f8dc5009aca62bc070c9f6eddea3e967ca4f347f3fe0"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/program/gbuffers_skytextured.fsh"
-hash = "ad975f01e6740cce41a9e70172a8fa7ade999805ec1d6077cc7fc4d996507223"
+hash = "8717cab833bfc2aede3de9cc5cf7681d3d0a86790b924c4ec80fed3478cdc909"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/program/gbuffers_skytextured.vsh"
