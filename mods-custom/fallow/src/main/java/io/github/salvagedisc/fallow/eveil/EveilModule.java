@@ -204,12 +204,17 @@ public final class EveilModule {
             // hache). Les outils dont c'est le bloc qui se sert (citrouille et cisailles, TNT et briquet, chevalet et couteau)
             // n'y touchent pas : le bloc répond comme à une main vide.
             // La planche à découper de Farmer's Delight se sert de tout outil (hache, pioche, pelle) : rien d'arrêté n'y coupe.
-            if (!Eveil.arrete(e.getItemStack()) || e.getEntity().isSpectator()) {
+            // Elle lit l'outil dans la main principale même quand le clic vient de l'autre main : c'est lui qui compte.
+            BlockState bloc = e.getLevel().getBlockState(e.getPos());
+            boolean planche = bloc.is(PLANCHE_A_DECOUPER);
+            ItemStack outil = planche ? e.getEntity().getMainHandItem() : e.getItemStack();
+            if (!Eveil.arrete(outil) || e.getEntity().isSpectator()) {
                 return;
             }
-            e.setUseItem(net.neoforged.neoforge.common.util.TriState.FALSE);
-            BlockState bloc = e.getLevel().getBlockState(e.getPos());
-            if (!outilDeGeste(e.getItemStack()) && !bloc.is(PLANCHE_A_DECOUPER)) {
+            if (Eveil.arrete(e.getItemStack())) {
+                e.setUseItem(net.neoforged.neoforge.common.util.TriState.FALSE);
+            }
+            if (!planche && !outilDeGeste(outil)) {
                 return;
             }
             // Lu avant d'annuler : annuler l'événement met aussi l'usage du bloc à « non ».
@@ -224,10 +229,12 @@ public final class EveilModule {
                 }
             }
             if (!main.consumesAction()) {
-                refuser(e.getEntity(), e.getItemStack());
+                refuser(e.getEntity(), outil);
             }
-            // Rien de fait : l'autre main garde sa chance (une torche, un bouclier), comme avec une main vide.
-            e.setCancellationResult(main.consumesAction() ? main : net.minecraft.world.InteractionResult.PASS);
+            // Rien de fait : l'autre main garde sa chance (une torche, un bouclier), comme avec une main vide ; sauf sur la
+            // planche, qui couperait alors avec l'outil arrêté de la main principale.
+            e.setCancellationResult(main.consumesAction() ? main
+                    : planche ? net.minecraft.world.InteractionResult.FAIL : net.minecraft.world.InteractionResult.PASS);
         });
         NeoForge.EVENT_BUS.addListener(PlayerInteractEvent.EntityInteract.class, e -> {
             // Les cisailles ne tondent plus le mouton, le briquet n'allume plus le creeper, la brosse ne brosse plus.
