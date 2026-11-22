@@ -156,10 +156,19 @@ vec3 shade(vec3 albedo, vec3 normal, vec2 lm, float ao, vec3 pos, float leaf, ve
     float direct = luma(light);
 
     float sky = lm.y * lm.y;
-#if CANOPY_SHADE > 0 && defined FSH && defined VOXELS
-    if (sky > 0.01) sky *= canopyShade(pos, normal, frag);
-#endif
     float occl = ao * ao;
+#if CANOPY_SHADE > 0 && defined FSH && defined VOXELS
+    if (sky > 0.01) {
+        // Sous les feuilles, le ciel perdu n'est pas tout noir : le jour qui a traversé le feuillage et rebondi de
+        // feuille en feuille descend jaune-vert et chaud. Une part de ce qui est retiré revient sous cette teinte.
+        float open = canopyShade(pos, normal, frag);
+        float covered = sky * (1.0 - open);
+        vec3 filtered = vec3(luma(hemisphereLight(normal, 1.0))) * 0.30
+            + gLightColor * max(gLightDir.y, 0.0) * 0.035;
+        light += filtered * vec3(1.10, 1.0, 0.50) * covered * occl;
+        sky *= open;
+    }
+#endif
     light += hemisphereLight(normal, sky) * occl;
     // La lumière des blocs prend la couleur de ce qui éclaire autour (lib/voxel.glsl) : orangée pour une flamme,
     // bleue pour une âme, rouge pour la lave…

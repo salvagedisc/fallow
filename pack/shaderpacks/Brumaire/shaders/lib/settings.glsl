@@ -77,7 +77,7 @@
 #define AO_STRENGTH 1.6 // [0.8 1.2 1.6 2.0 2.5]
 #define BLOOM_STRENGTH 1.0 // [0.5 0.75 1.0 1.25 1.5]
 // L'éclat du soleil dans l'œil : rais, voile et reflets de l'objectif (program/grade.fsh).
-#define SUN_GLARE 1 // [0 1]
+#define SUN_GLARE 1 // [0 1 2]
 #define SUN_GLARE_STRENGTH 1.0 // [0.5 1.0 1.5 2.0]
 // Les couleurs qui se séparent un peu vers les bords de l'image.
 #define LENS_DIRT 1 // [0 1]

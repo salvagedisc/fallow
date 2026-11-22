@@ -10,7 +10,7 @@ const float WATER_IOR = 1.333;
 /** Teinte de l'eau : celle du biome, ramenée vers un vert-de-gris d'eau douce. */
 vec3 waterHue(vec3 biome) {
     vec3 h = biome / max(max(biome.r, max(biome.g, biome.b)), 1e-4);
-    vec3 sage = vec3(0.50, 0.78, 0.68);
+    vec3 sage = vec3(0.50, 0.78, 0.62);
     return mix(h, sage * (0.4 + 0.6 * luma(h) / luma(sage)), 0.85);
 }
 
@@ -19,7 +19,7 @@ vec3 waterHue(vec3 biome) {
  * sable clair vire au vert-gris d'un lac et non au turquoise d'un lagon. Une eau verte ou brune est plus trouble.
  */
 vec3 waterExtinction(vec3 hue) {
-    return (vec3(0.52, 0.30, 0.40) + (1.0 - hue) * 0.10) * WATER_MURK;
+    return (vec3(0.62, 0.40, 0.56) + (1.0 - hue) * 0.10) * WATER_MURK;
 }
 
 /**
@@ -27,7 +27,7 @@ vec3 waterExtinction(vec3 hue) {
  * suspension renvoient surtout la couleur de l'eau, le reste est bu.
  */
 vec3 waterAlbedo(vec3 hue) {
-    return hue * hue * 0.50;
+    return hue * 0.48;
 }
 
 /** Ce que renvoie l'eau profonde vue de loin : la lumière du ciel et de l'astre diffusée dans la masse. */

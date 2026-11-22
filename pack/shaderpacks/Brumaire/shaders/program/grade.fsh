@@ -158,8 +158,8 @@ float lensDirt(vec2 uv) {
 
 #if defined BLOOM && SUN_GLARE > 0
 /**
- * L'éclat du soleil dans l'œil : des rais fins qui partent de lui, un voile autour, et quelques reflets de l'objectif
- * alignés sur le centre de l'image. Tout suit la lumière qui entoure vraiment le soleil à l'écran (un nuage, un arbre
+ * L'éclat du soleil dans l'œil : un voile autour de lui ; au réglage 2, des rais fins qui en partent et quelques reflets
+ * de l'objectif alignés sur le centre de l'image (un œil ne voit pas d'étoile autour du soleil : ils restent en option). Tout suit la lumière qui entoure vraiment le soleil à l'écran (un nuage, un arbre
  * ou une colline l'éteignent), lue dans un niveau flou de l'image.
  */
 vec3 sunGlare() {
@@ -180,9 +180,11 @@ vec3 sunGlare() {
     vec2 d = (vUv - sun) * aspect;
     float r = length(d);
     // Les rais : six branches fines et quelques plus faibles, qui tournent à peine quand on bouge la tête.
+    vec3 glare = src * (exp(-r * 30.0) * 0.20 + exp(-r * 4.0) * 0.012);
+#if SUN_GLARE > 1
     float a = atan(d.y, d.x) + 0.15;
     float rays = pow(abs(cos(a * 3.0)), 140.0) + 0.35 * pow(abs(cos(a * 7.0 + 0.6)), 180.0);
-    vec3 glare = src * (rays * exp(-r * 11.0) * 0.16 + exp(-r * 30.0) * 0.20 + exp(-r * 4.0) * 0.012);
+    glare += src * rays * exp(-r * 11.0) * 0.16;
     // Les reflets de l'objectif : des disques pâles de couleur sur la ligne du soleil au centre, au-delà du centre.
     vec2 axis = (vec2(0.5) - sun);
     const vec3 ghostTint[4] = vec3[](vec3(1.0, 0.70, 0.35), vec3(0.45, 0.85, 1.0), vec3(0.70, 1.0, 0.60), vec3(1.0, 0.55, 0.80));
@@ -193,6 +195,7 @@ vec3 sunGlare() {
         float disk = smoothstep(ghostSize[i], ghostSize[i] * 0.7, length(g));
         glare += src * ghostTint[i] * disk * 0.005;
     }
+#endif
     return glare * SUN_GLARE_STRENGTH;
 }
 #endif
@@ -362,7 +365,7 @@ void main() {
     float gloom = rainStrength * smoothstep(0.3, 0.8, float(eyeBrightnessSmooth.y) / 240.0);
     // La nuit est déjà réglée pour elle-même : la pluie n'y pèse qu'à moitié.
     gloom *= mix(0.5, 1.0, smoothstep(-0.18, 0.12, sunUp));
-    exposure *= mix(1.0, RAIN_GLOOM > 1 ? 0.5 : 0.6, gloom);
+    exposure *= mix(1.0, RAIN_GLOOM > 1 ? 0.58 : 0.68, gloom);
 #endif
 #ifdef BLOOM
     // Le seuil du halo suit l'exposition : ce qui éblouit l'œil, pas une valeur fixe.
@@ -381,7 +384,7 @@ void main() {
 #endif
     color *= exposure;
 #if RAIN_GLOOM > 0
-    color *= mix(vec3(1.0), RAIN_GLOOM > 1 ? vec3(1.07, 1.0, 0.82) : vec3(1.06, 1.0, 0.86), gloom);
+    color *= mix(vec3(1.0), RAIN_GLOOM > 1 ? vec3(1.05, 1.0, 0.88) : vec3(1.03, 1.0, 0.94), gloom);
 #endif
 #if NIGHT_GRAIN > 0
     // La clarté vue par l'œil, avant les bâtonnets : le grain ne vient que dans le noir.
@@ -409,8 +412,10 @@ void main() {
         // brume, ni la pierre, ni l'eau.
         float mx = max(color.r, max(color.g, color.b));
         float chroma = (mx - min(color.r, min(color.g, color.b))) / max(mx, 1e-4);
-        float leaf = smoothstep(0.004, 0.035, color.g - color.b) * smoothstep(-0.08, -0.01, color.g - color.r)
-                   * smoothstep(0.02, 0.10, l) * smoothstep(0.08, 0.20, chroma) * step(texture(depthtex0, vUv).r, 0.99999);
+        // Les écarts sont lus par rapport au plus fort canal, pour que l'herbe à l'ombre des arbres compte aussi.
+        float leaf = smoothstep(0.02, 0.17, (color.g - color.b) / max(mx, 1e-4))
+                   * smoothstep(-0.40, -0.05, (color.g - color.r) / max(mx, 1e-4))
+                   * smoothstep(0.003, 0.03, l) * smoothstep(0.08, 0.20, chroma) * step(texture(depthtex0, vUv).r, 0.99999);
         vec3 warm = color * vec3(1.03, 1.0, 0.86);
         warm *= l / max(dot(warm, LUMA), 1e-5);
         warm = mix(vec3(l), warm, 1.0 + 0.45 * (1.0 - smoothstep(0.15, 0.50, chroma)));

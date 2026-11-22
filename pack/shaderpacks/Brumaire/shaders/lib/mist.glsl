@@ -27,7 +27,7 @@ float mistNearDensity() {
     float hour = mix(0.80, 0.32, smoothstep(-0.14, 0.0, gSunDir.y));
     // L'air du biome : plus de brume là où il est humide, moins dans un désert.
     float biome = mix(0.75, 1.3, airHumid) * (1.0 - 0.85 * airDust());
-    return 0.010 * MIST_DENSITY * hour * biome * (1.0 + 0.4 * rainStrength) * open;
+    return 0.010 * MIST_DENSITY * hour * biome * (1.0 + 1.6 * rainStrength) * open;
 }
 
 /** Brume retirée par une clairière : un cylindre vertical, au bord adouci par deux rayons. */
