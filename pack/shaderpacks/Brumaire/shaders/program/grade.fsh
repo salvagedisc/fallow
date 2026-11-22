@@ -220,7 +220,7 @@ vec4 lensDrop(vec2 uv, float wet, float t) {
         float phase = t / period + dropHash(cell);
         float age = fract(phase);
         vec2 seed = cell + floor(phase) * 13.7;
-        if (dropHash(seed + 0.7) > wet * (layer == 0 ? 0.22 : (layer == 1 ? 0.16 : 0.10))) continue;
+        if (dropHash(seed + 0.7) > wet * (layer == 0 ? 0.13 : (layer == 1 ? 0.09 : 0.05))) continue;
         float r = (0.20 + 0.16 * dropHash(seed + 1.9)) * (1.0 - 0.45 * smoothstep(0.3, 1.0, age));
         vec2 c = vec2(dropHash(seed + 4.3), dropHash(seed + 5.9)) * (1.0 - 2.0 * r) + r;
         if (layer == 2) c.y = mix(c.y, r, smoothstep(0.2, 1.0, age) * step(0.5, dropHash(seed + 8.2)));
@@ -300,25 +300,27 @@ void main() {
     color = depthOfField(color, max(lens.y, 0.5));
 #endif
 #if LENS_DROPS > 0
-    // Les gouttes sur l'objectif : chacune est une petite lentille qui montre le paysage retourné et resserré, flou,
-    // cerclée d'un bord sombre, avec un point de lumière en haut. Moins quand on regarde le sol.
+    // Les gouttes sur l'objectif : des taches floues qui déforment un peu le paysage derrière elles. Moins quand on
+    // regarde le sol.
     {
         float up = -gbufferModelViewInverse[2].y;
         float wet = isEyeInWater == 0 ? max(lensWet * (0.45 + 0.55 * smoothstep(-0.5, 0.4, up)), lensDive) : 0.0;
         if (wet > 0.01) {
             vec4 drop = lensDrop(vUv, wet, frameTimeCounter);
             if (drop.z > 0.0) {
+                // Collée à l'objectif, la goutte est bien trop près pour être nette : une tache floue qui déforme un
+                // peu ce qu'il y a derrière, sans contour dessiné ni point brillant (ce serait une bulle de savon).
                 float l2 = dot(drop.xy, drop.xy);
-                vec2 at = clamp(vUv - drop.xy * drop.w * vec2(viewHeight / viewWidth, 1.0) * 3.0, 0.002, 0.998);
+                vec2 at = clamp(vUv - drop.xy * drop.w * vec2(viewHeight / viewWidth, 1.0) * 1.2, 0.002, 0.998);
 #ifdef BLOOM
-                vec3 inside = textureLod(colortex0, at, 1.5).rgb;
+                vec3 inside = textureLod(colortex0, at, 2.5).rgb;
 #else
                 vec3 inside = texture(colortex0, at).rgb;
 #endif
-                inside *= 1.0 - 0.35 * smoothstep(0.65, 1.0, l2);
-                // Le bas de la goutte rassemble la lumière : un croissant plus clair.
-                inside *= 1.0 + 0.30 * smoothstep(0.55, 0.95, l2) * smoothstep(0.2, 0.7, -drop.y / sqrt(max(l2, 1e-4)));
-                inside += inside * 0.6 * smoothstep(0.10, 0.0, length(drop.xy - vec2(-0.30, 0.38)));
+                // Le bord renvoie un peu moins de lumière, le bas en rassemble un peu plus : à peine.
+                inside *= 1.0 - 0.10 * smoothstep(0.55, 1.0, l2);
+                inside *= 1.0 + 0.08 * smoothstep(0.3, 0.9, l2) * smoothstep(0.2, 0.7, -drop.y / sqrt(max(l2, 1e-4)));
+                drop.z *= 1.0 - smoothstep(0.55, 1.0, l2);
                 color = mix(color, inside, drop.z);
             }
         }
@@ -341,7 +343,7 @@ void main() {
 #endif
     // L'œil s'habitue : la nuit et sous terre, l'image s'éclaircit un peu.
     float sunUp = normalize(mat3(gbufferModelViewInverse) * sunPosition).y;
-    float adapt = mix(2.2, 1.0, smoothstep(-0.18, 0.12, sunUp));
+    float adapt = mix(1.6, 1.0, smoothstep(-0.18, 0.12, sunUp));
     adapt *= mix(1.5, 1.0, smoothstep(0.0, 0.5, float(eyeBrightnessSmooth.y) / 240.0));
     float exposure = 0.62 * EXPOSURE * adapt;
 #if EXPOSURE_AUTO > 0
@@ -366,8 +368,9 @@ void main() {
 #if LENS_DIRT > 0
     // Face à une lumière vive, la poussière de l'objectif s'allume là où le halo passe, et un peu plus loin.
     vec3 wide = textureLod(colortex0, vUv, 7.0).rgb;
-    vec3 dirtLight = halo + max(wide - vec3(0.8 * 0.62 * EXPOSURE * adapt / exposure), 0.0) * 0.6;
-    color += dirtLight * lensDirt(vUv) * 2.0;
+    // Seulement face au soleil ou à une lumière vive : un ciel clair ne suffit pas à la faire voir.
+    vec3 dirtLight = max(halo - vec3(0.05), 0.0) + max(wide - vec3(2.5 * 0.62 * EXPOSURE * adapt / exposure), 0.0) * 0.6;
+    color += dirtLight * lensDirt(vUv) * 1.4;
 #endif
 #endif
 #if defined BLOOM && SUN_GLARE > 0

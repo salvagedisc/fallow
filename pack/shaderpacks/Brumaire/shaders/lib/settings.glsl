@@ -100,9 +100,7 @@
 #define WATER_PLANT_SWAY 1 // [0 1]
 // Les lanternes suspendues se balancent au vent.
 #define LANTERN_SWAY 1 // [0 1]
-// Le feuillage touffu : deux plans de plus par face de feuilles, décollés et penchés (program/bushy.gsh).
-#define BUSHY_LEAVES 1 // [0 1]
-// Jusqu'où (blocs) le feuillage est touffu.
+// Jusqu'où (blocs) les touffes d'herbe sont plus fournies.
 #define BUSHY_DISTANCE 64 // [32 48 64 96 128]
 // Les touffes plus fournies : chaque herbe, fleur ou culture proche reçoit une copie tournée (program/bushy.gsh),
 // jusqu'à la distance du feuillage touffu.
@@ -218,7 +216,7 @@
 #define TRACK_MINUTES 4.0 // [1.0 2.0 4.0 8.0 15.0]
 
 // Couleurs
-#define OLIVE 0.8 // [0.0 0.2 0.4 0.6 0.8 1.0]
+#define OLIVE 1.0 // [0.0 0.2 0.4 0.6 0.8 1.0]
 #define SATURATION 1.0 // [0.7 0.8 0.9 1.0 1.1 1.2]
 #define CONTRAST 1.0 // [0.9 0.95 1.0 1.05 1.1 1.15]
 #define EXPOSURE 1.0 // [0.7 0.85 1.0 1.15 1.3]

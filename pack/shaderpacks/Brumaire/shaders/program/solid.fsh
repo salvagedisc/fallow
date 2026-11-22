@@ -119,7 +119,9 @@ vec4 ice(vec3 albedo, float alpha, vec3 normal, vec2 lm, float ao) {
 
 void main() {
     initEnv();
-    vec3 normal = normalize(vNormal);
+    // Les particules n'ont souvent pas de normale (le format du jeu n'en porte pas) : une normale nulle donnerait un
+    // point noir à l'écran. Elles regardent alors l'œil.
+    vec3 normal = dot(vNormal, vNormal) > 1e-4 ? normalize(vNormal) : -normalize(vPos);
     vec2 lm = vLm;
     float ao = 1.0;
 

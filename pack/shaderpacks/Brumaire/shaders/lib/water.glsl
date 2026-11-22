@@ -16,7 +16,7 @@ vec3 waterHue(vec3 biome) {
 
 /** Lumière perdue par bloc traversé (absorbée ou renvoyée ailleurs) : le rouge part le premier ; une eau verte ou brune est plus trouble. */
 vec3 waterExtinction(vec3 hue) {
-    return (vec3(0.46, 0.30, 0.32) + (1.0 - hue) * 0.12) * WATER_MURK;
+    return (vec3(0.38, 0.22, 0.25) + (1.0 - hue) * 0.10) * WATER_MURK;
 }
 
 /**

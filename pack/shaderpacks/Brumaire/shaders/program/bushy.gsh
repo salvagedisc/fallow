@@ -1,13 +1,13 @@
-// Le feuillage touffu : chaque face de feuilles proche reçoit deux plans de plus, de la même texture, un peu plus
-// grands qu'elle, décollés et penchés au hasard ; le contour des arbres n'est plus une suite de cubes, et le feuillage
-// gagne de l'épaisseur. Seul le terrain découpé (feuilles, herbes, fleurs) passe par ici (gbuffers_terrain_cutout) ;
-// les autres faces sont rendues telles quelles.
+// Les touffes d'herbe plus fournies. Seul le terrain découpé (feuilles, herbes, fleurs) passe par ici
+// (gbuffers_terrain_cutout) ; les autres faces sont rendues telles quelles. Le feuillage touffu est celui du pack de
+// ressources Better Leaves : le shader n'en ajoute pas (ses plans en plus doublaient ceux du pack et brouillaient les
+// arbres).
 #include "/lib/settings.glsl"
 #include "/lib/common.glsl"
 #include "/lib/taa.glsl"
 
 layout(triangles) in;
-layout(triangle_strip, max_vertices = 9) out;
+layout(triangle_strip, max_vertices = 6) out;
 
 in vec2 gUv[];
 in vec2 gLm[];
@@ -62,39 +62,6 @@ void main() {
         EmitVertex();
     }
     EndPrimitive();
-#if BUSHY_LEAVES > 0
-    if (gMat[0] == 4) {
-    // Le centre de la face : le milieu du plus long côté (la diagonale du carré coupé en deux triangles).
-    float d01 = distance(gPos[0], gPos[1]), d12 = distance(gPos[1], gPos[2]), d20 = distance(gPos[2], gPos[0]);
-    vec3 centre = d01 >= d12 && d01 >= d20 ? (gPos[0] + gPos[1]) * 0.5 : (d12 >= d20 ? (gPos[1] + gPos[2]) * 0.5 : (gPos[2] + gPos[0]) * 0.5);
-    if (dot(centre, centre) > float(BUSHY_DISTANCE * BUSHY_DISTANCE)) return;
-    vec3 n = normalize(gNormal[0]);
-    // La face du bloc, repérée dans le monde : les deux triangles d'une face tirent les mêmes plans.
-    vec3 face = floor(centre + cameraPosition - n * 0.25) + n * 0.37;
-    vec3 a = normalize(abs(n.y) > 0.5 ? vec3(1.0, 0.0, 0.0) : vec3(0.0, 1.0, 0.0));
-    vec3 b = cross(n, a);
-    for (int k = 0; k < 2; k++) {
-        float h = bushHash(face + float(k) * 5.3);
-        if (h < 0.15) continue;
-        float spin = bushHash(face + float(k) * 9.1 + 2.0) * 6.2831853;
-        vec3 tiltDir = a * cos(spin) + b * sin(spin);
-        float scale = k == 0 ? 1.22 : 1.05;
-        float lift = k == 0 ? 0.07 : 0.18;
-        float tilt = (k == 0 ? 0.30 : 0.45) * (0.6 + 0.4 * h);
-        vec3 shift = (a * (bushHash(face + 3.7 + float(k)) - 0.5) + b * (bushHash(face + 6.1 + float(k)) - 0.5)) * 0.30;
-        for (int i = 0; i < 3; i++) {
-            pass(i);
-            vec3 r = gPos[i] - centre;
-            vec3 p = centre + r * scale + shift + n * (lift + dot(r, tiltDir) * tilt);
-            vPos = p;
-            gl_Position = taaJitter(gbufferProjection * (gbufferModelView * vec4(p, 1.0)));
-            EmitVertex();
-        }
-        EndPrimitive();
-    }
-    return;
-    }
-#endif
 #if GRASS_TUFTS > 0
     // Les touffes plus fournies : chaque plan d'herbe, de fleur ou de culture proche reçoit une copie tournée autour de
     // l'axe de son bloc (de 30 à 60 degrés, tirés par colonne : les deux moitiés d'une grande herbe tournent ensemble),
