@@ -206,7 +206,7 @@ public final class EveilModule {
             // La planche à découper de Farmer's Delight se sert de tout outil (hache, pioche, pelle) : rien d'arrêté n'y coupe.
             // Elle lit l'outil dans la main principale même quand le clic vient de l'autre main : c'est lui qui compte.
             BlockState bloc = e.getLevel().getBlockState(e.getPos());
-            boolean planche = bloc.is(PLANCHE_A_DECOUPER);
+            boolean planche = bloc.is(PLANCHE_A_DECOUPER) && Eveil.arrete(e.getEntity().getMainHandItem());
             ItemStack outil = planche ? e.getEntity().getMainHandItem() : e.getItemStack();
             if (!Eveil.arrete(outil) || e.getEntity().isSpectator()) {
                 return;
@@ -214,7 +214,7 @@ public final class EveilModule {
             if (Eveil.arrete(e.getItemStack())) {
                 e.setUseItem(net.neoforged.neoforge.common.util.TriState.FALSE);
             }
-            if (!planche && !outilDeGeste(outil)) {
+            if (!planche && !outilDeGeste(outil) && !bloc.is(PLANCHE_A_DECOUPER)) {
                 return;
             }
             // Lu avant d'annuler : annuler l'événement met aussi l'usage du bloc à « non ».
