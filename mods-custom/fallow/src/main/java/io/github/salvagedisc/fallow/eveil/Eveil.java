@@ -294,6 +294,18 @@ public final class Eveil {
         return Math.max(0, Math.min(usure, stack.getMaxDamage() - 1 - stack.getDamageValue()));
     }
 
+    /**
+     * L'usure posée d'un coup par une recette (KubeJS, sans porteur) : un objet éveillé entretenu s'arrête à son dernier
+     * point au lieu de disparaître de la grille avec ses éveils (appelé par {@code RecetteUsanteMixin}).
+     */
+    public static int plafond(ItemStack stack, int usure) {
+        if (!FallowConfig.eveilEnabled() || !stack.isDamageableItem() || usure < stack.getMaxDamage()) {
+            return usure;
+        }
+        EtatEveil etat = stack.get(EveilModule.ETAT.get());
+        return etat == null || etat.traces().isEmpty() || Lien.de(stack) < Lien.ENTRETENU ? usure : stack.getMaxDamage() - 1;
+    }
+
     /** L'objet entretenu qui s'est arrêté à bout de forces : il ne sert plus tant qu'on ne l'a pas réparé. */
     public static boolean arrete(ItemStack stack) {
         if (stack.isEmpty() || !FallowConfig.eveilEnabled() || !stack.isDamageableItem()

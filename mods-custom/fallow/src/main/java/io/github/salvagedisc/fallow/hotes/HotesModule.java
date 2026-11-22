@@ -144,12 +144,19 @@ public final class HotesModule {
             for (int y : d == 0 ? new int[] {pres} : new int[] {pres + d, pres - d}) {
                 curseur.set(x, y - 1, z);
                 if (level.getBlockState(curseur).isFaceSturdy(level, curseur, net.minecraft.core.Direction.UP)
-                        && level.getBlockState(curseur.setY(y)).getCollisionShape(level, curseur).isEmpty()
-                        && level.getBlockState(curseur.setY(y + 1)).getCollisionShape(level, curseur).isEmpty()) {
+                        && libre(level, curseur.setY(y)) && libre(level, curseur.setY(y + 1))) {
                     return y;
                 }
             }
         }
-        return level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+        // Sous un toit (le Nether), le dessus du monde est la roche du toit : l'Hôte vient à hauteur du joueur.
+        return level.dimensionType().hasCeiling() ? pres
+                : level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+    }
+
+    /** Ni bloc ni liquide : un Hôte ne se tient pas au fond d'un lac ou sous la lave. */
+    private static boolean libre(ServerLevel level, net.minecraft.core.BlockPos pos) {
+        net.minecraft.world.level.block.state.BlockState state = level.getBlockState(pos);
+        return state.getCollisionShape(level, pos).isEmpty() && state.getFluidState().isEmpty();
     }
 }

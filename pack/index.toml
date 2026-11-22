@@ -3662,8 +3662,8 @@ hash = "2c88d3eceb7be9c5964ca32c24612ca08d7326b4cb06104e98d56efa777de640"
 metafile = true
 
 [[files]]
-file = "mods/fallow-0.90.0.jar"
-hash = "f2ba93d405f6621dd3e8f76cc9ccd7c08ea5a9dcfedac085579c219e7e7a4539"
+file = "mods/fallow-0.91.0.jar"
+hash = "aacd8c779cbe4711b085cc3d7b6d3712aa1f5b36459103ac2df79761619c11d8"
 
 [[files]]
 file = "mods/farmers-delight.pw.toml"

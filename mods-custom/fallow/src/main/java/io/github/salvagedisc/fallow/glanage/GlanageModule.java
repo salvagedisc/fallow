@@ -78,10 +78,10 @@ public final class GlanageModule {
         if (!(main.isEmpty() || main.is(Tags.Items.RODS_WOODEN))) {
             return;
         }
-        // L'autre main garde son usage : un bloc (une torche) se pose sur les feuilles, un bouclier se lève, un pain se
-        // mange, un arc se bande ; on ne lui prend pas le clic.
+        // L'autre main garde son usage : un bloc (une torche) se pose sur les feuilles ; main vide, un bouclier se lève, un
+        // pain se mange (si l'on a faim), un arc se bande. Un bâton en main dit qu'on veut secouer : il secoue toujours.
         ItemStack autre = player.getOffhandItem();
-        if (autre.getItem() instanceof BlockItem || autre.getUseAnimation() != UseAnim.NONE) {
+        if (autre.getItem() instanceof BlockItem || (main.isEmpty() && sertDeLAutreMain(player, autre))) {
             return;
         }
         Level level = event.getLevel();
@@ -116,6 +116,14 @@ public final class GlanageModule {
             Block.popResourceFromFace(server, pos, event.getFace() == null ? Direction.DOWN : event.getFace(),
                     new ItemStack(Items.STICK));
         }
+    }
+
+    private static boolean sertDeLAutreMain(Player player, ItemStack autre) {
+        if (autre.getUseAnimation() == UseAnim.NONE) {
+            return false;
+        }
+        net.minecraft.world.food.FoodProperties nourriture = autre.getFoodProperties(player);
+        return nourriture == null || player.canEat(nourriture.canAlwaysEat());
     }
 
     /** Vrai si le bloc répond lui-même au clic droit, en main vide ou objet en main : son geste passe avant le nôtre. */

@@ -78,7 +78,8 @@ public class ChevaletBlock extends HorizontalDirectionalBlock implements Ouvrage
 
     /** Vrai si le chevalet, dans cet état, prend {@code stack} : une peau brute s'il est nu, un couteau si une peau est tendue. */
     public static boolean accepte(BlockState state, ItemStack stack) {
-        return state.getValue(PEAU) ? stack.is(TannerieModule.COUTEAUX) : stack.is(TannerieModule.PEAU_BRUTE.get());
+        return state.getValue(PEAU) ? stack.is(TannerieModule.COUTEAUX) && !io.github.salvagedisc.fallow.eveil.Eveil.arrete(stack)
+                : stack.is(TannerieModule.PEAU_BRUTE.get());
     }
 
     @Override

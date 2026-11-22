@@ -7,6 +7,7 @@
   "mixins": [
     "compat.IceThawMixin",
     "compat.InStructureMixin",
+    "compat.RecetteUsanteMixin",
     "dinos.ChorusoatlArmorMixin",
     "eveil.ObjetBruleMixin",
     "eveil.ObjetEveilleMixin",

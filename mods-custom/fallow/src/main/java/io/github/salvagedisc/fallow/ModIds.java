@@ -12,6 +12,7 @@ public final class ModIds {
     public static final String CREATE = "create";
     public static final String PUNCHY = "punchy";
     public static final String ADORABLE_HAMSTER_PETS = "adorablehamsterpets";
+    public static final String KUBEJS = "kubejs";
     public static final String SENSIBLE_STACKABLES = "sensible_stackables";
     public static final String SODIUM = "sodium";
     public static final String TRUE_ADAPTIVE_MUSIC = "trueadaptivemusic";

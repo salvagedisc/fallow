@@ -200,12 +200,14 @@ public final class EveilModule {
             }
         });
         NeoForge.EVENT_BUS.addListener(PlayerInteractEvent.RightClickBlock.class, e -> {
-            // Le bloc garde son usage (une porte s'ouvre), l'objet arrêté ne sert pas (houe, pelle, hache). Les outils dont
-            // c'est le bloc qui se sert (cisailles sur une citrouille, briquet sur la TNT, couteau sur le chevalet) n'y
-            // touchent pas du tout.
+            // Le bloc garde son usage sans l'objet (une porte s'ouvre, un coffre, une enclume), l'objet arrêté ne sert pas
+            // (houe, pelle, hache). Un bloc qui se sert de l'objet en main (citrouille et cisailles, TNT et briquet,
+            // chevalet et couteau, enclume de forge et marteau, planche à découper) sans ouvrir de fenêtre n'y touche pas.
             if (Eveil.arrete(e.getItemStack())) {
                 e.setUseItem(net.neoforged.neoforge.common.util.TriState.FALSE);
-                if (outilDeGeste(e.getItemStack())) {
+                BlockState bloc = e.getLevel().getBlockState(e.getPos());
+                if (outilDeGeste(e.getItemStack()) || (seSertDeLObjet(bloc.getBlock())
+                        && bloc.getMenuProvider(e.getLevel(), e.getPos()) == null)) {
                     e.setUseBlock(net.neoforged.neoforge.common.util.TriState.FALSE);
                     refuser(e.getEntity(), e.getItemStack());
                 }
@@ -226,16 +228,26 @@ public final class EveilModule {
             }
         });
         NeoForge.EVENT_BUS.addListener(net.neoforged.neoforge.event.entity.player.AttackEntityEvent.class, e -> {
-            // Il ne frappe plus une bête ; un cadre, un bateau ou un cristal se cassent toujours (rien ne l'y use).
-            if (e.getTarget() instanceof LivingEntity && Eveil.arrete(e.getEntity().getMainHandItem())) {
+            // Il ne frappe plus une bête (ni une partie d'une grande bête) ; un cadre, un bateau, un support d'armure ou un
+            // cristal se cassent toujours (rien ne l'y use).
+            Entity cible = e.getTarget() instanceof net.neoforged.neoforge.entity.PartEntity<?> part ? part.getParent() : e.getTarget();
+            if (cible instanceof LivingEntity && !(cible instanceof net.minecraft.world.entity.decoration.ArmorStand)
+                    && Eveil.arrete(e.getEntity().getMainHandItem())) {
                 e.setCanceled(true);
                 refuser(e.getEntity(), e.getEntity().getMainHandItem());
             }
         });
-        // Une armure arrêtée ne protège plus (ni outil ni arme n'ajoutent rien) : elle tient sans casser, mais à vide.
+        // Une armure arrêtée ne protège plus (ni outil ni arme n'ajoutent rien) : elle tient sans casser, mais à vide. Ses
+        // enchantements se taisent aussi (Protection, Épines, Efficacité), sauf le Raccommodage, qui la répare.
         NeoForge.EVENT_BUS.addListener(net.neoforged.neoforge.event.ItemAttributeModifierEvent.class, e -> {
             if (Eveil.arrete(e.getItemStack())) {
                 e.clearModifiers();
+            }
+        });
+        NeoForge.EVENT_BUS.addListener(net.neoforged.neoforge.event.enchanting.GetEnchantmentLevelEvent.class, e -> {
+            if (Eveil.arrete(e.getStack())) {
+                e.getEnchantments().removeIf(h -> !h.value().effects()
+                        .has(net.minecraft.world.item.enchantment.EnchantmentEffectComponents.REPAIR_WITH_XP));
             }
         });
         NeoForge.EVENT_BUS.addListener(ItemExpireEvent.class, e -> oublier(e.getEntity().getItem()));
@@ -266,6 +278,26 @@ public final class EveilModule {
                 || stack.is(net.neoforged.neoforge.common.Tags.Items.TOOLS_IGNITER)
                 || stack.is(net.minecraft.tags.ItemTags.CREEPER_IGNITERS)
                 || stack.is(net.neoforged.neoforge.common.Tags.Items.TOOLS_BRUSH) || stack.is(COUTEAUX);
+    }
+
+    private static final Map<Class<?>, Boolean> SE_SERT = new java.util.concurrent.ConcurrentHashMap<>();
+
+    /** Vrai si le bloc répond lui-même à l'objet en main ({@code useItemOn} redéfini quelque part sous {@code Block}). */
+    static boolean seSertDeLObjet(net.minecraft.world.level.block.Block block) {
+        return SE_SERT.computeIfAbsent(block.getClass(), c -> {
+            for (Class<?> k = c; k != null && k != net.minecraft.world.level.block.Block.class
+                    && k != net.minecraft.world.level.block.state.BlockBehaviour.class; k = k.getSuperclass()) {
+                try {
+                    k.getDeclaredMethod("useItemOn", ItemStack.class, BlockState.class, net.minecraft.world.level.Level.class,
+                            net.minecraft.core.BlockPos.class, Player.class, net.minecraft.world.InteractionHand.class,
+                            net.minecraft.world.phys.BlockHitResult.class);
+                    return true;
+                } catch (NoSuchMethodException ignored) {
+                    // pas à ce niveau
+                }
+            }
+            return false;
+        });
     }
 
     /** La ligne grise qui dit pourquoi l'objet arrêté ne fait rien (côté serveur, au-dessus de la barre d'objets). */
@@ -414,11 +446,14 @@ public final class EveilModule {
                     if (ROUGES.add(etat.id()) && avant != null && avant < seuil) {
                         Lien.ajouter(player.server, stack, etat, Lien.ROUGE, player);
                     }
-                } else if (usure < seuil - Math.max(1, stack.getMaxDamage() / 10)) {
-                    // Sorti du rouge pour de bon (un dixième plus bas) : le prochain passage comptera et préviendra de nouveau.
-                    // Un point de raccommodage au bord ne suffit pas, sinon chaque orbe coûterait l'attachement.
+                } else {
+                    // Réparé sous l'alerte, il préviendra de nouveau (comme il pourra de nouveau oublier, voir Eveil.usure).
                     AVERTIS.remove(etat.id());
-                    ROUGES.remove(etat.id());
+                    if (usure < seuil - Math.max(1, stack.getMaxDamage() / 10)) {
+                        // Sorti du rouge pour de bon (un dixième plus bas) : le prochain passage comptera. Un point de
+                        // raccommodage au bord ne suffit pas, sinon chaque orbe coûterait l'attachement.
+                        ROUGES.remove(etat.id());
+                    }
                 }
                 if (avant != null && usure < avant) {
                     HautsFaits.Contexte moment = HautsFaits.Contexte.de(player);
