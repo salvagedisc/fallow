@@ -1,12 +1,16 @@
 # Fallow : packs de ressources activés au premier lancement. Du moins prioritaire
-# au plus prioritaire : les feuilles de Better Leaves, les objets de Team Disco
+# au plus prioritaire : Hidyk's Realm, la base de tout le jeu (blocs, objets,
+# interface, créatures), tout en bas pour que les packs choisis un par un passent
+# devant lui ; puis les feuilles de Better Leaves, les objets de Team Disco
 # (Fresh Food, Buckets, Ores and Ingots, Flowers and Plants, Music Discs, Paintings),
 # les cultures de Fancy Crops, les échelles de RAY's 3D Ladders, les flammes de
 # Better Flame Particles, l'herbe de Fast Better Grass (au-dessus des packs de blocs,
 # comme son auteur le demande, avec sa compat Regions Unexplored), puis Fresh
-# Animations et ses extensions. Les packs de Team Disco sont faits pour 1.21.4
-# (format 46) : le jeu les dit incompatibles, mais Default Options les sélectionne
-# quand même et le jeu les garde ensuite (incompatibleResourcePacks d'options.txt).
+# Animations et ses extensions, et Fresh Hidyk's Realm tout en haut, qui raccorde
+# les créatures de Hidyk's Realm à Fresh Animations. Les packs de Team Disco sont
+# faits pour 1.21.4 (format 46) : le jeu les dit incompatibles, mais Default
+# Options les sélectionne quand même et le jeu les garde ensuite
+# (incompatibleResourcePacks d'options.txt).
 # Le rendu vient du pack de shaders Brumaire (config/iris.properties).
 # Default Options ne sélectionne que les packs de cette liste : les ressources des
 # mods (mod_resources de NeoForge, fabric de Connector), absentes, étaient rajoutées
@@ -16,6 +20,7 @@ defaultResourcePacks = [
 	"vanilla",
 	"mod_resources",
 	"fabric",
+	"file/HIDYKs REALM.zip",
 	"file/Better-Leaves-9.6.zip",
 	"file/Fresh Paintings.zip",
 	"file/Fresh Music Discs.zip",
@@ -32,5 +37,6 @@ defaultResourcePacks = [
 	"file/FA+Details-v2.2.1.zip",
 	"file/FA+Objects-v2.1.2.zip",
 	"file/FA+Emissive-v1.6.zip",
-	"file/FA+Player-v1.1.zip"
+	"file/FA+Player-v1.1.zip",
+	"file/FRESH HIDYKs REALM.zip"
 ]

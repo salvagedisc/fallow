@@ -1,0 +1,13 @@
+name = "Hidyk's Realm"
+filename = "HIDYKs REALM.zip"
+side = "both"
+
+[download]
+url = "https://cdn.modrinth.com/data/UHDcis5V/versions/lK8AkDky/HIDYKs%20REALM.zip"
+hash-format = "sha512"
+hash = "ebc655968d302bcb1dbfb91867cb06d3e43e0250890e8edb7a765fd99f16845fbc874326275ed3ffb5d68df2055c8c297b3ffb5252ddf17aba0ff3085ba17dd7"
+
+[update]
+[update.modrinth]
+mod-id = "UHDcis5V"
+version = "lK8AkDky"

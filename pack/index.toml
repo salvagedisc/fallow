@@ -18,7 +18,7 @@ hash = "6ea363669c5a9954b29213737c5b429c9e6cb92456bb79381dc3748416b111bb"
 
 [[files]]
 file = "config/amendments-client.toml"
-hash = "b0ee2f06a06b38a70d9e8e19475b3ce8e1fb03854dad523617e436f61c0d4e93"
+hash = "2b47c79e679ee92d2e7fb84cc898fa2406250c6ec14e97d692b6fb6443d8469d"
 
 [[files]]
 file = "config/amendments-common.toml"
@@ -46,7 +46,7 @@ hash = "48b83973132d41c7fe23f5861c1ff580b3734ee0397c62ae1031e2dd289284f2"
 
 [[files]]
 file = "config/defaultoptions-common.toml"
-hash = "1c9faaa469f6bf4093d242453211ea79a1136285eb928d568a256d1f49de420d"
+hash = "c92903c1d512a5f86d0a88f5a791a5b309e8aa240262697a8d6f33154ec0f383"
 
 [[files]]
 file = "config/defaultoptions/extra/config/entity_model_features.json"
@@ -98,7 +98,7 @@ hash = "e835d69453c8f89e216418cec71966db955bc75ee264e3ac11275e5bff52cd93"
 
 [[files]]
 file = "config/fwa.json"
-hash = "5e71389a1c8324833a4517ea0ef94a32fc268a76ddbbc6bf29b5248e5a85fb42"
+hash = "97948a8f546c1f779dec82fa5a1690aff990309efe49d473e270fdee72cbc62d"
 
 [[files]]
 file = "config/handson_delight.properties"
@@ -4330,6 +4330,11 @@ hash = "255e5e16e3f59423b303587cb57796c9043e0bd445707a6c088f0545d20e1f2b"
 metafile = true
 
 [[files]]
+file = "resourcepacks/fresh-hidyks-realm.pw.toml"
+hash = "72f37e6bcb04241e70295166c31cbe7a893c2abb1e4ff75b80b6f83354492409"
+metafile = true
+
+[[files]]
 file = "resourcepacks/fresh-music-discs.pw.toml"
 hash = "862f8ea5ba61aa498a60601eccbd5b0d9ad91cf06b5692f08ec6207f77955ed0"
 metafile = true
@@ -4342,6 +4347,11 @@ metafile = true
 [[files]]
 file = "resourcepacks/fresh-paintings.pw.toml"
 hash = "6b9aaae5cd0cb72b042d755bec368e69b07d3106c9525561d9297cff311bff00"
+metafile = true
+
+[[files]]
+file = "resourcepacks/hidyksrealm.pw.toml"
+hash = "15da6b575cf019e31e177f77b5ebb2c21d82e2d7f0cc56394b8992272e1fe666"
 metafile = true
 
 [[files]]
