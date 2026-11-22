@@ -2,206 +2,37 @@
   "render_type": "minecraft:cutout",
   "textures": {
     "peau": "fallow:item/peau_brute",
-    "particle": "fallow:item/peau_brute",
-    "lien": "fallow:item/cuir_mouille"
+    "particle": "fallow:item/peau_brute"
   },
   "elements": [
     {
       "from": [
-        5.99,
-        13.01,
-        1
+        4,
+        12.01,
+        4
       ],
       "to": [
-        10.01,
-        13.01,
-        15
+        12,
+        12.01,
+        12
       ],
       "faces": {
         "up": {
           "texture": "#peau",
           "uv": [
-            6,
-            1,
-            10,
-            15
+            0,
+            0,
+            16,
+            16
           ]
         },
         "down": {
           "texture": "#peau",
           "uv": [
-            6,
-            1,
-            10,
-            15
-          ]
-        }
-      }
-    },
-    {
-      "from": [
-        5.99,
-        9,
-        1
-      ],
-      "to": [
-        5.99,
-        13.01,
-        15
-      ],
-      "faces": {
-        "west": {
-          "texture": "#peau",
-          "uv": [
-            2,
-            1,
-            6,
-            15
-          ],
-          "rotation": 270
-        },
-        "east": {
-          "texture": "#peau",
-          "uv": [
-            2,
-            1,
-            6,
-            15
-          ],
-          "rotation": 270
-        }
-      }
-    },
-    {
-      "from": [
-        10.01,
-        9,
-        1
-      ],
-      "to": [
-        10.01,
-        13.01,
-        15
-      ],
-      "faces": {
-        "east": {
-          "texture": "#peau",
-          "uv": [
-            10,
-            1,
-            14,
-            15
-          ],
-          "rotation": 90
-        },
-        "west": {
-          "texture": "#peau",
-          "uv": [
-            10,
-            1,
-            14,
-            15
-          ],
-          "rotation": 90
-        }
-      }
-    },
-    {
-      "from": [
-        5.98,
-        8.98,
-        5
-      ],
-      "to": [
-        10.02,
-        13.02,
-        6
-      ],
-      "faces": {
-        "east": {
-          "texture": "#lien",
-          "uv": [
-            7,
-            4,
-            8,
-            8
-          ]
-        },
-        "west": {
-          "texture": "#lien",
-          "uv": [
-            8,
-            4,
-            9,
-            8
-          ]
-        },
-        "up": {
-          "texture": "#lien",
-          "uv": [
-            6,
-            6,
-            10,
-            7
-          ]
-        },
-        "down": {
-          "texture": "#lien",
-          "uv": [
-            6,
-            9,
-            10,
-            10
-          ]
-        }
-      }
-    },
-    {
-      "from": [
-        5.98,
-        8.98,
-        10
-      ],
-      "to": [
-        10.02,
-        13.02,
-        11
-      ],
-      "faces": {
-        "east": {
-          "texture": "#lien",
-          "uv": [
-            7,
-            4,
-            8,
-            8
-          ]
-        },
-        "west": {
-          "texture": "#lien",
-          "uv": [
-            8,
-            4,
-            9,
-            8
-          ]
-        },
-        "up": {
-          "texture": "#lien",
-          "uv": [
-            6,
-            6,
-            10,
-            7
-          ]
-        },
-        "down": {
-          "texture": "#lien",
-          "uv": [
-            6,
-            9,
-            10,
-            10
+            0,
+            16,
+            16,
+            0
           ]
         }
       }

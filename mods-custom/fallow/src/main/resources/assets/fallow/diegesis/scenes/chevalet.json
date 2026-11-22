@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/Pocky-l/diegesis/main/docs/schema/scene.schema.json",
-  "$comment": "Le chevalet à écharner, redessiné par la scène pendant qu'on y travaille (le poste cache le bloc) : chevalet est sa copie sans peau, peau la peau brute tendue sur la poutre (l'image de l'objet pliée sur la poutre : dessus à 13 de x 6 à 10, les côtés qui retombent jusqu'à 9), raclee la même peau raclée par-dessus, qui apparaît coup après coup. couteau est le couteau qu'on tient, dessiné par le poste le long de la poutre (le curseur ne le montre plus) : chaque clic donne un coup qui glisse vers soi, avec des copeaux. fantome montre, pâle et battant doucement, la peau à tendre sur la poutre vide ; fantome_couteau, le couteau quand la peau l'attend. La caméra se tient au bout de la poutre et regarde le long de la peau. surface prend les clics. Le livre de la tannerie est à gauche ; rangé, il est posé au sol à gauche du bloc. envol dessine ce qui sort du bloc, qui vole jusqu'à la barre d'inventaire. arrivee_0 à arrivee_2 dessinent ce qui arrive sans passer par le curseur (Maj + clic, le livre) : il vole de sa case de la barre jusqu'au bloc.",
-  "work_plane": 13,
+  "$comment": "Le chevalet à écharner, redessiné par la scène pendant qu'on y travaille (le poste cache le bloc) : chevalet est sa copie sans peau, peau la peau brute posée à plat sur le plateau du banc (l'image de l'objet, 8 × 8, à 12 de x 4 à 12 et de z 4 à 12), raclee la même peau raclée par-dessus, qui apparaît coup après coup. couteau est le couteau qu'on tient, dessiné par le poste le long de la poutre (le curseur ne le montre plus) : chaque clic donne un coup qui glisse vers soi, avec des copeaux. fantome montre, pâle et battant doucement, la peau à tendre sur la poutre vide ; fantome_couteau, le couteau quand la peau l'attend. La caméra se tient au bout de la poutre et regarde le long de la peau. surface prend les clics. Le livre de la tannerie est à gauche ; rangé, il est posé au sol à gauche du bloc. envol dessine ce qui sort du bloc, qui vole jusqu'à la barre d'inventaire. arrivee_0 à arrivee_2 dessinent ce qui arrive sans passer par le curseur (Maj + clic, le livre) : il vole de sa case de la barre jusqu'au bloc.",
+  "work_plane": 12,
   "idle_visible": false,
   "camera": {
     "position": [
@@ -79,7 +79,7 @@
       "id": "couteau",
       "pos": [
         8,
-        13.7,
+        12.7,
         8
       ],
       "rotation": [
@@ -110,7 +110,7 @@
       "id": "fantome_couteau",
       "pos": [
         8,
-        14.5,
+        13.5,
         8
       ],
       "rotation": [
@@ -126,7 +126,7 @@
       "id": "envol",
       "pos": [
         8,
-        13.5,
+        12.5,
         8
       ],
       "rotation": [

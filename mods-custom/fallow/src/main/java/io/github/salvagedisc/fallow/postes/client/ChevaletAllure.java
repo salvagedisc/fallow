@@ -58,7 +58,7 @@ final class ChevaletAllure implements Allure {
     }
 
     /** Le dessus de la peau pliée sur la poutre, en pixels. */
-    private static final float DESSUS = 13.0F;
+    private static final float DESSUS = 12.0F;
 
     private static boolean couteau(ItemStack stack) {
         return stack.is(TannerieModule.COUTEAUX);
@@ -110,7 +110,7 @@ final class ChevaletAllure implements Allure {
                 node.setVisual(Visual.ofItem(tenu));
             }
             if (coup >= COUP) {
-                view.cursorOn(DESSUS).ifPresent(point -> vise = Mth.clamp(point.z(), 3.0F, 13.0F));
+                view.cursorOn(DESSUS).ifPresent(point -> vise = Mth.clamp(point.z(), 8.5F, 11.5F));
             }
             // Un coup : la lame appuie et file de 4 pixels vers soi, puis revient se poser.
             float t = Math.min(1.0F, coup / COUP);

@@ -40,7 +40,9 @@ public class ChevaletBlock extends HorizontalDirectionalBlock implements Ouvrage
     public static final BooleanProperty PEAU = BooleanProperty.create("peau");
     /** Coups déjà donnés sur la peau posée (le réglage s'arrête à 15). */
     public static final IntegerProperty RACLAGE = IntegerProperty.create("raclage", 0, 15);
-    private static final VoxelShape SHAPE = Block.box(0.5, 0.0, 0.5, 15.5, 14.0, 15.5);
+    /** Le banc : plateau de 10 sur 16, en long dans le sens du bloc. */
+    private static final VoxelShape SHAPE_NS = Block.box(3.0, 0.0, 0.0, 13.0, 12.0, 16.0);
+    private static final VoxelShape SHAPE_EW = Block.box(0.0, 0.0, 3.0, 16.0, 12.0, 13.0);
 
     public ChevaletBlock(Properties properties) {
         super(properties);
@@ -64,7 +66,7 @@ public class ChevaletBlock extends HorizontalDirectionalBlock implements Ouvrage
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPE;
+        return state.getValue(FACING).getAxis() == Direction.Axis.Z ? SHAPE_NS : SHAPE_EW;
     }
 
     @Override

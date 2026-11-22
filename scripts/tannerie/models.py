@@ -1,12 +1,12 @@
-"""Generates the tannery block models and their wood sheets (fleshing beam, drying frame, tanning vat).
+"""Generates the tannery block models (fleshing bench, drying rack, tanning vat).
 
-Usage: python3 scripts/tannerie/models.py <vanilla assets folder>
-(the `assets` folder of an extracted Minecraft 1.21.1 client jar, for spruce_planks.png).
+Usage: python3 scripts/tannerie/models.py
+The wood refers to Handcrafted's spruce table sheet at runtime (Handcrafted ships in the pack; nothing of it is
+copied here), the vat to vanilla barrel textures, the hides to the items' own sprites.
 Comments are in French, like the mod's code.
 """
 import sys, os
 RACINE=os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-VANILLA=sys.argv[1] if len(sys.argv)>1 else 'assets'
 import json
 B=RACINE+'/mods-custom/fallow/src/main/resources/assets/fallow/models/'
 def W(path,m):
@@ -24,107 +24,76 @@ def F(t,uv=None,rot=None,cull=None):
 CUIR='minecraft:item/leather'
 
 PL='minecraft:block/spruce_planks'
-# ---------- des pièces peintes dans la palette des planches d'épicéa vanilla ----------
-# Comme Handcrafted : une feuille de texture par bloc, chaque face à 1 texel par pixel du modèle,
-# le bois pris dans spruce_planks (sans ses joints), une ligne claire en haut et une sombre en bas
-# des pièces couchées, les pieds en fil vertical sans joint, les bouts encadrés d'un pixel sombre.
-from PIL import Image
-SP=Image.open(VANILLA+'/minecraft/textures/block/spruce_planks.png').convert('RGB')
-PAL=sorted({SP.getpixel((x,y)) for x in range(16) for y in range(16)},key=sum)
-def pas(c,n):
-    i=PAL.index(c) if c in PAL else 3
-    return PAL[max(0,min(len(PAL)-1,i+n))]
-CORPS=[r for r in range(16) if r%4!=3]   # les lignes des planches, sans les joints
-class Feuille:
-    def __init__(s,taille=64):
-        s.t=taille; s.im=Image.new('RGBA',(taille,taille),(0,0,0,0)); s.x=0; s.y=0; s.h=0; s.n=0
-    def place(s,w,h):
-        if s.x+w>s.t: s.x=0; s.y+=s.h; s.h=0
-        p=(s.x,s.y); s.x+=w; s.h=max(s.h,h); assert s.y+h<=s.t,'feuille pleine'; return p
-    def peint(s,w,h,mode):
-        # Une fenêtre des planches vanilla, joints compris, calée pour qu'une planche finisse sur l'arête basse
-        # de la pièce (comme les côtés des plateaux de Handcrafted) ; en fil vertical, l'image tournée d'un quart
-        # et assombrie vers le sol (comme ses pieds).
-        s.n+=1; px,py=s.place(w,h); dec=(s.n*5)%16; k=(s.n*3)%4
-        travers=w if mode=='v' else h
-        r0=4*k+4-travers if travers<=4 else 0
-        for j in range(h):
-            for i in range(w):
-                if mode=='v':
-                    c=SP.getpixel(((j+dec)%16,(r0+i)%16))
-                    if j==h-1: c=pas(c,-2)
-                    elif j==h-2: c=pas(c,-1)
-                else:
-                    c=SP.getpixel(((i+dec)%16,(r0+j)%16))
-                s.im.putpixel((px+i,py+j),c+(255,))
-        k=16/s.t
-        return [px*k,py*k,(px+w)*k,(py+h)*k]
-    def sauve(s,nom):
-        s.im.save(RACINE+'/mods-custom/fallow/src/main/resources/assets/fallow/textures/block/tannerie/'+nom+'.png')
-AX={'north':('x','y'),'south':('x','y'),'east':('z','y'),'west':('z','y'),'up':('x','z'),'down':('x','z')}
-def planche(fe,fr,to,grain,cull=None):
+# ---------- le bois : la feuille de la table en épicéa de Handcrafted, prise par renvoi ----------
+# Disposition de sa feuille (64 × 64, uv en seizièmes : 1 = 4 texels) : plateau 16 × 4 × 16 (dessus x 16 à 32,
+# dessous 32 à 48, lignes 0 à 16 ; côtés en bande de 16 × 4 à la ligne 16, est 0, nord 16, ouest 32, sud 48),
+# pied 3 × 12 × 3 (côtés colonnes 0 à 12, lignes 3 à 15, sombres en bas ; bouts colonnes 3 à 9, lignes 0 à 3).
+HC='handcrafted:block/table/table/spruce_table'
+def U(x0,y0,x1,y1): return [x0/4,y0/4,x1/4,y1/4]
+BANDE={'east':0,'north':16,'west':32,'south':48}
+def plateau(fr,to,long):
+    """Pièce couchée (plateau, traverse) : côtés pris dans les bandes du plateau, dessus dans son dessus."""
     d={'x':to[0]-fr[0],'y':to[1]-fr[1],'z':to[2]-fr[2]}
-    out={}
-    for f in ('north','south','east','west','up','down'):
-        h,v=AX[f]; fw,fh=d[h],d[v]
-        if grain not in (h,v): mode='bout'
-        elif f in ('up','down'):
-            if grain==h: mode='dessus'
-            else: mode='dessus_v'
-        elif grain==v: mode='v'
-        else: mode='h'
-        if mode=='dessus_v':   # dessus d'une pièce dont le fil court en z : peinte couchée puis tournée
-            uv=fe.peint(fh,fw,'dessus'); out[f]=F('#bois',uv,90,cull if (cull and f=='down' and fr[1]==0) else None)
-        else:
-            uv=fe.peint(fw,fh,mode); out[f]=F('#bois',uv,None,cull if (cull and f=='down' and fr[1]==0) else None)
-    return box(fr,to,out)
-import os; os.makedirs(RACINE+'/mods-custom/fallow/src/main/resources/assets/fallow/textures/block/tannerie',exist_ok=True)
-
-# ---------- chevalet : une poutre sur deux tréteaux ----------
-el=[]
-fe=Feuille()
-el.append(planche(fe,[6,10,0],[10,13,16],'z'))                              # la poutre
-for z0 in (1,12):
-    el.append(planche(fe,[2,7,z0],[14,10,z0+3],'x'))                        # la traverse du tréteau, sous la poutre
-    for x0 in (2,11):
-        el.append(planche(fe,[x0,0,z0],[x0+3,7,z0+3],'y',cull='down'))      # les pieds, aux bouts de la traverse
-fe.sauve('chevalet')
-W('block/chevalet.json',{'parent':'minecraft:block/block','textures':{'bois':'fallow:block/tannerie/chevalet','particle':PL},'elements':el})
-
-def peau_pliee(path,tex,parent=None,sangles=True,g=0.01):
-    els=[]
-    els.append(box([6-g,13+g,1],[10+g,13+g,15],{'up':F('#peau',[6,1,10,15]),'down':F('#peau',[6,1,10,15])}))
-    els.append(box([6-g,9,1],[6-g,13+g,15],{'west':F('#peau',[2,1,6,15],270),'east':F('#peau',[2,1,6,15],270)}))
-    els.append(box([10+g,9,1],[10+g,13+g,15],{'east':F('#peau',[10,1,14,15],90),'west':F('#peau',[10,1,14,15],90)}))
-    if sangles:
-        for z0 in (5,10):
-            els.append(box([5.98,8.98,z0],[10.02,13.02,z0+1],{'east':F('#lien',[7,4,8,8]),'west':F('#lien',[8,4,9,8]),
-                'up':F('#lien',[6,6,10,7]),'down':F('#lien',[6,9,10,10])}))
-    m={'render_type':'minecraft:cutout','textures':{'peau':tex,'particle':tex}|({'lien':'fallow:item/cuir_mouille'} if sangles else {}),'elements':els}
+    assert d['y']<=4 and max(d['x'],d['z'])<=16
+    f={}
+    for k in ('north','south','east','west'):
+        w=d['x'] if k in ('north','south') else d['z']
+        # les bandes nord et sud montrent le fil en long, est et ouest les bouts des planches : une pièce en long
+        # sur z prend donc les bandes nord et sud pour ses côtés est et ouest, et inversement
+        q=k if long=='x' else {'north':'east','south':'west','east':'north','west':'south'}[k]
+        b=BANDE[q]; f[k]=F('#bois',U(b,20-d['y'],b+w,20))
+    if long=='x':
+        f['up']=F('#bois',U(16,0,16+d['x'],d['z'])); f['down']=F('#bois',U(32,0,32+d['x'],d['z']))
+    else:   # le fil des planches suit la pièce : image tournée d'un quart
+        f['up']=F('#bois',U(16,0,16+d['z'],d['x']),90); f['down']=F('#bois',U(32,0,32+d['z'],d['x']),90)
+    return box(fr,to,f)
+def pied(fr,to):
+    """Pièce debout : côtés pris dans ceux du pied, calés en bas (le bas sombre reste au sol)."""
+    w,h,p=to[0]-fr[0],to[1]-fr[1],to[2]-fr[2]
+    assert w<=3 and p<=3 and h<=12
+    col={'east':0,'north':3,'west':6,'south':9}
+    f={}
+    for k in ('north','south','east','west'):
+        l=w if k in ('north','south') else p
+        f[k]=F('#bois',U(col[k],15-h,col[k]+l,15))
+    f['up']=F('#bois',U(3,0,3+w,p)); f['down']=F('#bois',U(6,0,6+w,p))
+    return box(fr,to,f)
+def objet(path,parent,els,tex):
+    m={'render_type':'minecraft:cutout','textures':{'peau':tex,'particle':tex},'elements':els}
     if parent: m['parent']=parent
     W(path,m)
-peau_pliee('block/chevalet_peau.json','fallow:item/peau_brute')
-peau_pliee('diegesis/peau_chevalet_brute.json','fallow:item/peau_brute','minecraft:block/block')
-peau_pliee('diegesis/peau_chevalet_raclee.json','fallow:item/peau_raclee','minecraft:block/block',sangles=False,g=0.02)
 
-# ---------- séchoir : une barre sur deux montants, le cuir jeté dessus ----------
+# ---------- chevalet : un banc de tanneur, la peau posée dessus comme un objet de Hands-On ----------
+el=[plateau([3,8,0],[13,12,16],'z')]                                       # le plateau, 10 × 4 × 16
+el.append(plateau([5,6,3],[11,8,13],'z'))                                  # la ceinture sous le plateau, comme la table de chevet de Handcrafted
+for z0 in (2,11):
+    for x0 in (4,9):
+        el.append(pied([x0,0,z0],[x0+3,8,z0+3]))                           # quatre pieds, 3 × 8 × 3
+for x0 in (4,9):
+    el.append(plateau([x0+1,2,5],[x0+2,3,11],'z'))                         # les entretoises basses, d'un pied à l'autre
+W('block/chevalet.json',{'parent':'minecraft:block/block','textures':{'bois':HC,'particle':PL},'elements':el})
+def peau_posee(path,tex,parent=None,g=0.01):
+    # l'image de l'objet à plat, 8 × 8 (la moitié de sa taille, comme dans un cadre ou sur l'établi de Hands-On)
+    objet(path,parent,[box([4,12+g,4],[12,12+g,12],{'up':F('#peau',[0,0,16,16]),'down':F('#peau',[0,16,16,0])})],tex)
+peau_posee('block/chevalet_peau.json','fallow:item/peau_brute')
+peau_posee('diegesis/peau_chevalet_brute.json','fallow:item/peau_brute','minecraft:block/block')
+peau_posee('diegesis/peau_chevalet_raclee.json','fallow:item/peau_raclee','minecraft:block/block',g=0.02)
+
+# ---------- séchoir : une barre sur deux montants, le cuir pendu dessous comme un objet ----------
 el=[]
-fe=Feuille()
-for x0 in (0,14):
-    el.append(planche(fe,[x0,0,3],[x0+2,2,13],'z',cull='down'))             # patins
-    el.append(planche(fe,[x0,2,7],[x0+2,16,10],'y'))                        # montants, le cuir passe entre eux
-el.append(planche(fe,[2,12,7],[14,15,10],'x'))                              # la barre
-fe.sauve('sechoir')
-W('block/sechoir.json',{'parent':'minecraft:block/block','textures':{'bois':'fallow:block/tannerie/sechoir','particle':PL},'elements':el})
-def cuir_tendu(path,tex,g=0.0):
-    # l'image de l'objet au pixel, jetée sur la barre : ses lignes 1 et 2 sur le dessus (z 9 à 7),
-    # ses lignes 3 à 14 pendant devant, de y 15 à 3, ses colonnes 2 à 13 de x 2 à 14
-    W(path,{'render_type':'minecraft:cutout','textures':{'peau':tex,'particle':tex},'elements':[
-      box([2-g,15.01+g,7-0.01-g],[14+g,15.01+g,9],{'up':F('#peau',[2,1,14,3]),'down':F('#peau',[2,3,14,1])}),
-      box([2-g,3-g,6.99-g],[14+g,15.01+g,6.99-g],{'north':F('#peau',[2,3,14,15]),'south':F('#peau',[14,3,2,15])})]})
-cuir_tendu('block/sechoir_humide.json','fallow:item/cuir_mouille')
-cuir_tendu('block/sechoir_sec.json',CUIR)
-cuir_tendu('diegesis/cuir_tendu_sec.json',CUIR,g=0.02)
+for x0 in (1,12):
+    el.append(plateau([x0,0,3],[x0+3,2,13],'z'))                           # patins
+    el.append(pied([x0,2,7],[x0+3,12,10]))                                 # montants
+el.append(plateau([0,12,6],[16,16,10],'x'))                                # la barre, 16 × 4 × 4
+for x0 in (4,11):
+    el.append(pied([x0,10,5],[x0+1,12,6]))                                 # deux chevilles, où le cuir est accroché
+W('block/sechoir.json',{'parent':'minecraft:block/block','textures':{'bois':HC,'particle':PL},'elements':el})
+def cuir_pendu(path,tex,g=0.0):
+    # l'image de l'objet, 10 × 10, pendue sous la barre, devant elle (z 6)
+    objet(path,None,[box([3-g,2-g,5.99-g],[13+g,12,5.99-g],{'north':F('#peau',[0,0,16,16]),'south':F('#peau',[16,0,0,16])})],tex)
+cuir_pendu('block/sechoir_humide.json','fallow:item/cuir_mouille')
+cuir_pendu('block/sechoir_sec.json',CUIR)
+cuir_pendu('diegesis/cuir_tendu_sec.json',CUIR,g=0.02)
 
 # ---------- cuve : un tonneau ouvert, bâti comme le composteur vanilla ----------
 el=[]
@@ -143,14 +112,10 @@ W('block/cuve_a_tan.json',{'parent':'minecraft:block/block','textures':{
  'particle':'minecraft:block/barrel_side'},'elements':el})
 
 def peau_flottante(path,tex,y,parent=None):
-    # la peau pliée en quatre, au pixel : le milieu de l'image (8 × 8) dessus, un pixel d'épaisseur
-    m={'render_type':'minecraft:cutout','textures':{'peau':tex,'particle':tex},
-       'elements':[box([4,y,4],[12,y+1,12],{'up':F('#peau',[4,3,12,11]),'down':F('#peau',[4,11,12,3]),
-         'north':F('#peau',[4,3,12,4]),'south':F('#peau',[4,10,12,11]),'west':F('#peau',[4,3,5,11],90),'east':F('#peau',[11,3,12,11],90)})]}
-    if parent: m['parent']=parent
-    W(path,m)
-peau_flottante('block/cuve_a_tan_peaux.json','fallow:item/peau_raclee',13)
-peau_flottante('block/cuve_a_tan_cuir.json','fallow:item/cuir_mouille',13)
+    # l'image de l'objet à plat, 6 × 6, comme les objets posés de Hands-On
+    objet(path,parent,[box([5,y,5],[11,y,11],{'up':F('#peau',[0,0,16,16]),'down':F('#peau',[0,16,16,0])})],tex)
+peau_flottante('block/cuve_a_tan_peaux.json','fallow:item/peau_raclee',13.01)
+peau_flottante('block/cuve_a_tan_cuir.json','fallow:item/cuir_mouille',13.01)
 peau_flottante('diegesis/peau_raclee.json','fallow:item/peau_raclee',0,'minecraft:block/block')
 peau_flottante('diegesis/cuir_mouille.json','fallow:item/cuir_mouille',0,'minecraft:block/block')
 print('ok')

@@ -223,8 +223,8 @@ public class SechoirBlock extends HorizontalDirectionalBlock implements Ouvrage 
     @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
         if (state.getValue(ETAT) == Etat.HUMIDE && random.nextInt(8) == 0) {
-            // Sous le bas du cuir, qui est à 5 pixels de l'avant du cadre.
-            Vec3 bas = surCuir(state, pos, 0.25 + random.nextDouble() * 0.5, 0.25);
+            // Sous le bas du cuir pendu (à 2 pixels du sol, devant la barre).
+            Vec3 bas = surCuir(state, pos, 0.25 + random.nextDouble() * 0.5, 0.12);
             level.addParticle(net.minecraft.core.particles.ParticleTypes.DRIPPING_WATER, bas.x, bas.y, bas.z, 0.0, 0.0, 0.0);
         }
         // Près d'un feu ou au soleil, le cuir mouillé fume un peu : on le voit sécher en passant (la recherche du feu, qui coûte,
@@ -233,7 +233,7 @@ public class SechoirBlock extends HorizontalDirectionalBlock implements Ouvrage 
             String cause = cause(level, pos);
             int fois = "feu".equals(cause) ? 2 : "soleil".equals(cause) && random.nextBoolean() ? 1 : 0;
             for (int i = 0; i < fois; i++) {
-                Vec3 face = surCuir(state, pos, 0.25 + random.nextDouble() * 0.5, 0.3 + random.nextDouble() * 0.55);
+                Vec3 face = surCuir(state, pos, 0.25 + random.nextDouble() * 0.5, 0.2 + random.nextDouble() * 0.5);
                 level.addParticle(net.minecraft.core.particles.ParticleTypes.WHITE_SMOKE, face.x, face.y, face.z, 0.0, 0.015, 0.0);
             }
         }
@@ -244,7 +244,7 @@ public class SechoirBlock extends HorizontalDirectionalBlock implements Ouvrage 
      * (0 à 1). Vu du nord, le cuir est au milieu du bloc, à z = 8 pixels.
      */
     static Vec3 surCuir(BlockState state, BlockPos pos, double u, double h) {
-        double profondeur = 6.6 / 16.0;
+        double profondeur = 5.6 / 16.0;
         double x;
         double z;
         switch (state.getValue(FACING)) {
