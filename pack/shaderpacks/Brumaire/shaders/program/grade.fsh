@@ -422,6 +422,10 @@ void main() {
                    * smoothstep(-0.40, -0.05, (color.g - color.r) / max(mx, 1e-4))
                    * smoothstep(0.003, 0.03, l) * smoothstep(0.08, 0.20, chroma) * (1.0 - 0.7 * smoothstep(0.45, 0.80, chroma)) * step(texture(depthtex0, vUv).r, 0.99999);
         vec3 warm = color * vec3(1.03, 1.0, 0.86);
+#if RAIN_GLOOM > 0
+        // L'herbe mouillée reste verte sous le gris chaud de la pluie (Recrafted : teinte 63-67°, pas un kaki).
+        warm.r *= mix(1.0, 0.92, gloom);
+#endif
         warm *= l / max(dot(warm, LUMA), 1e-5);
         warm = mix(vec3(l), warm, 1.0 + 0.45 * (1.0 - smoothstep(0.15, 0.50, chroma)));
         color = mix(color, warm, leaf * FOLIAGE_TONE);
