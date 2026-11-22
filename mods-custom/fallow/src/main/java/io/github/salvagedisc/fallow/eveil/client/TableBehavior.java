@@ -89,10 +89,13 @@ final class TableBehavior implements StationBehavior {
     private static final float PETITE_LIGNE = 7.0F;
     private static final float PIED = 140.0F;
 
-    /** Les encres : le texte en brun presque noir, les titres en sépia, les forces en violet d'encre, l'à-côté en brun pâli. */
+    /**
+     * Les encres, celles des autres livres : le texte en brun presque noir, les titres en sépia, les forces à l'encre rouge des
+     * rubriques, l'à-côté en brun pâli.
+     */
     private static final int ENCRE = 0x2A2016;
     private static final int SEPIA = 0x7A5A2E;
-    private static final int VIOLET = 0x45287A;
+    private static final int RUBRIQUE = 0x8A2E20;
     private static final int PALE = 0x5E4D38;
     private static final int ROUGE = 0xAA0000;
     private static final int FILET = 0x7A6545;
@@ -1078,7 +1081,7 @@ final class TableBehavior implements StationBehavior {
                 signes.append(i < etat.occupees() ? '\u25C6' : '\u25C7').append(' ');
             }
             String places = signes.toString().trim();
-            canvas.text(Component.literal(places).getVisualOrderText(), nomX, y - 1.0F, VIOLET, 1.0F);
+            canvas.text(Component.literal(places).getVisualOrderText(), nomX, y - 1.0F, RUBRIQUE, 1.0F);
             // Et le mot de son attachement, à la suite : négligé, entretenu, chéri.
             int lien = Lien.de(objet);
             if (lien != Lien.AUCUN) {
@@ -1098,7 +1101,7 @@ final class TableBehavior implements StationBehavior {
                 if (y > 86.0F) {
                     break;
                 }
-                y = paragraphe(canvas, nomEncre(trace.enchantement(), trace.niveau()), GAUCHE_X + 2.0F, y, 1.0F, VIOLET, 2) - 1.0F;
+                y = paragraphe(canvas, nomEncre(trace.enchantement(), trace.niveau()), GAUCHE_X + 2.0F, y, 1.0F, RUBRIQUE, 2) - 1.0F;
                 Component detail = trace.eclat().isPresent()
                         ? Component.translatable("eveil.fallow.livre.trace.eclat", trace.jour(), trace.par(),
                                 Component.translatable(trace.eclat().get()))
@@ -1143,9 +1146,9 @@ final class TableBehavior implements StationBehavior {
         canvas.text(mots.getVisualOrderText(), GAUCHE_X, PIED - 2.0F, taille, SEPIA, 1.0F);
         if (avancee >= 0.0F) {
             float large = LARGE - 2.0F * GAUCHE_X;
-            canvas.rect(GAUCHE_X, PIED + 7.0F, large, 0.8F, OpenBook.MARK_LIFT, 0x70000000 | FILET);
-            canvas.rect(GAUCHE_X, PIED + 6.6F, large * Mth.clamp(avancee, 0.0F, 1.0F), 1.6F, OpenBook.MARK_LIFT * 1.2F,
-                    0xE0000000 | (avancee >= 1.0F ? VIOLET : SEPIA));
+            canvas.rect(GAUCHE_X, PIED + 7.2F, large, 0.5F, OpenBook.MARK_LIFT, 0x60000000 | FILET);
+            canvas.rect(GAUCHE_X, PIED + 6.95F, large * Mth.clamp(avancee, 0.0F, 1.0F), 1.0F, OpenBook.MARK_LIFT * 1.2F,
+                    0xE0000000 | (avancee >= 1.0F ? RUBRIQUE : SEPIA));
         }
     }
 
@@ -1238,7 +1241,7 @@ final class TableBehavior implements StationBehavior {
         }
         // La force de l'éclat, en runes jusqu'à ce qu'on la lise ; la bande couvre exactement ce qui se lit.
         List<Ligne> force = new ArrayList<>();
-        ajouter(force, nomEncre(eclat.enchantement(), eclat.niveau()), revele, 1.0F, VIOLET, Style.EMPTY, 2, 0.0F);
+        ajouter(force, nomEncre(eclat.enchantement(), eclat.niveau()), revele, 1.0F, RUBRIQUE, Style.EMPTY, 2, 0.0F);
         String pouvoir = "eveil.fallow.pouvoir." + eclat.enchantement().getNamespace() + "." + eclat.enchantement().getPath();
         if (I18n.exists(pouvoir)) {
             ajouter(force, Component.translatable(pouvoir), revele, PETIT, ENCRE, Style.EMPTY, 3, 1.0F);
@@ -1298,9 +1301,9 @@ final class TableBehavior implements StationBehavior {
         float sousLeNom = -1.0F;
         for (Ligne ligne : texte) {
             y += ligne.avant();
-            boolean nom = ligne.taille() == 1.0F && ligne.encre() == VIOLET;
+            boolean nom = ligne.taille() == 1.0F && ligne.encre() == RUBRIQUE;
             if (nom) {
-                canvas.brightText(ligne.texte(), DROITE_X, y, 1.0F, VIOLET, lueur, vive ? 0.75F : souffle, 0.05F);
+                canvas.brightText(ligne.texte(), DROITE_X, y, 1.0F, RUBRIQUE, lueur, vive ? 0.75F : souffle, 0.05F);
             }
             canvas.text(ligne.texte(), DROITE_X, y, ligne.taille(), vive && !nom ? sombre(ligne.encre()) : ligne.encre(),
                     nom ? lettres : 1.0F);
@@ -1311,7 +1314,7 @@ final class TableBehavior implements StationBehavior {
         }
         if (tenu > 0.0F && sousLeNom >= 0.0F) {
             float large = LARGE - DROITE_X - MARGE;
-            canvas.rect(DROITE_X, sousLeNom, large * tenu, 1.0F, OpenBook.MARK_LIFT * 1.2F, 0xE0000000 | VIOLET);
+            canvas.rect(DROITE_X, sousLeNom, large * tenu, 1.0F, OpenBook.MARK_LIFT * 1.2F, 0xE0000000 | RUBRIQUE);
         }
         return y;
     }
@@ -1347,7 +1350,7 @@ final class TableBehavior implements StationBehavior {
         List<Ligne> texte = new ArrayList<>();
         ResourceLocation id = ResourceLocation.tryParse(voie.getString(TableEveil.ENCHANTEMENT));
         int niveau = voie.getInt(TableEveil.NIVEAU);
-        ajouter(texte, id == null ? Component.literal("?") : nomEncre(id, niveau), revele, 1.0F, VIOLET, Style.EMPTY, 2, 0.0F);
+        ajouter(texte, id == null ? Component.literal("?") : nomEncre(id, niveau), revele, 1.0F, RUBRIQUE, Style.EMPTY, 2, 0.0F);
         if (id != null && niveau > 1) {
             ajouter(texte, Component.translatable("eveil.fallow.livre.avant", nomEncre(id, niveau - 1)), revele, PETIT, PALE,
                     Style.EMPTY, 1, 0.0F);
@@ -1416,10 +1419,9 @@ final class TableBehavior implements StationBehavior {
         return y;
     }
 
-    /** Un filet d'encre pâlie avec un point au milieu, comme entre deux parties d'un livre. */
+    /** Le filet des livres, un losange au milieu, comme entre deux parties d'un livre. */
     private static void filet(OpenBook.Canvas canvas, float y) {
-        canvas.rect(18.0F, y, LARGE - 36.0F, 0.7F, OpenBook.MARK_LIFT, 0x70000000 | FILET);
-        canvas.rect(LARGE / 2.0F - 1.4F, y - 1.05F, 2.8F, 2.8F, OpenBook.MARK_LIFT, 0x70000000 | FILET);
+        canvas.rule(18.0F, y + 0.35F, LARGE - 36.0F);
     }
 
     /** Trois points sous une phrase seule. */

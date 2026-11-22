@@ -83,7 +83,14 @@ public final class PageParts {
 
     /** The rule under a recipe's name, {@code wide} across, its line at {@code y}. */
     public static void rule(PoseStack poseStack, MultiBufferSource buffers, int light, float x, float y, float wide, float lift) {
-        sprite(poseStack, buffers, light, x, y - 2.0F, wide, 4.0F, lift, 0, 76, 106, 8);
+        rule(poseStack, buffers, light, x, y, wide, lift, 255);
+    }
+
+    /** The rule, {@code alpha} (0 to 255) opaque: in a book whose ink fades in. */
+    public static void rule(PoseStack poseStack, MultiBufferSource buffers, int light, float x, float y, float wide, float lift,
+            int alpha) {
+        VertexConsumer consumer = buffers.getBuffer(RenderType.text(TEXTURE));
+        quad(consumer, poseStack.last().pose(), light, x, y - 2.0F, x + wide, y + 2.0F, lift, 0, 76, 106, 84, alpha);
     }
 
     private static void sprite(PoseStack poseStack, MultiBufferSource buffers, int light, float x, float y, float wide, float high,
@@ -119,13 +126,18 @@ public final class PageParts {
 
     private static void quad(VertexConsumer consumer, Matrix4f matrix, int light, float x0, float y0, float x1, float y1, float lift,
             float u0, float v0, float u1, float v1) {
+        quad(consumer, matrix, light, x0, y0, x1, y1, lift, u0, v0, u1, v1, 255);
+    }
+
+    private static void quad(VertexConsumer consumer, Matrix4f matrix, int light, float x0, float y0, float x1, float y1, float lift,
+            float u0, float v0, float u1, float v1, int alpha) {
         u0 /= ATLAS;
         u1 /= ATLAS;
         v0 /= ATLAS;
         v1 /= ATLAS;
-        consumer.addVertex(matrix, x0, y0, lift).setColor(255, 255, 255, 255).setUv(u0, v0).setLight(light);
-        consumer.addVertex(matrix, x0, y1, lift).setColor(255, 255, 255, 255).setUv(u0, v1).setLight(light);
-        consumer.addVertex(matrix, x1, y1, lift).setColor(255, 255, 255, 255).setUv(u1, v1).setLight(light);
-        consumer.addVertex(matrix, x1, y0, lift).setColor(255, 255, 255, 255).setUv(u1, v0).setLight(light);
+        consumer.addVertex(matrix, x0, y0, lift).setColor(255, 255, 255, alpha).setUv(u0, v0).setLight(light);
+        consumer.addVertex(matrix, x0, y1, lift).setColor(255, 255, 255, alpha).setUv(u0, v1).setLight(light);
+        consumer.addVertex(matrix, x1, y1, lift).setColor(255, 255, 255, alpha).setUv(u1, v1).setLight(light);
+        consumer.addVertex(matrix, x1, y0, lift).setColor(255, 255, 255, alpha).setUv(u1, v0).setLight(light);
     }
 }

@@ -2,9 +2,11 @@ package io.github.salvagedisc.fallow.mixin.livres;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.ItemStack;
+import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
@@ -36,6 +38,11 @@ abstract class HovRecipeSheetMixin implements HovSheetState {
     private static final int RULE = 0x405A3C18;
     private static final int FRESH = 0xFFB5372B;
     private static final int FOLD = 0x285A3C18;
+    private static final int INK = 0xFF4A3418;
+    /** Where Hands-On Vanilla 1.2.2 writes the count of a dish: its top, DISH_Y + DISH_SIZE - the line's height + 2. */
+    private static final float DISH_COUNT_Y = 2.0F + 16.0F - 9.0F + 2.0F;
+    /** As Hands-On Vanilla writes on its pages: at the icons' lift. */
+    private static final float COUNT_LIFT = 1.2F;
 
     @Unique
     private boolean fallow$left;
@@ -105,14 +112,17 @@ abstract class HovRecipeSheetMixin implements HovSheetState {
         }
         int light = HovRecipeBooks.light(this);
         float high = chosen ? 14.0F : 11.0F;
-        float bottom = chosen ? 1.0F : 0.0F;
+        // Every tab stops at the page's edge: nothing of them lies on the page.
+        float bottom = 0.0F;
         PageParts.tab(poseStack, buffers, light, x, -high, wide, bottom, chosen ? 0.25F : 0.05F,
                 chosen ? PageParts.Tab.OPEN : lit ? PageParts.Tab.LIT : PageParts.Tab.REST);
         if (washed) {
             rect(x + 1.0F, -high + 1.0F, wide - 2.0F, high - 1.0F + bottom, 0.3F, WELL_READY);
         }
         if (!icon.isEmpty()) {
-            item(icon, x + (wide - iconSize) / 2.0F, -high + 2.0F - nod, iconSize, !chosen && !lit && !washed);
+            // The icon keeps inside its tab, a unit off its foot: nothing of it lies on the page.
+            float size = Math.min(iconSize, high - 3.0F);
+            item(icon, x + (wide - size) / 2.0F, -high + 2.0F - nod, size, !chosen && !lit && !washed);
         }
         if (marked) {
             PageParts.mark(poseStack, buffers, light, x + wide - 2.5F, -high - nod + 2.5F, 1.95F);
@@ -123,7 +133,7 @@ abstract class HovRecipeSheetMixin implements HovSheetState {
     @Inject(method = "slip", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void fallow$fiche(float x, float wide, float high, boolean lit, CallbackInfo callback) {
         if (HovRecipeBooks.dogEarsReady(this)) {
-            PageParts.slip(poseStack, buffers, HovRecipeBooks.light(this), x, -high, wide, 1.0F, 0.25F, lit);
+            PageParts.slip(poseStack, buffers, HovRecipeBooks.light(this), x, -high, wide, 0.0F, 0.25F, lit);
             callback.cancel();
         }
     }
@@ -182,6 +192,22 @@ abstract class HovRecipeSheetMixin implements HovSheetState {
         } else {
             return;
         }
+        callback.cancel();
+    }
+
+    /**
+     * Le nombre que fait une recette, au pied du plat (le seul texte fait de chiffres écrit à cette hauteur) : juste à droite de
+     * l'icône, plus sur son coin, où l'icône d'un bloc, dessinée après, le cachait.
+     */
+    @Inject(method = "text(Ljava/lang/String;FF)V", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
+    private void fallow$nombre(String text, float x, float y, CallbackInfo callback) {
+        if (y != DISH_COUNT_Y || text.isEmpty() || !text.chars().allMatch(Character::isDigit) || !HovRecipeBooks.dogEarsReady(this)) {
+            return;
+        }
+        Font font = Minecraft.getInstance().font;
+        Matrix4f matrix = new Matrix4f(poseStack.last().pose()).translate(0.0F, 0.0F, COUNT_LIFT);
+        font.drawInBatch(text, x + font.width(text) - 1.0F, y, INK, false, matrix, buffers, Font.DisplayMode.NORMAL, 0,
+                HovRecipeBooks.light(this));
         callback.cancel();
     }
 }

@@ -10,7 +10,9 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import io.github.salvagedisc.fallow.livres.client.GutterShade;
 import io.github.salvagedisc.fallow.livres.client.OpenSheets;
 
 /**
@@ -87,5 +89,11 @@ abstract class HovOpenBookMixin {
         if (bent) {
             callback.cancel();
         }
+    }
+
+    /** Le pli : l'ombre qui remonte doucement hors de la gouttière ({@link GutterShade}), prise au milieu de chaque bande. */
+    @Inject(method = "shade", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
+    private static void fallow$ombreDuPli(float along, CallbackInfoReturnable<Integer> callback) {
+        callback.setReturnValue(along >= GutterShade.GUTTER ? 0xFFFFFF : GutterShade.at(along + GutterShade.GUTTER / 8.0F));
     }
 }

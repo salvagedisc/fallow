@@ -3,12 +3,12 @@ book and the awakening book of the enchanting table.
 
 Each page is drawn texel by texel from a fixed seed, so a rerun gives the same files: soft, cloudy paper, the edges of the leaves
 under it showing along its outer side, a little worn (corners rounded and darker, a few nicks, a short tear, a crease, a faint
-water ring), shaded towards the fold. Nothing is ruled on the recipe and lectern pages: the cover is their border. The awakening
-book alone has one fine rule in violet ink, with a small star at each corner. All the wear keeps to the margins the books leave.
+water ring, foxing, the outer corner of the foot greyed by thumbs), shaded towards the fold. Nothing is ruled on any page: the
+cover is their border, the page furniture and the ink do the rest. All the wear keeps to the margins the books leave.
 
 The corner turned down at the foot of a page that has a next one (or a previous one) is a sprite of its own, coin_de_page.png:
 the flap of paper folded over, its shadow, and the page under it; its second column is the same corner lifted a little more,
-under the cursor; its second row is the awakening book's paper. It is drawn two texels to a unit, as are the furniture of the
+under the cursor; its second row is the lectern's and the awakening book's paper. It is drawn two texels to a unit, as are the furniture of the
 recipe books' pages, livre_elements.png (tabs, the search slip, wells, the frame round a picked one, the card of a group, the
 magnifier, the mark of a new recipe, the rule under a name).
 
@@ -233,36 +233,6 @@ class Page:
         inside = np.clip((radius - d) / radius, 0.0, 1.0) * on * 0.25
         self.rgb = mix(self.rgb, self.edge * 0.9, rim * strength + inside * strength)
 
-    def dot(self, x, y, strength):
-        if 0 <= x < self.w and 0 <= y < self.h:
-            self.rgb[y, x] = mix(self.rgb[y, x][None, None], self.ink, strength)[0, 0]
-
-    def hline(self, x0, x1, y, strength, every=1):
-        for x in range(x0, x1 + 1):
-            if (x - x0) % every == 0:
-                self.dot(x, y, strength)
-
-    def vline(self, x, y0, y1, strength, every=1):
-        for y in range(y0, y1 + 1):
-            if (y - y0) % every == 0:
-                self.dot(x, y, strength)
-
-    def star(self, cx, cy, strength):
-        """A four-pointed star of five texels, with a fainter halo: the awakening book's corners."""
-        for dx, dy in ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1)):
-            self.dot(cx + dx, cy + dy, strength)
-        for dx, dy in ((2, 0), (-2, 0), (0, 2), (0, -2)):
-            self.dot(cx + dx, cy + dy, strength * 0.45)
-
-    def ring(self, cx, cy, radius, strength, gap=0):
-        """A thin circle, dotted when `gap` is set: the watermark of the awakening book."""
-        steps = int(radius * 8)
-        for i in range(steps):
-            if gap and (i // 2) % gap:
-                continue
-            a = i / steps * np.pi * 2
-            self.dot(int(round(cx + np.cos(a) * radius)), int(round(cy + np.sin(a) * radius)), strength)
-
     def image(self):
         rgb = np.clip(np.rint(self.rgb), 0, 255).astype(np.uint8)
         return Image.fromarray(np.dstack([rgb, self.alpha]), "RGBA")
@@ -317,15 +287,13 @@ def recipe_paper(path, seed):
     img.save(path)
 
 
-def big_paper(path, seed, mystic):
+def big_paper(path, seed):
     """The lectern's and the enchanting table's books: a whole sheet of 115 x 154 texels in a 128 x 256 texture, the fold on the
-    left, its first 17 texels arching up out of the gutter, what is written on the flat part beyond them."""
-    if mystic:
-        page = Page(115, 154, seed, paper=(240, 231, 212), edge=(186, 160, 132), ink=(84, 54, 140), fold_width=22)
-    else:
-        page = Page(115, 154, seed, paper=(249, 240, 215), edge=(210, 176, 120), ink=(116, 80, 44), fold_width=22)
+    left, its first 17 texels arching up out of the gutter, what is written on the flat part beyond them. The awakening book is
+    paper like the others (another seed): no frame, the page furniture and the ink do the rest."""
+    page = Page(115, 154, seed, paper=(249, 240, 215), edge=(210, 176, 120), ink=(116, 80, 44), fold_width=22)
     page.clouds(strength=0.055, light_patches=7)
-    page.age(mottle=0.0, grain=0.008, yellowing=0.52 if not mystic else 0.55, wear=6.0)
+    page.age(mottle=0.0, grain=0.008, yellowing=0.52, wear=6.0)
     page.fibres(140)
     page.foxing(4, strength=0.15)
     page.fold(depth=0.10)
@@ -336,18 +304,6 @@ def big_paper(path, seed, mystic):
     page.tear(y=97, length=4)
     page.crease(x0=113, y0=1, length=8)
     page.water_ring(cx=104.0, cy=162.0, radius=16.0, start=3.5, sweep=1.4)
-    if mystic:
-        # The awakening book: one fine rule in violet ink on the flat part, a small star where it turns, and the table's ring
-        # as a watermark. What the book writes stays 8 units inside it.
-        page.hline(23, 109, 4, 0.34)
-        page.hline(23, 109, 149, 0.34)
-        page.vline(21, 6, 147, 0.34)
-        page.vline(111, 6, 147, 0.34)
-        for cx, cy in ((21, 4), (111, 4), (21, 149), (111, 149)):
-            page.star(cx, cy, 0.62)
-        page.ring(66, 77, 30, 0.06)
-        page.ring(66, 77, 24, 0.04, gap=3)
-        page.ring(66, 77, 9, 0.05)
     img = Image.new("RGBA", (128, 256), (0, 0, 0, 0))
     img.paste(page.image(), (0, 0))
     img.save(path)
@@ -361,7 +317,7 @@ def dog_ear(path, fine=2):
     rest, lifted further under the cursor. Rows: the recipe and lectern paper, the awakening book's."""
     n = 16 * fine
     img = Image.new("RGBA", (2 * n, 2 * n), (0, 0, 0, 0))
-    papers = (((248, 240, 216), (208, 178, 128)), ((240, 231, 212), (186, 160, 132)))
+    papers = (((248, 240, 216), (208, 178, 128)), ((249, 240, 215), (210, 176, 120)))
     folds = (((5.0, 16.0), (16.0, 3.5)), ((3.0, 16.0), (16.0, 1.0)))
     curl = 0.82
     line = 1.0 / fine
@@ -417,7 +373,7 @@ def elements(path):
       tabs, 16 x 16 at (0, 0), (16, 0), (32, 0): behind the page, under the cursor, open; drawn in nine pieces, 5 texels a side;
       the search slip, 16 x 16 at (48, 0) and lit at (64, 0), in nine pieces too;
       wells, 34 x 34 at (0, 16) and ready (craftable) at (34, 16); the frame round a picked one at (68, 16);
-      the card a group of recipes opens on, 24 x 24 at (0, 52), nine pieces of 8;
+      the card a group of recipes opens on, 24 x 24 at (0, 52) (its shadow in its last texel), nine pieces of 8;
       the magnifier, 16 x 16 at (24, 52); the mark of a new recipe, 8 x 8 at (40, 52);
       the gutter's shade, 16 x 8 at (48, 52), the fold on its left: a fine dark line and a shade fading over 8 units;
       the rule under a recipe's name, 106 x 8 at (0, 76).
@@ -526,19 +482,25 @@ def elements(path):
                 put(68 + x, 16 + y, lit_ink, 1.0)
             elif 2 <= x < 32 and 2 <= y < 32 and inner_rim[y - 2, x - 2]:
                 put(68 + x, 16 + y, (214, 176, 120), 0.7)
-    # The card: a panel a shade darker than the paper, a fine rounded line round it and a fainter one inside.
-    inside, rim = rounded(0, 0, 24, 24, 4)
-    inner_in, inner_rim = rounded(0, 0, 20, 20, 3)
-    for y in range(24):
-        for x in range(24):
+    # The card: a slip of whiter card laid on the page, its shadow a texel down and right, a fine rounded line round it and a
+    # fainter one inside (Scholar's sub-menus are cards on the page; this one is drawn here, in our colours).
+    inside, rim = rounded(0, 0, 23, 23, 4)
+    inner_in, inner_rim = rounded(0, 0, 19, 19, 3)
+    for y in range(23):
+        for x in range(23):
+            if inside[y, x]:
+                over(x + 1, 52 + y + 1, (90, 60, 30), 0.22)
+    for y in range(23):
+        for x in range(23):
             if not inside[y, x]:
                 continue
-            # At least 0.12 opaque (what is under 0.1 is thrown away), in a paler brown that shades as 0.07 of the ink would.
-            over(x, 52 + y, PAPER + (np.array((120, 86, 44), np.float32) - PAPER) * (0.07 / 0.12), 0.12)
+            put(x, 52 + y, (253, 249, 236), 0.88)
             if rim[y, x]:
-                over(x, 52 + y, ink, 0.55)
-            elif 2 <= x < 22 and 2 <= y < 22 and inner_rim[y - 2, x - 2]:
+                over(x, 52 + y, ink, 0.6)
+            elif 2 <= x < 21 and 2 <= y < 21 and inner_rim[y - 2, x - 2]:
                 over(x, 52 + y, ink, 0.22)
+            elif y == 1:
+                over(x, 52 + y, (255, 255, 255), 0.5)
     # The magnifier: a ring of brown round a pale glass with a glint, and its handle.
     for y in range(16):
         for x in range(16):
@@ -593,8 +555,8 @@ def main():
     HOV.mkdir(parents=True, exist_ok=True)
     recipe_paper(FALLOW / "livre_de_recettes_papier.png", seed=11)
     recipe_paper(HOV / "recipe_book_paper.png", seed=11)
-    big_paper(FALLOW / "livre_d_eveil_papier.png", seed=23, mystic=True)
-    big_paper(HOV / "enchanting_book_paper.png", seed=31, mystic=False)
+    big_paper(FALLOW / "livre_d_eveil_papier.png", seed=23)
+    big_paper(HOV / "enchanting_book_paper.png", seed=31)
     dog_ear(FALLOW / "coin_de_page.png")
     elements(FALLOW / "livre_elements.png")
 

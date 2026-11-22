@@ -61,6 +61,8 @@ public final class FallowMixinPlugin implements IMixinConfigPlugin {
             Map.entry("livres.HovRecipeBookMixin", List.of(ModIds.HANDS_ON_VANILLA)),
             Map.entry("livres.HovRecipeSheetMixin", List.of(ModIds.HANDS_ON_VANILLA)),
             Map.entry("livres.HovLecternCanvasMixin", List.of(ModIds.HANDS_ON_VANILLA)),
+            Map.entry("livres.HovRecipeBookModelMixin", List.of(ModIds.HANDS_ON_VANILLA)),
+            Map.entry("livres.HovEnchantingBookModelMixin", List.of(ModIds.HANDS_ON_VANILLA)),
             Map.entry("navires.VoileMixin", List.of(ModIds.FISH_N_SHIPS)),
             Map.entry("feuillage.ChuteDansLesFeuillesMixin", List.of(ModIds.PASSABLE_FOLIAGE)));
 
@@ -81,6 +83,8 @@ public final class FallowMixinPlugin implements IMixinConfigPlugin {
             Map.entry("livres.HovRecipeSheetMixin", List.of("arrow", "paper", "poseStack", "buffers", "item", "text", "rect", "tab",
                     "slip", "magnifier", "frame", "outline")),
             Map.entry("livres.HovLecternCanvasMixin", List.of("arrow", "poseStack", "buffers", "light", "wide", "high")),
+            Map.entry("livres.HovRecipeBookModelMixin", List.of("createBodyLayer", "setupAnim", "frontCover", "backCover")),
+            Map.entry("livres.HovEnchantingBookModelMixin", List.of("createBodyLayer", "setupAnim", "leftLid", "rightLid")),
             Map.entry("navires.VoileMixin", List.of("moveWithSailDown")),
             Map.entry("feuillage.ChuteDansLesFeuillesMixin", List.of("onEntityCollidedWithLeaves")));
 

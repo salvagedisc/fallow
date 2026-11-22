@@ -1,12 +1,12 @@
 """Covers of the books read in the world: the recipe books of the stations (Hands-On Vanilla's crafting table and Fallow's
 tannery and forge), the lectern's book and the awakening book of the enchanting table.
 
-Each texture keeps the layout of the model it dresses (64 x 32 texels of Hands-On Vanilla's models, the faces where its
-cubes put them) but is drawn S times finer, as fine as the paper laid on the pages, so the leather does not look coarse beside
+Each texture follows the layout of the model it dresses (64 x 32 units, Hands-On Vanilla's models with their boards cut to the
+pages by Fallow's livres/client/BookShapes: half a pixel beyond the pages all round) but is drawn S times finer, as fine as the paper laid on the pages, so the leather does not look coarse beside
 it. Every board is leather: a fine grain and a few softer clouds, the edges rubbed paler, the very edge dark, the corners
 rounded (cut out), a double fillet tooled blind a little inside the edge (it frames the pages when the book lies open) and a
-small ornament at each of its corners and in the middle. The lectern's book has brass corners instead of the tooled ones, the
-awakening book gilt corners with a star. The spine has raised bands. The blocks of pages show the edges of the leaves, in fine
+small ornament at each of its corners and in the middle (shown when the book is shut; open, the pages cover all but the rubbed
+rim). The lectern's book has brass corners instead of the tooled ones, the awakening book gilt ones on oxblood leather. The spine has raised bands. The blocks of pages show the edges of the leaves, in fine
 lines. Everything is drawn from a fixed seed, so a rerun gives the same files.
 
 Run from the repository root: python3 scripts/books/covers.py
@@ -238,11 +238,14 @@ def metal_corner(rgb, alpha, w, h, s, corner, metal, star):
 
 def spine(rng, w, h, s, leather, bands=4):
     """The spine, w x h texels, along its height: leather a shade darker, with raised bands (a light ridge over a dark
-    shadow) and a tooled line either side of each."""
+    shadow) and a tooled line either side of each, and at both ends the headbands: the little rolls of red and cream silk sewn
+    at the head and the tail of the leaves, which show between the pages at the top and the foot of the fold."""
     rgb = leather_ground(rng, w, h, s, leather) * 0.94
     alpha = np.ones((h, w), np.float32)
+    cap = max(3, int(round(s * 0.5)))
+    inner = h - 2 * cap
     for i in range(bands):
-        y = int(round(h * (i + 1) / (bands + 1)))
+        y = cap + int(round(inner * (i + 1) / (bands + 1)))
         for dy, k in ((-2, 0.86), (-1, 1.16), (0, 1.22), (1, 0.82), (2, 0.9)):
             if 0 <= y + dy < h:
                 rgb[y + dy] = np.clip(rgb[y + dy] * k, 0.0, 255.0)
@@ -254,6 +257,23 @@ def spine(rng, w, h, s, leather, bands=4):
                     rgb[y + dy, 1:-1] = rgb[y + dy, 1:-1] * 0.25 + mid * 0.75
     rgb[:, 0] = rgb[:, 0] * 0.6
     rgb[:, -1] = rgb[:, -1] * 0.6
+    red, cream = np.asarray((156, 40, 34), np.float32), np.asarray((234, 222, 192), np.float32)
+    for end in (0, 1):
+        for j in range(cap):
+            y = j if end == 0 else h - 1 - j
+            if j == 0:
+                rgb[y] = leather.cut
+                continue
+            if j == cap - 1:
+                # Its shadow on the spine.
+                rgb[y] = rgb[y] * 0.62
+                continue
+            # A bead: lit along its middle, the silk twisted in short slanting stitches.
+            t = (j - 1) / max(1, cap - 3)
+            k = 0.78 + 0.36 * np.sin(np.pi * t)
+            for x in range(w):
+                c = red if ((x + (j if end == 0 else -j)) // 2) % 2 else cream
+                rgb[y, x] = np.clip(c * k, 0.0, 255.0)
     return rgb, alpha
 
 
@@ -306,38 +326,61 @@ def block_of_pages(sheet, u, v, paper, edge):
             img, a = page_face(sheet.rng, w, h, paper, edge)
         elif name in ("up", "down"):
             img, a = leaves(sheet.rng, w, h, True, paper, edge)
+            if name == "down":
+                # Turned from the light, this face is drawn at half light: painted paler, it keeps the leaves' colour.
+                img = np.clip(img * 1.5, 0.0, 255.0)
         else:
             img, a = leaves(sheet.rng, w, h, False, paper, edge)
+            if name == "east":
+                # The side along the spine, also drawn at part light and seen edge on at the head of the fold.
+                img = np.clip(img * 1.6, 0.0, 255.0)
         sheet.put(x, y, img, a)
+
+
+def face(sheet, u, v, w, h, img, a, pad=(True, True, True, True)):
+    """Lays a face of w x h units at (u, v) and repeats its edge texels once round it (top, bottom, left, right where `pad`),
+    in the same colours: the filtering reaches a texel past the net at its rims, and a model's thin sides take those texels."""
+    x, y = int(round(u * sheet.s)), int(round(v * sheet.s))
+    hh, ww = img.shape[:2]
+    sheet.put(x, y, img, a)
+    top, bottom, left, right = pad
+    if top and y > 0:
+        sheet.rgb[y - 1, x:x + ww], sheet.alpha[y - 1, x:x + ww] = img[0], a[0]
+    if bottom and y + hh < sheet.h:
+        sheet.rgb[y + hh, x:x + ww], sheet.alpha[y + hh, x:x + ww] = img[-1], a[-1]
+    if left and x > 0:
+        sheet.rgb[y:y + hh, x - 1], sheet.alpha[y:y + hh, x - 1] = img[:, 0], a[:, 0]
+    if right and x + ww < sheet.w:
+        sheet.rgb[y:y + hh, x + ww], sheet.alpha[y:y + hh, x + ww] = img[:, -1], a[:, -1]
+
+
+# The boards' sizes, in units of the model (Fallow's livres/client/BookShapes): half a pixel beyond the pages of 6 x 8 all
+# round; the recipe book's boards run an eighth past their hinge and are a whole number of texels wide (80 at 12 to a unit).
+# The spines are the boards' height, their headbands showing between the pages at the head and the foot of the fold.
+RECIPE_BOARD = (80 / 12, 9.0)
+LID = (6.5, 9.0)
+SPINE_HIGH = 9.0
 
 
 def recipe_book(path, s, seed, leather, paper=(242, 232, 206), edge=(200, 172, 124)):
-    """Hands-On Vanilla's recipe book model (and Fallow's copy): boards 6 x 10 at (1, 1) and (15, 1), both faces; the spine
-    (a thin box at (28, 0) and two planes at (0, 12) and (6, 12)); blocks of pages at (34, 0) and (49, 0); the turning leaves at
-    (34, 10) and (49, 10)."""
+    """Hands-On Vanilla's recipe book model as Fallow shapes it (and Fallow's copy): boards 6.67 x 9 at (0, 1) and (14, 1),
+    both faces side by side; the spine (a thin box at (28, 0) and two planes at (0, 12) and (6, 12)), 9 high; blocks of pages
+    at (34, 0) and (49, 0); the turning leaves at (34, 10) and (49, 10)."""
     sheet = Sheet(s, seed)
-    for u in (1, 7, 15, 21):
-        x, y, w, h = sheet.box(u, 1, 6, 10)
-        img, a = board(sheet.rng, w, h, s, leather)
-        sheet.put(x, y, img, a)
-        # The board's thin sides and the texels the filtering reaches round its face: the texel row above and the column
-        # outside it repeat the face's edge, in the cut colour, so the cover's rim never shows a gap.
-        sheet.rgb[y - 1, x:x + w] = leather.cut
-        sheet.alpha[y - 1, x:x + w] = a[0]
-        sheet.rgb[y + h, x:x + w] = leather.cut
-        sheet.alpha[y + h, x:x + w] = a[-1]
-        outside = x - 1 if u in (1, 15) else x + w
-        inside = 0 if u in (1, 15) else w - 1
-        sheet.rgb[y:y + h, outside] = leather.cut
-        sheet.alpha[y:y + h, outside] = a[:, inside]
-    # The spine: its patches plain leather, then the banded faces, each 10 units along: the box's two sides at (28, 2), the
+    bw, bh = RECIPE_BOARD
+    for u0 in (0, 14):
+        for i, u in enumerate((u0, u0 + bw)):
+            w, h = int(round(bw * s)), int(round(bh * s))
+            img, a = board(sheet.rng, w, h, s, leather)
+            face(sheet, u, 1, w, h, img, a, pad=(True, True, i == 0, i == 1))
+    # The spine: its patches plain leather, then the banded faces, each 9 units along: the box's two sides at (28, 2), the
     # planes' at (0, 14) and (6, 13).
     for (u, v, w, h) in ((28, 0, 6, 12), (0, 12, 9, 12)):
         x, y, ww, hh = sheet.box(u, v, w, h)
         sheet.put(x, y, leather_ground(sheet.rng, ww, hh, s, leather) * 0.94, 1.0)
     for (u, v, w) in ((28, 2, 2), (30.25, 2, 2), (0, 14, 2), (2, 14, 2), (6, 13, 1), (7, 13, 1)):
-        x, y, ww, hh = sheet.box(u, v, w, 10)
-        img, a = spine(sheet.rng, ww, hh, s, leather)
+        x, y, ww, hh = sheet.box(u, v, w, SPINE_HIGH)
+        img, a = spine(sheet.rng, ww, hh, s, leather, bands=3)
         sheet.put(x, y, img, a)
     for u in (34, 49):
         block_of_pages(sheet, u, 0, paper, edge)
@@ -349,33 +392,36 @@ def recipe_book(path, s, seed, leather, paper=(242, 232, 206), edge=(200, 172, 1
 
 
 def lectern_book(path, s, seed, leather, paper=(242, 232, 206), edge=(200, 172, 124)):
-    """Hands-On Vanilla's enchanting book model (the lectern's, and Fallow's awakening book): boards 7 x 10 at (0, 0) and (18,
-    0), both faces; the spine 2 x 10 at (14, 0), both faces; blocks of pages at (0, 10) and (14, 10)."""
+    """Hands-On Vanilla's enchanting book model as Fallow shapes it (the lectern's, and Fallow's awakening book): lids 6.5 x 9,
+    a hundredth thick, at (0, 0) and (19, 0), both faces side by side; the spine 2 x 9 at (14, 0), both faces; blocks of
+    pages at (0, 10) and (14, 10)."""
     sheet = Sheet(s, seed)
-    # Which side of each face is the spine (found on the lectern): the left board's inner face (u 0) has it on its right, its
-    # outer face (u 7) on its left; the right board the other way round.
+    lw, lh = LID
+    # Which side of each face is the spine (found on the lectern): the left lid's inner face has it on its right, its outer
+    # face on its left; the right lid the other way round.
     right_side, left_side = (0, 2), (1, 3)
-    for u, outer in ((0, right_side), (7, left_side), (18, left_side), (25, right_side)):
-        x, y, w, h = sheet.box(u, 0, 7, 10)
-        img, a = board(sheet.rng, w, h, s, leather, outer=outer)
-        sheet.put(x, y, img, a)
-    for u in (14, 16):
-        x, y, w, h = sheet.box(u, 0, 2, 10)
-        img, a = spine(sheet.rng, w, h, s, leather)
-        sheet.put(x, y, img, a)
+    for u0, outers in ((0, (right_side, left_side)), (19, (left_side, right_side))):
+        for i, (u, outer) in enumerate(zip((u0, u0 + lw), outers)):
+            w, h = int(round(lw * s)), int(round(lh * s))
+            img, a = board(sheet.rng, w, h, s, leather, outer=outer)
+            face(sheet, u, 0, w, h, img, a, pad=(False, True, i == 0, i == 1))
+    for i, u in enumerate((14, 16)):
+        x, y, w, h = sheet.box(u, 0, 2, SPINE_HIGH)
+        img, a = spine(sheet.rng, w, h, s, leather, bands=3)
+        face(sheet, u, 0, w, h, img, a, pad=(False, True, i == 0, i == 1))
     for u in (0, 14):
         block_of_pages(sheet, u, 10, paper, edge)
     sheet.image().save(path)
 
 
 # Leathers: bottle green (Hands-On Vanilla's crafting book), natural tan calf (Fallow's workshop books), dark brown with brass
-# corners (the lectern), midnight violet with gilt corners and stars (the awakening book).
+# corners (the lectern), oxblood with gilt corners (the awakening book, the red of the enchanting table's cloth).
 GREEN = Leather(body=(38, 84, 62), rubbed=(74, 116, 88), cut=(16, 36, 26))
 TAN = Leather(body=(150, 98, 56), rubbed=(186, 136, 88), cut=(70, 42, 22))
 BROWN = Leather(body=(104, 62, 36), rubbed=(140, 94, 60), cut=(44, 24, 12),
                 metal=((246, 214, 132), (196, 152, 70), (112, 78, 30)))
-VIOLET = Leather(body=(62, 42, 104), rubbed=(98, 78, 140), cut=(28, 18, 52),
-                 metal=((250, 226, 150), (214, 176, 92), (128, 96, 44)), star=True)
+OXBLOOD = Leather(body=(98, 30, 32), rubbed=(134, 58, 52), cut=(40, 10, 12),
+                  metal=((250, 226, 150), (214, 176, 92), (128, 96, 44)))
 
 
 def main():
@@ -384,7 +430,7 @@ def main():
     recipe_book(HOV / "recipe_book.png", 12, 41, GREEN)
     recipe_book(FALLOW / "livre_de_recettes.png", 12, 43, TAN)
     lectern_book(HOV / "enchanting_book.png", 16, 47, BROWN)
-    lectern_book(FALLOW / "livre_d_eveil.png", 16, 53, VIOLET, paper=(238, 229, 212), edge=(180, 156, 132))
+    lectern_book(FALLOW / "livre_d_eveil.png", 16, 53, OXBLOOD)
 
 
 if __name__ == "__main__":

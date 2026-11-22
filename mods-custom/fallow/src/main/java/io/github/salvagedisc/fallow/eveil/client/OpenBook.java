@@ -31,6 +31,8 @@ import org.joml.Vector3f;
 import com.pockyl.diegesis.api.client.DiegesisClient;
 import com.pockyl.diegesis.api.client.StationView;
 import io.github.salvagedisc.fallow.Fallow;
+import io.github.salvagedisc.fallow.livres.client.GutterShade;
+import io.github.salvagedisc.fallow.livres.client.PageParts;
 import io.github.salvagedisc.fallow.livres.client.OpenSheets;
 
 import java.util.Optional;
@@ -58,9 +60,6 @@ final class OpenBook {
     /** How high over the fold the arch's first handle lies, pixels, and how many strips draw the arch. */
     private static final float GUTTER_RISE = 0.4F;
     private static final int GUTTER_STEPS = 4;
-    /** The gutter's shades on the paper, multiplied in: by the fold, and the step out of it. */
-    private static final int GUTTER_SHADE = 0xFFE4D6BA;
-    private static final int GUTTER_LIGHT_SHADE = 0xFFF2EAD8;
     /** How far the fold of the sheet being turned stands over the resting ones, pixels: it goes over them, never through. */
     private static final float SHEET_LIFT = 0.06F;
     /** How far the resting sheets' fold stands off the blocks of pages under them, pixels. */
@@ -512,9 +511,9 @@ final class OpenBook {
             Vector3f to = alongSheet(open, angle, lift, curved, stops[i + 1]);
             float uFrom = stops[i] / PAGE_WIDE * PAPER_U1;
             float uTo = stops[i + 1] / PAGE_WIDE * PAPER_U1;
-            // One shade a strip, stepping up out of the gutter: flat, as vanilla shades.
-            int shadeFrom = curved ? shade(stops[i]) : 0xFFFFFF;
-            int shadeTo = shadeFrom;
+            // The shade runs smoothly up out of the gutter, from one edge of the strip to the other.
+            int shadeFrom = curved ? GutterShade.at(stops[i]) : 0xFFFFFF;
+            int shadeTo = curved ? GutterShade.at(stops[i + 1]) : 0xFFFFFF;
             // Wound as the text on it, so the face towards the reader is the front: the fold is the right page's left edge, the left
             // page's right edge (its paper mirrored).
             if (rightSide) {
@@ -535,14 +534,6 @@ final class OpenBook {
             int light) {
         consumer.addVertex(pose, at.x, at.y + y, at.z).setColor(rgb >> 16 & 0xFF, rgb >> 8 & 0xFF, rgb & 0xFF, alpha).setUv(u, v)
                 .setLight(light);
-    }
-
-    /** The gutter's shade of the strip starting {@code along} pixels from the fold: two steps, none where the sheet is flat. */
-    private static int shade(float along) {
-        if (along >= GUTTER) {
-            return 0xFFFFFF;
-        }
-        return along < GUTTER / 2.0F ? GUTTER_SHADE & 0xFFFFFF : GUTTER_LIGHT_SHADE & 0xFFFFFF;
     }
 
     /**
@@ -650,6 +641,14 @@ final class OpenBook {
 
         int high() {
             return high;
+        }
+
+        /** The rule of the books' pages ({@link PageParts#rule}), {@code wide} across, its line at {@code y}; it fades with the ink. */
+        void rule(float x, float y, float wide) {
+            int alpha = Math.round(255.0F * ink);
+            if (alpha >= 4) {
+                PageParts.rule(poseStack, buffers, light, x, y, wide, MARK_LIFT, alpha);
+            }
         }
 
         /** A flat colour; its alpha goes with the ink. */

@@ -2451,7 +2451,7 @@ final class RecipeBook implements NodePainter {
         if (entry.dish().getCount() > 1) {
             // How many one craft makes, at the dish's foot as on a slot.
             String made = String.valueOf(entry.dish().getCount());
-            canvas.text(made, middle + DISH_SIZE / 2.0F - font.width(made) + 2.0F, DISH_Y + DISH_SIZE - font.lineHeight + 2.0F);
+            canvas.count(made, middle + DISH_SIZE / 2.0F - font.width(made) + 2.0F, DISH_Y + DISH_SIZE - font.lineHeight + 2.0F);
         }
         float line = NAME_Y;
         List<FormattedCharSequence> name = nameLines(entry);
@@ -2520,20 +2520,22 @@ final class RecipeBook implements NodePainter {
 
         /**
          * A paper tab standing over the page's top edge, as vanilla's recipe book has them: the chosen one taller and in the page's own
-         * paper, running on into the page by a unit with no edge between, the others a shade darker behind it, each with its kind's
-         * icon ({@link PageParts#tab}).
+         * paper, the others a shade darker, each with its kind's icon ({@link PageParts#tab}). All stop at the page's edge: nothing of
+         * them lies on the page.
          */
         void tab(float x, float wide, float iconSize, boolean chosen, boolean lit, ItemStack icon, float nod, boolean washed,
                 boolean marked) {
             float high = chosen ? TAB_HIGH : TAB_HIGH - TAB_DROP;
-            float bottom = chosen ? 1.0F : 0.0F;
+            float bottom = 0.0F;
             PageParts.tab(poseStack, buffers, shade, x, -high, wide, bottom, chosen ? 0.25F : 0.05F,
                     chosen ? PageParts.Tab.OPEN : lit ? PageParts.Tab.LIT : PageParts.Tab.REST);
             if (washed) {
                 rect(x + 1.0F, -high + 1.0F, wide - 2.0F, high - 1.0F + bottom, WELL_LIFT, WELL_READY);
             }
             if (!icon.isEmpty()) {
-                item(icon, x + (wide - iconSize) / 2.0F, -high + 2.0F - nod, iconSize, !chosen && !lit && !washed);
+                // The icon keeps inside its tab, a unit off its foot: nothing of it lies on the page.
+                float size = Math.min(iconSize, high - 3.0F);
+                item(icon, x + (wide - size) / 2.0F, -high + 2.0F - nod, size, !chosen && !lit && !washed);
             }
             if (marked) {
                 // Recipes the player has not seen are in it: the red mark of the list's wells, in its top right corner.
@@ -2543,7 +2545,7 @@ final class RecipeBook implements NodePainter {
 
         /** The search's slip: a field of cream in a fine line standing over the page's top edge ({@link PageParts#slip}). */
         void slip(float x, float wide, float high, boolean lit) {
-            PageParts.slip(poseStack, buffers, shade, x, -high, wide, 1.0F, 0.25F, lit);
+            PageParts.slip(poseStack, buffers, shade, x, -high, wide, 0.0F, 0.25F, lit);
         }
 
         /** A magnifying glass, 7 units square: a ring round a pale glass and its handle going down to the right. */
@@ -2626,6 +2628,16 @@ final class RecipeBook implements NodePainter {
 
         void text(String text, float x, float y) {
             text(Component.literal(text).getVisualOrderText(), x, y);
+        }
+
+        /**
+         * How many an icon stands for: just right of its foot, {@code x} the number's right end on the icon's corner, as a slot
+         * writes it. Off the icon: a block's icon, drawn after, hid a number written over it.
+         */
+        void count(String text, float x, float y) {
+            Matrix4f matrix = new Matrix4f(poseStack.last().pose()).translate(Minecraft.getInstance().font.width(text) - 1.0F, 0.0F,
+                    ITEM_LIFT);
+            Minecraft.getInstance().font.drawInBatch(text, x, y, INK, false, matrix, buffers, Font.DisplayMode.NORMAL, 0, shade);
         }
 
         /** Text drawn smaller ({@code scale} under 1) from its top left corner: scaled as a whole, never wrapped. */
