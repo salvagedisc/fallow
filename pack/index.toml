@@ -4340,6 +4340,11 @@ hash = "6b9aaae5cd0cb72b042d755bec368e69b07d3106c9525561d9297cff311bff00"
 metafile = true
 
 [[files]]
+file = "resourcepacks/rays-3d-ladders.pw.toml"
+hash = "3ea639ea86e1b444d00d2d2801386a206f6d7d82484b739fe0ec2d1c63e60c6a"
+metafile = true
+
+[[files]]
 file = "shaderpacks/Brumaire/shaders/block.properties"
 hash = "60d1b416194d24b23d1655fed9be476bd147c1af42eb432d9dc40469e0b08b02"
 
