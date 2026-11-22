@@ -103,7 +103,8 @@ void initEnv() {
     amb *= mix(1.0, 0.72, gDusk);
     amb += vec3(0.012, 0.016, 0.026);
     amb = mix(amb, vec3(luma(amb)) * gLunar, 0.7 * gLunarK);
-    gAmbient = mix(amb, vec3(luma(amb)) * vec3(0.95, 0.95, 0.93) * 0.75, rainStrength * 0.7);
+    // Sous la pluie, la lumière du ciel tire vers le même gris beige, sans éteindre la couleur de l'herbe mouillée.
+    gAmbient = mix(amb, vec3(luma(amb)) * vec3(1.0, 0.95, 0.86) * 0.80, rainStrength * 0.45);
     // Un éclair qui frappe blanchit tout d'un coup, en vacillant, moins quand il tombe loin.
     float flicker = 0.55 + 0.45 * sin(frameTimeCounter * 47.0) * sin(frameTimeCounter * 13.0 + 1.3);
     gFlash = lightningBoltPosition.w * flicker / (1.0 + length(lightningBoltPosition.xyz) / 160.0);
@@ -120,8 +121,8 @@ vec3 skyAt(vec3 d) {
     // Un ciel d'été voilé, pâle, presque blanc vers l'horizon : jamais d'un bleu profond (celui d'une carte postale).
     // Au couchant, le ciel reprend ses couleurs : une bande pêche et rose au-dessus d'un horizon clair.
     c = mix(c, vec3(luma(c)) * vec3(0.95, 0.99, 1.05), (0.52 + 0.25 * (1.0 - smoothstep(0.0, 0.45, d.y))) * gDay * (1.0 - 0.75 * gDusk));
-    // Sous la pluie, un gris un peu chaud, celui des nuages chargés.
-    c = mix(c, vec3(luma(c)) * vec3(0.85, 0.84, 0.80) * 0.9, rainStrength * 0.85);
+    // Sous la pluie, un gris beige, celui des nuages chargés (Recrafted : teinte 36-38°, saturation 0,11-0,18).
+    c = mix(c, vec3(luma(c)) * vec3(0.92, 0.83, 0.72) * 0.9, rainStrength * 0.85);
     return c + vec3(0.55, 0.60, 0.80) * gFlash * (0.6 + 0.4 * max(d.y, 0.0));
 }
 

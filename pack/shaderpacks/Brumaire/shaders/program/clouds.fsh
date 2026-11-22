@@ -280,7 +280,7 @@ void main() {
     vec3 horizon = skyAt(normalize(vec3(dir.x, max(dir.y, 0.03), dir.z)));
     cloudLight = mix(horizon * (1.0 - cloudPass), cloudLight, fade);
     // Sous la pluie, des nuages gris.
-    cloudLight = mix(cloudLight, vec3(luma(cloudLight)) * 0.85, rainStrength * 0.6);
+    cloudLight = mix(cloudLight, vec3(luma(cloudLight)) * vec3(1.05, 0.98, 0.86) * 0.85, rainStrength * 0.6);
 #if CLOUD_IRIDESCENCE > 0
     // Les franges minces d'un cumulus près de l'astre s'irisent aussi, moins qu'une nappe fine.
     if (cloudPass < 0.98) {

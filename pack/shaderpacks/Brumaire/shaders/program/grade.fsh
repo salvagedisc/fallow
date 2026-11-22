@@ -369,7 +369,7 @@ void main() {
     float gloom = rainStrength * smoothstep(0.3, 0.8, float(eyeBrightnessSmooth.y) / 240.0);
     // La nuit est déjà réglée pour elle-même : la pluie n'y pèse qu'à moitié.
     gloom *= mix(0.5, 1.0, smoothstep(-0.18, 0.12, sunUp));
-    exposure *= mix(1.0, RAIN_GLOOM > 1 ? 0.58 : 0.68, gloom);
+    exposure *= mix(1.0, RAIN_GLOOM > 1 ? 0.66 : 0.78, gloom);
 #endif
 #ifdef BLOOM
     // Le seuil du halo suit l'exposition : ce qui éblouit l'œil, pas une valeur fixe.
