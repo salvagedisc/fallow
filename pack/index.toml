@@ -4737,7 +4737,7 @@ hash = "c17af9bcf40badc3fbc433bcf14b24fa59eaa61bd7caf56092bd6adfc0c3a62c"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/nightsky.glsl"
-hash = "c7144e1943c709ba8f6fa53124339b0df0d14e0c42efe50a37b41596048a1399"
+hash = "5c61d36fd69e07b33ae68290d1dea0dc1489b1ba1b4006b5b3b569c21f727770"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/precip.glsl"

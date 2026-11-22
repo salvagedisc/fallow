@@ -221,16 +221,16 @@ vec3 skyRays(vec3 d, vec3 sky) {
     vec3 v = cross(u, gSunDir);
     float phi = atan(dot(d, v), dot(d, u));
     float theta = acos(clamp(dot(d, gSunDir), -1.0, 1.0));
-    // Les ombres des nuages, tirées au sort chaque jour, qui glissent à peine.
-    float n = cloudNoise(vec3(phi * 1.1, float(worldDay) * 0.37 + frameTimeCounter * 0.0015, 0.53)).r * 0.75
-            + cloudNoise(vec3(phi * 3.2, 0.21, float(worldDay) * 0.11)).r * 0.25;
+    // Les ombres des nuages, tirées au sort chaque jour, qui glissent à peine. Quelques larges bandes, pas un éventail
+    // de traits fins et réguliers (on aurait dit une étoile d'objectif ; Recrafted n'en montre presque pas).
+    float n = cloudNoise(vec3(phi * 0.8, float(worldDay) * 0.37 + frameTimeCounter * 0.0015, 0.53)).r;
     float beam = smoothstep(0.30, 0.70, n);
     // Nets près du soleil, plus pâles au milieu du ciel, qui se resserrent de nouveau à l'opposé.
     float w = exp(-theta / 0.40) + 0.5 * exp(-(3.14159 - theta) / 0.35) + 0.05;
     // Surtout bas sur l'horizon : vers le zénith, l'air est trop mince pour bien les montrer.
     w *= smoothstep(-0.03, 0.06, d.y) * (0.35 + 0.65 * (1.0 - smoothstep(0.25, 0.75, d.y)));
     float k = clamp(w * amount, 0.0, 1.0);
-    return sky * (1.0 - 0.24 * (1.0 - beam) * k) + sky * 0.10 * beam * k;
+    return sky * (1.0 - 0.14 * (1.0 - beam) * k) + sky * 0.06 * beam * k;
 }
 #endif
 
