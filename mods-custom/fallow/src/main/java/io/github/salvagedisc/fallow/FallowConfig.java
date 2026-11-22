@@ -65,6 +65,7 @@ public final class FallowConfig {
     private static final ModConfigSpec.DoubleValue APPROCHE_HEARING_RANGE;
     private static final ModConfigSpec.BooleanValue APPROCHE_HINTS;
     private static final ModConfigSpec.BooleanValue REPOS_ENABLED;
+    private static final ModConfigSpec.BooleanValue FEUILLAGE_ENABLED;
     private static final ModConfigSpec.IntValue REPOS_REST_SECONDS;
     private static final ModConfigSpec.DoubleValue REPOS_BASE_MINUTES;
     private static final ModConfigSpec.DoubleValue REPOS_MINUTES_PER_COMFORT;
@@ -407,6 +408,14 @@ public final class FallowConfig {
                 .defineInRange("minutesPerComfort", 1.5, 0.0, 10.0);
         common.pop();
 
+        common.comment("Module feuillage (avec Passable Foliage) : une chute dans un feuillage garde la moitié des dégâts",
+                "qu'elle ferait au sol.").push("feuillage");
+        FEUILLAGE_ENABLED = common
+                .comment("Interrupteur du module (serveur). Faux : la chute dans les feuilles suit le seul réglage de Passable",
+                        "Foliage, que le pack règle à aucun dégât (fallDamageMultiplier dans passablefoliage-common.yaml).")
+                .define("enabled", true);
+        common.pop();
+
         common.comment("Module tannerie : la peau brute se racle au couteau sur le chevalet, trempe dans la cuve à tan (eau et",
                 "écorce), puis sèche sur le séchoir avant de donner du cuir. Le séchage dépend du ciel, de la pluie, du froid et",
                 "d'un feu proche (tag fallow:foyers).").push("tannerie");
@@ -675,6 +684,10 @@ public final class FallowConfig {
 
     public static boolean approcheHints() {
         return read(COMMON_SPEC, APPROCHE_HINTS);
+    }
+
+    public static boolean feuillageEnabled() {
+        return read(COMMON_SPEC, FEUILLAGE_ENABLED);
     }
 
     public static boolean reposEnabled() {

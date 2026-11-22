@@ -142,7 +142,7 @@ hash = "538cb02a3af45e901ba15b54e95902ca7c110d1c0df14cf709533b563dcb86b4"
 
 [[files]]
 file = "config/passablefoliage-common.yaml"
-hash = "9cb8daf9c1bca0165560e3e00d32734759b9998e6a0648f99464744c97faa006"
+hash = "91142680029eb5190a1c32d775442bacec0c3dcbd62001438d1d0f1e80ed981f"
 
 [[files]]
 file = "config/quark-common.toml"
@@ -234,7 +234,7 @@ hash = "8b61406f2403c6c9249f46cd4695eb221a3661f1698c0ad056262a908cf3595a"
 
 [[files]]
 file = "config/questlog/quests/gestes_mains_nues.json"
-hash = "16212f40af91a94ce8262686a3b94e1e758e0f7a1b47bd9992b14b331da0ccab"
+hash = "ddeedbc7424b9aebc4fcc2af909907a0567e367d6e6c22daf51d115f72f7e0fa"
 
 [[files]]
 file = "config/questlog/quests/gestes_marteau.json"
@@ -242,7 +242,7 @@ hash = "d769f8bd2bfd733b26c1be46165ef02bd36a5b03bf09a1ee6fad06f5be0d82f5"
 
 [[files]]
 file = "config/questlog/quests/gestes_pierre.json"
-hash = "c67e31ff0edbac7c794912ec4be44b7e0016b3529e8e92eb48feb711758f35ed"
+hash = "f510d119423630e674f2b5d1ad185ddca566aaa49426e1f229a9a0c8301001b0"
 
 [[files]]
 file = "config/questlog/quests/gestes_pioche.json"
@@ -254,7 +254,7 @@ hash = "79eebfb70adfca63f9022d9ee5599eabfdc3ddfe169804e48b609beae8dafe87"
 
 [[files]]
 file = "config/questlog/quests/gestes_silex.json"
-hash = "46abe78068049b8d9cd1e079d9c72b28855f20dc40db35f5a10cfb03ac5d6f49"
+hash = "319330f115d7e6923f2fed7b4ff475c579dd5be73cc398a46fd295e5e430ae2f"
 
 [[files]]
 file = "config/questlog/quests/metiers_machines.json"
@@ -303,6 +303,10 @@ hash = "79831190a10ae97ecc20787296aec2dba77060e200027e9983af5787c1d9f2a1"
 [[files]]
 file = "config/sable_player_ragdoll-server.toml"
 hash = "2840b6d626ce4fc92f03a9d7d18c87b2c2000bd87a7975781a0052fc2736659d"
+
+[[files]]
+file = "config/scholar-common.toml"
+hash = "e47055382ecd4a66b7e10f710acdc0cde91b42c4fcd7c1d4b0b1be73505bd240"
 
 [[files]]
 file = "config/selling_bin-server.toml"
@@ -3654,8 +3658,8 @@ hash = "2c88d3eceb7be9c5964ca32c24612ca08d7326b4cb06104e98d56efa777de640"
 metafile = true
 
 [[files]]
-file = "mods/fallow-0.82.0.jar"
-hash = "f7b539feb790840f959f6206e9714c3c834a0d0134ac7a50d20f7a5eb68cc443"
+file = "mods/fallow-0.83.0.jar"
+hash = "277947214b7fadb0b9fea33f7a88b7cc875665b18fc1377a8feb19230d2e671e"
 
 [[files]]
 file = "mods/farmers-delight.pw.toml"

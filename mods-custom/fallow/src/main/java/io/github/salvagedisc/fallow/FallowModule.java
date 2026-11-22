@@ -75,6 +75,9 @@ public enum FallowModule {
     /** Le glanage : secouer des feuilles main vide fait parfois tomber un bâton (client et serveur : le geste est prédit
      *  côté client). Aucun mod requis ; les cailloux trouvés en creusant sont du butin réglé par le pack. */
     GLANAGE("glanage", null, bus -> io.github.salvagedisc.fallow.glanage.GlanageModule.start(bus)),
+    /** Le feuillage : tomber dans les feuilles que Passable Foliage laisse traverser garde la moitié des dégâts de la
+     *  chute (serveur). Demande Passable Foliage. */
+    FEUILLAGE("feuillage", null, bus -> io.github.salvagedisc.fallow.feuillage.FeuillageModule.start(bus), ModIds.PASSABLE_FOLIAGE),
     /** Les hôtes (pilote) : un peuple de la brume au modèle du joueur, vêtu de l'armure de sa bête (client et serveur). */
     HOTES("hotes", null, bus -> io.github.salvagedisc.fallow.hotes.HotesModule.start(bus)),
     /** Les postes : les blocs de la tannerie travaillés à la main sur place, caméra au bloc et livre de recettes à côté, sur

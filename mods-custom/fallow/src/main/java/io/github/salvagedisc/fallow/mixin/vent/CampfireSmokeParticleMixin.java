@@ -25,6 +25,9 @@ abstract class CampfireSmokeParticleMixin extends TextureSheetParticle implement
     private boolean fallow$led;
     @Unique
     private boolean fallow$soul;
+    /** Fumée d'un autre mod, prise par le vent : seule, elle ne rejoint aucun panache. */
+    @Unique
+    private boolean fallow$alone;
     @Unique
     private double fallow$mergeX;
     @Unique
@@ -64,8 +67,7 @@ abstract class CampfireSmokeParticleMixin extends TextureSheetParticle implement
             }
             // Une fumée qui ne vient pas d'un feu de camp du pack : elle garde son aspect et suit le vent, seule.
             fallow$led = true;
-            fallow$mergeX = x;
-            fallow$mergeZ = z;
+            fallow$alone = true;
         }
         // Les premières secondes, la chaleur la porte droit ; le vent la prend ensuite, à sa vitesse à elle.
         float rise = Mth.clamp(age / 30.0F, 0.0F, 1.0F);
@@ -74,12 +76,15 @@ abstract class CampfireSmokeParticleMixin extends TextureSheetParticle implement
         xd += (wind.x / 20.0 * 0.85 - xd) * ease;
         zd += (wind.z / 20.0 * 0.85 - zd) * ease;
         // Les fumées de feux voisins se rapprochent en montant.
-        if (age < 40) {
+        if (age < 40 && !fallow$alone) {
             xd += (fallow$mergeX - x) * 0.0015;
             zd += (fallow$mergeZ - z) * 0.0015;
         }
         // Un vent fort la couche : elle monte moins vite.
         yd *= 1.0 - 0.012 * Math.min(Wind.strength(), 1.2F) * rise;
+        if (fallow$alone) {
+            return;
+        }
         float t = Mth.clamp(age / (float) lifetime, 0.0F, 1.0F);
         alpha = Math.min(alpha, 0.7F * (1.0F - t * t) + 0.02F);
         if (fallow$soul) {

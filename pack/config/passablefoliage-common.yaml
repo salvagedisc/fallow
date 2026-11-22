@@ -1,6 +1,11 @@
 # Fallow: leaves are walked through, never climbed or stood on. The enchantment
-# module (Leaf Walker, its book recipe) is off. Kiwi fills in the other defaults.
+# module (Leaf Walker, its book recipe) is off. The mod's own fall damage into
+# leaves is off (multiplier 1.0 = no damage): the fallow mod's feuillage module
+# gives back half of the fall's normal damage on entering the leaves.
+# Kiwi fills in the other defaults.
 ---
 modules:
   enchantment: false
+fallDamageMultiplier: 1.0
+fallDamageThreshold: 5
 alwaysLeafWalking: false

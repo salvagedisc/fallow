@@ -22,7 +22,7 @@ Option C. The `debris` module, its 17 blocks, its models (This Rocks!' with thei
 - in `pack/kubejs/server_scripts/premiers_gestes.js`, dirt, coarse dirt, rooted dirt, grass and podzol give a knappable rock 5 % of the time, gravel 12 %;
 - Twigs' pebbles and twigs stay off; the first gesture quests speak of shaking leaves and digging.
 
-Passable Foliage comes with it, asked the same evening: leaves are walked through. Its Leaf Walker enchantment, which lets a player stand on and climb leaves, is off at the team's request (`modules.enchantment: false`).
+Passable Foliage comes with it, asked the same evening: leaves are walked through. Its Leaf Walker enchantment, which lets a player stand on and climb leaves, is off at the team's request (`modules.enchantment: false`). Its cushion, which took almost all of a fall into leaves away, is replaced on 2026-11-22 by the `feuillage` module of `fallow` 0.83.0, chosen by the team: a fall into a canopy keeps half its damage.
 
 ## Rejected
 - Option A: the reason for this decision.

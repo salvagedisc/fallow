@@ -10,6 +10,7 @@
     "dinos.ChorusoatlArmorMixin",
     "eveil.PosteDeTableMixin",
     "eveil.ReparationEtabliMixin",
+    "feuillage.ChuteDansLesFeuillesMixin",
     "horizon.ChunkyAccessorMixin",
     "navires.VoileMixin",
     "repos.PlayerExhaustionMixin",

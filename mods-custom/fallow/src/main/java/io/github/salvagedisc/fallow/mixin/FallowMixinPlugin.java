@@ -58,7 +58,8 @@ public final class FallowMixinPlugin implements IMixinConfigPlugin {
             Map.entry("livres.HovRecipeBookMixin", List.of(ModIds.HANDS_ON_VANILLA)),
             Map.entry("livres.HovRecipeSheetMixin", List.of(ModIds.HANDS_ON_VANILLA)),
             Map.entry("livres.HovLecternCanvasMixin", List.of(ModIds.HANDS_ON_VANILLA)),
-            Map.entry("navires.VoileMixin", List.of(ModIds.FISH_N_SHIPS)));
+            Map.entry("navires.VoileMixin", List.of(ModIds.FISH_N_SHIPS)),
+            Map.entry("feuillage.ChuteDansLesFeuillesMixin", List.of(ModIds.PASSABLE_FOLIAGE)));
 
     private static final Map<String, List<String>> MEMBERS = Map.ofEntries(
             Map.entry("horizon.ChunkyAccessorMixin", List.of("listenerBound", "tryRunFirstTimeSetup")),
@@ -72,7 +73,8 @@ public final class FallowMixinPlugin implements IMixinConfigPlugin {
             Map.entry("livres.HovRecipeBookMixin", List.of("spread", "flip", "flipWay", "footSide", "cursorX", "cursorY", "page", "pages")),
             Map.entry("livres.HovRecipeSheetMixin", List.of("arrow", "paper", "poseStack", "buffers")),
             Map.entry("livres.HovLecternCanvasMixin", List.of("arrow", "poseStack", "buffers", "light", "wide", "high")),
-            Map.entry("navires.VoileMixin", List.of("moveWithSailDown")));
+            Map.entry("navires.VoileMixin", List.of("moveWithSailDown")),
+            Map.entry("feuillage.ChuteDansLesFeuillesMixin", List.of("onEntityCollidedWithLeaves")));
 
     @Override
     public void onLoad(String mixinPackage) {
