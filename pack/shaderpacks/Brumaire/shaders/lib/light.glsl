@@ -51,10 +51,10 @@ float canopyShade(vec3 pos, vec3 normal, vec2 frag) {
         if (!voxelInside(c)) break;
         if ((texelFetch(voxelTex, c, 0).r & VOX_LEAF) != 0u) leaves += 1.5;
     }
-    float pass = max(pow(0.8, leaves), 0.33);
+    float pass = max(pow(0.76, leaves), 0.22);
     // Loin de l'œil, le volume s'arrête : l'effet s'efface avant son bord.
     float fade = 1.0 - smoothstep(40.0, 58.0, length(pos.xz));
-    return mix(1.0, pass, fade * (CANOPY_SHADE > 1 ? 1.0 : 0.75));
+    return mix(1.0, pass, fade * (CANOPY_SHADE > 1 ? 1.0 : 0.88));
 }
 #endif
 
@@ -114,7 +114,9 @@ vec3 shade(vec3 albedo, vec3 normal, vec2 lm, float ao, vec3 pos, float leaf, ve
     if (leaf > 0.0) {
         float layers = thick > 0.0 ? thick : 1.2;
         through = exp(-layers * 0.7) * 0.75 * LEAF_TRANSLUCENCY * leaf;
-        through = max(through, 0.12 * leaf);
+        // Une part fixe seulement là où la carte d'ombre ne dit rien : une herbe sous un arbre, à quelques blocs de la
+        // couronne qui lui fait de l'ombre, ne reçoit rien de plus que le sol à côté d'elle.
+        if (thick <= 0.0) through = max(through, 0.12 * leaf);
         lit = max(lit, through);
     }
     // L'ombre des nuages qui passent.
