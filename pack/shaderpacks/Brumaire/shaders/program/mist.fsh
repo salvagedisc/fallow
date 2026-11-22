@@ -330,7 +330,7 @@ void main() {
             // Les rayons de lune, renforcés comme dans lib/fogmarch.glsl.
             shaftGain += (1.0 - gDay) * 2.5 * float(MOON_SHAFTS);
 #endif
-            color += gLightColor * phase * litLength * (0.0045 * SHAFT_STRENGTH) * mix(0.8, 1.6, airHumid) * open * shaftGain;
+            color += gLightColor * phase * litLength * (mix(0.0045, 0.0016, gDay) * SHAFT_STRENGTH) * mix(0.8, 1.6, airHumid) * open * shaftGain;
         }
 #endif
         if (veil > 0.003) {

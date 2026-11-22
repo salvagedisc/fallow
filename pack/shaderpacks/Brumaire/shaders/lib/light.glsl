@@ -77,8 +77,9 @@ float gBlockSide = 0.0;
  */
 vec3 shade(vec3 albedo, vec3 normal, vec2 lm, float ao, vec3 pos, float leaf, vec2 frag, int taps, out float indirect) {
     float facing = dot(normal, gLightDir);
-    // Un feuillage reste plus clair du côté du soleil : il garde du volume tout en laissant passer la lumière.
-    float diffuse = mix(max(facing, 0.0) * 0.8 + 0.2 * leaf, 0.72, leaf * 0.55);
+    // Un feuillage reste plus clair du côté du soleil : il garde du volume tout en laissant passer la lumière. Le dessous
+    // et le côté à l'ombre d'une couronne restent nettement plus sombres que son dessus.
+    float diffuse = mix(max(facing, 0.0) * 0.8 + 0.2 * leaf, 0.72, leaf * 0.35);
     float lit = 0.0;
     float thick = 0.0;
     float dist = length(pos);
@@ -112,8 +113,8 @@ vec3 shade(vec3 albedo, vec3 normal, vec2 lm, float ao, vec3 pos, float leaf, ve
     float through = 0.0;
     if (leaf > 0.0) {
         float layers = thick > 0.0 ? thick : 1.2;
-        through = exp(-layers * 0.55) * 0.75 * LEAF_TRANSLUCENCY * leaf;
-        through = max(through, 0.20 * leaf);
+        through = exp(-layers * 0.7) * 0.75 * LEAF_TRANSLUCENCY * leaf;
+        through = max(through, 0.12 * leaf);
         lit = max(lit, through);
     }
     // L'ombre des nuages qui passent.
