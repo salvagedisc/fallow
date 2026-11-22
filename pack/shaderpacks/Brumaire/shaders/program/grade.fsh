@@ -399,6 +399,21 @@ void main() {
     float l = dot(color, LUMA);
     // Ombres un peu froides, lumières un peu chaudes.
     color *= mix(vec3(0.99, 1.0, 1.01), vec3(1.04, 1.0, 0.93), smoothstep(0.05, 0.75, l));
+#if FOLIAGE_TONE > 0
+    {
+        // La végétation : des verts jaunes et chauds d'herbe d'été, pas le vert gris que l'air lui laisse. Seulement ce
+        // où le vert passe le bleu sans trop passer le rouge et garde un peu de couleur : ni le ciel ni ses nuages, ni la
+        // brume, ni la pierre, ni l'eau.
+        float mx = max(color.r, max(color.g, color.b));
+        float chroma = (mx - min(color.r, min(color.g, color.b))) / max(mx, 1e-4);
+        float leaf = smoothstep(0.004, 0.035, color.g - color.b) * smoothstep(-0.08, -0.01, color.g - color.r)
+                   * smoothstep(0.02, 0.10, l) * smoothstep(0.08, 0.20, chroma) * step(texture(depthtex0, vUv).r, 0.99999);
+        vec3 warm = color * vec3(1.05, 1.0, 0.78);
+        warm *= l / max(dot(warm, LUMA), 1e-5);
+        warm = mix(vec3(l), warm, 1.0 + 0.6 * (1.0 - smoothstep(0.15, 0.50, chroma)));
+        color = mix(color, warm, leaf * FOLIAGE_TONE);
+    }
+#endif
     // Les ombres gardent leur couleur : une pellicule, pas une vidéo délavée.
     color = mix(vec3(l), color, SATURATION * mix(1.3, 1.08, smoothstep(0.04, 0.45, l)));
     color = (color - 0.5) * CONTRAST + 0.5;
