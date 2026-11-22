@@ -140,7 +140,7 @@ final class SechoirAllure implements Allure {
     }
 
     /** La face avant du cuir tendu au milieu du cadre, en pixels. */
-    private static final float DEVANT = 7.9F;
+    private static final float DEVANT = 6.9F;
 
     private Component lecture(StationView view, SechoirBlock.Etat etat, float sec) {
         if (etat == SechoirBlock.Etat.SEC) {

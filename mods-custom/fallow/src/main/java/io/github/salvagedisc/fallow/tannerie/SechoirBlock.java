@@ -42,8 +42,8 @@ public class SechoirBlock extends HorizontalDirectionalBlock implements Ouvrage 
     public static final IntegerProperty SECHAGE = IntegerProperty.create("sechage", 0, 15);
     static final int INTERVAL = 400;
     // Le cadre droit sur ses patins (z 4 à 12 vu du nord).
-    private static final VoxelShape SHAPE_NS = Block.box(0.0, 0.0, 2.0, 16.0, 16.0, 14.0);
-    private static final VoxelShape SHAPE_EW = Block.box(2.0, 0.0, 0.0, 14.0, 16.0, 16.0);
+    private static final VoxelShape SHAPE_NS = Block.box(0.0, 0.0, 3.0, 16.0, 16.0, 13.0);
+    private static final VoxelShape SHAPE_EW = Block.box(3.0, 0.0, 0.0, 13.0, 16.0, 16.0);
 
     public enum Etat implements StringRepresentable {
         VIDE, HUMIDE, SEC;
@@ -244,7 +244,7 @@ public class SechoirBlock extends HorizontalDirectionalBlock implements Ouvrage 
      * (0 à 1). Vu du nord, le cuir est au milieu du bloc, à z = 8 pixels.
      */
     static Vec3 surCuir(BlockState state, BlockPos pos, double u, double h) {
-        double profondeur = 7.6 / 16.0;
+        double profondeur = 6.6 / 16.0;
         double x;
         double z;
         switch (state.getValue(FACING)) {

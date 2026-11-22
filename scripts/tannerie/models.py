@@ -42,22 +42,20 @@ class Feuille:
         if s.x+w>s.t: s.x=0; s.y+=s.h; s.h=0
         p=(s.x,s.y); s.x+=w; s.h=max(s.h,h); assert s.y+h<=s.t,'feuille pleine'; return p
     def peint(s,w,h,mode):
-        s.n+=1; px,py=s.place(w,h); dec=(s.n*5)%16; lig=(s.n*3)%len(CORPS)
+        # Une fenêtre des planches vanilla, joints compris, calée pour qu'une planche finisse sur l'arête basse
+        # de la pièce (comme les côtés des plateaux de Handcrafted) ; en fil vertical, l'image tournée d'un quart
+        # et assombrie vers le sol (comme ses pieds).
+        s.n+=1; px,py=s.place(w,h); dec=(s.n*5)%16; k=(s.n*3)%4
+        travers=w if mode=='v' else h
+        r0=4*k+4-travers if travers<=4 else 0
         for j in range(h):
             for i in range(w):
-                if mode=='v':   # fil vertical : une colonne de la face = une ligne des planches
-                    c=SP.getpixel(((j+dec)%16, CORPS[(i+lig)%len(CORPS)]))
-                    if j>=h-1: c=pas(c,-2)
-                    elif j>=h-2: c=pas(c,-1)
-                else:            # fil horizontal
-                    c=SP.getpixel(((i+dec)%16, CORPS[(j+lig)%len(CORPS)]))
-                    if mode=='h':
-                        if j==0 and h>1: c=pas(c,+2)
-                        elif j==h-1 and h>1: c=PAL[0]
-                    elif mode=='dessus':
-                        if (j==0 or j==h-1) and h>2: c=pas(c,+1)
-                    elif mode=='bout':
-                        if i in (0,w-1) or j in (0,h-1): c=pas(c,-2)
+                if mode=='v':
+                    c=SP.getpixel(((j+dec)%16,(r0+i)%16))
+                    if j==h-1: c=pas(c,-2)
+                    elif j==h-2: c=pas(c,-1)
+                else:
+                    c=SP.getpixel(((i+dec)%16,(r0+j)%16))
                 s.im.putpixel((px+i,py+j),c+(255,))
         k=16/s.t
         return [px*k,py*k,(px+w)*k,(py+h)*k]
@@ -87,9 +85,9 @@ el=[]
 fe=Feuille()
 el.append(planche(fe,[6,10,0],[10,13,16],'z'))                              # la poutre
 for z0 in (1,12):
-    el.append(planche(fe,[2,8,z0],[14,10,z0+3],'x'))                        # la traverse du tréteau, sous la poutre
-    for x0 in (3,10):
-        el.append(planche(fe,[x0,0,z0],[x0+3,8,z0+3],'y',cull='down'))      # les pieds
+    el.append(planche(fe,[2,7,z0],[14,10,z0+3],'x'))                        # la traverse du tréteau, sous la poutre
+    for x0 in (2,11):
+        el.append(planche(fe,[x0,0,z0],[x0+3,7,z0+3],'y',cull='down'))      # les pieds, aux bouts de la traverse
 fe.sauve('chevalet')
 W('block/chevalet.json',{'parent':'minecraft:block/block','textures':{'bois':'fallow:block/tannerie/chevalet','particle':PL},'elements':el})
 
@@ -109,20 +107,21 @@ peau_pliee('block/chevalet_peau.json','fallow:item/peau_brute')
 peau_pliee('diegesis/peau_chevalet_brute.json','fallow:item/peau_brute','minecraft:block/block')
 peau_pliee('diegesis/peau_chevalet_raclee.json','fallow:item/peau_raclee','minecraft:block/block',sangles=False,g=0.02)
 
-# ---------- séchoir : un cadre de planches, le cuir pris dedans par ses bords ----------
+# ---------- séchoir : une barre sur deux montants, le cuir jeté dessus ----------
 el=[]
 fe=Feuille()
-for x0 in (0,13):
-    el.append(planche(fe,[x0,0,2],[x0+3,2,14],'z',cull='down'))             # patins
-    el.append(planche(fe,[x0,2,6],[x0+3,16,10],'y'))                        # montants
-el.append(planche(fe,[3,14,6],[13,16,10],'x'))                              # traverse du haut
-el.append(planche(fe,[3,0,6],[13,2,10],'x',cull='down'))                    # seuil
+for x0 in (0,14):
+    el.append(planche(fe,[x0,0,3],[x0+2,2,13],'z',cull='down'))             # patins
+    el.append(planche(fe,[x0,2,7],[x0+2,16,10],'y'))                        # montants, le cuir passe entre eux
+el.append(planche(fe,[2,12,7],[14,15,10],'x'))                              # la barre
 fe.sauve('sechoir')
 W('block/sechoir.json',{'parent':'minecraft:block/block','textures':{'bois':'fallow:block/tannerie/sechoir','particle':PL},'elements':el})
 def cuir_tendu(path,tex,g=0.0):
-    # l'image de l'objet au pixel : lignes 1 à 14 de y 15 à 1, colonnes 2 à 13 de x 2 à 14 ; ses bords pris dans le cadre
-    W(path,{'render_type':'minecraft:cutout','textures':{'peau':tex,'particle':tex},
-      'elements':[box([2-g,1-g,8],[14+g,15+g,8],{'north':F('#peau',[2,1,14,15]),'south':F('#peau',[14,1,2,15])})]})
+    # l'image de l'objet au pixel, jetée sur la barre : ses lignes 1 et 2 sur le dessus (z 9 à 7),
+    # ses lignes 3 à 14 pendant devant, de y 15 à 3, ses colonnes 2 à 13 de x 2 à 14
+    W(path,{'render_type':'minecraft:cutout','textures':{'peau':tex,'particle':tex},'elements':[
+      box([2-g,15.01+g,7-0.01-g],[14+g,15.01+g,9],{'up':F('#peau',[2,1,14,3]),'down':F('#peau',[2,3,14,1])}),
+      box([2-g,3-g,6.99-g],[14+g,15.01+g,6.99-g],{'north':F('#peau',[2,3,14,15]),'south':F('#peau',[14,3,2,15])})]})
 cuir_tendu('block/sechoir_humide.json','fallow:item/cuir_mouille')
 cuir_tendu('block/sechoir_sec.json',CUIR)
 cuir_tendu('diegesis/cuir_tendu_sec.json',CUIR,g=0.02)
@@ -144,12 +143,14 @@ W('block/cuve_a_tan.json',{'parent':'minecraft:block/block','textures':{
  'particle':'minecraft:block/barrel_side'},'elements':el})
 
 def peau_flottante(path,tex,y,parent=None):
+    # la peau pliée en quatre, au pixel : le milieu de l'image (8 × 8) dessus, un pixel d'épaisseur
     m={'render_type':'minecraft:cutout','textures':{'peau':tex,'particle':tex},
-       'elements':[box([2,y,2],[14,y,14],{'up':F('#peau',[2,2,14,14]),'down':F('#peau',[2,14,14,2])})]}
+       'elements':[box([4,y,4],[12,y+1,12],{'up':F('#peau',[4,3,12,11]),'down':F('#peau',[4,11,12,3]),
+         'north':F('#peau',[4,3,12,4]),'south':F('#peau',[4,10,12,11]),'west':F('#peau',[4,3,5,11],90),'east':F('#peau',[11,3,12,11],90)})]}
     if parent: m['parent']=parent
     W(path,m)
-peau_flottante('block/cuve_a_tan_peaux.json','fallow:item/peau_raclee',13.01)
-peau_flottante('block/cuve_a_tan_cuir.json','fallow:item/cuir_mouille',13.01)
+peau_flottante('block/cuve_a_tan_peaux.json','fallow:item/peau_raclee',13)
+peau_flottante('block/cuve_a_tan_cuir.json','fallow:item/cuir_mouille',13)
 peau_flottante('diegesis/peau_raclee.json','fallow:item/peau_raclee',0,'minecraft:block/block')
 peau_flottante('diegesis/cuir_mouille.json','fallow:item/cuir_mouille',0,'minecraft:block/block')
 print('ok')
