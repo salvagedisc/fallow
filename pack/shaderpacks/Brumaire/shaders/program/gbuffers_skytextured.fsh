@@ -3,6 +3,8 @@
 uniform sampler2D gtexture;
 uniform vec3 sunPosition;
 uniform int renderStage;
+uniform vec3 moonPosition;
+uniform mat4 gbufferModelViewInverse;
 #if EARTHSHINE > 0
 uniform int moonPhase;
 #endif
@@ -24,6 +26,10 @@ void main() {
         // La lune ressort franchement de son halo : un carré presque blanc et net, pas une tache jaunâtre dans la lueur.
         // La teinte d'une lune d'Enhanced Celestials vient du jeu (vTint) et passe toujours.
         tex.rgb = mix(tex.rgb, vec3(dot(tex.rgb, vec3(0.299, 0.587, 0.114))) * vec3(0.97, 0.99, 1.0), 0.8);
+        // Au ras de l'horizon, l'air épais ne laisse passer que son jaune : la lune qui se lève est dorée, puis blanchit
+        // en montant (Recrafted : jaune pâle à l'horizon, blanche plus haut).
+        float rise = normalize(mat3(gbufferModelViewInverse) * moonPosition).y;
+        tex.rgb *= mix(vec3(1.0, 0.98, 0.70), vec3(1.0), smoothstep(0.03, 0.22, rise));
         gain = 4.0;
     }
 #endif
