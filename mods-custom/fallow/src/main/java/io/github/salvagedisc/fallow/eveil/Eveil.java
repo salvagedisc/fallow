@@ -317,7 +317,9 @@ public final class Eveil {
         }
         boolean aBout = stack.isDamageableItem() && stack.getDamageValue() >= stack.getMaxDamage() - 1;
         if (!aBout) {
-            if (etat.eteint()) {
+            // Réparé pour de bon (sous l'alerte), il pourra de nouveau oublier ou s'arrêter ; un point de raccommodage
+            // au bord ne compte pas, sinon le message reviendrait à chaque coup.
+            if (etat.eteint() && stack.getDamageValue() < stack.getMaxDamage() * FallowConfig.eveilAlerte()) {
                 stack.set(EveilModule.ETAT.get(), etat.avecEteint(false));
             }
             return;

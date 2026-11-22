@@ -862,7 +862,11 @@ final class TableBehavior implements StationBehavior {
         boolean rituel = coulante >= 0 || sautA >= 0.0F;
         float vise = !vient || !view.isFocused() ? 0.0F : rituel ? 1.0F : attend ? 0.75F : 0.5F;
         sombre = Mth.approach(sombre, vise * glisse, dt / (rituel ? 0.25F : 1.2F));
-        obscurite = sombre;
+        // Une autre table à portée, au repos, ne doit pas effacer l'ombre de celle où l'on est assis.
+        boolean assis = vient && view.isFocused();
+        if (assis || sombre > 0.0F) {
+            obscurite = sombre;
+        }
         float volume = 0.0F;
         if (vient && view.isFocused()) {
             volume = (rituel ? 0.7F : attend ? 0.45F : 0.25F) * glisse;
@@ -872,7 +876,10 @@ final class TableBehavior implements StationBehavior {
         // Le monde s'en va autour de la table : voilé quand on s'assoit, presque parti quand un éveil attend, effacé pendant le rite.
         float monte = tenue >= 0 ? Math.min(1.0F, tenueT / TENUE) : 0.0F;
         float isole = !vient || !view.isFocused() ? 0.0F : rituel ? 1.0F : tenue >= 0 ? 0.8F + 0.2F * monte : attend ? 0.75F : 0.6F;
-        Isolement.viser(isole, Vec3.atCenterOf(view.pos()), monte);
+        if (assis) {
+            // Seule la table où l'on est assis mène l'isolement ; partie, il retombe de lui-même en quelques secondes.
+            Isolement.viser(isole, Vec3.atCenterOf(view.pos()), monte);
+        }
         poussiere(view, dt, isole * glisse);
         if (bibliotheques.isEmpty() || glisse < 1.0F) {
             return;

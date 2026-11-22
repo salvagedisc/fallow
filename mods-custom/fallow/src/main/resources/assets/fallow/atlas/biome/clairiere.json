@@ -1,0 +1,8 @@
+{
+	"textures": {
+		"antique_atlas:base/grass": 2,
+		"antique_atlas:biome/flatland/plains/grass_3": 2,
+		"antique_atlas:biome/highland/meadow/grass_dandelions_plateau": 1,
+		"antique_atlas:biome/highland/meadow/grass_daisies_plateau": 1
+	}
+}

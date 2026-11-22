@@ -212,7 +212,7 @@ public final class TableEveil {
                 return;
             }
             etat = Eveil.reconcilier(stack, etat);
-            if (!etat.pret()) {
+            if (!etat.pret() || etat.plein()) {
                 return;
             }
             List<Eveil.Option> options = Eveil.options(level, stack, etat);

@@ -136,9 +136,13 @@ final class ForgeBehavior implements StationBehavior {
     }
 
     private boolean utile(StationView view, ItemStack stack) {
-        if (stack.is(ModTags.Items.SMITHING_HAMMERS) || stack.getItem() instanceof SmithingTemplateItem
-                || net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath().equals("blueprint")) {
+        if (stack.is(ModTags.Items.SMITHING_HAMMERS)) {
             return true;
+        }
+        if (stack.getItem() instanceof SmithingTemplateItem
+                || net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath().equals("blueprint")) {
+            // Le plan a sa case sur les enclumes de métal ; l'enclume de pierre n'en a pas : il irait dans la grille.
+            return !pierre;
         }
         Boolean deja = utiles.get(stack.getItem());
         if (deja != null) {
@@ -172,8 +176,13 @@ final class ForgeBehavior implements StationBehavior {
     public void frame(StationView view, float deltaSeconds) {
         // Venu avec une pièce en main : elle se pose sur l'enclume (comme le four de Hands-On Vanilla), une fois le menu là.
         if (enMain >= 0 && view.menu() != null && com.pockyl.diegesis.api.client.DiegesisClient.arrival() >= 1.0F) {
-            Arrivee.depuis(view, enMain);
-            view.menu().quickMoveFromInventory(enMain);
+            LocalPlayer joueur = Minecraft.getInstance().player;
+            // La main a pu changer pendant l'approche : on ne pose que ce qui sert encore.
+            ItemStack tenu = joueur == null ? ItemStack.EMPTY : joueur.getInventory().getItem(enMain);
+            if (!tenu.isEmpty() && !tenu.is(ModTags.Items.SMITHING_HAMMERS) && utile(view, tenu)) {
+                Arrivee.depuis(view, enMain);
+                view.menu().quickMoveFromInventory(enMain);
+            }
             enMain = -1;
         }
         book.frame(view, deltaSeconds);

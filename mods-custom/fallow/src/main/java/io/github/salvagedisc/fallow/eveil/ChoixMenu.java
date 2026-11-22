@@ -64,7 +64,7 @@ final class ChoixMenu extends ChestMenu {
             if (slotId == PLACES[i] && player instanceof ServerPlayer serverPlayer) {
                 ItemStack stack = player.getMainHandItem();
                 EtatEveil etat = stack.get(EveilModule.ETAT.get());
-                if (etat != null && etat.id().equals(objet) && etat.pret()) {
+                if (etat != null && etat.id().equals(objet) && etat.pret() && !etat.plein()) {
                     if (!PartDeBete.porte(serverPlayer, stack)) {
                         serverPlayer.displayClientMessage(net.minecraft.network.chat.Component.translatable("eveil.fallow.table.sans_part",
                                 PartDeBete.de(stack).map(item -> item.getDescription()).orElse(net.minecraft.network.chat.Component.empty())), true);

@@ -1134,7 +1134,8 @@ final class RecipeBook implements NodePainter {
             for (int i = 0; i < Inventory.INVENTORY_SIZE; i++) {
                 pool.add(player.getInventory().getItem(i));
             }
-            pool.add(player.inventoryMenu.getCarried());
+            // Le curseur appartient au menu ouvert (celui du poste à la forge et au foyer), pas à l'inventaire.
+            pool.add(player.containerMenu.getCarried());
         }
         pool.addAll(source.inStation(view));
         pool.removeIf(ItemStack::isEmpty);

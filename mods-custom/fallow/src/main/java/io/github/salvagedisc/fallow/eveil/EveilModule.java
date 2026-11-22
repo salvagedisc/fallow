@@ -185,6 +185,19 @@ public final class EveilModule {
                 e.setCanceled(true);
             }
         });
+        NeoForge.EVENT_BUS.addListener(PlayerInteractEvent.RightClickItem.class, e -> {
+            // Ni arc, ni bouclier, ni canne, ni briquet : il attend d'être réparé.
+            if (Eveil.arrete(e.getItemStack())) {
+                e.setCanceled(true);
+                e.setCancellationResult(net.minecraft.world.InteractionResult.FAIL);
+            }
+        });
+        NeoForge.EVENT_BUS.addListener(PlayerInteractEvent.RightClickBlock.class, e -> {
+            // Le bloc garde son usage (une porte s'ouvre), l'objet arrêté ne sert pas (houe, pelle, hache, briquet).
+            if (Eveil.arrete(e.getItemStack())) {
+                e.setUseItem(net.neoforged.neoforge.common.util.TriState.FALSE);
+            }
+        });
         NeoForge.EVENT_BUS.addListener(net.neoforged.neoforge.event.entity.player.AttackEntityEvent.class, e -> {
             if (Eveil.arrete(e.getEntity().getMainHandItem())) {
                 e.setCanceled(true);
