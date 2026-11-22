@@ -1,0 +1,13 @@
+{
+  "gui.mortaar.game_time.years": "%sa",
+  "gui.mortaar.game_time.months": "%smois",
+  "gui.mortaar.game_time.weeks": "%ssem",
+  "gui.mortaar.game_time.days": "%sj",
+  "gui.mortaar.game_time.hours": "%sh",
+  "gui.mortaar.game_time.minutes": "%smin",
+  "gui.mortaar.game_time.seconds": "%ss",
+  "gui.mortaar.game_time.less_than_one_hour": "<1h",
+  "gui.mortaar.game_time.less_than_one_minute": "<1min",
+  "gui.mortaar.game_time.less_than_one_second": "<1s",
+  "mortaar.configuration.debug_mode": "Mode débogage"
+}

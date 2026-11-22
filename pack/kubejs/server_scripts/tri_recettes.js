@@ -45,10 +45,6 @@ ServerEvents.recipes(event => {
     I: '#c:ingots/iron'
   }).id('fallow:tri/foyer')
 
-  // Lentille télescopique excellente d'Exposure: Space : un mécanisme de précision de Create
-  // à la place du débris de netherite.
-  event.replaceInput({ id: 'exposure_space:excellent_telescopic_lens' },
-    'minecraft:netherite_scrap', 'create:precision_mechanism')
 
   // Escalade et levage. La corde coûte plus cher (3 lin pour 2 cordes au lieu de 3), la
   // flèche à corde n'en emporte que 8 (config de Supplementaries), et la poulie demande un

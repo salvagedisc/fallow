@@ -1,5 +1,6 @@
 package io.github.salvagedisc.fallow.mixin.vent;
 
+import io.github.salvagedisc.fallow.FallowConfig;
 import io.github.salvagedisc.fallow.vent.SmokePlume;
 import io.github.salvagedisc.fallow.vent.Wind;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -15,7 +16,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
  * La fumée d'un feu de camp suit le vent du pack : elle monte droit au-dessus du feu puis se couche, d'autant plus
- * que le vent forcit ; celles de feux voisins se rejoignent ; celle d'un feu des âmes bleuit en montant.
+ * que le vent forcit ; celles de feux voisins se rejoignent ; celle d'un feu des âmes bleuit en montant. Une fumée de
+ * feu de camp lancée par un autre mod (les cheminées de Sooty Chimneys) suit le même vent, sans changer d'aspect.
  */
 @Mixin(CampfireSmokeParticle.class)
 abstract class CampfireSmokeParticleMixin extends TextureSheetParticle implements SmokePlume {
@@ -53,8 +55,17 @@ abstract class CampfireSmokeParticleMixin extends TextureSheetParticle implement
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void fallow$wind(CallbackInfo ci) {
-        if (!fallow$led || removed) {
+        if (removed) {
             return;
+        }
+        if (!fallow$led) {
+            if (!FallowConfig.ventEnabled()) {
+                return;
+            }
+            // Une fumée qui ne vient pas d'un feu de camp du pack : elle garde son aspect et suit le vent, seule.
+            fallow$led = true;
+            fallow$mergeX = x;
+            fallow$mergeZ = z;
         }
         // Les premières secondes, la chaleur la porte droit ; le vent la prend ensuite, à sa vitesse à elle.
         float rise = Mth.clamp(age / 30.0F, 0.0F, 1.0F);

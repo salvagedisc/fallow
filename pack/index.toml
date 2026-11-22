@@ -321,6 +321,10 @@ file = "config/simplebackups-common.toml"
 hash = "6f8767311c678896646bb75b2113077d1e5601a078615031a2e7b6d24aa0f187"
 
 [[files]]
+file = "config/sootychimneys-common.toml"
+hash = "02df4381b70a9fbbcd1cc9b2e2167475ab064323ba99622f1e2f5e3979def18a"
+
+[[files]]
 file = "config/spark/config.json"
 hash = "e5416ac451c87a3017e7b7b48d359fea8e642f8ae53921f86ac9375b7841a7ee"
 
@@ -813,6 +817,14 @@ file = "kubejs/assets/cameraoverhaul/lang/fr_fr.json"
 hash = "08fa2966c04a2e0738058e2bd3387c1bde37986c94b066e0f8d871c8a8c26130"
 
 [[files]]
+file = "kubejs/assets/chalk/lang/fr_fr.json"
+hash = "1d8846f219052f48b18d844f74c5c596438e4deb82d73d7886858a29f741c03d"
+
+[[files]]
+file = "kubejs/assets/chalk_chars/lang/fr_fr.json"
+hash = "438c951d50e5d18c187ae37ada943b7b1d26bd8cfcf0b7f5b6796f985277ba20"
+
+[[files]]
 file = "kubejs/assets/chat_heads/lang/fr_fr.json"
 hash = "437498949c8a9fcf54e2385d51ed3d19103a0a0759107228a7060a711ff17f67"
 
@@ -981,10 +993,6 @@ file = "kubejs/assets/exposure/lang/fr_fr.json"
 hash = "e83b2dad45cfc64bb620c1fcca3e77d63d979b1149504ce46668d5824aa56e5a"
 
 [[files]]
-file = "kubejs/assets/exposure_space/lang/fr_fr.json"
-hash = "b5f2eb727df864fea1b6dcfe5406797e3c43a978143bcb1ee48e72b6b3a36b4c"
-
-[[files]]
 file = "kubejs/assets/fabric-convention-tags-v2/lang/fr_fr.json"
 hash = "2c6115caaa9878f8f4ab587c7f930c89e6d910c55c1ff65dda31d76c8f895a0e"
 
@@ -1133,6 +1141,10 @@ file = "kubejs/assets/moonlight/lang/fr_fr.json"
 hash = "92ec580a467c5aaeeb7a07b8cb10206b82eb745715a61a90d46bd30ac3822971"
 
 [[files]]
+file = "kubejs/assets/mortaar/lang/fr_fr.json"
+hash = "64c4f42396621cd2ef393518afa16b41cedd8f8a00f87c912f4496a9ed90d56a"
+
+[[files]]
 file = "kubejs/assets/mowziesmobs/lang/fr_fr.json"
 hash = "186df6047390ca95514608e52c99bd5ad0d0da68e32e1ee55a6112bbdc1db1a4"
 
@@ -1259,6 +1271,10 @@ hash = "f03a7755564cb1177bff1ecb17702e919c9f8c513f2e41b585524054d539465b"
 [[files]]
 file = "kubejs/assets/sodium/lang/fr_fr.json"
 hash = "cd9b8b03f2c550799f08d504dd26506931d7a2b773386c857dc1c9fe9a4abf53"
+
+[[files]]
+file = "kubejs/assets/sootychimneys/lang/fr_fr.json"
+hash = "58deef5de6d23940ff4a3a80fec637b04a842beda3a45d1230e9a6f6bb571012"
 
 [[files]]
 file = "kubejs/assets/sound_physics_remastered/lang/fr_fr.json"
@@ -3290,7 +3306,7 @@ hash = "66ccbb5904f56ffb370728deda4fd2bf4fdcbcb8a5313c2c13cb9616671fd16c"
 
 [[files]]
 file = "kubejs/server_scripts/tri_recettes.js"
-hash = "bd6e56f32ece2d3d644397e3bc9b86327ddd3058fc24a4e5d0419d503a433c07"
+hash = "431d61e3f84d8c1f60da8789d9a561915452b66f8758fa72220eb621fd16de4d"
 
 [[files]]
 file = "kubejs/startup_scripts/onglets_creatifs.js"
@@ -3410,6 +3426,16 @@ metafile = true
 [[files]]
 file = "mods/cameraoverhaul.pw.toml"
 hash = "51f925e75075df676cc1efff5bb8db9d828842c0f3031310a05dbf368aa67393"
+metafile = true
+
+[[files]]
+file = "mods/chalk-chars.pw.toml"
+hash = "d2af448d2290681195037eb0db0b5ba85fbc5a625e11023948dd87f49b68089c"
+metafile = true
+
+[[files]]
+file = "mods/chalk-mod.pw.toml"
+hash = "1d15653f184f09a0baeb343bd722e305aae882b64728cc5ede2e5be08fcebc20"
 metafile = true
 
 [[files]]
@@ -3603,18 +3629,13 @@ hash = "b1beeafce95e233dc631a3f3dfc520c313a2ee1fd6760b64f006380a03cbcf72"
 metafile = true
 
 [[files]]
-file = "mods/exposure-space.pw.toml"
-hash = "0bda6c8920115231bf7c6c8a70e946b4756c906128de01b3d1195c6d68862d24"
-metafile = true
-
-[[files]]
 file = "mods/exposure.pw.toml"
 hash = "2c88d3eceb7be9c5964ca32c24612ca08d7326b4cb06104e98d56efa777de640"
 metafile = true
 
 [[files]]
-file = "mods/fallow-0.67.0.jar"
-hash = "baf9f5559e51d2ff79a390b1389022250f16b998d6508dfdf1446839e0933bf2"
+file = "mods/fallow-0.68.0.jar"
+hash = "860a7d52915ef5af57e5da4ab860dfb2de1b3dcebee0bb659dea540c1e5e2954"
 
 [[files]]
 file = "mods/farmers-delight.pw.toml"
@@ -4028,6 +4049,11 @@ metafile = true
 [[files]]
 file = "mods/sodium.pw.toml"
 hash = "2a001cdb3d5ac4970d422914083c27380eba8ebd40dfd435754fe6566ba78beb"
+metafile = true
+
+[[files]]
+file = "mods/sooty-chimneys.pw.toml"
+hash = "924b292f54a9a8c7196773b03e1f503a0eb70af4c0aa06a02bfb6c8f4617c660"
 metafile = true
 
 [[files]]

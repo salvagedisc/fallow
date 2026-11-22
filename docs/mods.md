@@ -40,7 +40,6 @@ Side: C = client, S = server, CS = both. Versions checked on Modrinth for NeoFor
 |---|---|---|---|---|
 | Questlog | `questlog` | ✅ (added 2026-10-26) | CS | Book-style journal of quests and guides, by chapter, editable in game ([quetes](plan/quetes.md)) |
 | Exposure | `exposure` | ✅ | CS | Analogue photography: keep a place, discover a species |
-| Exposure: Space | `exposure-space` | ✅ (added 2026-10-25) | CS | Astrophotography: 200 celestial objects to photograph and catalogue; French names translated |
 
 ## Civilisation and technology
 
@@ -175,6 +174,8 @@ Side: C = client, S = server, CS = both. Versions checked on Modrinth for NeoFor
 | Default Options | `default-options` | ✅ | C | Key bindings and video settings shipped with the pack |
 | Chat Heads | `chat-heads` | ✅ | C | Player head in the chat |
 | Lamb Lanterns | `lamb-lanterns` | ✅ | CS | A lantern carried at the hip (Curios slot) gives light as if held in hand |
+| Chalk (+ Chalk: Chars) | `chalk-mod`, `chalk-chars` | ✅ (2.0.3 and 1.0.1, added 2026-11-22, not seen in game) | CS | Chalk marks drawn on blocks (arrows, crosses, symbols, letters and figures with Chalk: Chars), in sixteen colours, glowing with glow ink; a chalk box holds several. A way-marking gesture for the mist. By mortuusars (Exposure, Scholar); its library Mortaar comes inside the jar. Missing French by the pack |
+| Sooty Chimneys | `sooty-chimneys` | ✅ (1.3.5, added 2026-11-22, not seen in game) | CS | Chimneys in bricks, cobblestone, stone bricks, mud bricks, iron, copper and terracotta that smoke over a lit fire and get covered in soot, scraped with an axe (black dye now and then); an empty-handed click shuts the flue. Its own wind is off (`Wind`, `WindAffectsCampfire` false in `pack/config/sootychimneys-common.toml`): the smoke follows the pack's wind (`vent` module). By mortuusars. French by the pack |
 | Scholar | `scholar` | ✅ (1.2.10, added 2026-11-21, not seen in game) | CS | Writable and written books on two pages, with formatting without § codes, undo, bookmarks, import and export to a text file; books dyed like leather; a written book's title on a lectern or in a chiseled bookshelf on hover; zombies, husks and skeletons sometimes carry a plain book and read it. A book on a lectern stays Hands-On Vanilla's (read on the lectern); Scholar's screens are the ones opened from the hand. Same author as Exposure; French by the pack |
 | Passable Foliage | `passable-foliage` | ✅ (9.3.2+neoforge, added 2026-11-21, not seen in game) | CS | Leaves are walked through, slowing a little, and a fall into a canopy hurts less; mobs path through them too. Its Leaf Walker enchantment (standing on and climbing leaves) is off: `modules.enchantment: false` in `pack/config/passablefoliage-common.yaml`, which also removes its book recipe. Needs Kiwi, already in the pack. French by the pack |
 
@@ -225,6 +226,7 @@ Already present: Configurable (Neruina), Architectury API, Balm, Cloth Config, C
 
 | Mod | Reason |
 |---|---|
+| Exposure: Space | Removed on 2026-11-22: its finish is far below Exposure's, and its 256 objects are our real sky (the ISS, Hubble, Halley's comet), out of place over a disc world with its own moon |
 | Visual Workbench | Removed on 2026-11-21 ([0043](decisions/0043-hands-on-vanilla.md)): it only changed the vanilla crafting table, into a block of its own that Hands-On Vanilla does not open; the pack has no other crafting table. Puzzles Lib stays for Pick Up Notifier |
 | Create: Loconautics | Trains as Sable sub-levels (MIT code, art all rights reserved): only on CurseForge for now, its Modrinth page is announced; to add once it is published ([0044](decisions/0044-sable-and-create.md)) |
 | Create: Train Functionality | Buildable train carriages on Sable: only on CurseForge, no source ([0044](decisions/0044-sable-and-create.md)) |

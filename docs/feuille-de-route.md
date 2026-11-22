@@ -103,7 +103,7 @@ In game:
 - [ ] **The mist lifts early and in full view**: a first vigil fire within the first hour, led by the first quest; the mist recedes over 10 to 20 seconds, the far view appears, the clearing music starts.
 - [ ] **Rebuild a hamlet**: the `survivants` module as a long-term goal; each survivor found in the mist joins a clearing with a trade, and the hamlet grows by milestones like the zoo (Matcha Flavoured: villages are made, not found).
 - [ ] **Named quest chapters** in Questlog: 8 to 12 chapters (first fire, forge, zoo, sky, monuments, airship, hamlet, and the new main thread once defined), 150 to 250 quests; the first three in order, the rest free.
-- [ ] **A collections page**: zoo species, Exposure: Space objects, Longwings butterflies, monument codex pages, lost letters, dishes; a carved figurine of a species per milestone, to place at home.
+- [ ] **A collections page**: zoo species, Longwings butterflies, monument codex pages, lost letters, dishes; a carved figurine of a species per milestone, to place at home.
 - [ ] **Dishes with a use**: a few Farmer's Delight dishes give an effect tied to the pack's systems (see further in the mist, warmth for Cold Sweat, thirst delayed, soft steps near wildlife). Hunger stays. Warmth and coolness are done (2026-11-18, [climat](plan/climat.md#hot-dishes-third-step)).
 - [ ] **A few hand-made enigmas**: three to five unique places, never horror (a set table with warm soup and nobody, an observatory whose log stops), with hints in letters and `echos`.
 - [ ] **Travel as a selling point**: a quest chapter for the atlas, horses, rails and airships; `fanal` lights along the roads.
