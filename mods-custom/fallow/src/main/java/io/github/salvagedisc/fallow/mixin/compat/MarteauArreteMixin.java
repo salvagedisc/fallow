@@ -23,7 +23,8 @@ abstract class MarteauArreteMixin {
     @Inject(method = "onUseSmithingHammer", at = @At("HEAD"), cancellable = true, require = 0)
     private static void fallow$arrete(ItemStack marteau, PlayerInteractEvent.RightClickBlock event, Player player, Level level,
             BlockState state, CallbackInfo info) {
-        if (Eveil.arrete(marteau)) {
+        // Seulement sur les blocs d'Overgeared (enclumes de forge, base d'enclume) : ailleurs, une porte ou un coffre répondent.
+        if (Eveil.arrete(marteau) && state.getBlock().getClass().getName().startsWith("net.stirdrem.overgeared.")) {
             event.setCanceled(true);
             event.setCancellationResult(InteractionResult.FAIL);
             EveilModule.refuser(player, marteau);

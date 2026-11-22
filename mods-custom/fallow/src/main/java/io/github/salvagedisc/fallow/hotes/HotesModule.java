@@ -119,9 +119,11 @@ public final class HotesModule {
         Vec3 pos = player.position().add(dir.scale(14.0));
         int y = sol(level, (int) Math.floor(pos.x), player.getBlockY(), (int) Math.floor(pos.z));
         if (y == Integer.MIN_VALUE) {
-            // Rien où se tenir devant (sous le toit du Nether, au-dessus de la lave) : il vient près de vous.
-            pos = player.position();
-            y = player.getBlockY();
+            // Rien où se tenir devant (une falaise, la lave, le vide) : il vient à côté de vous, sinon là où vous êtes.
+            Vec3 cote = player.position().add(dir.scale(2.0));
+            int pres = sol(level, (int) Math.floor(cote.x), player.getBlockY(), (int) Math.floor(cote.z));
+            pos = pres == Integer.MIN_VALUE ? player.position() : cote;
+            y = pres == Integer.MIN_VALUE ? player.getBlockY() : pres;
         }
         Hote hote = HOTE.get().create(level);
         if (hote == null) {
@@ -141,7 +143,7 @@ public final class HotesModule {
 
     /**
      * Le sol où l'Hôte se tient, à hauteur du joueur : dans une grotte ou sous le toit du Nether, pas à la surface. Le
-     * premier sol libre (deux blocs d'air au-dessus) à huit blocs près ; à défaut, le dessus du monde.
+     * premier sol libre (deux blocs d'air au-dessus) à huit blocs près ; à défaut, aucun ({@code Integer.MIN_VALUE}).
      */
     private static int sol(ServerLevel level, int x, int pres, int z) {
         net.minecraft.core.BlockPos.MutableBlockPos curseur = new net.minecraft.core.BlockPos.MutableBlockPos();
@@ -154,9 +156,8 @@ public final class HotesModule {
                 }
             }
         }
-        // Sous un toit (le Nether), le dessus du monde est la roche du toit : l'Hôte vient alors près du joueur.
-        return level.dimensionType().hasCeiling() ? Integer.MIN_VALUE
-                : level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+        // Pas le dessus du monde : sous le toit du Nether c'est la roche du toit, depuis une grotte c'est la surface.
+        return Integer.MIN_VALUE;
     }
 
     /** Ni bloc ni liquide : un Hôte ne se tient pas au fond d'un lac ou sous la lave. */

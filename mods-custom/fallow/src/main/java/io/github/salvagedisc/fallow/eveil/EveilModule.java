@@ -203,20 +203,31 @@ public final class EveilModule {
             // Le bloc garde son usage (une porte s'ouvre, un coffre, une chaise), l'objet arrêté ne sert pas (houe, pelle,
             // hache). Les outils dont c'est le bloc qui se sert (citrouille et cisailles, TNT et briquet, chevalet et couteau)
             // n'y touchent pas : le bloc répond comme à une main vide.
-            if (!Eveil.arrete(e.getItemStack())) {
+            // La planche à découper de Farmer's Delight se sert de tout outil (hache, pioche, pelle) : rien d'arrêté n'y coupe.
+            if (!Eveil.arrete(e.getItemStack()) || e.getEntity().isSpectator()) {
                 return;
             }
             e.setUseItem(net.neoforged.neoforge.common.util.TriState.FALSE);
-            if (!outilDeGeste(e.getItemStack())) {
+            BlockState bloc = e.getLevel().getBlockState(e.getPos());
+            if (!outilDeGeste(e.getItemStack()) && !bloc.is(PLANCHE_A_DECOUPER)) {
                 return;
             }
-            refuser(e.getEntity(), e.getItemStack());
+            // Lu avant d'annuler : annuler l'événement met aussi l'usage du bloc à « non ».
+            boolean blocPermis = e.getUseBlock() != net.neoforged.neoforge.common.util.TriState.FALSE;
             e.setCanceled(true);
             net.minecraft.world.InteractionResult main = net.minecraft.world.InteractionResult.PASS;
-            if (e.getHand() == net.minecraft.world.InteractionHand.MAIN_HAND && !e.getEntity().isSecondaryUseActive()) {
-                main = e.getLevel().getBlockState(e.getPos()).useWithoutItem(e.getLevel(), e.getEntity(), e.getHitVec());
+            if (e.getHand() == net.minecraft.world.InteractionHand.MAIN_HAND && !e.getEntity().isSecondaryUseActive()
+                    && blocPermis) {
+                main = bloc.useWithoutItem(e.getLevel(), e.getEntity(), e.getHitVec());
+                if (main.consumesAction() && e.getEntity() instanceof ServerPlayer joueur) {
+                    net.minecraft.advancements.CriteriaTriggers.DEFAULT_BLOCK_USE.trigger(joueur, e.getPos());
+                }
             }
-            e.setCancellationResult(main.consumesAction() ? main : net.minecraft.world.InteractionResult.FAIL);
+            if (!main.consumesAction()) {
+                refuser(e.getEntity(), e.getItemStack());
+            }
+            // Rien de fait : l'autre main garde sa chance (une torche, un bouclier), comme avec une main vide.
+            e.setCancellationResult(main.consumesAction() ? main : net.minecraft.world.InteractionResult.PASS);
         });
         NeoForge.EVENT_BUS.addListener(PlayerInteractEvent.EntityInteract.class, e -> {
             // Les cisailles ne tondent plus le mouton, le briquet n'allume plus le creeper, la brosse ne brosse plus.
@@ -280,6 +291,10 @@ public final class EveilModule {
 
     private static final net.minecraft.tags.TagKey<Item> MARTEAUX = net.minecraft.tags.TagKey.create(Registries.ITEM,
             net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("overgeared", "smithing_hammers"));
+
+    private static final net.minecraft.resources.ResourceKey<net.minecraft.world.level.block.Block> PLANCHE_A_DECOUPER =
+            net.minecraft.resources.ResourceKey.create(Registries.BLOCK,
+                    net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("farmersdelight", "cutting_board"));
 
     /** Les outils dont la bête ou le bloc se sert eux-mêmes : cisailles, briquets, brosses, couteaux, marteaux de forge. */
     static boolean outilDeGeste(ItemStack stack) {
