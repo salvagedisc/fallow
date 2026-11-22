@@ -408,6 +408,10 @@ void main() {
 #ifdef PROGRAM_PARTICLES
     // Les feuilles qui tombent prennent le vert olive du feuillage dont elles viennent.
     albedo = olive(albedo);
+    // Les gouttes et les éclaboussures du jeu sont d'un bleu de pictogramme : de l'eau claire n'a que la couleur de ce
+    // qu'elle reflète, un gris à peine bleuté.
+    float water = smoothstep(0.03, 0.20, albedo.b - max(albedo.r, albedo.g));
+    albedo = mix(albedo, vec3(max(luma(albedo), albedo.b * 0.45)) * vec3(0.88, 0.95, 1.08), water * 0.8);
 #endif
 #ifdef PROGRAM_WATER
     if (vMat == 6) {
@@ -612,9 +616,10 @@ void main() {
     vec3 lit = shade(albedo, normal, lm, ao, vPos, leaf, gl_FragCoord.xy, taps, indirect);
 #ifdef PROGRAM_PARTICLES
     // Certaines particules (les grandes feuilles de Particular qui tournent en tombant) sortaient presque noires de la
-    // lumière complète : elles ne descendent jamais sous ce que la lumière du jeu leur donne, comme sans pack.
-    vec3 plain = hemisphereLight(vec3(0.0, 1.0, 0.0), lm.y * lm.y) * 0.85
-        + gLightColor * max(gLightDir.y, 0.0) * 0.35 * smoothstep(0.80, 0.94, lm.y);
+    // lumière complète : elles ne descendent jamais sous ce que la lumière du jeu leur donne, comme sans pack. Au
+    // soleil, une feuille qui tombe est fine et le laisse passer : aussi claire que celles de l'arbre, pas une tache.
+    vec3 plain = hemisphereLight(vec3(0.0, 1.0, 0.0), max(lm.y, 0.6)) * 1.3
+        + gLightColor * max(gLightDir.y, 0.0) * 0.75 * smoothstep(0.70, 0.90, lm.y);
     lit = max(lit, albedo * plain);
 #endif
 #if (defined PROGRAM_ENTITIES || defined PROGRAM_HAND) && MATERIALS > 0

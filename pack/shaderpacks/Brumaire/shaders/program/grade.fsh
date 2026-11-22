@@ -314,7 +314,7 @@ void main() {
                 // Collée à l'objectif, la goutte est bien trop près pour être nette : une tache floue qui déforme un
                 // peu ce qu'il y a derrière, sans contour dessiné ni point brillant (ce serait une bulle de savon).
                 float l2 = dot(drop.xy, drop.xy);
-                vec2 at = clamp(vUv - drop.xy * drop.w * vec2(viewHeight / viewWidth, 1.0) * 1.2, 0.002, 0.998);
+                vec2 at = clamp(vUv - drop.xy * drop.w * vec2(viewHeight / viewWidth, 1.0) * 0.6, 0.002, 0.998);
 #ifdef BLOOM
                 vec3 inside = textureLod(colortex0, at, 2.5).rgb;
 #else
@@ -324,7 +324,9 @@ void main() {
                 inside *= 1.0 - 0.10 * smoothstep(0.55, 1.0, l2);
                 inside *= 1.0 + 0.08 * smoothstep(0.3, 0.9, l2) * smoothstep(0.2, 0.7, -drop.y / sqrt(max(l2, 1e-4)));
                 drop.z *= 1.0 - smoothstep(0.55, 1.0, l2);
-                color = mix(color, inside, drop.z);
+                // Hors de netteté, la goutte reste à demi transparente : une ondulation, pas une tache claire posée sur
+                // l'image (sous les arbres, elle montrait le ciel retourné en ovale blanc).
+                color = mix(color, inside, drop.z * 0.55);
             }
         }
     }

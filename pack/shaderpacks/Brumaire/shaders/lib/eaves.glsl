@@ -53,8 +53,8 @@ float eavesAlong(vec3 dir, float t1, float water, out float dist) {
                         float fall = max(age - 0.25 * period, 0.0);
                         float y = roof - 1.05 - 10.0 * fall * fall;
                         if (y < ground) continue;
-                        float size = 0.8 / 16.0;
-                        float tall = size + 0.6 * min(fall, 1.0);
+                        float size = 0.3 / 16.0;
+                        float tall = size + 0.35 * min(fall, 1.0);
                         if (y + tall < wc.y || y - tall > wc.y + 1.0) continue;
                         // Collée au bord du toit, à un endroit tiré au sort le long de lui.
                         float along = 0.2 + 0.6 * moteHash(col, 64.0 + kk);
@@ -67,7 +67,8 @@ float eavesAlong(vec3 dir, float t1, float water, out float dist) {
                             if (length(off.xz) < w && abs(off.y) < max(tall, w)) {
                                 dist = s;
                                 float fade = 0.55 + 0.45 * clamp(0.5 - off.y / (2.0 * max(tall, w)), 0.0, 1.0);
-                                return fade * (1.0 - smoothstep(t1 * 0.6, t1, s));
+                                // Tout près de l'œil, une goutte n'est qu'un éclair flou : elle s'efface au lieu de grossir en tache.
+                                return fade * (1.0 - smoothstep(t1 * 0.6, t1, s)) * smoothstep(1.2, 3.5, s);
                             }
                         }
                     }

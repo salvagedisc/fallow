@@ -57,10 +57,10 @@ float canopyDripAlong(vec3 dir, float t1, float water, float snow, out float dis
                     float fall = max(age - (isSnow ? 0.0 : 0.3), 0.0);
                     // L'eau tombe librement ; la neige, freinée par l'air, plafonne vers six blocs par seconde.
                     float y = under - 0.05 - (isSnow ? (6.0 * fall - 3.0 * (1.0 - exp(-2.0 * fall))) : 10.0 * fall * fall);
-                    float size = (isSnow ? 3.0 : 0.7) / 16.0;
+                    float size = (isSnow ? 3.0 : 0.3) / 16.0;
                     // Une goutte qui tombe file en un trait, d'autant plus long qu'elle va vite ; un paquet de neige
                     // s'effrite en tombant.
-                    float tall = isSnow ? size : size + 0.6 * min(fall, 1.0);
+                    float tall = isSnow ? size : size + 0.35 * min(fall, 1.0);
                     if (y + tall < wc.y || y - tall > wc.y + 1.0) continue;
                     vec3 p = vec3(wc.x + 0.3 + 0.4 * moteHash(col, 34.0 + kk), y, wc.z + 0.3 + 0.4 * moteHash(col, 35.0 + kk)) - camFloor - o;
                     float s = dot(p, dir);
@@ -77,7 +77,8 @@ float canopyDripAlong(vec3 dir, float t1, float water, float snow, out float dis
                             kind = isSnow ? 1.0 : 0.0;
                             // Le trait d'une goutte est plus pâle vers le haut.
                             float fade = isSnow ? 1.0 : 0.55 + 0.45 * clamp(0.5 - off.y / (2.0 * max(tall, size)), 0.0, 1.0);
-                            return fade * (1.0 - smoothstep(t1 * 0.6, t1, s));
+                            // Tout près de l'œil, une goutte n'est qu'un éclair flou : elle s'efface au lieu de grossir en tache.
+                            return fade * (1.0 - smoothstep(t1 * 0.6, t1, s)) * (isSnow ? 1.0 : smoothstep(1.2, 3.5, s));
                         }
                     }
                 }

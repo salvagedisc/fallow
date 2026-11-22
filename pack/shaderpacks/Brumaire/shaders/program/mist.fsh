@@ -483,8 +483,10 @@ void main() {
                 vec3 p = gbufferModelViewInverse[3].xyz + dir * dripDist;
                 vec3 suv = shadowWarp((shadowProjection * (shadowModelView * vec4(p, 1.0))).xyz) * 0.5 + 0.5;
                 float lit = suv.z < 1.0 ? texture(shadowtex1, vec3(suv.xy, suv.z - 0.0002)) : 1.0;
-                vec3 light = dripKind > 0.5 ? gAmbient * 0.85 + gLightColor * lit * 0.7 : gAmbient * 1.3 + gLightColor * lit * 0.6;
-                color = mix(color, light, drip * (dripKind > 0.5 ? 0.9 : 0.55));
+                // Une goutte d'eau ne fait que renvoyer un peu plus de ce qui l'entoure : sous les feuilles, le ciel ouvert
+                // ne l'éclaire pas, elle brille à peine plus que l'ombre où elle tombe.
+                vec3 light = dripKind > 0.5 ? gAmbient * 0.85 + gLightColor * lit * 0.7 : color * 1.7 + gAmbient * 0.12 + gLightColor * lit * 0.25;
+                color = mix(color, light, drip * (dripKind > 0.5 ? 0.9 : 0.45));
             }
         }
 #endif
@@ -494,7 +496,7 @@ void main() {
             float water = max(rainStrength, wetness) * rainHere;
             float eaveDist;
             float eave = eavesAlong(dir, min(len, 20.0), water, eaveDist);
-            if (eave > 0.0) color = mix(color, gAmbient * 1.4 + gLightColor * 0.4, eave * 0.6);
+            if (eave > 0.0) color = mix(color, color * 1.7 + gAmbient * 0.15 + gLightColor * 0.15, eave * 0.5);
         }
 #endif
         // Au loin, là où le jeu ne dessine plus de gouttes, les rideaux de pluie.
