@@ -1,0 +1,30 @@
+{
+  "objets": [
+    "ec_ad:chorusoatl_helmet",
+    "ec_ad:chorusoatl_chestplate",
+    "ec_ad:chorusoatl_leggings",
+    "ec_ad:chorusoatl_boots"
+  ],
+  "actes": [
+    {
+      "acte": "encaisser",
+      "cible": "#minecraft:is_fall",
+      "points": 10,
+      "enchantements": {
+        "minecraft:feather_falling": 4
+      },
+      "nom": "eveil.fallow.acte.chutes"
+    },
+    {
+      "acte": "parcourir",
+      "cible": "marche",
+      "si": "haut",
+      "points": 0.3,
+      "enchantements": {
+        "minecraft:feather_falling": 2,
+        "minecraft:protection": 1
+      },
+      "nom": "eveil.fallow.acte.hauteurs"
+    }
+  ]
+}

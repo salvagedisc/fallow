@@ -33,9 +33,35 @@ With Diegesis in the pack the enchanting table is a station (`TableEveil`, stati
 - **Never vanilla's window.** Hands-On Vanilla registers its own enchanting table station, switched off in the pack's config, and Diegesis takes the first station registered for a block: when Hands-On's came first, nothing opened and vanilla's enchanting window let anyone enchant with experience. The mixin `eveil.PosteDeTableMixin` makes Diegesis always answer the enchanting table with ours, on both sides; and whatever opens it, vanilla's enchanting window is closed as soon as it opens (`EveilModule.jamaisVanilla`). A cancelled right-click cannot be the guard: Diegesis fires the same event to ask whether it may open.
 - Crouching, or with `[eveil] poste = false`, the table keeps the one-row window of before (item in the main hand, shard in the other hand).
 
-## Places by forging quality
+## Places by forging quality and metal
 
-An item can carry as many awakenings as its Overgeared quality allows (`[eveil.places]` in `fallow-server.toml`): none or poor or well forged 1, expert or perfect 2, masterwork 3. The number is fixed at the item's first deed and shown in its tooltip (« Éveils : 1 sur 2 »). An item without quality (bow, fishing rod, shield, leather) has 1.
+An item can carry as many awakenings as its Overgeared quality allows (`[eveil.places]` in `fallow-server.toml`): none or poor or well forged 1, expert or perfect 2, masterwork 3. An item without quality (bow, fishing rod, shield, leather) has 1. Since 0.81.0 the metal adds to it, following the progression ladder ([progression](progression.md)): nothing for iron, copper and gold, one for Overgeared's steel and the pack's black steel (the blued steel), two for diamond, three for orichalcum (netherite), five at most; a cherished item has one more (see below). Archie's armours are beasts, not metal: nothing. The number is shown in the tooltip (« Éveils : 1 sur 2 ») and follows the item (`Lien.places`, each second in the inventory), never below what it already carries.
+
+## Attachment
+
+The owner's wish (2026-11-22): taking care of an item should count. Each item has an attachment to the player, said in one word in its tooltip and after its places in the table's book: *négligé*, nothing, *entretenu*, *chéri* (`Lien`, points kept as notes of `Actes`, the word as the component `fallow:lien`, which only changes when a threshold is passed: below 0, from 30, from 100).
+
+| Gesture | Points |
+|---|---|
+| Repaired before half its wear | +12 |
+| Repaired before the red (90 %) | +4 |
+| Named at the anvil (once) | +25 |
+| A night spent at home, in an item frame or on an armour stand (once a night) | +5 |
+| Picked up again by its player after a death | +10 |
+| Let down into the red (once until repaired) | −12 |
+| Lying on the ground for more than a minute | −1 every 30 s |
+| In fire or lava | −15 every 30 s |
+| In other hands than its first owner's | −4 every 10 min |
+
+- **Entretenu**: at the end of its strength it no longer forgets its last awakening; it stops at its last point (Overgeared's broken state) and waits to be repaired (« … est à bout de forces mais n'a rien oublié : réparez cet objet. »). Its warning at 90 % says so.
+- **Chéri**: one more place.
+- A named item is called by its name everywhere already, the book included.
+
+## Repairing without losing
+
+- At the anvil an awakened item keeps everything, and the repair counts as a deed.
+- Two items put together in the crafting grid to repair each other make a new one: an item that has started its life (`fallow:eveil`) is refused there (mixin `eveil.ReparationEtabliMixin`).
+- After a few anvil repairs vanilla says « Trop usé ! » (the repair cost). Alone on the grindstone, an awakened item now loses that cost and keeps its awakenings; with another item, or with no cost to remove, the grindstone still gives nothing.
 
 ## Deeds
 
@@ -69,6 +95,12 @@ The deeds are data, one file per family of items in `data/fallow/eveil/` of the 
 | Create potato cannon | a creature beaten; a burning one | 15 | Potato Recovery 3, Power, Punch; Flame 3 |
 | Create backtanks | seconds under water | 3 | Capacity 3 |
 | Supplementaries slingshot | a creature beaten; from far | 15 | Stasis |
+| Obsidiceratops armour (Archie) | steps near lava (within 3 blocks); fire damage taken | 0.5; 6 | Fire Protection 3, Protection 1; Fire Protection 4 |
+| Chorusoatl armour | fall damage taken; steps at y 120 or higher | 10; 0.3 | Feather Falling 4; Feather Falling 2, Protection 1 |
+| Coralosaur armour | seconds under water at y 40 or lower; blocks swum | 4; 1.5 | Respiration 3, Depth Strider 2, Aqua Affinity 1; Depth Strider 3 |
+| Therimoss armour | blocks walked where it never rains | 0.1 | Unbreaking 3, Protection 1 |
+| Sculksaur armour | steps crouching in the dark (light 4 or less) | 0.8 | Swift Sneak 4, Protection 1 |
+| Lushsaur armour | steps crouching near animals (8 blocks) | 0.8 | Swift Sneak 3, Protection 1 |
 
 A creature counts for its maximum health divided by 20, at most 10: a zombie gives 15 points to a sword, a chicken 3. Walking counts once a second, on the ground, not mounted, at most 12 blocks a second, for every armour piece worn. Every enchantment of the pack has a source, a deed or a great beast, except the curses (by design), Frost Walker (Frostmaw only) and the three enchantments of Alex's Mobs' straddleboard (too narrow an item).
 
@@ -79,6 +111,8 @@ A bow's arrow carries a copy of the bow: the kill is counted on the bow in the i
 **Mending without experience.** Fallow has no experience, so vanilla Mending would do nothing. Here an item with Mending mends itself by living: each deed point gives back `raccommodage` (0.2) durability per level, the fraction drawn at random. A Mending I pickaxe regains a point every five stones; a Mending sword regains about three points per zombie. This repair does not count as the deed « repaired ».
 
 The deeds of an item are kept by the world (`data/fallow_eveil.dat`, under the item's id), not on the item: its component changes only when it becomes ready, awakens, forgets or reaches the next quarter of its way, so the item in hand does not twitch at every block. An item that breaks, burns or despawns takes its deeds with it. A copy of an item (creative mode) gets its own id at once and keeps what the original had lived.
+
+**Archie's armours ask for a part of their beast.** Besides the ink, an Archie's Dinosaurs armour piece awakens only if the player carries a part of its creature, which the table takes (`PartDeBete`): an obsidian horn (Obsidiceratops), a chorus fossil (Chorusoatl), a coral rib (Coralosaur), a mossy claw (Therimoss), sculk toxin (Sculksaur), a lush core (Lushsaur). Without it, the foot of the page says « Il manque … : la bête doit donner une part d'elle. » in red, and its tooltip names the part. They also keep the deeds of their armour slot.
 
 ## Great beasts
 
@@ -102,7 +136,7 @@ Only when a player killed the beast. The shard falls in sight: it glows through 
 - The vanilla enchanting table has no other use: a right-click never opens its window (Hands-On Vanilla's own enchanting station stays off, `enchanting_table=false`; ours takes the block).
 - The equipment of a creature (a zombie's sword, a skeleton's bow, a drowned's trident) falls without its enchantments; an awakened item a creature had picked up keeps its own.
 - Whatever else gets in (a chest placed with a structure, a reward, a modded recipe, a command): every second, an item in a player's inventory keeps only what its awakenings gave it, and an enchanted book becomes a book. Not in creative mode.
-- The grindstone gives nothing for an awakened item: an awakening is not wiped off.
+- The grindstone gives nothing for an awakened item: an awakening is not wiped off (alone, it only loses its anvil repair cost, see « Repairing without losing »).
 
 ## Settings (`fallow-server.toml`, `[eveil]`)
 
@@ -155,6 +189,8 @@ Test commands (operators): `/fallow eveil voir` shows the held item's places, st
 
 **Checked** on the test bench on 2026-11-22 (a place apart, 0.79.0), development client and server with Diegesis, by day with the bookshelves behind the table removed: sitting, the ground beyond the table fades to violet within a second, and stays veiled; holding a path, the ground and the shelves are gone, only the table, the book and the runes remain; after the flash the veil comes back; leaving, the world is dark violet at 0.4 s, grey-violet at 1.4 s and clear at 2.6 s. A first version timed out the table's aim in milliseconds and let the world come back on a slow frame: it now counts frames. Not checked: the sounds (no audio on the bench), with ATMOSPHERICS, Distant Horizons and Brumaire (EV25).
 
+**Checked** on the test bench on 2026-11-22 (attachment, 0.81.0), development client and server with Diegesis: a diamond pickaxe named « Brise-Roche » gets 25 points; nine repairs from 20 % wear give 12 each, the note goes to Entretenu then Chéri; let down to 95 % wear it loses 12 (121 in all); its places are 4 (1 without quality, 2 for diamond, 1 cherished); its tooltip reads « Chéri : un éveil de plus » in light purple and the table's book « ◇ ◇ ◇ ◇ chéri ». Not checked: the item frame night, the death pickup, the grindstone, the crafting grid refusal, an Entretenu item worn out, Archie's armours (no Archie's Dinosaurs on the bench) (EV26 to EV31).
+
 ## In-game tests
 
 | # | Test | Expected |
@@ -182,5 +218,11 @@ Test commands (operators): `/fallow eveil voir` shows the held item's places, st
 | EV21 | Leave the table | The book half shuts and goes back over the table; the floating book of vanilla is never seen twice; what lay on the table is back in the inventory |
 | EV22 | At the table, hold the click on a path, let go after one second | The pickaxe rose and turned, then falls back to its place with a dying sound; nothing is awakened; holding again to the end awakens it |
 | EV23 | Craft awakening ink (glass bottle, lapis lazuli, glow ink sac, amethyst shard); open the table with a ready pickaxe and no ink, then with three vials | Without ink: the paths stay in runes on hover, the foot of the right page says the inkwell is empty, holding the click makes the book and the inkwell shiver, with no caption; with ink: the three vials go to the inkwell by themselves, reading a path draws wisps of ink to it, the awakening leaves two |
+| EV26 | Name a new iron pickaxe at the anvil, repair it twice before half its wear, then `/fallow eveil voir` | Attachment about 49, tooltip « Entretenu : à bout de forces, il tient bon », a green note; the book shows « entretenu » after its places |
+| EV27 | An Entretenu awakened item worn to its last point | Grey note « … n'a rien oublié : réparez cet objet. », the enchantment stays, the tooltip says it waits to be repaired |
+| EV28 | Leave an awakened sword in an item frame through a night, then on the ground a few minutes | `voir` shows +5 for the night, then the points falling |
+| EV29 | Diamond and orichalcum pickaxes, a steel and a black steel chestplate, all poorly forged | Places 3, 4, 2, 2 |
+| EV30 | Two worn awakened pickaxes in the crafting grid; one alone on the grindstone after « Trop usé ! » | No repair result; the grindstone gives it back with its awakenings and the anvil takes it again |
+| EV31 | An Obsidiceratops chestplate ready to awaken, at the table without then with an obsidian horn | Without: red foot « Il manque Corne d'obsidienne … », the book shivers; with: it awakens and the horn is gone; walking near lava counted toward Fire Protection |
 | EV25 | At the table by day, outdoors, then hold a path, then leave | Sitting: the view widens then settles, a violet mist veils the ground a few blocks away and the sky, rain, creatures and music fall quiet; during the rite only the table, the book and the runes remain, dust comes in from the dark; after the flash the veil comes back; leaving, the mist and the sounds return over about three seconds |
 | EV24 | Crouch-click the table with a ready pickaxe, without ink then with one vial | Without: « Il manque l'encre d'éveil … », no window; with: the window opens and the vial is gone after the choice |

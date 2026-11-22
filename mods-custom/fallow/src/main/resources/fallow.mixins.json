@@ -9,6 +9,7 @@
     "compat.InStructureMixin",
     "dinos.ChorusoatlArmorMixin",
     "eveil.PosteDeTableMixin",
+    "eveil.ReparationEtabliMixin",
     "horizon.ChunkyAccessorMixin",
     "navires.VoileMixin",
     "repos.PlayerExhaustionMixin",

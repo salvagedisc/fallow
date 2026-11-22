@@ -108,6 +108,15 @@ public final class HautsFaits extends SimpleJsonResourceReloadListener {
                 case "loin" -> cible != null && cible.distanceToSqr(joueur) > LOIN * LOIN;
                 case "ecrase" -> c.source() != null && c.source().getDirectEntity() == joueur
                         && joueur.fallDistance > 1.5F && !joueur.isFallFlying();
+                // Les terres des armures d'Archie : la chaleur, les hauteurs, les profondeurs, le sec, l'ombre, les bêtes.
+                case "pres_de_lave" -> joueur.level().getBlockStates(joueur.getBoundingBox().inflate(3.0))
+                        .anyMatch(state -> state.getFluidState().is(net.minecraft.tags.FluidTags.LAVA));
+                case "haut" -> joueur.getY() >= HAUT;
+                case "profond" -> joueur.isUnderWater() && joueur.getY() <= PROFOND;
+                case "sec" -> !joueur.level().getBiome(joueur.blockPosition()).value().hasPrecipitation();
+                case "obscur" -> joueur.level().getMaxLocalRawBrightness(joueur.blockPosition()) <= 4;
+                case "pres_des_betes" -> !joueur.level().getEntitiesOfClass(net.minecraft.world.entity.animal.Animal.class,
+                        joueur.getBoundingBox().inflate(8.0)).isEmpty();
                 default -> false;
             };
         }
@@ -176,6 +185,9 @@ public final class HautsFaits extends SimpleJsonResourceReloadListener {
 
     /** Au-delà de cette distance, la créature a été vaincue de loin. */
     private static final double LOIN = 20.0;
+    /** Les hauteurs (Chorusoatl) et les profondeurs (Coralosaur), en hauteur du monde. */
+    private static final double HAUT = 120.0;
+    private static final double PROFOND = 40.0;
 
     private static final Gson GSON = new Gson();
     private static volatile List<Famille> familles = List.of();

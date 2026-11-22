@@ -6,6 +6,7 @@ import io.github.salvagedisc.fallow.Fallow;
 import io.github.salvagedisc.fallow.FallowConfig;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -82,6 +83,10 @@ public final class EveilModule {
             DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, Fallow.MOD_ID);
     public static final Supplier<DataComponentType<EtatEveil>> ETAT = COMPONENTS.registerComponentType("eveil",
             builder -> builder.persistent(EtatEveil.CODEC).networkSynchronized(EtatEveil.STREAM_CODEC));
+    /** Le mot de l'attachement de l'objet ({@link Lien}) : -1 négligé, 1 entretenu, 2 chéri ; absent entre les deux. */
+    public static final Supplier<DataComponentType<Integer>> LIEN = COMPONENTS.registerComponentType("lien",
+            builder -> builder.persistent(com.mojang.serialization.Codec.intRange(-1, 2))
+                    .networkSynchronized(net.minecraft.network.codec.ByteBufCodecs.VAR_INT));
     public static final Supplier<DataComponentType<Eclat>> ECLAT = COMPONENTS.registerComponentType("eclat",
             builder -> builder.persistent(Eclat.CODEC).networkSynchronized(Eclat.STREAM_CODEC));
 
@@ -109,6 +114,13 @@ public final class EveilModule {
     private static final Map<UUID, Integer> USURES = new HashMap<>();
     /** Les objets qui ont déjà prévenu qu'ils faiblissent (jusqu'à leur réparation). */
     private static final java.util.Set<UUID> AVERTIS = new java.util.HashSet<>();
+    /** Les objets descendus dans le rouge depuis leur dernière réparation (l'attachement n'en pâtit qu'une fois). */
+    private static final java.util.Set<UUID> ROUGES = new java.util.HashSet<>();
+    /** Depuis combien de secondes un objet est dans d'autres mains que celles de son maître. */
+    private static final Map<UUID, Integer> PRETS = new HashMap<>();
+    /** Les objets tombés à la mort d'un joueur, et ce joueur : les reprendre est un geste d'attachement. */
+    private static final Map<UUID, UUID> MORTS = new HashMap<>();
+    private static final java.util.Set<UUID> REPRIS = new java.util.HashSet<>();
     /** Diegesis est là : la table d'enchantement s'ouvre en poste ({@link TableEveil}). */
     static final boolean DIEGESIS = io.github.salvagedisc.fallow.ModIds.isLoaded(io.github.salvagedisc.fallow.ModIds.DIEGESIS);
     private static final EquipmentSlot[] ARMURE = {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
@@ -133,6 +145,17 @@ public final class EveilModule {
             DERNIERES_POSITIONS.clear();
             USURES.clear();
             AVERTIS.clear();
+            ROUGES.clear();
+            PRETS.clear();
+            MORTS.clear();
+            REPRIS.clear();
+        });
+        NeoForge.EVENT_BUS.addListener(net.neoforged.neoforge.event.tick.ServerTickEvent.Post.class, EveilModule::horsDesMains);
+        NeoForge.EVENT_BUS.addListener(net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent.Post.class, e -> {
+            EtatEveil etat = e.getOriginalStack().get(ETAT.get());
+            if (etat != null && e.getPlayer().getUUID().equals(MORTS.remove(etat.id()))) {
+                REPRIS.add(etat.id());
+            }
         });
         NeoForge.EVENT_BUS.addListener(AddReloadListenerEvent.class, e -> e.addListener(new HautsFaits()));
         NeoForge.EVENT_BUS.addListener(PlayerEvent.PlayerLoggedOutEvent.class,
@@ -301,18 +324,97 @@ public final class EveilModule {
                 stack.set(ETAT.get(), copie);
                 etat = copie;
             }
+            attachement(player, stack, etat);
             if (stack.isDamageableItem()) {
                 int usure = stack.getDamageValue();
                 Integer avant = USURES.put(etat.id(), usure);
                 if (avant != null && usure < avant) {
                     AVERTIS.remove(etat.id());
+                    ROUGES.remove(etat.id());
                     HautsFaits.Contexte moment = HautsFaits.Contexte.de(player);
                     Eveil.acte(player, stack, HautsFaits.Type.REPARER, entree -> entree.si(moment), avant - usure);
+                    // Réparé à temps, c'est du soin : avant la mi-usure beaucoup, avant le rouge un peu, après rien.
+                    double soin = avant < stack.getMaxDamage() * 0.5 ? Lien.REPARE_TOT
+                            : avant < stack.getMaxDamage() * FallowConfig.eveilAlerte() ? Lien.REPARE : 0.0;
+                    Lien.ajouter(player.server, stack, etat, soin, player);
+                } else if (usure >= stack.getMaxDamage() * FallowConfig.eveilAlerte() && ROUGES.add(etat.id())) {
+                    Lien.ajouter(player.server, stack, etat, Lien.ROUGE, player);
                 }
             }
             Eveil.usure(player, stack);
             if (Eveil.alerte(player, stack, AVERTIS.contains(etat.id()))) {
                 AVERTIS.add(etat.id());
+            }
+        }
+    }
+
+    /**
+     * Ce que le porteur fait à l'objet, chaque seconde : le nommer (une fois), le reprendre après une mort, le garder ou le
+     * prêter ; ses places suivent son métal et son attachement.
+     */
+    private static void attachement(ServerPlayer player, ItemStack stack, EtatEveil etat) {
+        Actes actes = Actes.get(player.server);
+        UUID id = etat.id();
+        if (stack.has(DataComponents.CUSTOM_NAME) && actes.note(id, Lien.NOMME) == 0.0) {
+            actes.noter(id, Lien.NOMME, 1.0);
+            Lien.ajouter(player.server, stack, etat, Lien.NOMME_POINTS, player);
+        }
+        if (REPRIS.remove(id)) {
+            Lien.ajouter(player.server, stack, etat, Lien.REPRIS, player);
+        }
+        // Le maître est le premier à l'avoir porté (une empreinte de son identifiant, qui tient dans une note).
+        double moi = player.getUUID().hashCode() | 1;
+        double maitre = actes.note(id, Lien.MAITRE);
+        if (maitre == 0.0) {
+            actes.noter(id, Lien.MAITRE, moi);
+        } else if (maitre != moi) {
+            int secondes = PRETS.merge(id, 1, Integer::sum);
+            if (secondes % 600 == 0) {
+                Lien.ajouter(player.server, stack, etat, Lien.PRETE, player);
+            }
+        } else {
+            PRETS.remove(id);
+        }
+        Lien.places(stack);
+    }
+
+    /**
+     * Toutes les trente secondes, les objets hors des mains : ceux qui passent la nuit chez soi (dans un cadre, sur un support
+     * d'armure) gagnent en attachement, une fois par nuit ; ceux qui traînent au sol en perdent, et plus encore dans le feu.
+     */
+    private static void horsDesMains(net.neoforged.neoforge.event.tick.ServerTickEvent.Post event) {
+        MinecraftServer current = event.getServer();
+        if (!FallowConfig.eveilEnabled() || current.getTickCount() % 600 != 0) {
+            return;
+        }
+        Actes actes = Actes.get(current);
+        for (ServerLevel level : current.getAllLevels()) {
+            boolean nuit = level.isNight();
+            double jour = level.getDayTime() / 24000L + 1.0;
+            for (Entity entity : level.getAllEntities()) {
+                if (entity instanceof ItemEntity item) {
+                    ItemStack stack = item.getItem();
+                    EtatEveil etat = stack.get(ETAT.get());
+                    if (etat != null) {
+                        double perte = item.isOnFire() || item.isInLava() ? Lien.FEU : item.getAge() > 1200 ? Lien.AU_SOL : 0.0;
+                        Lien.ajouter(current, stack, etat, perte, null);
+                    }
+                } else if (nuit && (entity instanceof net.minecraft.world.entity.decoration.ItemFrame
+                        || entity instanceof net.minecraft.world.entity.decoration.ArmorStand)) {
+                    List<ItemStack> poses = new ArrayList<>();
+                    if (entity instanceof net.minecraft.world.entity.decoration.ItemFrame frame) {
+                        poses.add(frame.getItem());
+                    } else {
+                        ((LivingEntity) entity).getAllSlots().forEach(poses::add);
+                    }
+                    for (ItemStack stack : poses) {
+                        EtatEveil etat = stack.get(ETAT.get());
+                        if (etat != null && actes.note(etat.id(), Lien.NUIT) < jour) {
+                            actes.noter(etat.id(), Lien.NUIT, jour);
+                            Lien.ajouter(current, stack, etat, Lien.NUIT_CHEZ_SOI, null);
+                        }
+                    }
+                }
             }
         }
     }
@@ -335,7 +437,17 @@ public final class EveilModule {
 
     /** L'équipement d'une créature tombe sans enchantement, sauf un objet éveillé qu'elle avait ramassé. */
     private static void onDrops(LivingDropsEvent event) {
-        if (!FallowConfig.eveilEnabled() || event.getEntity() instanceof Player) {
+        if (!FallowConfig.eveilEnabled()) {
+            return;
+        }
+        if (event.getEntity() instanceof Player player) {
+            // Ce qui tombe à la mort d'un joueur : le reprendre lui-même sera un geste d'attachement.
+            for (ItemEntity drop : event.getDrops()) {
+                EtatEveil etat = drop.getItem().get(ETAT.get());
+                if (etat != null) {
+                    MORTS.put(etat.id(), player.getUUID());
+                }
+            }
             return;
         }
         for (ItemEntity drop : event.getDrops()) {
@@ -378,7 +490,23 @@ public final class EveilModule {
         if (!FallowConfig.eveilEnabled()) {
             return;
         }
-        for (ItemStack stack : new ItemStack[] {event.getTopItem(), event.getBottomItem()}) {
+        ItemStack haut = event.getTopItem();
+        ItemStack bas = event.getBottomItem();
+        ItemStack seul = haut.isEmpty() ? bas : bas.isEmpty() ? haut : ItemStack.EMPTY;
+        EtatEveil seulEtat = seul.get(ETAT.get());
+        if (seulEtat != null && !seulEtat.traces().isEmpty()) {
+            // Seul sur la meule, un objet éveillé y perd son usure d'enclume (« Trop usé ! ») et garde ses éveils.
+            if (seul.getOrDefault(DataComponents.REPAIR_COST, 0) > 0) {
+                ItemStack poli = seul.copyWithCount(1);
+                poli.remove(DataComponents.REPAIR_COST);
+                event.setOutput(poli);
+                event.setXp(0);
+            } else {
+                event.setCanceled(true);
+            }
+            return;
+        }
+        for (ItemStack stack : new ItemStack[] {haut, bas}) {
             EtatEveil etat = stack.get(ETAT.get());
             if (etat != null && !etat.traces().isEmpty() && stack.isEnchanted()) {
                 event.setCanceled(true);
@@ -519,10 +647,16 @@ public final class EveilModule {
             dire(player, "eveil.fallow.table.plein");
             return;
         }
+        if (!PartDeBete.porte(player, objet)) {
+            player.displayClientMessage(Component.translatable("eveil.fallow.table.sans_part",
+                    PartDeBete.de(objet).map(Item::getDescription).orElse(Component.empty())), true);
+            return;
+        }
         if (!prendreEncre(player)) {
             dire(player, "eveil.fallow.table.sans_encre");
             return;
         }
+        PartDeBete.prendre(player, objet);
         Eveil.appliquer(player, objet, option, Optional.of(eclat.bete()), event.getPos());
         eclatStack.shrink(1);
     }
@@ -593,7 +727,9 @@ public final class EveilModule {
                             EtatEveil etat = stack.get(ETAT.get());
                             StringBuilder text = new StringBuilder(etat == null ? "Aucun acte compté"
                                     : "Éveils " + etat.occupees() + "/" + etat.places() + (etat.pret() ? ", prêt" : "")
-                                            + (etat.eteint() ? ", éteint" : "") + ", qualité " + Eveil.qualite(stack));
+                                            + (etat.eteint() ? ", éteint" : "") + ", qualité " + Eveil.qualite(stack)
+                                            + ", attachement " + String.format("%.1f", Actes.get(context.getSource().getServer())
+                                                    .note(etat.id(), Lien.POINTS)) + " (" + Lien.cle(Lien.de(stack)) + ")");
                             Eveil.detail(context.getSource().getServer(), stack).forEach((k, v) ->
                                     text.append("\n").append(k).append(" : ").append(String.format("%.1f", v)));
                             context.getSource().sendSuccess(() -> Component.literal(text.toString()), false);

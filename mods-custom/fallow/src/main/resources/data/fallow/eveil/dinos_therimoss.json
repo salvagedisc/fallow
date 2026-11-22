@@ -1,0 +1,21 @@
+{
+  "objets": [
+    "ec_ad:therimoss_helmet",
+    "ec_ad:therimoss_chestplate",
+    "ec_ad:therimoss_leggings",
+    "ec_ad:therimoss_boots"
+  ],
+  "actes": [
+    {
+      "acte": "parcourir",
+      "cible": "marche",
+      "si": "sec",
+      "points": 0.1,
+      "enchantements": {
+        "minecraft:unbreaking": 3,
+        "minecraft:protection": 1
+      },
+      "nom": "eveil.fallow.acte.routes_seches"
+    }
+  ]
+}

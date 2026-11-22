@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -55,6 +56,8 @@ import io.github.salvagedisc.fallow.eveil.Eclat;
 import io.github.salvagedisc.fallow.eveil.EtatEveil;
 import io.github.salvagedisc.fallow.eveil.EveilModule;
 import io.github.salvagedisc.fallow.eveil.TableEveil;
+import io.github.salvagedisc.fallow.eveil.Lien;
+import io.github.salvagedisc.fallow.eveil.PartDeBete;
 
 /**
  * La table d'enchantement en poste, sur le client, sur le modèle de celle de Hands-On Vanilla (MIT, Pocky) : le livre de la table
@@ -444,7 +447,7 @@ final class TableBehavior implements StationBehavior {
         }
         // Sous le regard, la voie se déchiffre lettre à lettre ; une fois lue, elle le reste.
         int lue = survol >= 0 ? survol : pageSurvolee ? 0 : -1;
-        if (ici != null && lue >= 0 && ici.revele()[lue] < 1.0F && !sansEncre(view)) {
+        if (ici != null && lue >= 0 && ici.revele()[lue] < 1.0F && manque(view, ici) == null) {
             float avantLue = ici.revele()[lue];
             if (avantLue <= 0.0F) {
                 // Un murmure quand la table commence à dire une voie.
@@ -584,9 +587,9 @@ final class TableBehavior implements StationBehavior {
         if (hit.isEmpty() || !hit.get().right()) {
             return;
         }
-        if (sansEncre(view) && (ici.aEclat() || TableEveil.ETAT_PRET.equals(ici.etat()))) {
+        if (manque(view, ici) != null && (ici.aEclat() || TableEveil.ETAT_PRET.equals(ici.etat()))) {
             refus(view);
-            view.node(TableEveil.ENCRE).ifPresent(node -> node.shake(0.4F, 0.25F));
+            view.node(sansEncre(view) ? TableEveil.ENCRE : TableEveil.OBJET).ifPresent(node -> node.shake(0.4F, 0.25F));
             return;
         }
         if (ici.aEclat()) {
@@ -746,6 +749,22 @@ final class TableBehavior implements StationBehavior {
     private static boolean sansEncre(StationView view) {
         LocalPlayer player = Minecraft.getInstance().player;
         return view.state().getItem(TableEveil.ENCRE_REF).isEmpty() && (player == null || !player.getAbilities().instabuild);
+    }
+
+    /**
+     * Ce qui manque pour écrire, dit au pied de la page : l'encre d'abord, puis, pour une armure d'Archie, la part de sa bête
+     * que le joueur doit porter ({@link PartDeBete}) ; {@code null} si rien ne manque.
+     */
+    private static Component manque(StationView view, Contenu ici) {
+        if (sansEncre(view)) {
+            return Component.translatable("eveil.fallow.livre.sans_encre");
+        }
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (ici != null && player != null && !PartDeBete.porte(player, ici.objet())) {
+            return Component.translatable("eveil.fallow.livre.sans_part",
+                    PartDeBete.de(ici.objet()).map(item -> item.getDescription()).orElse(Component.empty()));
+        }
+        return null;
     }
 
     private void refus(StationView view) {
@@ -1051,7 +1070,14 @@ final class TableBehavior implements StationBehavior {
             for (int i = 0; i < etat.places(); i++) {
                 signes.append(i < etat.occupees() ? '\u25C6' : '\u25C7').append(' ');
             }
-            canvas.text(Component.literal(signes.toString().trim()).getVisualOrderText(), nomX, y - 1.0F, VIOLET, 1.0F);
+            String places = signes.toString().trim();
+            canvas.text(Component.literal(places).getVisualOrderText(), nomX, y - 1.0F, VIOLET, 1.0F);
+            // Et le mot de son attachement, à la suite : négligé, entretenu, chéri.
+            int lien = Lien.de(objet);
+            if (lien != Lien.AUCUN) {
+                canvas.text(Component.translatable("eveil.fallow.lien." + Lien.cle(lien)).withStyle(ChatFormatting.ITALIC)
+                        .getVisualOrderText(), nomX + font.width(places) + 4.0F, y, PETIT, lien == Lien.NEGLIGE ? PALE : SEPIA, 1.0F);
+            }
         }
         y += 9.0F;
         filet(canvas, y);
@@ -1142,8 +1168,9 @@ final class TableBehavior implements StationBehavior {
         float y = titre(canvas, Component.translatable(liste.size() > 1 ? "eveil.fallow.livre.voies" : "eveil.fallow.livre.voie"), HAUT_ECRIT);
         filet(canvas, y + 1.0F);
         y += 6.0F;
-        boolean sec = station != null && sansEncre(station);
-        Component piedTexte = Component.translatable(sec ? "eveil.fallow.livre.sans_encre" : "eveil.fallow.livre.choisir");
+        Component manque = station == null ? null : manque(station, contenu);
+        boolean sec = manque != null;
+        Component piedTexte = sec ? manque : Component.translatable("eveil.fallow.livre.choisir");
         float bas = PIED + PETITE_LIGNE - lignesDuPied(piedTexte) * PETITE_LIGNE - 4.0F;
         int n = Math.min(2, liste.size());
         // Chaque voie est d'abord mesurée sur ses mots lus : sa bande la couvre toute, et rien ne bouge pendant qu'on la déchiffre.
@@ -1214,15 +1241,16 @@ final class TableBehavior implements StationBehavior {
         y = ecrireLignes(canvas, force, y, vive, courante && ok ? 0.16F + 0.12F * Mth.sin(horloge * 2.2F) : 0.0F,
                 0xFF000000 | eclat.couleur(), lettres, tenu);
         paragraphe(canvas, Component.translatable("eveil.fallow.livre.eclat.place"), DROITE_X, y + 3.0F, PETIT, PALE, 3);
+        Component manque = station == null ? null : manque(station, contenu);
         String cle = switch (contenu.data().getString(TableEveil.ECLAT_ETAT)) {
-            case TableEveil.ECLAT_OK -> station != null && sansEncre(station) ? "eveil.fallow.livre.sans_encre"
-                    : "eveil.fallow.livre.eclat.verser";
+            case TableEveil.ECLAT_OK -> "eveil.fallow.livre.eclat.verser";
             case TableEveil.ECLAT_SANS_OBJET -> "eveil.fallow.livre.eclat.sans_objet";
             case TableEveil.ECLAT_DEJA -> "eveil.fallow.eclat.deja";
             case TableEveil.ECLAT_PLEIN -> "eveil.fallow.table.plein";
             default -> "eveil.fallow.eclat.ne_prend_pas";
         };
-        pied(canvas, Component.translatable(cle), ok && !(station != null && sansEncre(station)) ? SEPIA : ROUGE);
+        boolean manqueIci = ok && manque != null;
+        pied(canvas, manqueIci ? manque : Component.translatable(cle), ok && !manqueIci ? SEPIA : ROUGE);
     }
 
     // ---- l'écriture ----

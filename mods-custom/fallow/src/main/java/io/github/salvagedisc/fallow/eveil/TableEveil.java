@@ -220,9 +220,11 @@ public final class TableEveil {
                 return;
             }
             Eveil.Option option = options.get(voie);
-            if (!encrer(ctx, player)) {
+            // Une armure d'Archie demande aussi une part de sa bête ; le livre dit ce qui manque.
+            if (!PartDeBete.porte(player, stack) || !encrer(ctx, player)) {
                 return;
             }
+            PartDeBete.prendre(player, stack);
             Eveil.appliquer(player, stack, option, Optional.empty(), ctx.pos());
             ctx.state().setItem(OBJET_REF, stack);
             joue(ctx, player, option, false);
@@ -237,9 +239,11 @@ public final class TableEveil {
                 return;
             }
             Eveil.Option option = optionEclat(ctx, stack, eclat);
-            if (option == null || Eveil.reconcilier(stack, Eveil.etat(stack)).plein() || !encrer(ctx, player)) {
+            if (option == null || Eveil.reconcilier(stack, Eveil.etat(stack)).plein() || !PartDeBete.porte(player, stack)
+                    || !encrer(ctx, player)) {
                 return;
             }
+            PartDeBete.prendre(player, stack);
             Eveil.appliquer(player, stack, option, Optional.of(eclat.bete()), ctx.pos());
             eclatStack.shrink(1);
             ctx.state().setItem(OBJET_REF, stack);

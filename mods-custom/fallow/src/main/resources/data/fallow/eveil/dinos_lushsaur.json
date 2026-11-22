@@ -1,0 +1,24 @@
+{
+  "objets": [
+    "ec_ad:lushsaur_helmet",
+    "ec_ad:lushsaur_chestplate",
+    "ec_ad:lushsaur_leggings",
+    "ec_ad:lushsaur_boots"
+  ],
+  "actes": [
+    {
+      "acte": "parcourir",
+      "cible": "marche",
+      "si": [
+        "accroupi",
+        "pres_des_betes"
+      ],
+      "points": 0.8,
+      "enchantements": {
+        "minecraft:swift_sneak": 3,
+        "minecraft:protection": 1
+      },
+      "nom": "eveil.fallow.acte.approche"
+    }
+  ]
+}

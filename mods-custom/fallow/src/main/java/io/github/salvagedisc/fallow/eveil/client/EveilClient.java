@@ -4,6 +4,8 @@ import io.github.salvagedisc.fallow.FallowConfig;
 import io.github.salvagedisc.fallow.eveil.Eclat;
 import io.github.salvagedisc.fallow.eveil.EtatEveil;
 import io.github.salvagedisc.fallow.eveil.EveilModule;
+import io.github.salvagedisc.fallow.eveil.Lien;
+import io.github.salvagedisc.fallow.eveil.PartDeBete;
 import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -60,7 +62,8 @@ public final class EveilClient {
         if (etat.pret()) {
             tooltip.add(Component.translatable("eveil.fallow.tooltip.pret").withStyle(ChatFormatting.GOLD));
         } else if (etat.eteint()) {
-            tooltip.add(Component.translatable("eveil.fallow.tooltip.eteint").withStyle(ChatFormatting.DARK_GRAY));
+            tooltip.add(Component.translatable(Lien.de(stack) >= Lien.ENTRETENU ? "eveil.fallow.lien.tooltip.tient"
+                    : "eveil.fallow.tooltip.eteint").withStyle(ChatFormatting.DARK_GRAY));
         } else if (!etat.plein()) {
             tooltip.add(Component.translatable("eveil.fallow.tooltip.palier." + etat.palier())
                     .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
@@ -73,6 +76,13 @@ public final class EveilClient {
         }
         tooltip.add(Component.translatable("eveil.fallow.tooltip.places", etat.occupees(), etat.places())
                 .withStyle(ChatFormatting.GRAY));
+        int lien = Lien.de(stack);
+        if (lien != Lien.AUCUN) {
+            tooltip.add(Component.translatable("eveil.fallow.lien.tooltip." + Lien.cle(lien)).withStyle(lien == Lien.NEGLIGE
+                    ? ChatFormatting.DARK_GRAY : lien == Lien.CHERI ? ChatFormatting.LIGHT_PURPLE : ChatFormatting.GREEN));
+        }
+        PartDeBete.de(stack).ifPresent(part -> tooltip.add(Component.translatable("eveil.fallow.tooltip.part", part.getDescription())
+                .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC)));
     }
 
     private static Component nom(EtatEveil.Trace trace) {

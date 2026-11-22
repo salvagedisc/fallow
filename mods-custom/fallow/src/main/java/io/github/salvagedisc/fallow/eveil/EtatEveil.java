@@ -70,6 +70,10 @@ public record EtatEveil(UUID id, int places, List<Trace> traces, boolean pret, b
         return new EtatEveil(id, places, traces, pret, eteint, value);
     }
 
+    EtatEveil avecPlaces(int value) {
+        return new EtatEveil(id, value, traces, pret, eteint, palier);
+    }
+
     EtatEveil avecId(UUID value) {
         return new EtatEveil(value, places, traces, pret, eteint, palier);
     }

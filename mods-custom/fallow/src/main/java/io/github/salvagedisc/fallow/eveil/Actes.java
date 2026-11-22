@@ -16,6 +16,8 @@ import net.minecraft.world.level.saveddata.SavedData;
 final class Actes extends SavedData {
     private static final String NAME = "fallow_eveil";
     private static final String FOIS = "#";
+    /** Les notes de l'objet hors des actes (son attachement, s'il a été nommé…) : {@link #NOTE} devant la clé, hors des points. */
+    private static final String NOTE = "~";
 
     private final Map<UUID, Map<String, Double>> objets = new HashMap<>();
 
@@ -54,8 +56,18 @@ final class Actes extends SavedData {
 
     double total(UUID id) {
         Map<String, Double> map = objets.get(id);
-        return map == null ? 0.0 : map.entrySet().stream().filter(e -> !e.getKey().startsWith(FOIS))
+        return map == null ? 0.0 : map.entrySet().stream().filter(e -> !e.getKey().startsWith(FOIS) && !e.getKey().startsWith(NOTE))
                 .mapToDouble(Map.Entry::getValue).sum();
+    }
+
+    /** Une note de l'objet ({@link Lien}), 0 si elle n'a jamais été posée. */
+    double note(UUID id, String cle) {
+        return points(id, NOTE + cle);
+    }
+
+    void noter(UUID id, String cle, double valeur) {
+        objets.computeIfAbsent(id, k -> new HashMap<>()).put(NOTE + cle, valeur);
+        setDirty();
     }
 
     /** L'objet a disparu (cassé, brûlé, disparu au sol) : ses actes avec lui. */
@@ -85,7 +97,7 @@ final class Actes extends SavedData {
             return;
         }
         double ratio = total <= 0 ? 0 : Math.max(0, cible) / total;
-        map.replaceAll((k, v) -> k.startsWith(FOIS) ? v : v * ratio);
+        map.replaceAll((k, v) -> k.startsWith(FOIS) || k.startsWith(NOTE) ? v : v * ratio);
         setDirty();
     }
 

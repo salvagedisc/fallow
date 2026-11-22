@@ -1,0 +1,24 @@
+{
+  "objets": [
+    "ec_ad:sculksaur_helmet",
+    "ec_ad:sculksaur_chestplate",
+    "ec_ad:sculksaur_leggings",
+    "ec_ad:sculksaur_boots"
+  ],
+  "actes": [
+    {
+      "acte": "parcourir",
+      "cible": "marche",
+      "si": [
+        "accroupi",
+        "obscur"
+      ],
+      "points": 0.8,
+      "enchantements": {
+        "minecraft:swift_sneak": 4,
+        "minecraft:protection": 1
+      },
+      "nom": "eveil.fallow.acte.silence"
+    }
+  ]
+}

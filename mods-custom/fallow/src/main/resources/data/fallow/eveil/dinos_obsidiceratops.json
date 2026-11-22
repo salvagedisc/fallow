@@ -1,0 +1,30 @@
+{
+  "objets": [
+    "ec_ad:obsidiceratops_helmet",
+    "ec_ad:obsidiceratops_chestplate",
+    "ec_ad:obsidiceratops_leggings",
+    "ec_ad:obsidiceratops_boots"
+  ],
+  "actes": [
+    {
+      "acte": "parcourir",
+      "cible": "marche",
+      "si": "pres_de_lave",
+      "points": 0.5,
+      "enchantements": {
+        "minecraft:fire_protection": 3,
+        "minecraft:protection": 1
+      },
+      "nom": "eveil.fallow.acte.chaleur"
+    },
+    {
+      "acte": "encaisser",
+      "cible": "#minecraft:is_fire",
+      "points": 6,
+      "enchantements": {
+        "minecraft:fire_protection": 4
+      },
+      "nom": "eveil.fallow.acte.feu"
+    }
+  ]
+}

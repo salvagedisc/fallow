@@ -1,0 +1,30 @@
+{
+  "objets": [
+    "ec_ad:coralosaur_helmet",
+    "ec_ad:coralosaur_chestplate",
+    "ec_ad:coralosaur_leggings",
+    "ec_ad:coralosaur_boots"
+  ],
+  "actes": [
+    {
+      "acte": "sous_l_eau",
+      "si": "profond",
+      "points": 4,
+      "enchantements": {
+        "minecraft:respiration": 3,
+        "minecraft:depth_strider": 2,
+        "minecraft:aqua_affinity": 1
+      },
+      "nom": "eveil.fallow.acte.profondeurs"
+    },
+    {
+      "acte": "parcourir",
+      "cible": "nage",
+      "points": 1.5,
+      "enchantements": {
+        "minecraft:depth_strider": 3
+      },
+      "nom": "eveil.fallow.acte.nage"
+    }
+  ]
+}

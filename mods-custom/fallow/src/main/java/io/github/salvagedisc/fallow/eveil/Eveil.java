@@ -135,6 +135,8 @@ public final class Eveil {
         if (etat == null) {
             etat = EtatEveil.neuf(FallowConfig.eveilPlaces(qualite(stack)));
             stack.set(EveilModule.ETAT.get(), etat);
+            Lien.places(stack);
+            etat = stack.get(EveilModule.ETAT.get());
         }
         return etat;
     }
@@ -293,6 +295,14 @@ public final class Eveil {
             stack.set(EveilModule.ETAT.get(), etat.avecEteint(true));
             return;
         }
+        if (Lien.de(stack) >= Lien.ENTRETENU) {
+            // Entretenu, il tient bon : il s'arrête à son dernier point sans rien oublier, et attend d'être réparé.
+            stack.set(EveilModule.ETAT.get(), etat.avecEteint(true));
+            player.displayClientMessage(Component.translatable("eveil.fallow.lien.tient", stack.getHoverName())
+                    .withStyle(ChatFormatting.GRAY), false);
+            player.playNotifySound(SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 0.8F, 0.4F);
+            return;
+        }
         List<EtatEveil.Trace> traces = new ArrayList<>(etat.traces());
         EtatEveil.Trace derniere = traces.remove(traces.size() - 1);
         Optional<Holder.Reference<Enchantment>> holder = enchantement(stack, derniere.enchantement());
@@ -323,8 +333,8 @@ public final class Eveil {
             Component nom = enchantement(stack, derniere.enchantement())
                     .<Component>map(h -> Enchantment.getFullname(h, derniere.niveau()))
                     .orElse(Component.literal(derniere.enchantement().toString()));
-            player.displayClientMessage(Component.translatable("eveil.fallow.message.alerte", stack.getHoverName(), nom)
-                    .withStyle(ChatFormatting.GOLD), true);
+            player.displayClientMessage(Component.translatable(Lien.de(stack) >= Lien.ENTRETENU ? "eveil.fallow.lien.alerte"
+                    : "eveil.fallow.message.alerte", stack.getHoverName(), nom).withStyle(ChatFormatting.GOLD), true);
             player.playNotifySound(SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 0.8F, 0.5F);
         }
         return true;
