@@ -115,7 +115,7 @@ Side: C = client, S = server, CS = both. Versions checked on Modrinth for NeoFor
 |---|---|---|---|---|
 | Quark | `quark` | ✅ (4.1-487) | CS | The essentials, selected modules ([0005](decisions/0005-quark.md)) |
 | Supplementaries | `supplementaries` | ✅ | CS | The essentials ([0006](decisions/0006-supplementaries.md)); its sconces are enabled again since 2026-11-13 (they were off while No Man's Land had its own) |
-| Amendments | `amendments` | ✅ | CS | 3D lanterns, signs, cauldrons; its swinging wall lanterns and hanging signs are off since 2026-11-22, Fancy World Animations animates what hangs (`config/amendments-client.toml`) |
+| Amendments | `amendments` | ✅ | CS | 3D lanterns, signs, cauldrons; its wall lanterns and hanging signs swing (`config/amendments-client.toml`, back on 2026-11-22 after a few hours with Fancy World Animations swinging them instead) |
 | Handcrafted | `handcrafted` | ✅ | CS | Furniture |
 | Twigs | `twigs` | ✅ | CS | Small decor; rhyolite generation off, tables, Nether blocks and duplicates removed; cobblestone bricks back since 2026-11-13 ([pack sort](plan/tri-du-pack.md)); its pebbles and twigs no longer generate since 2026-11-21, sticks and rocks now come from gestures, shaking leaves and digging ([0052](decisions/0052-gestures-not-debris.md)); its seashells stay |
 | Every Compat | `every-compat` | ✅ | CS | Furniture and decor in every wood, including those of Regions Unexplored |
@@ -133,7 +133,7 @@ Side: C = client, S = server, CS = both. Versions checked on Modrinth for NeoFor
 | ItemPhysic | `itemphysic` | ✅ | C | Dropped items fall, roll and float |
 | Smooth Swapping | `smooth-swapping` | ✅ | C | Items slide around in the inventory |
 | Modefite | `modefite-item-definition-backport` | ✅ (added 2026-11-22, GPL-3.0) | C | Reads 1.21.4 item definitions: Team Disco's items in 3D in hand, 2D in the inventory, food eaten in stages ([0053](decisions/0053-team-disco-items.md)) |
-| Fancy World Animations | `fwa` | ✅ (1.3.8, added 2026-11-22, MIT) | C | Doors, trapdoors, gates, levers, buttons, chests, lecterns and bells move instead of snapping; lanterns, chains and hanging signs swing too, Amendments' own swinging being off so that everything that hangs moves in one style (`config/fwa.json`, `config/amendments-client.toml`, [0053](decisions/0053-team-disco-items.md)) |
+| Fancy World Animations | `fwa` | ✅ (1.3.8, added 2026-11-22, MIT) | C | Doors, trapdoors, gates, levers, buttons, chests, lecterns and bells move instead of snapping; its lanterns, chains and hanging signs are off: Amendments swings what hangs (`config/fwa.json`, [0053](decisions/0053-team-disco-items.md)) |
 | Punchy! | `punchy-fpa` | ✅ (2.8g, pinned version) | C | Gestures and animated arms in first person, set to a restrained level; alone in animating the first-person arm (EMF option), blacklist for Create and Aeronautics items and Exposure photos; `fallow` 0.4.7 stops its equip animation looping with Sensible Stackables ([fix](plan/mod-fallow.md#punchy-and-sensible-stackables-the-hand-that-kept-jumping)) |
 | Better Combat | `better-combat` | ✅ (2.4.0, added 2026-11-17, not seen in game) | CS | A swing of the whole body per weapon type and combos, hits along the blade; tools, fishing rods and forged parts excluded, black steel sword and axe added ([0036](decisions/0036-better-combat.md)) |
 | playerAnimator | `playeranimator` | ✅ (2.0.4, added 2026-11-17) | CS | Animation library of Better Combat |
@@ -215,6 +215,8 @@ Side: C = client, S = server, CS = both. Versions checked on Modrinth for NeoFor
 
 | Pack | Slug | Status | Role |
 |---|---|---|---|
+| Hidyk's Realm | `hidyksrealm` | ✅ (2.15.4, added 2026-11-22, all rights reserved; modpack use needs its author's agreement, see [0054](decisions/0054-hidyks-realm.md)) | Base look of the whole game, close to vanilla: blocks, items, interface, creatures, grass and leaf colours by biome; lowest of the file packs so that the packs chosen one by one win over it; needs Polytone, EMF, ETF and Respackopts |
+| Fresh Hidyk's Realm | `fresh-hidyks-realm` | ✅ (added 2026-11-22, all rights reserved) | Joins Hidyk's Realm's creatures to Fresh Animations; on top of every pack |
 | Fresh Animations | `fresh-animations` | ✅ | Animated creatures |
 | FA: Details, Objects, Emissive | `fresh-animations-details`, `fresh-animations-objects`, `fresh-animations-emissive` | ✅ | Details, animated objects, glowing eyes |
 | FA: Player Extension | `fa-player-extension` | ✅ | The player in the same style |
