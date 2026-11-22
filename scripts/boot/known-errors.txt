@@ -23,3 +23,7 @@ specified in data map for registry starcatcher:fish doesn't exist
 (Error parsing|Parsing error loading) recipe thirst:compat/create/(cactus|terracotta_water_bowl):
 # Koopa's Critters ships an advancement for a cat variant it does not register.
 Couldn't load advancements: \[koopascritters:kopje_cat\]
+# Distant Horizons builds far LODs on the dedicated server too; when the boot check stops the server
+# while a Nether request is still queued, its ticker can trip an internal assertion. Intermittent and
+# harmless (the server stops normally, code 0); seen once on 2026-11-22.
+DistantHorizons-.*LodRequestModule/\]: Unexpected error in \[LodRequestModule\] tick loop, error: \[Assertion failed
