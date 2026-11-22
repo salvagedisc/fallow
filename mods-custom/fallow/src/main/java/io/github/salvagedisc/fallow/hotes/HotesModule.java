@@ -118,6 +118,11 @@ public final class HotesModule {
         Vec3 dir = Vec3.directionFromRotation(0.0F, player.getYRot());
         Vec3 pos = player.position().add(dir.scale(14.0));
         int y = sol(level, (int) Math.floor(pos.x), player.getBlockY(), (int) Math.floor(pos.z));
+        if (y == Integer.MIN_VALUE) {
+            // Rien où se tenir devant (sous le toit du Nether, au-dessus de la lave) : il vient près de vous.
+            pos = player.position();
+            y = player.getBlockY();
+        }
         Hote hote = HOTE.get().create(level);
         if (hote == null) {
             return 0;
@@ -149,8 +154,8 @@ public final class HotesModule {
                 }
             }
         }
-        // Sous un toit (le Nether), le dessus du monde est la roche du toit : l'Hôte vient à hauteur du joueur.
-        return level.dimensionType().hasCeiling() ? pres
+        // Sous un toit (le Nether), le dessus du monde est la roche du toit : l'Hôte vient alors près du joueur.
+        return level.dimensionType().hasCeiling() ? Integer.MIN_VALUE
                 : level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
     }
 

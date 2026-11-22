@@ -200,18 +200,23 @@ public final class EveilModule {
             }
         });
         NeoForge.EVENT_BUS.addListener(PlayerInteractEvent.RightClickBlock.class, e -> {
-            // Le bloc garde son usage sans l'objet (une porte s'ouvre, un coffre, une enclume), l'objet arrêté ne sert pas
-            // (houe, pelle, hache). Un bloc qui se sert de l'objet en main (citrouille et cisailles, TNT et briquet,
-            // chevalet et couteau, enclume de forge et marteau, planche à découper) sans ouvrir de fenêtre n'y touche pas.
-            if (Eveil.arrete(e.getItemStack())) {
-                e.setUseItem(net.neoforged.neoforge.common.util.TriState.FALSE);
-                BlockState bloc = e.getLevel().getBlockState(e.getPos());
-                if (outilDeGeste(e.getItemStack()) || (seSertDeLObjet(bloc.getBlock())
-                        && bloc.getMenuProvider(e.getLevel(), e.getPos()) == null)) {
-                    e.setUseBlock(net.neoforged.neoforge.common.util.TriState.FALSE);
-                    refuser(e.getEntity(), e.getItemStack());
-                }
+            // Le bloc garde son usage (une porte s'ouvre, un coffre, une chaise), l'objet arrêté ne sert pas (houe, pelle,
+            // hache). Les outils dont c'est le bloc qui se sert (citrouille et cisailles, TNT et briquet, chevalet et couteau)
+            // n'y touchent pas : le bloc répond comme à une main vide.
+            if (!Eveil.arrete(e.getItemStack())) {
+                return;
             }
+            e.setUseItem(net.neoforged.neoforge.common.util.TriState.FALSE);
+            if (!outilDeGeste(e.getItemStack())) {
+                return;
+            }
+            refuser(e.getEntity(), e.getItemStack());
+            e.setCanceled(true);
+            net.minecraft.world.InteractionResult main = net.minecraft.world.InteractionResult.PASS;
+            if (e.getHand() == net.minecraft.world.InteractionHand.MAIN_HAND && !e.getEntity().isSecondaryUseActive()) {
+                main = e.getLevel().getBlockState(e.getPos()).useWithoutItem(e.getLevel(), e.getEntity(), e.getHitVec());
+            }
+            e.setCancellationResult(main.consumesAction() ? main : net.minecraft.world.InteractionResult.FAIL);
         });
         NeoForge.EVENT_BUS.addListener(PlayerInteractEvent.EntityInteract.class, e -> {
             // Les cisailles ne tondent plus le mouton, le briquet n'allume plus le creeper, la brosse ne brosse plus.
@@ -238,7 +243,8 @@ public final class EveilModule {
             }
         });
         // Une armure arrêtée ne protège plus (ni outil ni arme n'ajoutent rien) : elle tient sans casser, mais à vide. Ses
-        // enchantements se taisent aussi (Protection, Épines, Efficacité), sauf le Raccommodage, qui la répare.
+        // enchantements se taisent aussi (Protection, Épines, Efficacité), sauf le Raccommodage, qui la répare, et les
+        // malédictions, qui restent.
         NeoForge.EVENT_BUS.addListener(net.neoforged.neoforge.event.ItemAttributeModifierEvent.class, e -> {
             if (Eveil.arrete(e.getItemStack())) {
                 e.clearModifiers();
@@ -246,7 +252,7 @@ public final class EveilModule {
         });
         NeoForge.EVENT_BUS.addListener(net.neoforged.neoforge.event.enchanting.GetEnchantmentLevelEvent.class, e -> {
             if (Eveil.arrete(e.getStack())) {
-                e.getEnchantments().removeIf(h -> !h.value().effects()
+                e.getEnchantments().removeIf(h -> !h.is(net.minecraft.tags.EnchantmentTags.CURSE) && !h.value().effects()
                         .has(net.minecraft.world.item.enchantment.EnchantmentEffectComponents.REPAIR_WITH_XP));
             }
         });
@@ -272,32 +278,20 @@ public final class EveilModule {
     private static final net.minecraft.tags.TagKey<Item> COUTEAUX = net.minecraft.tags.TagKey.create(Registries.ITEM,
             net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("c", "tools/knife"));
 
-    /** Les outils dont la bête ou le bloc se sert eux-mêmes : cisailles, briquets, brosses, couteaux. */
+    private static final net.minecraft.tags.TagKey<Item> MARTEAUX = net.minecraft.tags.TagKey.create(Registries.ITEM,
+            net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("overgeared", "smithing_hammers"));
+
+    /** Les outils dont la bête ou le bloc se sert eux-mêmes : cisailles, briquets, brosses, couteaux, marteaux de forge. */
     static boolean outilDeGeste(ItemStack stack) {
         return stack.is(net.neoforged.neoforge.common.Tags.Items.TOOLS_SHEAR)
                 || stack.is(net.neoforged.neoforge.common.Tags.Items.TOOLS_IGNITER)
                 || stack.is(net.minecraft.tags.ItemTags.CREEPER_IGNITERS)
-                || stack.is(net.neoforged.neoforge.common.Tags.Items.TOOLS_BRUSH) || stack.is(COUTEAUX);
+                || stack.is(net.neoforged.neoforge.common.Tags.Items.TOOLS_BRUSH) || stack.is(COUTEAUX) || stack.is(MARTEAUX);
     }
 
-    private static final Map<Class<?>, Boolean> SE_SERT = new java.util.concurrent.ConcurrentHashMap<>();
-
-    /** Vrai si le bloc répond lui-même à l'objet en main ({@code useItemOn} redéfini quelque part sous {@code Block}). */
-    static boolean seSertDeLObjet(net.minecraft.world.level.block.Block block) {
-        return SE_SERT.computeIfAbsent(block.getClass(), c -> {
-            for (Class<?> k = c; k != null && k != net.minecraft.world.level.block.Block.class
-                    && k != net.minecraft.world.level.block.state.BlockBehaviour.class; k = k.getSuperclass()) {
-                try {
-                    k.getDeclaredMethod("useItemOn", ItemStack.class, BlockState.class, net.minecraft.world.level.Level.class,
-                            net.minecraft.core.BlockPos.class, Player.class, net.minecraft.world.InteractionHand.class,
-                            net.minecraft.world.phys.BlockHitResult.class);
-                    return true;
-                } catch (NoSuchMethodException ignored) {
-                    // pas à ce niveau
-                }
-            }
-            return false;
-        });
+    /** L'objet qui avait oublié (ou s'était arrêté) et qu'on a réparé sous l'alerte préviendra de nouveau avant le bout. */
+    static void rearmer(UUID id) {
+        AVERTIS.remove(id);
     }
 
     /** La ligne grise qui dit pourquoi l'objet arrêté ne fait rien (côté serveur, au-dessus de la barre d'objets). */
@@ -446,14 +440,11 @@ public final class EveilModule {
                     if (ROUGES.add(etat.id()) && avant != null && avant < seuil) {
                         Lien.ajouter(player.server, stack, etat, Lien.ROUGE, player);
                     }
-                } else {
-                    // Réparé sous l'alerte, il préviendra de nouveau (comme il pourra de nouveau oublier, voir Eveil.usure).
+                } else if (usure < seuil - Math.max(1, stack.getMaxDamage() / 10)) {
+                    // Sorti du rouge pour de bon (un dixième plus bas) : le prochain passage comptera et préviendra. Un point
+                    // de raccommodage au bord ne suffit pas, sinon chaque orbe coûterait l'attachement et sonnerait.
                     AVERTIS.remove(etat.id());
-                    if (usure < seuil - Math.max(1, stack.getMaxDamage() / 10)) {
-                        // Sorti du rouge pour de bon (un dixième plus bas) : le prochain passage comptera. Un point de
-                        // raccommodage au bord ne suffit pas, sinon chaque orbe coûterait l'attachement.
-                        ROUGES.remove(etat.id());
-                    }
+                    ROUGES.remove(etat.id());
                 }
                 if (avant != null && usure < avant) {
                     HautsFaits.Contexte moment = HautsFaits.Contexte.de(player);

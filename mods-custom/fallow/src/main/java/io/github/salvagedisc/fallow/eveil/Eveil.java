@@ -336,6 +336,7 @@ public final class Eveil {
             // au bord ne compte pas, sinon le message reviendrait à chaque coup.
             if (etat.eteint() && stack.getDamageValue() < stack.getMaxDamage() * FallowConfig.eveilAlerte()) {
                 stack.set(EveilModule.ETAT.get(), etat.avecEteint(false));
+                EveilModule.rearmer(etat.id());
             }
             return;
         }
