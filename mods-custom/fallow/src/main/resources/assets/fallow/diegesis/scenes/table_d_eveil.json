@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/Pocky-l/diegesis/main/docs/schema/scene.schema.json",
-  "$comment": "The enchanting table where an item awakens (Fallow's eveil module), laid out as Hands-On Vanilla's enchanting table (MIT): the block is swapped for corps (vanilla's own table model) and the table's book is drawn by the scene (TableBehavior's painter on livre), gliding from where the table's book hovers to the reading place, its pages square to the camera (extra.faces is the camera's position). On the table top, from left to right as the camera sees it: the great beast's shard and the item. The scene turns to the player at their own angle (PLAYER_FREE; the body is turned back square to the world).",
+  "$comment": "The enchanting table where an item awakens (Fallow's eveil module), laid out as Hands-On Vanilla's enchanting table (MIT): the block is swapped for corps (vanilla's own table model) and the table's book is drawn by the scene (TableBehavior's painter on livre), gliding from where the table's book hovers to the reading place, its pages square to the camera (extra.faces is the camera's position). On the table top, from left to right as the camera sees it: the item, the inkwell (awakening ink, one vial per awakening) and the great beast's shard. The scene turns to the player at their own angle (PLAYER_FREE; the body is turned back square to the world).",
   "work_plane": 12,
   "idle_visible": false,
   "camera": {
@@ -30,8 +30,9 @@
       "hidden": true,
       "visual": {"model": "fallow:diegesis/table_d_eveil_corps", "lit_as_block": true}
     },
-    {"id": "objet", "pos": [10.6, 12.02, 3.6], "slot": {"slot": "objet[0]", "ghost": ["minecraft:iron_pickaxe", "minecraft:iron_sword", "minecraft:bow", "minecraft:iron_chestplate", "minecraft:fishing_rod"], "size": 4.6, "item_size": 4.2, "count_facing": "camera", "idle_highlight": 0.55}},
-    {"id": "eclat", "pos": [4.6, 12.02, 3.6], "slot": {"slot": "eclat[0]", "ghost": ["fallow:eclat_de_bete"], "ghost_alpha": 0.3, "size": 3.6, "item_size": 3.2, "count_facing": "camera", "idle_highlight": 0.35}},
+    {"id": "objet", "pos": [11.4, 12.02, 3.6], "slot": {"slot": "objet[0]", "ghost": ["minecraft:iron_pickaxe", "minecraft:iron_sword", "minecraft:bow", "minecraft:iron_chestplate", "minecraft:fishing_rod"], "size": 4.6, "item_size": 4.2, "count_facing": "camera", "idle_highlight": 0.55}},
+    {"id": "encre", "pos": [7.5, 12.02, 3.0], "slot": {"slot": "encre[0]", "ghost": ["fallow:encre_d_eveil"], "ghost_alpha": 0.3, "size": 2.8, "item_size": 2.6, "count_facing": "camera", "idle_highlight": 0.35}},
+    {"id": "eclat", "pos": [3.8, 12.02, 3.6], "slot": {"slot": "eclat[0]", "ghost": ["fallow:eclat_de_bete"], "ghost_alpha": 0.3, "size": 3.6, "item_size": 3.2, "count_facing": "camera", "idle_highlight": 0.35}},
     {
       "id": "livre",
       "pos": [8, 18.5, 9.5],

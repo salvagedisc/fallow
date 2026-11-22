@@ -65,7 +65,11 @@ final class ChoixMenu extends ChestMenu {
                 ItemStack stack = player.getMainHandItem();
                 EtatEveil etat = stack.get(EveilModule.ETAT.get());
                 if (etat != null && etat.id().equals(objet) && etat.pret()) {
-                    Eveil.appliquer(serverPlayer, stack, options.get(i), Optional.empty(), table);
+                    if (EveilModule.prendreEncre(serverPlayer)) {
+                        Eveil.appliquer(serverPlayer, stack, options.get(i), Optional.empty(), table);
+                    } else {
+                        serverPlayer.displayClientMessage(net.minecraft.network.chat.Component.translatable("eveil.fallow.table.sans_encre"), true);
+                    }
                 }
                 serverPlayer.closeContainer();
                 return;

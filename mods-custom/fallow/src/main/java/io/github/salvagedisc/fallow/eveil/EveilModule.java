@@ -89,6 +89,9 @@ public final class EveilModule {
     public static final DeferredItem<Item> ECLAT_DE_BETE = ITEMS.registerItem("eclat_de_bete", EclatItem::new,
             new Item.Properties().stacksTo(1).rarity(Rarity.EPIC).fireResistant()
                     .component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true));
+    /** L'encre d'éveil : sans elle la table ne peut écrire aucune voie ; une fiole par éveil ({@link #prendreEncre}). */
+    public static final DeferredItem<Item> ENCRE_D_EVEIL = ITEMS.registerSimpleItem("encre_d_eveil",
+            new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON));
 
     public static final DeferredRegister<MapCodec<? extends IGlobalLootModifier>> LOOT_MODIFIERS =
             DeferredRegister.create(NeoForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, Fallow.MOD_ID);
@@ -117,6 +120,11 @@ public final class EveilModule {
     public static void start(IEventBus modBus) {
         COMPONENTS.register(modBus);
         ITEMS.register(modBus);
+        modBus.addListener(net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent.class, event -> {
+            if (event.getTabKey() == net.minecraft.world.item.CreativeModeTabs.INGREDIENTS) {
+                event.accept(ENCRE_D_EVEIL);
+            }
+        });
         LOOT_MODIFIERS.register(modBus);
 
         NeoForge.EVENT_BUS.addListener(ServerStartingEvent.class, e -> server = e.getServer());
@@ -428,6 +436,11 @@ public final class EveilModule {
         }
         ItemStack objet = player.getMainHandItem();
         ItemStack autre = player.getOffhandItem();
+        if (!aDeLEncre(player) && (TableEveil.attendu(objet) || TableEveil.eclat(autre))) {
+            // Sans encre d'éveil, la table ne peut rien écrire.
+            dire(player, "eveil.fallow.table.sans_encre");
+            return;
+        }
         if (autre.is(ECLAT_DE_BETE.get()) && autre.has(ECLAT.get())) {
             poserEclat(player, objet, autre, event);
             return;
@@ -488,8 +501,38 @@ public final class EveilModule {
             dire(player, "eveil.fallow.table.plein");
             return;
         }
+        if (!prendreEncre(player)) {
+            dire(player, "eveil.fallow.table.sans_encre");
+            return;
+        }
         Eveil.appliquer(player, objet, option, Optional.of(eclat.bete()), event.getPos());
         eclatStack.shrink(1);
+    }
+
+    static boolean encre(ItemStack stack) {
+        return stack.is(ENCRE_D_EVEIL.get());
+    }
+
+    /** Le joueur porte au moins une fiole d'encre d'éveil (la fenêtre d'avant, accroupi, la prend dans l'inventaire). */
+    static boolean aDeLEncre(Player player) {
+        return player.getAbilities().instabuild || player.getInventory().items.stream().anyMatch(EveilModule::encre)
+                || encre(player.getOffhandItem());
+    }
+
+    /** Une fiole d'encre d'éveil prise dans l'inventaire ; faux s'il n'y en a pas (le mode créatif n'en use pas). */
+    static boolean prendreEncre(Player player) {
+        if (player.getAbilities().instabuild) {
+            return true;
+        }
+        Inventory inventory = player.getInventory();
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            if (encre(inventory.getItem(i))) {
+                inventory.getItem(i).shrink(1);
+                inventory.setChanged();
+                return true;
+            }
+        }
+        return false;
     }
 
     private static void dire(Player player, String key) {

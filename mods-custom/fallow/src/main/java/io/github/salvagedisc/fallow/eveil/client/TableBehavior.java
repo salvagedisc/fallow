@@ -151,6 +151,11 @@ final class TableBehavior implements StationBehavior {
     private int volObjet = -1;
     private int volEclat = -1;
     private int enMain = -1;
+    private float volutesReste;
+    /** La case de l'inventaire d'où l'encre vient à l'encrier en arrivant, et celle d'où elle vole (Maj + clic). */
+    private int encreEnArrivant = -1;
+    private int volEncre = -1;
+    private ItemStack vuEncre = ItemStack.EMPTY;
     private final RandomSource hasard = RandomSource.create();
     /** Les bibliothèques qui nourrissent la table (comme celles de vanilla), en pixels de la scène, et les runes qui en partent. */
     private final List<Vector3f> bibliotheques = new ArrayList<>();
@@ -202,7 +207,7 @@ final class TableBehavior implements StationBehavior {
     public void onSceneReady(StationView view) {
         station = view;
         tourCorps = Float.NaN;
-        view.setInventoryFilter(stack -> TableEveil.objet(stack) || TableEveil.eclat(stack));
+        view.setInventoryFilter(stack -> TableEveil.objet(stack) || TableEveil.eclat(stack) || TableEveil.encre(stack));
         view.node(LIVRE).ifPresent(node -> node.setPainter(new NodePainter() {
             @Override
             public void paint(PoseStack poseStack, MultiBufferSource buffers, int light) {
@@ -233,6 +238,8 @@ final class TableBehavior implements StationBehavior {
         vuEclat = view.state().getItem(TableEveil.ECLAT_REF).copy();
         volObjet = -1;
         volEclat = -1;
+        volEncre = -1;
+        vuEncre = view.state().getItem(TableEveil.ENCRE_REF).copy();
         LocalPlayer player = Minecraft.getInstance().player;
         boolean venu = view.pos().equals(dernierUsage) && Util.getMillis() - dernierUsageA < 1500L;
         ItemStack main = player == null ? ItemStack.EMPTY : player.getMainHandItem();
@@ -246,6 +253,15 @@ final class TableBehavior implements StationBehavior {
                     if (TableEveil.attendu(player.getInventory().getItem(i)) && !TableEveil.eclat(player.getInventory().getItem(i))) {
                         enMain = i;
                     }
+                }
+            }
+        }
+        // L'encre qu'on porte vient d'elle-même à l'encrier, s'il n'est pas plein.
+        encreEnArrivant = -1;
+        if (venu && vuEncre.getCount() < 16) {
+            for (int i = 0; i < player.getInventory().items.size() && encreEnArrivant < 0; i++) {
+                if (TableEveil.encre(player.getInventory().getItem(i))) {
+                    encreEnArrivant = i;
                 }
             }
         }
@@ -310,8 +326,18 @@ final class TableBehavior implements StationBehavior {
             }
             volEclat = -1;
         }
+        ItemStack encre = view.state().getItem(TableEveil.ENCRE_REF);
+        if (encre.getCount() > vuEncre.getCount()) {
+            volerDepuisLaBarre(view, TableEveil.ENCRE, volEncre);
+            joue(view, SoundEvents.BOTTLE_FILL, TableEveil.ENCRE, 0.3F, 0.7F + 0.1F * hasard.nextFloat());
+            volEncre = -1;
+        } else if (encre.isEmpty() && !vuEncre.isEmpty()) {
+            // La dernière fiole est partie dans les runes : l'encrier sonne creux.
+            joue(view, SoundEvents.BOTTLE_EMPTY, TableEveil.ENCRE, 0.35F, 0.6F);
+        }
         vuObjet = objet.copy();
         vuEclat = eclat.copy();
+        vuEncre = encre.copy();
     }
 
     /** La pile envoyée de la case {@code depuis} de la barre (Maj + clic, la main en arrivant) y vole, en arc, comme chez Hands-On. */
@@ -361,6 +387,9 @@ final class TableBehavior implements StationBehavior {
             // Comme le four de Hands-On Vanilla : envoyée à l'ouverture, la pile arriverait au serveur avant le poste et se perdrait.
             poser(view, enMain);
             enMain = -1;
+        } else if (encreEnArrivant >= 0 && view.isFocused() && DiegesisClient.arrival() >= 1.0F) {
+            poser(view, encreEnArrivant);
+            encreEnArrivant = -1;
         }
         boolean cache = view.isBlockHidden();
         view.node(CORPS).ifPresent(node -> node.setVisible(cache));
@@ -403,8 +432,13 @@ final class TableBehavior implements StationBehavior {
         }
         // Sous le regard, la voie se déchiffre lettre à lettre ; une fois lue, elle le reste.
         int lue = survol >= 0 ? survol : pageSurvolee ? 0 : -1;
-        if (ici != null && lue >= 0 && ici.revele()[lue] < 1.0F) {
+        if (ici != null && lue >= 0 && ici.revele()[lue] < 1.0F && !sansEncre(view)) {
             float avantLue = ici.revele()[lue];
+            if (avantLue <= 0.0F) {
+                // Un murmure quand la table commence à dire une voie.
+                joue(view, SoundEvents.SOUL_ESCAPE.value(), LIVRE, 0.4F, 0.6F + 0.2F * hasard.nextFloat());
+            }
+            volutes(view, ici.aEclat() ? 60.0F : (voies[lue][0] + voies[lue][1]) / 2.0F, dt);
             ici.revele()[lue] = Math.min(1.0F, avantLue + dt / DECHIFFRE);
             if ((int) (avantLue * 12.0F) != (int) (ici.revele()[lue] * 12.0F)) {
                 joue(view, SoundEvents.ENCHANTMENT_TABLE_USE, LIVRE, 0.05F, 1.6F + 0.4F * hasard.nextFloat());
@@ -497,7 +531,7 @@ final class TableBehavior implements StationBehavior {
 
     @Override
     public boolean onInventoryShiftClick(StationView view, int slot, ItemStack stack) {
-        if (!TableEveil.objet(stack) && !TableEveil.eclat(stack)) {
+        if (!TableEveil.objet(stack) && !TableEveil.eclat(stack) && !TableEveil.encre(stack)) {
             return false;
         }
         poser(view, slot);
@@ -515,6 +549,8 @@ final class TableBehavior implements StationBehavior {
             volObjet = slot;
         } else if (TableEveil.eclat(stack)) {
             volEclat = slot;
+        } else if (TableEveil.encre(stack)) {
+            volEncre = slot;
         } else {
             return;
         }
@@ -534,6 +570,12 @@ final class TableBehavior implements StationBehavior {
         }
         Optional<OpenBook.Hit> hit = sousLeCurseur(view);
         if (hit.isEmpty() || !hit.get().right()) {
+            return;
+        }
+        if (sansEncre(view) && (ici.aEclat() || TableEveil.ETAT_PRET.equals(ici.etat()))) {
+            refus(view);
+            view.node(TableEveil.ENCRE).ifPresent(node -> node.shake(0.4F, 0.25F));
+            view.showCaption(Component.translatable("eveil.fallow.table.sans_encre"), 3.0F);
             return;
         }
         if (ici.aEclat()) {
@@ -636,6 +678,17 @@ final class TableBehavior implements StationBehavior {
             commencerCoulee(view, pose, LARGE / 2.0F, (voies[tenue][0] + voies[tenue][1]) / 2.0F, tenue, -1);
         }
         eclair = 1.0F;
+        // Une onde de runes part de l'objet, des étincelles restent, et l'encrier tressaille : une fiole est partie dans les mots.
+        view.node(TableEveil.OBJET).ifPresent(objet -> {
+            Vector3f centre = new Vector3f(objet.definition().transform().pos()).add(0.0F, 4.0F, 0.0F);
+            for (int i = 0; i < 28; i++) {
+                float angle = i * Mth.TWO_PI / 28.0F;
+                Vector3f vitesse = new Vector3f(Mth.cos(angle) * 22.0F, (hasard.nextFloat() - 0.3F) * 6.0F, Mth.sin(angle) * 22.0F);
+                view.spawnParticles(TableClient.glypheVolant(hasard), centre, vitesse, 0.2F, 1, 0xFF000000 | lueur());
+            }
+            view.spawnParticles(TableClient.ETINCELLE, centre, new Vector3f(0.0F, 2.0F, 0.0F), 3.0F, 18, 0xFFFFFFFF);
+        });
+        view.node(TableEveil.ENCRE).ifPresent(node -> node.shake(0.5F, 0.3F));
         joue(view, SoundEvents.BEACON_ACTIVATE, LIVRE, 0.8F, 0.5F);
         joue(view, SoundEvents.AMETHYST_BLOCK_RESONATE, LIVRE, 1.0F, 0.5F);
         tenue = -1;
@@ -656,6 +709,31 @@ final class TableBehavior implements StationBehavior {
         Minecraft.getInstance().player.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
         joue(view, SoundEvents.BOOK_PAGE_TURN, LIVRE, 0.4F, 0.7F);
         joue(view, SoundEvents.ENCHANTMENT_TABLE_USE, LIVRE, 0.25F, 1.4F);
+    }
+
+    /** L'encre monte de l'encrier en volutes jusqu'à la ligne qu'on lit : c'est elle qui fait les lettres. */
+    private void volutes(StationView view, float y, float dt) {
+        volutesReste += dt * 22.0F;
+        if (volutesReste < 1.0F) {
+            return;
+        }
+        Pose pose = pose(view);
+        Vector3f vers = pose.versLaScene(book.onPage(true, LARGE / 2.0F, y, pose.open, pose.right, pose.left));
+        view.node(TableEveil.ENCRE).ifPresent(encrier -> {
+            Vector3f depuis = new Vector3f(encrier.definition().transform().pos()).add(0.0F, 2.0F, 0.0F);
+            while (volutesReste >= 1.0F) {
+                volutesReste -= 1.0F;
+                Vector3f ici = new Vector3f(depuis).add((hasard.nextFloat() - 0.5F) * 1.5F, hasard.nextFloat(), (hasard.nextFloat() - 0.5F) * 1.5F);
+                Vector3f la = new Vector3f(vers).add((hasard.nextFloat() - 0.5F) * 30.0F * pose.scale(), (hasard.nextFloat() - 0.5F) * 3.0F, 0.0F);
+                view.spawnParticles(TableClient.VOLUTE, ici, la.sub(ici).div(0.8F), 0.2F, 1, 0xFF000000 | lueur());
+            }
+        });
+    }
+
+    /** L'encrier est vide : la table ne peut rien écrire (le mode créatif n'use pas d'encre). */
+    private static boolean sansEncre(StationView view) {
+        LocalPlayer player = Minecraft.getInstance().player;
+        return view.state().getItem(TableEveil.ENCRE_REF).isEmpty() && (player == null || !player.getAbilities().instabuild);
     }
 
     private void refus(StationView view) {
@@ -1030,10 +1108,20 @@ final class TableBehavior implements StationBehavior {
         filet(canvas, y + 1.0F);
         y += 6.0F;
         float bas = PIED - 6.0F;
-        float hauteur = (bas - y) / Math.max(1, liste.size());
-        for (int i = 0; i < Math.min(2, liste.size()); i++) {
-            CompoundTag voie = liste.getCompound(i);
-            float haut = y + i * hauteur;
+        int n = Math.min(2, liste.size());
+        // Chaque voie est d'abord mesurée sur ses mots lus : sa bande la couvre toute, et rien ne bouge pendant qu'on la déchiffre.
+        List<List<Ligne>> textes = new ArrayList<>();
+        float pris = 0.0F;
+        for (int i = 0; i < n; i++) {
+            List<Ligne> texte = texteDeVoie(liste.getCompound(i), contenu.revele()[i]);
+            textes.add(texte);
+            pris += hauteur(texte) + 6.0F;
+        }
+        float marge = Math.max(0.0F, (bas - y - pris) / Math.max(1, n));
+        float haut = y;
+        for (int i = 0; i < n; i++) {
+            List<Ligne> texte = textes.get(i);
+            float hauteur = hauteur(texte) + 6.0F + marge;
             if (courante) {
                 voies[i][0] = haut;
                 voies[i][1] = haut + hauteur;
@@ -1048,37 +1136,26 @@ final class TableBehavior implements StationBehavior {
                 canvas.rect(1.0F, haut - 1.0F, (LARGE - 2.0F) * Math.min(1.0F, tenueT / TENUE), hauteur - 2.0F, OpenBook.MARK_LIFT * 0.6F,
                         BANDE_VIVE);
             }
-            float revele = contenu.revele()[i];
             if (i > 0) {
                 filet(canvas, haut - 2.5F);
             }
-            ResourceLocation id = ResourceLocation.tryParse(voie.getString(TableEveil.ENCHANTEMENT));
-            int niveau = voie.getInt(TableEveil.NIVEAU);
-            Component nom = runique(id == null ? Component.literal("?") : nomEncre(id, niveau), revele);
             float lettres = coule ? Mth.clamp(1.0F - (horloge - clicA) / COULEE, 0.0F, 1.0F) : 1.0F;
-            float ly = haut + 3.0F;
-            for (FormattedCharSequence ligne : Minecraft.getInstance().font.split(nom, (int) (LARGE - 2.0F * DROITE_X))) {
-                if (vive) {
-                    canvas.brightText(ligne, DROITE_X, ly, 1.0F, VIOLET, 0xE6D9FF, 0.6F, 0.05F);
+            float ly = haut + 3.0F + marge / 2.0F;
+            for (Ligne ligne : texte) {
+                ly += ligne.avant();
+                if (ligne.taille() == 1.0F && ligne.encre() == VIOLET) {
+                    // Le nom de la voie respire d'une lueur faible ; sous le regard, il s'allume.
+                    float souffle = vive ? 0.6F : courante ? 0.16F + 0.12F * Mth.sin(horloge * 2.2F + i * 1.7F) : 0.0F;
+                    canvas.brightText(ligne.texte(), DROITE_X, ly, 1.0F, VIOLET, 0xE6D9FF, souffle, 0.05F);
                 }
-                canvas.text(ligne, DROITE_X, ly, VIOLET, lettres);
-                ly += LIGNE;
+                canvas.text(ligne.texte(), DROITE_X, ly, ligne.taille(), ligne.encre(), ligne.encre() == VIOLET ? lettres : 1.0F);
+                ly += ligne.taille() < 1.0F ? PETITE_LIGNE : LIGNE;
             }
-            if (id != null && niveau > 1) {
-                ly = paragraphe(canvas, runique(Component.translatable("eveil.fallow.livre.avant", nomEncre(id, niveau - 1)), revele),
-                        DROITE_X, ly, PETIT, PALE, 1);
-            }
-            String pouvoir = id == null ? "" : "eveil.fallow.pouvoir." + id.getNamespace() + "." + id.getPath();
-            if (I18n.exists(pouvoir)) {
-                ly = paragraphe(canvas, runique(Component.translatable(pouvoir), revele), DROITE_X, ly + 1.0F, PETIT, ENCRE, 3);
-            }
-            if (voie.contains(TableEveil.NE_DE)) {
-                Component ne = Component.translatable("eveil.fallow.livre.ne_de",
-                        Component.translatable(voie.getString(TableEveil.NE_DE), quantite(voie.getDouble(TableEveil.FOIS))));
-                paragraphe(canvas, runique(ne, revele).copy().withStyle(s -> s.withItalic(true)), DROITE_X, ly + 2.0F, PETIT, SEPIA, 2);
-            }
+            haut += hauteur;
         }
-        paragraphe(canvas, Component.translatable("eveil.fallow.livre.choisir"), DROITE_X, PIED, PETIT, PALE, 2);
+        boolean sec = station != null && sansEncre(station);
+        paragraphe(canvas, Component.translatable(sec ? "eveil.fallow.livre.sans_encre" : "eveil.fallow.livre.choisir"), DROITE_X, PIED,
+                PETIT, sec ? ROUGE : PALE, 2);
     }
 
     /** La page de droite avec un éclat : la bête, son récit, la force qu'il donnerait, et ce que la table en dit. */
@@ -1091,12 +1168,6 @@ final class TableBehavior implements StationBehavior {
         boolean ok = TableEveil.ECLAT_OK.equals(contenu.data().getString(TableEveil.ECLAT_ETAT));
         boolean vive = courante && pageSurvolee;
         boolean coule = courante && coulante >= 0;
-        if (vive || coule) {
-            canvas.rect(1.0F, 20.0F, LARGE - 2.0F, 92.0F, OpenBook.MARK_LIFT * 0.5F, coule ? BANDE_VIVE : BANDE);
-        }
-        if (courante && tenueEclat && tenue >= 0 && tenueT > 0.0F) {
-            canvas.rect(1.0F, 20.0F, (LARGE - 2.0F) * Math.min(1.0F, tenueT / TENUE), 92.0F, OpenBook.MARK_LIFT * 0.6F, BANDE_VIVE);
-        }
         float revele = contenu.revele()[0];
         canvas.item(station.level(), stack, (LARGE - 16.0F) / 2.0F, 2.0F, 16.0F);
         float y = 20.0F;
@@ -1111,28 +1182,39 @@ final class TableBehavior implements StationBehavior {
             y = paragraphe(canvas, Component.translatable(eclat.recit()).copy().withStyle(s -> s.withItalic(true)), DROITE_X, y, PETIT,
                     PALE, 4) + 3.0F;
         }
-        Component nom = runique(nomEncre(eclat.enchantement(), eclat.niveau()), revele);
-        float lettres = coule ? Mth.clamp(1.0F - (horloge - clicA) / COULEE, 0.0F, 1.0F) : 1.0F;
-        for (FormattedCharSequence ligne : Minecraft.getInstance().font.split(nom, (int) (LARGE - 2.0F * DROITE_X))) {
-            if (vive) {
-                canvas.brightText(ligne, DROITE_X, y, 1.0F, VIOLET, 0xFF000000 | eclat.couleur(), 0.6F, 0.05F);
-            }
-            canvas.text(ligne, DROITE_X, y, VIOLET, lettres);
-            y += LIGNE;
-        }
+        // La force de l'éclat, en runes jusqu'à ce qu'on la lise ; la bande couvre exactement ce qui se lit.
+        List<Ligne> force = new ArrayList<>();
+        ajouter(force, nomEncre(eclat.enchantement(), eclat.niveau()), revele, 1.0F, VIOLET, Style.EMPTY, 2, 0.0F);
         String pouvoir = "eveil.fallow.pouvoir." + eclat.enchantement().getNamespace() + "." + eclat.enchantement().getPath();
         if (I18n.exists(pouvoir)) {
-            y = paragraphe(canvas, runique(Component.translatable(pouvoir), revele), DROITE_X, y + 1.0F, PETIT, ENCRE, 3);
+            ajouter(force, Component.translatable(pouvoir), revele, PETIT, ENCRE, Style.EMPTY, 3, 1.0F);
+        }
+        float hauteur = hauteur(force) + 4.0F;
+        if (vive || coule) {
+            canvas.rect(1.0F, y - 2.0F, LARGE - 2.0F, hauteur, OpenBook.MARK_LIFT * 0.5F, coule ? BANDE_VIVE : BANDE);
+        }
+        if (courante && tenueEclat && tenue >= 0 && tenueT > 0.0F) {
+            canvas.rect(1.0F, y - 2.0F, (LARGE - 2.0F) * Math.min(1.0F, tenueT / TENUE), hauteur, OpenBook.MARK_LIFT * 0.6F, BANDE_VIVE);
+        }
+        float lettres = coule ? Mth.clamp(1.0F - (horloge - clicA) / COULEE, 0.0F, 1.0F) : 1.0F;
+        for (Ligne ligne : force) {
+            y += ligne.avant();
+            if (vive && ligne.encre() == VIOLET) {
+                canvas.brightText(ligne.texte(), DROITE_X, y, 1.0F, VIOLET, 0xFF000000 | eclat.couleur(), 0.6F, 0.05F);
+            }
+            canvas.text(ligne.texte(), DROITE_X, y, ligne.taille(), ligne.encre(), ligne.encre() == VIOLET ? lettres : 1.0F);
+            y += ligne.taille() < 1.0F ? PETITE_LIGNE : LIGNE;
         }
         paragraphe(canvas, Component.translatable("eveil.fallow.livre.eclat.place"), DROITE_X, y + 3.0F, PETIT, PALE, 3);
         String cle = switch (contenu.data().getString(TableEveil.ECLAT_ETAT)) {
-            case TableEveil.ECLAT_OK -> "eveil.fallow.livre.eclat.verser";
+            case TableEveil.ECLAT_OK -> station != null && sansEncre(station) ? "eveil.fallow.livre.sans_encre"
+                    : "eveil.fallow.livre.eclat.verser";
             case TableEveil.ECLAT_SANS_OBJET -> "eveil.fallow.livre.eclat.sans_objet";
             case TableEveil.ECLAT_DEJA -> "eveil.fallow.eclat.deja";
             case TableEveil.ECLAT_PLEIN -> "eveil.fallow.table.plein";
             default -> "eveil.fallow.eclat.ne_prend_pas";
         };
-        paragraphe(canvas, Component.translatable(cle), DROITE_X, PIED - 6.0F, PETIT, ok ? SEPIA : ROUGE, 3);
+        paragraphe(canvas, Component.translatable(cle), DROITE_X, PIED - 6.0F, PETIT, ok && !(station != null && sansEncre(station)) ? SEPIA : ROUGE, 3);
     }
 
     // ---- l'écriture ----
@@ -1163,6 +1245,73 @@ final class TableBehavior implements StationBehavior {
     }
 
     /** Un paragraphe coupé à la largeur de la page, à la taille {@code taille} ; renvoie le bas de sa dernière ligne. */
+    /** Une ligne écrite sur une page : son texte, sa taille, son encre, et l'espace laissé au-dessus d'elle. */
+    private record Ligne(FormattedCharSequence texte, float taille, int encre, float avant) {
+    }
+
+    /** Ce qu'une voie écrit : son nom, ce qu'elle portait avant, ce qu'elle fait, et l'acte qui l'a éveillée. */
+    private static List<Ligne> texteDeVoie(CompoundTag voie, float revele) {
+        List<Ligne> texte = new ArrayList<>();
+        ResourceLocation id = ResourceLocation.tryParse(voie.getString(TableEveil.ENCHANTEMENT));
+        int niveau = voie.getInt(TableEveil.NIVEAU);
+        ajouter(texte, id == null ? Component.literal("?") : nomEncre(id, niveau), revele, 1.0F, VIOLET, Style.EMPTY, 2, 0.0F);
+        if (id != null && niveau > 1) {
+            ajouter(texte, Component.translatable("eveil.fallow.livre.avant", nomEncre(id, niveau - 1)), revele, PETIT, PALE,
+                    Style.EMPTY, 1, 0.0F);
+        }
+        String pouvoir = id == null ? "" : "eveil.fallow.pouvoir." + id.getNamespace() + "." + id.getPath();
+        if (I18n.exists(pouvoir)) {
+            ajouter(texte, Component.translatable(pouvoir), revele, PETIT, ENCRE, Style.EMPTY, 3, 1.0F);
+        }
+        if (voie.contains(TableEveil.NE_DE)) {
+            Component ne = Component.translatable("eveil.fallow.livre.ne_de",
+                    Component.translatable(voie.getString(TableEveil.NE_DE), quantite(voie.getDouble(TableEveil.FOIS))));
+            ajouter(texte, ne, revele, PETIT, SEPIA, Style.EMPTY.withItalic(true), 2, 2.0F);
+        }
+        return texte;
+    }
+
+    private static void ajouter(List<Ligne> texte, Component mots, float revele, float taille, int encre, Style style, int auPlus,
+            float avant) {
+        List<FormattedCharSequence> lignes = lignes(mots, revele, (LARGE - DROITE_X - 3.0F) / taille, style);
+        for (int i = 0; i < Math.min(auPlus, lignes.size()); i++) {
+            texte.add(new Ligne(lignes.get(i), taille, encre, i == 0 ? avant : 0.0F));
+        }
+    }
+
+    private static float hauteur(List<Ligne> texte) {
+        float h = 0.0F;
+        for (Ligne ligne : texte) {
+            h += ligne.avant() + (ligne.taille() < 1.0F ? PETITE_LIGNE : LIGNE);
+        }
+        return h;
+    }
+
+    /**
+     * Le texte coupé en lignes sur ses mots lus (en clair), puis chaque ligne écrite en runes au-delà de ce qui est déchiffré :
+     * les lignes restent où elles sont pendant qu'on lit. Une ligne en runes trop large est resserrée à sa place.
+     */
+    private static List<FormattedCharSequence> lignes(Component texte, float revele, float largeur, Style style) {
+        Font font = Minecraft.getInstance().font;
+        String mots = texte.getString();
+        int clair = Mth.clamp(Math.round(revele * mots.length()), 0, mots.length());
+        List<FormattedCharSequence> sortie = new ArrayList<>();
+        int debut = 0;
+        for (FormattedText coupe : font.getSplitter().splitLines(mots, (int) largeur, style)) {
+            String ligne = coupe.getString();
+            int a = mots.indexOf(ligne, debut);
+            a = a < 0 ? debut : a;
+            int lu = Mth.clamp(clair - a, 0, ligne.length());
+            net.minecraft.network.chat.MutableComponent ecrite = Component.literal(ligne.substring(0, lu)).withStyle(style);
+            if (lu < ligne.length()) {
+                ecrite.append(Component.literal(ligne.substring(lu)).withStyle(style.withFont(Minecraft.ALT_FONT)));
+            }
+            sortie.add(ecrite.getVisualOrderText());
+            debut = a + ligne.length();
+        }
+        return sortie;
+    }
+
     private static float paragraphe(OpenBook.Canvas canvas, Component texte, float x, float y, float taille, int encre, int auPlus) {
         Font font = Minecraft.getInstance().font;
         List<FormattedCharSequence> lignes = font.split(texte, (int) ((LARGE - x - 3.0F) / taille));
@@ -1235,20 +1384,6 @@ final class TableBehavior implements StationBehavior {
     private static Component quantite(double fois) {
         String ordre = fois < 10.0 ? "quelques" : fois < 100.0 ? "dizaines" : fois < 1000.0 ? "centaines" : "milliers";
         return Component.translatable("eveil.fallow.livre.quantite." + ordre);
-    }
-
-    /**
-     * Un texte de la table, écrit dans l'alphabet de la table de vanilla (la police {@code minecraft:alt}) et déchiffré lettre à
-     * lettre : les {@code revele} premiers de ses caractères en clair, le reste en runes.
-     */
-    private static Component runique(Component texte, float revele) {
-        String mots = texte.getString();
-        int clair = Mth.clamp(Math.round(revele * mots.length()), 0, mots.length());
-        if (clair >= mots.length()) {
-            return texte;
-        }
-        return Component.literal(mots.substring(0, clair))
-                .append(Component.literal(mots.substring(clair)).withStyle(style -> style.withFont(Minecraft.ALT_FONT)));
     }
 
     private static Component majuscule(Component texte) {

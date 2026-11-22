@@ -12,6 +12,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -50,6 +51,9 @@ public final class TableEveil {
     public static final String ECLAT = "eclat";
     public static final SlotRef OBJET_REF = SlotRef.of(OBJET, 0);
     public static final SlotRef ECLAT_REF = SlotRef.of(ECLAT, 0);
+    /** L'encrier : l'encre d'éveil, sans laquelle la table n'écrit aucune voie ; une fiole par éveil. */
+    public static final String ENCRE = "encre";
+    public static final SlotRef ENCRE_REF = SlotRef.of(ENCRE, 0);
 
     /** {@code choisir} : l'éveil de la voie {@link #VOIE} (0 ou 1) de la page de droite. */
     public static final String CHOISIR = "choisir";
@@ -116,6 +120,10 @@ public final class TableEveil {
         return stack.is(EveilModule.ECLAT_DE_BETE.get()) && stack.has(EveilModule.ECLAT.get());
     }
 
+    public static boolean encre(ItemStack stack) {
+        return EveilModule.encre(stack);
+    }
+
     static void register() {
         Diegesis.station(ID)
                 .blocks(Blocks.ENCHANTING_TABLE)
@@ -123,6 +131,7 @@ public final class TableEveil {
                 .schema(StationSchema.builder()
                         .slots(OBJET, 1, SlotRules.DEFAULT.maxStack(1).accepts(TableEveil::objet))
                         .slots(ECLAT, 1, SlotRules.DEFAULT.maxStack(1).accepts(TableEveil::eclat))
+                        .slots(ENCRE, 1, SlotRules.DEFAULT.maxStack(16).accepts(TableEveil::encre))
                         .build())
                 .logic(Table::new)
                 .orientation(StationType.Orientation.PLAYER_FREE)
@@ -175,7 +184,7 @@ public final class TableEveil {
 
         @Override
         public boolean mayPlace(StationContext ctx, Player player, SlotRef ref, ItemStack stack) {
-            return OBJET.equals(ref.group()) ? objet(stack) : eclat(stack);
+            return OBJET.equals(ref.group()) ? objet(stack) : ENCRE.equals(ref.group()) ? encre(stack) : eclat(stack);
         }
 
         @Override
@@ -212,6 +221,9 @@ public final class TableEveil {
                 return;
             }
             Eveil.Option option = options.get(voie);
+            if (!encrer(ctx, player)) {
+                return;
+            }
             Eveil.appliquer(player, stack, option, Optional.empty(), ctx.pos());
             ctx.state().setItem(OBJET_REF, stack);
             joue(ctx, player, option, false);
@@ -226,7 +238,7 @@ public final class TableEveil {
                 return;
             }
             Eveil.Option option = optionEclat(ctx, stack, eclat);
-            if (option == null || Eveil.reconcilier(stack, Eveil.etat(stack)).plein()) {
+            if (option == null || Eveil.reconcilier(stack, Eveil.etat(stack)).plein() || !encrer(ctx, player)) {
                 return;
             }
             Eveil.appliquer(player, stack, option, Optional.of(eclat.bete()), ctx.pos());
@@ -237,6 +249,21 @@ public final class TableEveil {
             ecrire(ctx);
         }
 
+        /** Une fiole de l'encrier part dans les runes de la voie ; sans encre, rien ne s'écrit (le mode créatif n'en use pas). */
+        private static boolean encrer(StationContext ctx, ServerPlayer player) {
+            if (player.getAbilities().instabuild) {
+                return true;
+            }
+            ItemStack encre = ctx.state().getItem(ENCRE_REF).copy();
+            if (encre.isEmpty()) {
+                player.displayClientMessage(Component.translatable("eveil.fallow.table.sans_encre"), true);
+                return false;
+            }
+            encre.shrink(1);
+            ctx.state().setItem(ENCRE_REF, encre);
+            return true;
+        }
+
         /** Du curseur de l'inventaire (Maj + clic) ou de la main en arrivant : la pile va à sa place, ce qui y était revient. */
         private void poser(StationContext ctx, ServerPlayer player, int depuis) {
             Inventory inventory = player.getInventory();
@@ -244,6 +271,18 @@ public final class TableEveil {
                 return;
             }
             ItemStack stack = inventory.getItem(depuis);
+            if (encre(stack)) {
+                // L'encre se verse toute dans l'encrier, jusqu'à ce qu'il soit plein.
+                ItemStack dedans = ctx.state().getItem(ENCRE_REF);
+                int place = 16 - dedans.getCount();
+                if (place > 0) {
+                    ItemStack verse = stack.split(place);
+                    verse.grow(dedans.getCount());
+                    inventory.setChanged();
+                    ctx.state().setItem(ENCRE_REF, verse);
+                }
+                return;
+            }
             SlotRef ref = objet(stack) ? OBJET_REF : eclat(stack) ? ECLAT_REF : null;
             if (ref == null) {
                 return;

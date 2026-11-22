@@ -35,6 +35,10 @@ final class TableClient {
     private static final List<ResourceLocation> GLYPHES_VOLANTS = IntStream.range(0, LETTRES.length())
             .mapToObj(i -> ResourceLocation.fromNamespaceAndPath(Fallow.MOD_ID, "glyphe_volant_" + i)).toList();
 
+    /** L'encre qui monte de l'encrier vers les runes qu'on lit ; les étincelles d'un éveil accompli. */
+    static final ResourceLocation VOLUTE = ResourceLocation.fromNamespaceAndPath(Fallow.MOD_ID, "volute_d_encre");
+    static final ResourceLocation ETINCELLE = ResourceLocation.fromNamespaceAndPath(Fallow.MOD_ID, "etincelle_d_eveil");
+
     private static final ResourceLocation VOILE = ResourceLocation.withDefaultNamespace("textures/misc/vignette.png");
 
     private TableClient() {
@@ -50,6 +54,10 @@ final class TableClient {
             DiegesisClient.registerParticle(GLYPHES_VOLANTS.get(i), ParticleStyle.builder(lettre).color(0xFFB98EFF).size(0.8F, 1.2F)
                     .life(1.0F, 1.6F).gravity(-2.0F).drag(1.4F).wobble(0.5F).emissive().grow(0.4F).fadeIn(0.1F).build());
         }
+        DiegesisClient.registerParticle(VOLUTE, ParticleStyle.builder(ResourceLocation.withDefaultNamespace("generic_2"))
+                .color(0xFF6A48E8).size(0.45F, 0.8F).life(0.7F, 1.0F).drag(0.5F).wobble(0.6F).emissive().fadeIn(0.15F).build());
+        DiegesisClient.registerParticle(ETINCELLE, ParticleStyle.builder(ResourceLocation.withDefaultNamespace("glitter_4"))
+                .color(0xFFD9CCFF).size(0.25F, 0.5F).life(0.9F, 1.6F).gravity(-0.4F).drag(1.2F).wobble(0.3F).emissive().build());
         NeoForge.EVENT_BUS.addListener(InputEvent.InteractionKeyMappingTriggered.class, event -> {
             if (event.isUseItem() && Minecraft.getInstance().hitResult instanceof BlockHitResult hit) {
                 TableBehavior.usage(hit.getBlockPos());
@@ -85,11 +93,12 @@ final class TableClient {
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR);
         // Deux passes du voile : la seconde mord plus loin vers le milieu quand la table s'éveille.
-        graphics.setColor(Math.min(1.0F, k * 1.3F), Math.min(1.0F, k * 1.3F), Math.min(1.0F, k * 1.15F), 1.0F);
+        // Le vert s'éteint plus vite que le rouge et le bleu : l'ombre tire sur le violet.
+        graphics.setColor(Math.min(1.0F, k * 1.15F), Math.min(1.0F, k * 1.4F), Math.min(1.0F, k * 1.0F), 1.0F);
         graphics.blit(VOILE, 0, 0, -90, 0.0F, 0.0F, large, haut, large, haut);
         float second = Math.max(0.0F, k - 0.5F) * 1.6F;
         if (second > 0.0F) {
-            graphics.setColor(second, second, second * 0.9F, 1.0F);
+            graphics.setColor(second * 0.95F, second * 1.1F, second * 0.85F, 1.0F);
             graphics.blit(VOILE, 0, 0, -90, 0.0F, 0.0F, large, haut, large, haut);
         }
         graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
