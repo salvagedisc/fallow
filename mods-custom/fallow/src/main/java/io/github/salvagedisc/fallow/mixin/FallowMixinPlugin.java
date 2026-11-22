@@ -54,17 +54,21 @@ public final class FallowMixinPlugin implements IMixinConfigPlugin {
             Map.entry("postes.MenuOuvertureMixin", List.of(ModIds.DIEGESIS)),
             Map.entry("postes.MenuCreationMixin", List.of(ModIds.DIEGESIS)),
             Map.entry("postes.StationHoverMixin", List.of(ModIds.DIEGESIS, ModIds.HANDS_ON_VANILLA)),
+            Map.entry("livres.HovOpenBookMixin", List.of(ModIds.HANDS_ON_VANILLA)),
+            Map.entry("livres.HovRecipeBookMixin", List.of(ModIds.HANDS_ON_VANILLA)),
             Map.entry("navires.VoileMixin", List.of(ModIds.FISH_N_SHIPS)));
 
-    private static final Map<String, List<String>> MEMBERS = Map.of(
-            "horizon.ChunkyAccessorMixin", List.of("listenerBound", "tryRunFirstTimeSetup"),
-            "dinos.ChorusoatlArmorMixin", List.of("hasAbility", "activateServerSetAbility"),
-            "dinos.ArmorModelCacheMixin", List.of("initArmorModel", "getLayerLocation"),
-            "zoo.CategoryTabsMixin", List.of("book", "categorySubTabs", "<init>"),
-            "zoo.GuidebookDataMixin", List.of("parseXML", "loadData"),
-            "compat.PunchyEquipMixin", List.of("shouldIgnoreComponentForEquipDiff"),
-            "postes.StationHoverMixin", List.of("isOurs"),
-            "navires.VoileMixin", List.of("moveWithSailDown"));
+    private static final Map<String, List<String>> MEMBERS = Map.ofEntries(
+            Map.entry("horizon.ChunkyAccessorMixin", List.of("listenerBound", "tryRunFirstTimeSetup")),
+            Map.entry("dinos.ChorusoatlArmorMixin", List.of("hasAbility", "activateServerSetAbility")),
+            Map.entry("dinos.ArmorModelCacheMixin", List.of("initArmorModel", "getLayerLocation")),
+            Map.entry("zoo.CategoryTabsMixin", List.of("book", "categorySubTabs", "<init>")),
+            Map.entry("zoo.GuidebookDataMixin", List.of("parseXML", "loadData")),
+            Map.entry("compat.PunchyEquipMixin", List.of("shouldIgnoreComponentForEquipDiff")),
+            Map.entry("postes.StationHoverMixin", List.of("isOurs")),
+            Map.entry("livres.HovOpenBookMixin", List.of("draw", "sheet", "spread", "fromSpread", "flip", "flipWay", "time", "riffleAt", "riffleSpan")),
+            Map.entry("livres.HovRecipeBookMixin", List.of("spread", "flip", "flipWay")),
+            Map.entry("navires.VoileMixin", List.of("moveWithSailDown")));
 
     @Override
     public void onLoad(String mixinPackage) {

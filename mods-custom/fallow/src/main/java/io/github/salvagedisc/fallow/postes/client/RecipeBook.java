@@ -41,6 +41,7 @@ import com.pockyl.diegesis.api.client.StationView;
 import com.pockyl.diegesis.api.scene.Transform;
 import io.github.salvagedisc.fallow.postes.BookMath;
 import io.github.salvagedisc.fallow.Fallow;
+import io.github.salvagedisc.fallow.livres.client.RecipeSheets;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -2261,11 +2262,28 @@ final class RecipeBook implements NodePainter {
         float left = tilt - Mth.PI;
         float turn = forward ? Mth.lerp(over, right, left) : Mth.lerp(over, left, right);
         float lifted = height + SHEET_LIFT;
+        // The sheet going over bends as paper does, what is written on it going with it; the first frame of a turn it goes flat.
+        Leaf back = forward ? now : from;
+        if (RecipeSheets.turn(poseStack, buffers, shade, lifted, forward ? right : left, forward ? left : right, over, this,
+                (pose, drawn, onLeft) -> paintFace(pose, drawn, onLeft, onLeft ? back : now))) {
+            return;
+        }
         if (turn > -Mth.HALF_PI) {
             side(poseStack, buffers, false, turn, lifted, now, false);
         } else {
             side(poseStack, buffers, true, turn + Mth.PI, lifted, forward ? now : from, false);
         }
+    }
+
+    /**
+     * Paints one face of the sheet going over flat at the fold, at full light (the world's light falls on the bent sheet): the
+     * right page ({@code left} false) or the left one.
+     */
+    private void paintFace(PoseStack poseStack, MultiBufferSource buffers, boolean left, Leaf leaf) {
+        int lit = shade;
+        shade = LightTexture.FULL_BRIGHT;
+        side(poseStack, buffers, left, 0.0F, 0.0F, leaf, false);
+        shade = lit;
     }
 
     /** One side of a sheet, turned about the fold: units run right and down as on a screen. {@code resting}: the tabs stand on it. */

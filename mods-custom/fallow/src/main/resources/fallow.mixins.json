@@ -36,6 +36,8 @@
     "horizon.GLStateMixin",
     "horizon.VanillaFadeMixin",
     "indices.GuiOverlayAccessor",
+    "livres.HovOpenBookMixin",
+    "livres.HovRecipeBookMixin",
     "patine.ArmorTextureMixin",
     "postes.ForgeRendererMixin",
     "postes.MenuCreationMixin",

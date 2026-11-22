@@ -31,6 +31,7 @@ import org.joml.Vector3f;
 import com.pockyl.diegesis.api.client.DiegesisClient;
 import com.pockyl.diegesis.api.client.StationView;
 import io.github.salvagedisc.fallow.Fallow;
+import io.github.salvagedisc.fallow.livres.client.OpenSheets;
 
 import java.util.Optional;
 
@@ -351,9 +352,29 @@ final class OpenBook {
         sheet(poseStack, buffers, light, open, right, REST_LIFT, true, forward ? left0 + 1 : from0 + 1, false, shown, own);
         sheet(poseStack, buffers, light, open, left, REST_LIFT, true, forward ? from0 : left0, false, shown, own);
         float over = flip * flip * (3.0F - 2.0F * flip);
-        float turn = forward ? Mth.lerp(over, right, left) : Mth.lerp(over, left, right);
-        int page = turn > 0.0F ? (forward ? from0 + 1 : left0 + 1) : (forward ? left0 : from0);
-        sheet(poseStack, buffers, light, open, turn, SHEET_LIFT, false, page, false, shown, own);
+        // The sheet going over shows the page it lifts on its face and the one it brings on its back.
+        int front = forward ? from0 + 1 : left0 + 1;
+        int back = forward ? left0 : from0;
+        turning(poseStack, buffers, light, open, forward ? right : left, forward ? left : right, over, SHEET_LIFT, front, back, shown,
+                shown, own);
+    }
+
+    /**
+     * A sheet going over from the angle {@code from} to {@code to}, {@code over} of the way: bent as paper bends, with each face's
+     * picture on it ({@link OpenSheets}), {@code front} the page on its face (read on the right), {@code back} the one on its back.
+     * Until the pictures are painted (the first frame of a turn) it goes over flat, as it did before.
+     */
+    private void turning(PoseStack poseStack, MultiBufferSource buffers, int light, float open, float from, float to, float over,
+            float lift, int front, int back, float frontInk, float backInk, float own) {
+        boolean bent = OpenSheets.turn(poseStack, buffers, light, open, lift, from, to, over, this, front, back,
+                (pose, drawn, page, onFront) -> sheet(pose, drawn, LightTexture.FULL_BRIGHT, 0.0F,
+                        onFront ? OpenSheets.FLAT : -OpenSheets.FLAT, 0.0F, false, page, false, onFront ? frontInk : backInk, 1.0F),
+                own);
+        if (!bent) {
+            float turn = Mth.lerp(over, from, to);
+            boolean onFront = turn > 0.0F;
+            sheet(poseStack, buffers, light, open, turn, lift, false, onFront ? front : back, false, onFront ? frontInk : backInk, own);
+        }
     }
 
     /**
@@ -383,15 +404,14 @@ final class OpenBook {
                 continue;
             }
             float over = t * t * (3.0F - 2.0F * t);
-            float angle = forward ? Mth.lerp(over, right, left) : Mth.lerp(over, left, right);
-            if (Math.abs(angle) < 0.002F) {
-                angle = forward ? -0.002F : 0.002F;
-            }
-            boolean crossed = forward ? angle < 0.0F : angle > 0.0F;
             boolean last = i == riffleSheets - 1;
-            int page = !crossed ? rifflePage(i, false) : last ? target : rifflePage(i, true);
-            sheet(poseStack, buffers, light, open, angle, SHEET_LIFT + 0.03F * (i + 1), false, page, false, isRiffleSheet(page) ? 0.0F : ink,
-                    own);
+            int lifted = rifflePage(i, false);
+            int brought = last ? target : rifflePage(i, true);
+            // Forwards a sheet lifts off the right, so the page it lifts is on its face; back it lifts off the left, on its back.
+            int front = forward ? lifted : brought;
+            int back = forward ? brought : lifted;
+            turning(poseStack, buffers, light, open, forward ? right : left, forward ? left : right, over, SHEET_LIFT + 0.03F * (i + 1),
+                    front, back, isRiffleSheet(front) ? 0.0F : ink, isRiffleSheet(back) ? 0.0F : ink, own);
         }
         int leaving = waiting >= 0 ? rifflePage(waiting, false) : targetFrom;
         int landing = landed == riffleSheets - 1 ? target : landed >= 0 ? rifflePage(landed, true)
