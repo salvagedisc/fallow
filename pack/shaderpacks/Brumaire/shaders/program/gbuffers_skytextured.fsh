@@ -2,8 +2,8 @@
 #include "/lib/settings.glsl"
 uniform sampler2D gtexture;
 uniform vec3 sunPosition;
-#if EARTHSHINE > 0
 uniform int renderStage;
+#if EARTHSHINE > 0
 uniform int moonPhase;
 #endif
 in vec2 vUv;
@@ -17,9 +17,18 @@ void main() {
     // Le soleil est repeint avec le ciel (deferred). Sa texture carrée n'est pas dessinée, qu'elle vienne du
     // jeu ou d'un mod qui la déplace : tout ce qui est dessiné autour du soleil est écarté.
     if (dot(normalize(vView), normalize(sunPosition)) > 0.86) discard;
-    vec4 color = texture(gtexture, vUv) * vTint;
-    // La lune ressort franchement de son halo : un carré blanc et net, pas une tache pâle dans la lueur.
-    outColor = vec4(pow(color.rgb, vec3(2.2)) * 2.6, color.a);
+    vec4 tex = texture(gtexture, vUv);
+    float gain = 2.6;
+#ifdef MC_RENDER_STAGE_MOON
+    if (renderStage == MC_RENDER_STAGE_MOON) {
+        // La lune ressort franchement de son halo : un carré presque blanc et net, pas une tache jaunâtre dans la lueur.
+        // La teinte d'une lune d'Enhanced Celestials vient du jeu (vTint) et passe toujours.
+        tex.rgb = mix(tex.rgb, vec3(dot(tex.rgb, vec3(0.299, 0.587, 0.114))) * vec3(0.97, 0.99, 1.0), 0.8);
+        gain = 4.0;
+    }
+#endif
+    vec4 color = tex * vTint;
+    outColor = vec4(pow(color.rgb, vec3(2.2)) * gain, color.a);
 #if EARTHSHINE > 0 && defined MC_RENDER_STAGE_MOON
     // La lumière cendrée : la part sombre de la lune, éclairée par la Terre, se devine en gris bleuté, d'autant plus
     // qu'elle est un mince croissant. Le disque se lit dans l'image de la pleine lune (première case de la texture,
