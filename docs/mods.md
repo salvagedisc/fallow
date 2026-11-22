@@ -144,7 +144,7 @@ Side: C = client, S = server, CS = both. Versions checked on Modrinth for NeoFor
 | Mod | Slug | Status | Side | Role |
 |---|---|---|---|---|
 | ATMOSPHERICS | `atmospherics` | ✅ | C | Mist, sky, clouds (two layers), sun, moon and stars per biome ([0007](decisions/0007-ambiance-performance.md)) |
-| Particular Reforged | `particular-reforged` | ✅ | C | Water, waterfalls, falling leaves (a little more often), cave dust, fireflies (the only ones of the pack) |
+| Particular Reforged | `particular-reforged` | ✅ | C | Water, waterfalls, falling leaves (a little more often), cave dust; its firefly particles are off (Naturalist's fireflies are the pack's, [0041](decisions/0041-gameplay-without-shader.md)) |
 | Subtle Effects | `subtle-effects` | ✅ | CS | Fire, smoke, steam, body; pollen also in the flower, meadow and orchard biomes of Regions Unexplored, spores in its fungal fen, its own fireflies off because Particular already has them (`pack/config/subtle_effects/environment.toml`) |
 | LambDynamicLights | `lambdynamiclights` | ✅ | C | Light held in hand |
 | More Darkness | `more-darkness` | ✅ | CS | Real nights |

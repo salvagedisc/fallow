@@ -31,6 +31,7 @@ Removed on 2026-11-21 under these rules (options, settings names and code):
 | Falling leaves (`FALLING_LEAVES`), leaves in the wind (`LEAF_LITTER`) | Duplicate | Particular's falling leaves, which lie on the ground |
 | Rain rings on water (`WATER_RAIN_RINGS`), removed on 2026-11-22 | Duplicate | Particular's rain ripples |
 | Waterfall spray (`FALL_SPRAY`), removed on 2026-11-22 | Duplicate | Particular's waterfall spray and cascade clouds; the rainbow stays in the shore spray |
+| Dust in torchlight underground (the cave branch of `AIR_MOTES`), removed on 2026-11-22 | Duplicate | Particular's cave dust; `AIR_MOTES` keeps the dust in sunbeams |
 
 Kept, and checked against the rules: plankton glow on foam (a light, no creature drawn), floating leaves on calm water, diamond dust, the sky phenomena. Auroras and Rainbows test whether Iris runs a shader pack: they draw the aurora and the rainbow without Brumaire, Brumaire draws its own with it.
 
@@ -311,7 +312,6 @@ A face with a specular map but no normal map is not detected and keeps the table
 - **Heat haze**: in `mist.fsh`, ten steps over the first twenty blocks of the view ray look one and two cells below each point in the voxel volume for lava (light family 2, level 12 or more); the share found shifts the image in waves that rise up the screen. Under `HEAT_SHIMMER`, with the desert haze.
 - **Damp rock**: where the sky light is under about 0.25, full and partial ordinary blocks get damp patches (more on ceilings and deeper down) and narrow vertical streaks on walls, darker and with a roughness of 0.16. The texel normal of a damp texel is jittered so block light catches it in points.
 - **Block light reflection**: `shade()` exports the block light reaching the point and the direction it comes from (the slope of the voxel light level). Every non-emissive, non-foliage surface adds a GGX reflection of it, with a wider second lobe on damp rock; it shows on metal and wet rock, faintly elsewhere. Needs `COLORED_LIGHT` and `BLOCK_LIGHT_SHAPE`.
-- **Dust in the light**: underground (eye sky light low), the motes of `AIR_MOTES` glow in the colour and with the cube of the block light level read in the voxel volume.
 - **Glowing blocks** keep a more saturated colour (glow lichen, froglights).
 
 ## Block relief
