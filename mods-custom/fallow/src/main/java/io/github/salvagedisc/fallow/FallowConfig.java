@@ -87,6 +87,7 @@ public final class FallowConfig {
     private static final ModConfigSpec.DoubleValue CLIMAT_SAND_THIRST;
     private static final ModConfigSpec.BooleanValue CLIMAT_STORM_VISUALS;
     private static final ModConfigSpec.BooleanValue ECRAN_ENABLED;
+    private static final ModConfigSpec.BooleanValue GABARITS_ENABLED;
     private static final ModConfigSpec.BooleanValue INDICES_ENABLED;
     private static final ModConfigSpec.ConfigValue<List<? extends String>> INDICES_IN_BAR;
     private static final ModConfigSpec.IntValue ECRAN_IDLE_SECONDS;
@@ -222,6 +223,15 @@ public final class FallowConfig {
                 .comment("Volume des bruits des postes (gestes, arrivées, refus, carillons), de 0 (muets) à 1. Les bruits du bloc",
                         "lui-même, que les autres joueurs entendent aussi, n'en dépendent pas.")
                 .defineInRange("soundVolume", 1.0, 0.0, 1.0);
+        client.pop();
+
+        client.comment("Module gabarits (client) : les métaux des mods dessinés d'après le pack de textures actif.").push("gabarits");
+        GABARITS_ENABLED = client
+                .comment("Interrupteur du module. Vrai : quand un pack de textures redessine le fer du jeu, les objets en métal des",
+                        "mods (acier et cuivre d'Overgeared, laiton et zinc de Create, acier noir de Fallow...) reprennent ce dessin",
+                        "dans leur propre couleur, au chargement des ressources. Faux : les textures des mods telles quelles.",
+                        "Pris en compte au prochain rechargement des ressources (F3+T).")
+                .define("enabled", true);
         client.pop();
 
         CLIENT_SPEC = client.build();
@@ -774,6 +784,10 @@ public final class FallowConfig {
 
     public static List<? extends String> indicesInBar() {
         return CLIENT_SPEC.isLoaded() ? INDICES_IN_BAR.get() : INDICES_DEFAULT_IN_BAR;
+    }
+
+    public static boolean gabaritsEnabled() {
+        return read(CLIENT_SPEC, GABARITS_ENABLED);
     }
 
     public static boolean ecranEnabled() {
