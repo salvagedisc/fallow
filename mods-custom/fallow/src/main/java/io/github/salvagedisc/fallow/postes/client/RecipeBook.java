@@ -42,6 +42,7 @@ import com.pockyl.diegesis.api.scene.Transform;
 import io.github.salvagedisc.fallow.postes.BookMath;
 import io.github.salvagedisc.fallow.Fallow;
 import io.github.salvagedisc.fallow.livres.client.DogEar;
+import io.github.salvagedisc.fallow.livres.client.PageParts;
 import io.github.salvagedisc.fallow.livres.client.RecipeSheets;
 
 import java.util.ArrayList;
@@ -120,20 +121,15 @@ final class RecipeBook implements NodePainter {
     private static final int ARROW_Y = 81;
     private static final int ARROW_HEIGHT = 11;
     /** The corner turned down at the foot of the outer side, as drawn, and how far round it the cursor takes it. */
-    private static final float DOG_EAR = 14.0F;
-    private static final float DOG_EAR_REACH = 16.0F;
     /** The widest the page number may be before it is drawn smaller. */
     private static final float NUMBER_ROOM = 27.0F;
     /** The list's grid across, and its middle: the page number stands there, the two halves of the foot meet there. */
     private static final float LIST_WIDE = COLUMNS * PITCH - (PITCH - WELL_SIZE);
     private static final float FOOT_MIDDLE = GRID_X + LIST_WIDE / 2.0F;
     private static final int INK = 0xFF4A3418;
-    private static final int WELL = 0x1E5A3C18;
     /** A well whose recipe can be made now: washed with the cover's green. */
     private static final int WELL_READY = 0x603D7845;
-    private static final int WELL_PICKED = 0xFF8A5A2B;
     private static final int FADED = 0x55FFFFFF;
-    private static final int RULE = 0x405A3C18;
     /** Stars on a page: open (the cover's green), the part of the next one already earned, still shut. */
     private static final int STAR_OPEN = 0xFF306842;
     private static final int STAR_EARNING = 0x90306842;
@@ -144,9 +140,6 @@ final class RecipeBook implements NodePainter {
     private static final float PAPER_V1 = UNITS_HIGH / PAPER_SIZE;
     private static final float RIBBON_U = 80.0F;
     private static final float RIBBON_LIT_U = 88.0F;
-    /** Where the tabs take their paper from: clear of the page's darker edge. */
-    private static final float TAB_PAPER_U = 8.0F;
-    private static final float TAB_PAPER_V = 8.0F;
     private static final float REFRESH_TIME = 0.25F;
     /** How small it is closed. */
     private static final float CLOSED_SIZE = 0.62F;
@@ -164,7 +157,6 @@ final class RecipeBook implements NodePainter {
     private static final int TABS_FULL = 5;
     private static final float TAB_WIDE_NARROW = 11.0F;
     private static final float TAB_ICON_NARROW = 9.0F;
-    private static final int TAB_EDGE = 0x905A3C18;
     /** The "only what can be made now" switch: a tab over the right page, just clear of the fold's shade. */
     private static final float FILTER_X = 6.0F;
     /** The search: a tab beside the switch; typing, the row of tabs over the list becomes one slip of paper with the text on it. */
@@ -176,18 +168,12 @@ final class RecipeBook implements NodePainter {
     /** How long a tab holding new recipes nods, seconds, and how high. */
     private static final float NOD_TIME = 0.8F;
     private static final float NOD_HEIGHT = 2.0F;
-    /** The mark of a recipe new to the player: the ribbon's red, the one strong colour on the paper. */
-    private static final int FRESH = 0xFFB5372B;
-    /** The card the variants of one place lie on, opened over the list. */
-    private static final int CARD = 0x165A3C18;
     /** The least room kept between the tabs and the page's edges once the row has to move over to fit. */
     private static final float TAB_MARGIN = 1.0F;
     /** The ribbon that closes the book, at the top of the right page: a bookmark coming out from under the head of the pages. */
     private static final int RIBBON_X = 62;
     private static final int RIBBON_WIDTH = 6;
     private static final int RIBBON_HEIGHT = 13;
-    /** The shade in the fold of the pages. */
-    private static final int FOLD = 0x285A3C18;
     private static final int FOLD_WIDTH = 5;
     /** The right page's middle, clear of the fold's shade on its left. */
     private static final float RIGHT_MIDDLE = (UNITS_WIDE + FOLD_WIDTH) / 2.0F;
@@ -1737,13 +1723,46 @@ final class RecipeBook implements NodePainter {
      */
     private int footSide() {
         int pages = pages();
-        if (pages <= 1 || cursorY < UNITS_HIGH - DOG_EAR_REACH || cursorY >= UNITS_HIGH) {
+        if (pages <= 1 || cursorY >= UNITS_HIGH) {
             return 0;
         }
-        if (cursorX >= 0.0F && cursorX < DOG_EAR_REACH && page > 0) {
+        if (cursorX >= 0.0F && cursorX < DogEar.REACH && cursorY >= UNITS_HIGH - DogEar.REACH && page > 0) {
             return -1;
         }
-        return cursorX >= UNITS_WIDE * 2 - DOG_EAR_REACH && cursorX < UNITS_WIDE * 2 && page < pages - 1 ? 1 : 0;
+        // Where the recipe shown reaches into the corner, the corner reaches less far and only beside it, so what is there still
+        // answers the cursor.
+        float edge = cornerEdge(rightShown());
+        float reach = edge > 0.0F ? DogEar.SMALL_REACH : DogEar.REACH;
+        return cursorX >= UNITS_WIDE + DogEar.reachFrom(edge, UNITS_WIDE) && cursorX < UNITS_WIDE * 2 && cursorY >= UNITS_HIGH - reach
+                && page < pages - 1 ? 1 : 0;
+    }
+
+    /**
+     * How far right what the right page shows for {@code entry} reaches into its turned-down corner: a well of what goes in (the
+     * last row of a recipe of three), or the small print at its foot; 0 when nothing does.
+     */
+    private float cornerEdge(Entry entry) {
+        if (entry == null) {
+            return 0.0F;
+        }
+        float edge = 0.0F;
+        for (Spot spot : layout(entry)) {
+            if (DogEar.inCorner(spot.x(), spot.y(), WELL_SIZE, WELL_SIZE, UNITS_WIDE, UNITS_HIGH)) {
+                edge = Math.max(edge, spot.x() + WELL_SIZE);
+            }
+        }
+        float footMiddle = ARROW_Y + ARROW_HEIGHT / 2.0F;
+        float bottom = footMiddle - FOOT_SIZE / 2.0F;
+        int rows = (entry.ingredients().size() + 2) / 3;
+        if (ingredientsTop(entry) + rows * PITCH - (PITCH - WELL_SIZE) > bottom) {
+            return edge;
+        }
+        Component noted = entry.page().note();
+        float noteWide = noted == null ? 0.0F : Minecraft.getInstance().font.width(noted) + 1.0F;
+        List<ItemStack> foot = entry.page().foot();
+        float wide = foot.isEmpty() ? noteWide : (foot.size() - 1) * FOOT_PITCH + FOOT_SIZE + noteWide;
+        float x = RIGHT_MIDDLE - wide / 2.0F;
+        return DogEar.inCorner(x, bottom, wide, FOOT_SIZE, UNITS_WIDE, UNITS_HIGH) ? Math.max(edge, x + wide) : edge;
     }
 
     /**
@@ -2298,16 +2317,9 @@ final class RecipeBook implements NodePainter {
         poseStack.last().pose().mul(sheet);
         Sheet canvas = new Sheet(poseStack, buffers);
         canvas.paper(left);
-        canvas.rect(left ? UNITS_WIDE - FOLD_WIDTH : 0.0F, 0.0F, FOLD_WIDTH, UNITS_HIGH, 0.1F, FOLD);
-        canvas.rect(left ? UNITS_WIDE - 2.0F : 0.0F, 0.0F, 2.0F, UNITS_HIGH, 0.15F, FOLD);
+        PageParts.gutter(poseStack, buffers, shade, left, UNITS_WIDE, UNITS_HIGH, 0.15F);
         // Only the resting pages answer the cursor: a sheet going over shows what it holds, unlit.
         boolean live = resting && (flip >= 1.0F || !left || leaf.page() == page && leaf.card() == (opened() != null));
-        // The corner turned down where there is a page to turn to: before this one on the left, after it on the right.
-        int leafPages = Math.max(1, (leaf.list().size() + PER_PAGE - 1) / PER_PAGE);
-        if (left ? leaf.page() > 0 : leaf.page() < leafPages - 1) {
-            boolean under = live && footSide() == (left ? -1 : 1);
-            DogEar.draw(poseStack, buffers, shade, left ? 0.0F : UNITS_WIDE, UNITS_HIGH, DOG_EAR, left, under, DogEar.Paper.CREAM, DogEar.LIFT);
-        }
         if (left) {
             if (resting) {
                 drawTabs(canvas);
@@ -2333,6 +2345,15 @@ final class RecipeBook implements NodePainter {
                 // The ribbon is there whatever the page shows, also when the list is empty: it is the way to shut the book.
                 canvas.ribbon(onRibbon());
             }
+        }
+        // The corner turned down where there is a page to turn to: before this one on the left, after it on the right. Drawn last:
+        // over the last row of a recipe of three it is smaller, above what is there, and full size only under the cursor.
+        int leafPages = Math.max(1, (leaf.list().size() + PER_PAGE - 1) / PER_PAGE);
+        if (left ? leaf.page() > 0 : leaf.page() < leafPages - 1) {
+            boolean under = live && footSide() == (left ? -1 : 1);
+            boolean taken = !left && cornerEdge(rightShown()) > 0.0F;
+            DogEar.draw(poseStack, buffers, shade, left ? 0.0F : UNITS_WIDE, UNITS_HIGH, taken && !under ? DogEar.SMALL : DogEar.SIZE,
+                    left, under, DogEar.Paper.CREAM, taken ? DogEar.OVER : DogEar.LIFT);
         }
         poseStack.popPose();
     }
@@ -2380,8 +2401,7 @@ final class RecipeBook implements NodePainter {
             // The variants of one place lie on a card over the list, as the vanilla book lays them over its own.
             float wide = Math.min(count, COLUMNS) * PITCH - (PITCH - WELL_SIZE) + 4.0F;
             float high = (count + COLUMNS - 1) / COLUMNS * PITCH - (PITCH - WELL_SIZE) + 4.0F;
-            canvas.rect(GRID_X - 2.0F, GRID_Y - 2.0F, wide, high, WELL_LIFT * 0.5F, CARD);
-            canvas.outline(GRID_X - 2.0F, GRID_Y - 2.0F, wide, high, WELL_LIFT * 0.5F, RULE);
+            canvas.card(GRID_X - 2.0F, GRID_Y - 2.0F, wide, high, WELL_LIFT * 0.5F);
         }
         Entry pointed = hovered != null ? hovered : previewed;
         for (int i = first; i < first + count; i++) {
@@ -2392,9 +2412,9 @@ final class RecipeBook implements NodePainter {
             int y = GRID_Y + (i - first) / COLUMNS * PITCH;
             if (!card && place.variants().size() > 1) {
                 // More than one recipe here: a second well peeks out from under it, as a stack of cards.
-                canvas.rect(x + 1.5F, y + 1.5F, WELL_SIZE, WELL_SIZE, WELL_LIFT * 0.5F, ready ? WELL_READY : WELL);
+                canvas.well(x + 1.5F, y + 1.5F, WELL_LIFT * 0.5F, ready);
             }
-            canvas.rect(x, y, WELL_SIZE, WELL_SIZE, WELL_LIFT, ready ? WELL_READY : WELL);
+            canvas.well(x, y, WELL_LIFT, ready);
             canvas.item(shown.dish(), x + 0.5F, y + 0.5F, 16.0F, !shown.isReady());
             // Null-safe: the lists of variants are immutable and refuse to look for null.
             boolean here = card ? place == picked || place == pointed
@@ -2403,8 +2423,7 @@ final class RecipeBook implements NodePainter {
                 canvas.frame(x, y, WELL_SIZE);
             }
             if (isFresh(place, card)) {
-                canvas.rect(x + 1.0F, y + 2.0F, 3.0F, 1.0F, COVER_LIFT, FRESH);
-                canvas.rect(x + 2.0F, y + 1.0F, 1.0F, 3.0F, COVER_LIFT, FRESH);
+                canvas.mark(x + 2.5F, y + 2.5F);
             }
         }
         int leafPages = Math.max(1, (list.size() + PER_PAGE - 1) / PER_PAGE);
@@ -2439,12 +2458,12 @@ final class RecipeBook implements NodePainter {
             canvas.text(text, middle - font.width(text) * nameScale / 2.0F, line, nameScale);
             line += font.lineHeight * nameScale;
         }
-        canvas.rect(middle - LIST_WIDE / 2.0F, ruleY(entry) + 0.5F, LIST_WIDE, 0.6F, WELL_LIFT, RULE);
+        canvas.rule(middle - LIST_WIDE / 2.0F, ruleY(entry) + 0.8F, LIST_WIDE);
         for (Spot spot : layout(entry)) {
             int i = spot.index();
             boolean pointed = live && hoveredSpot != null && hoveredSpot.index() == i && spotFor == entry;
             ItemStack stack = pointed ? spotShown : choice(entry, i);
-            canvas.rect(spot.x(), spot.y(), WELL_SIZE, WELL_SIZE, WELL_LIFT, entry.found()[i] ? WELL_READY : WELL);
+            canvas.well(spot.x(), spot.y(), WELL_LIFT, entry.found()[i]);
             canvas.item(stack, spot.x() + 0.5F, spot.y() + 0.5F, 16.0F, !entry.found()[i]);
             if (pointed && spotTarget != null) {
                 // What the book can make lights under the cursor, and a click shows its recipe; the rest only names itself.
@@ -2500,54 +2519,55 @@ final class RecipeBook implements NodePainter {
 
         /**
          * A paper tab standing over the page's top edge, as vanilla's recipe book has them: the chosen one taller and in the page's own
-         * paper, the others a shade darker behind it, each with its kind's icon.
+         * paper, running on into the page by a unit with no edge between, the others a shade darker behind it, each with its kind's
+         * icon ({@link PageParts#tab}).
          */
         void tab(float x, float wide, float iconSize, boolean chosen, boolean lit, ItemStack icon, float nod, boolean washed,
                 boolean marked) {
             float high = chosen ? TAB_HIGH : TAB_HIGH - TAB_DROP;
-            int paper = chosen ? 0xFFFFFFFF : lit ? 0xFFEDE4D0 : 0xFFD6C9AC;
-            // Down into the page by a unit: the chosen one runs on into it, with no edge between.
             float bottom = chosen ? 1.0F : 0.0F;
-            float u0 = TAB_PAPER_U / PAPER_SIZE;
-            float v0 = TAB_PAPER_V / PAPER_SIZE;
-            quad(buffers.getBuffer(RenderType.text(PAPER)), x, -high, x + wide, bottom, chosen ? 0.05F : 0.0F, paper, u0,
-                    u0 + wide / PAPER_SIZE, v0, v0 + (bottom + high) / PAPER_SIZE);
+            PageParts.tab(poseStack, buffers, shade, x, -high, wide, bottom, chosen ? 0.25F : 0.05F,
+                    chosen ? PageParts.Tab.OPEN : lit ? PageParts.Tab.LIT : PageParts.Tab.REST);
             if (washed) {
-                rect(x + 1.0F, -high + 1.0F, wide - 2.0F, high - 1.0F + bottom, 0.08F, WELL_READY);
+                rect(x + 1.0F, -high + 1.0F, wide - 2.0F, high - 1.0F + bottom, WELL_LIFT, WELL_READY);
             }
-            rect(x + 1.0F, -high, wide - 2.0F, 1.0F, 0.1F, TAB_EDGE);
-            rect(x, -high + 1.0F, 1.0F, high - 1.0F, 0.1F, TAB_EDGE);
-            rect(x + wide - 1.0F, -high + 1.0F, 1.0F, high - 1.0F, 0.1F, TAB_EDGE);
             if (!icon.isEmpty()) {
                 item(icon, x + (wide - iconSize) / 2.0F, -high + 2.0F - nod, iconSize, !chosen && !lit && !washed);
             }
             if (marked) {
                 // Recipes the player has not seen are in it: the red mark of the list's wells, in its top right corner.
-                rect(x + wide - 4.0F, -high - nod + 2.0F, 3.0F, 1.0F, COVER_LIFT, FRESH);
-                rect(x + wide - 3.0F, -high - nod + 1.0F, 1.0F, 3.0F, COVER_LIFT, FRESH);
+                mark(x + wide - 2.5F, -high - nod + 2.5F);
             }
         }
 
-        /** The search's slip: the page's own paper standing over its top edge and running on into it, as the chosen tab does. */
+        /** The search's slip: a field of cream in a fine line standing over the page's top edge ({@link PageParts#slip}). */
         void slip(float x, float wide, float high, boolean lit) {
-            float u0 = TAB_PAPER_U / PAPER_SIZE;
-            float v0 = TAB_PAPER_V / PAPER_SIZE;
-            quad(buffers.getBuffer(RenderType.text(PAPER)), x, -high, x + wide, 1.0F, 0.05F, lit ? 0xFFF6F0E2 : 0xFFFFFFFF, u0,
-                    u0 + wide / PAPER_SIZE, v0, v0 + (high + 1.0F) / PAPER_SIZE);
-            rect(x + 1.0F, -high, wide - 2.0F, 1.0F, 0.1F, TAB_EDGE);
-            rect(x, -high + 1.0F, 1.0F, high - 1.0F, 0.1F, TAB_EDGE);
-            rect(x + wide - 1.0F, -high + 1.0F, 1.0F, high - 1.0F, 0.1F, TAB_EDGE);
+            PageParts.slip(poseStack, buffers, shade, x, -high, wide, 1.0F, 0.25F, lit);
         }
 
-        /** A magnifying glass in ink, 7 units square: a ring and its handle going down to the right. */
+        /** A magnifying glass, 7 units square: a ring round a pale glass and its handle going down to the right. */
         void magnifier(float x, float y) {
-            rect(x + 1.0F, y, 3.0F, 1.0F, COVER_LIFT, INK);
-            rect(x + 1.0F, y + 4.0F, 3.0F, 1.0F, COVER_LIFT, INK);
-            rect(x, y + 1.0F, 1.0F, 3.0F, COVER_LIFT, INK);
-            rect(x + 4.0F, y + 1.0F, 1.0F, 3.0F, COVER_LIFT, INK);
-            rect(x + 4.0F, y + 4.0F, 1.0F, 1.0F, COVER_LIFT, INK);
-            rect(x + 5.0F, y + 5.0F, 2.0F, 1.0F, COVER_LIFT, INK);
-            rect(x + 6.0F, y + 6.0F, 1.0F, 1.0F, COVER_LIFT, INK);
+            PageParts.magnifier(poseStack, buffers, shade, x, y, COVER_LIFT);
+        }
+
+        /** A well a recipe or an ingredient sits in, pressed into the paper; green when it can be made (or is at hand). */
+        void well(float x, float y, float lift, boolean ready) {
+            PageParts.well(poseStack, buffers, shade, x, y, WELL_SIZE, lift, ready);
+        }
+
+        /** The card a group of recipes opens on. */
+        void card(float x, float y, float wide, float high, float lift) {
+            PageParts.card(poseStack, buffers, shade, x, y, wide, high, lift);
+        }
+
+        /** The red mark of a recipe the player has not seen, centred on ({@code x}, {@code y}). */
+        void mark(float x, float y) {
+            PageParts.mark(poseStack, buffers, shade, x, y, COVER_LIFT + 0.05F);
+        }
+
+        /** The rule under a recipe's name. */
+        void rule(float x, float y, float wide) {
+            PageParts.rule(poseStack, buffers, shade, x, y, wide, WELL_LIFT);
         }
 
         void outline(float x, float y, float width, float height, float lift, int argb) {
@@ -2565,10 +2585,7 @@ final class RecipeBook implements NodePainter {
         }
 
         void frame(float x, float y, float size) {
-            rect(x, y, size, 1.0F, COVER_LIFT, WELL_PICKED);
-            rect(x, y + size - 1.0F, size, 1.0F, COVER_LIFT, WELL_PICKED);
-            rect(x, y, 1.0F, size, COVER_LIFT, WELL_PICKED);
-            rect(x + size - 1.0F, y, 1.0F, size, COVER_LIFT, WELL_PICKED);
+            PageParts.frame(poseStack, buffers, shade, x, y, size, COVER_LIFT);
         }
 
         private void quad(VertexConsumer consumer, float x0, float y0, float x1, float y1, float lift, int argb, float u0, float u1, float v0, float v1) {

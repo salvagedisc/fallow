@@ -20,10 +20,10 @@ import io.github.salvagedisc.fallow.Fallow;
  * The book of the enchanting table where it is read: vanilla's {@code BookModel} with its pages a
  * pixel wider, laid out and turning as vanilla's (closed along +x from the spine, opening about y), so vanilla's animation drives it.
  * Thin boards (planes) 7 x 10 hinged a pixel off the middle, the spine a 2 x 10 plane turned square to them, blocks of pages 6 x 8
- * and a pixel thick (vanilla: boards 6 x 10, pages 5 x 8). The texture is vanilla's, a column wider on every face, with a little
- * more shape: a bevel round the dark inner field and a lit and a shaded side on the light outer panel. The shape is Blockbench's
- * Modded Entity export of Hands-On Vanilla's {@code art/models/enchanting_book/enchanting_book.bbmodel}; the texture is
- * {@code art/textures/entity/enchanting_book.aseprite}. The layer is built and baked here, so nothing is registered.
+ * and a pixel thick (vanilla: boards 6 x 10, pages 5 x 8). The shape is Blockbench's Modded Entity export of Hands-On Vanilla's
+ * {@code art/models/enchanting_book/enchanting_book.bbmodel}; the texture keeps its layout, drawn 16 times finer by
+ * {@code scripts/books/covers.py} (violet leather, gilt corners on the outer side). The layer is built and baked here, so nothing
+ * is registered.
  */
 final class AwakeningBookModel {
     static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Fallow.MOD_ID, "textures/entity/livre_d_eveil.png");

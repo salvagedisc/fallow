@@ -70,8 +70,10 @@ public final class FallowMixinPlugin implements IMixinConfigPlugin {
             Map.entry("compat.PunchyEquipMixin", List.of("shouldIgnoreComponentForEquipDiff")),
             Map.entry("postes.StationHoverMixin", List.of("isOurs")),
             Map.entry("livres.HovOpenBookMixin", List.of("draw", "sheet", "spread", "fromSpread", "flip", "flipWay", "time", "riffleAt", "riffleSpan")),
-            Map.entry("livres.HovRecipeBookMixin", List.of("spread", "flip", "flipWay", "footSide", "cursorX", "cursorY", "page", "pages")),
-            Map.entry("livres.HovRecipeSheetMixin", List.of("arrow", "paper", "poseStack", "buffers")),
+            Map.entry("livres.HovRecipeBookMixin", List.of("spread", "side", "flip", "flipWay", "footSide", "cursorX", "cursorY", "page",
+                    "pages")),
+            Map.entry("livres.HovRecipeSheetMixin", List.of("arrow", "paper", "poseStack", "buffers", "item", "text", "rect", "tab",
+                    "slip", "magnifier", "frame", "outline")),
             Map.entry("livres.HovLecternCanvasMixin", List.of("arrow", "poseStack", "buffers", "light", "wide", "high")),
             Map.entry("navires.VoileMixin", List.of("moveWithSailDown")),
             Map.entry("feuillage.ChuteDansLesFeuillesMixin", List.of("onEntityCollidedWithLeaves")));

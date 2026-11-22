@@ -8,19 +8,20 @@ book alone has one fine rule in violet ink, with a small star at each corner. Al
 
 The corner turned down at the foot of a page that has a next one (or a previous one) is a sprite of its own, coin_de_page.png:
 the flap of paper folded over, its shadow, and the page under it; its second column is the same corner lifted a little more,
-under the cursor; its second row is the awakening book's paper.
-
-The awakening book's cover is Hands-On Vanilla's enchanting book (MIT, kept in scripts/books/source/) with its brown leather
-turned to a midnight violet and its gilt a shade softer.
+under the cursor; its second row is the awakening book's paper. It is drawn two texels to a unit, as are the furniture of the
+recipe books' pages, livre_elements.png (tabs, the search slip, wells, the frame round a picked one, the card of a group, the
+magnifier, the mark of a new recipe, the rule under a name).
 
 Run from the repository root: python3 scripts/books/papers.py
 Writes:
-  mods-custom/fallow/src/main/resources/assets/fallow/textures/entity/livre_d_eveil.png
   mods-custom/fallow/src/main/resources/assets/fallow/textures/entity/livre_de_recettes_papier.png
   mods-custom/fallow/src/main/resources/assets/fallow/textures/entity/livre_d_eveil_papier.png
   pack/kubejs/assets/handson_vanilla/textures/entity/recipe_book_paper.png
   pack/kubejs/assets/handson_vanilla/textures/entity/enchanting_book_paper.png
   mods-custom/fallow/src/main/resources/assets/fallow/textures/entity/coin_de_page.png
+  mods-custom/fallow/src/main/resources/assets/fallow/textures/entity/livre_elements.png
+
+The covers are drawn by covers.py.
 """
 
 from pathlib import Path
@@ -159,8 +160,12 @@ class Page:
             y += run
         # The head and the foot: a fine darker edge, the foot's a little stronger, in the shade of the light from above.
         for x in range(w):
-            self.rgb[h - 1, x] = mix(self.rgb[h - 1, x][None, None], rim * 0.86, 0.62)[0, 0]
-            self.rgb[0, x] = mix(self.rgb[0, x][None, None], rim, 0.30)[0, 0]
+            self.rgb[h - 1, x] = mix(self.rgb[h - 1, x][None, None], rim * 0.72, 0.70)[0, 0]
+            self.rgb[0, x] = mix(self.rgb[0, x][None, None], rim * 0.80, 0.52)[0, 0]
+        # The outer side's last texel left standing: the same fine line of shade.
+        for y in range(h):
+            if self.alpha[y, w - 1]:
+                self.rgb[y, w - 1] = mix(self.rgb[y, w - 1][None, None], rim * 0.78, 0.55)[0, 0]
 
     def worn_corners(self, radius=2):
         """The two outer corners rounded off and darkened, as a corner thumbed many times."""
@@ -175,6 +180,13 @@ class Page:
                         self.alpha[y, x] = 0
                     elif d < radius + 3:
                         self.rgb[y, x] = mix(self.rgb[y, x][None, None], rim, 0.5 * (1.0 - d / (radius + 3)))[0, 0]
+
+    def thumbed(self, radius, strength=0.10):
+        """The outer corner of the foot, where the thumb turns the leaves: a soft greyish patch, darkest at the corner."""
+        d = np.hypot(self.w - 1 - self.xs, (self.h - 1 - self.ys) * 1.2)
+        n = 1.0 + 0.4 * smooth_noise(self.rng, self.w, self.h, 4)
+        amount = np.clip(1.0 - d / (radius * n), 0.0, 1.0) ** 1.3 * strength
+        self.rgb = mix(self.rgb, self.edge * np.asarray((0.80, 0.78, 0.78), np.float32), amount)
 
     def nicks(self, count):
         """Small bites out of the outer side, the head and the foot, their bottoms a shade darker."""
@@ -280,16 +292,17 @@ def ribbon(canvas, x, colours):
 def recipe_paper(path, seed):
     """The recipe books: a page of 72 x 96 texels in the corner, the fold on the left, plain paper to its right for the slip and
     the tabs, and the ribbon and its lit twin at u 80 and 88."""
-    page = Page(72, 96, seed, paper=(246, 237, 211), edge=(208, 178, 128), ink=(118, 82, 46), fold_width=8)
+    page = Page(72, 96, seed, paper=(249, 241, 218), edge=(212, 180, 126), ink=(118, 82, 46), fold_width=8)
     page.clouds(strength=0.05, light_patches=5)
-    page.age(mottle=0.0, grain=0.007, yellowing=0.42, wear=3.5)
+    page.age(mottle=0.0, grain=0.007, yellowing=0.50, wear=4.5)
     page.fibres(60)
-    page.foxing(2, strength=0.08)
+    page.foxing(3, strength=0.15)
     page.fold(depth=0.08)
     # The books write from x 7, y 5 and down to y 92, at least 7 texels from the fold: the wear keeps outside that.
     page.leaves(count=3)
     page.worn_corners(radius=2)
-    page.nicks(3)
+    page.nicks(6)
+    page.thumbed(radius=13.0, strength=0.12)
     page.tear(y=58, length=3)
     page.crease(x0=70, y0=1, length=6)
     page.water_ring(cx=66.0, cy=101.0, radius=11.0, start=3.6, sweep=1.5)
@@ -310,15 +323,16 @@ def big_paper(path, seed, mystic):
     if mystic:
         page = Page(115, 154, seed, paper=(240, 231, 212), edge=(186, 160, 132), ink=(84, 54, 140), fold_width=22)
     else:
-        page = Page(115, 154, seed, paper=(246, 236, 210), edge=(206, 174, 122), ink=(116, 80, 44), fold_width=22)
+        page = Page(115, 154, seed, paper=(249, 240, 215), edge=(210, 176, 120), ink=(116, 80, 44), fold_width=22)
     page.clouds(strength=0.055, light_patches=7)
-    page.age(mottle=0.0, grain=0.008, yellowing=0.45 if not mystic else 0.55, wear=5.0)
+    page.age(mottle=0.0, grain=0.008, yellowing=0.52 if not mystic else 0.55, wear=6.0)
     page.fibres(140)
-    page.foxing(3, strength=0.08)
+    page.foxing(4, strength=0.15)
     page.fold(depth=0.10)
     page.leaves(count=3)
     page.worn_corners(radius=3)
-    page.nicks(4)
+    page.nicks(7)
+    page.thumbed(radius=20.0, strength=0.12)
     page.tear(y=97, length=4)
     page.crease(x0=113, y0=1, length=8)
     page.water_ring(cx=104.0, cy=162.0, radius=16.0, start=3.5, sweep=1.4)
@@ -339,79 +353,239 @@ def big_paper(path, seed, mystic):
     img.save(path)
 
 
-def mystic_cover(source, path):
-    """The awakening book's cover: every brown of the leather becomes a midnight violet of the same depth, the gold paler."""
-    import colorsys
-
-    img = Image.open(source).convert("RGBA")
-    out = img.copy()
-    gilt = {(255, 216, 0): (236, 204, 112), (255, 177, 0): (206, 156, 70)}
-    for y in range(img.height):
-        for x in range(img.width):
-            r, g, b, a = img.getpixel((x, y))
-            if not a:
-                continue
-            if (r, g, b) in gilt:
-                out.putpixel((x, y), gilt[(r, g, b)] + (a,))
-                continue
-            h, sat, v = colorsys.rgb_to_hsv(r / 255, g / 255, b / 255)
-            if sat > 0.5 and 0.05 < h < 0.12:
-                nr, ng, nb = colorsys.hsv_to_rgb(262 / 360, 0.46, v * 0.6)
-                out.putpixel((x, y), (round(nr * 255), round(ng * 255), round(nb * 255), a))
-    out.save(path)
-
-
-def dog_ear(path):
-    """The corner turned down, 16 x 16 for the foot of a right page (mirrored for a left one), its corner at the bottom right.
-    The fold runs slantwise from the foot to the outer side; beyond it lies the page under, in the flap's shade; the flap is the
-    corner itself laid back over the page, a little curled (shorter than flat), palest along the crease, its edges a shade darker,
-    with a soft shadow round it. Columns: at rest, lifted further under the cursor. Rows: the recipe and lectern paper, the
-    awakening book's."""
-    img = Image.new("RGBA", (32, 32), (0, 0, 0, 0))
-    papers = (((246, 237, 211), (208, 178, 128)), ((240, 231, 212), (186, 160, 132)))
+def dog_ear(path, fine=2):
+    """The corner turned down, 16 x 16 units for the foot of a right page (mirrored for a left one), its corner at the bottom
+    right, drawn `fine` texels to a unit. The fold runs slantwise from the foot to the outer side; beyond it lies the page under,
+    in the flap's shade, its cut edge in a fine brown line; the flap is the corner itself laid back over the page, a little curled
+    (shorter than flat), palest along the crease, its free edges in the same brown line, with a soft shadow round it. Columns: at
+    rest, lifted further under the cursor. Rows: the recipe and lectern paper, the awakening book's."""
+    n = 16 * fine
+    img = Image.new("RGBA", (2 * n, 2 * n), (0, 0, 0, 0))
+    papers = (((248, 240, 216), (208, 178, 128)), ((240, 231, 212), (186, 160, 132)))
     folds = (((5.0, 16.0), (16.0, 3.5)), ((3.0, 16.0), (16.0, 1.0)))
     curl = 0.82
+    line = 1.0 / fine
     for row, (paper, edge) in enumerate(papers):
         paper = np.asarray(paper, np.float32)
         edge = np.asarray(edge, np.float32)
+        ink = edge * 0.55
         for col, (a, b) in enumerate(folds):
             a, b = np.asarray(a), np.asarray(b)
             along = (b - a) / np.linalg.norm(b - a)
             inner = np.array([along[1], -along[0]])
             if np.dot(inner, np.array([0.0, 0.0]) - a) < 0:
                 inner = -inner
-            for y in range(16):
-                for x in range(16):
-                    p = np.array([x + 0.5, y + 0.5])
+            for y in range(n):
+                for x in range(n):
+                    p = np.array([(x + 0.5) / fine, (y + 0.5) / fine])
+                    px, py = col * n + x, row * n + y
                     d = float(np.dot(p - a, inner))
                     if d < 0:
-                        # Beyond the fold: the page under it, darkest along the crease, its own corner worn round.
-                        if x + y >= 29:
+                        # Beyond the fold: the page under it, darkest along the crease, its corner worn round, its edge inked.
+                        if p[0] + p[1] >= 29.6:
                             continue
                         t = min(1.0, -d / 4.0)
-                        c = paper * (0.78 + 0.12 * t)
-                        if x == 15 or y == 15:
-                            c = mix(c[None, None], edge * 0.8, 0.45)[0, 0]
-                        img.putpixel((col * 16 + x, row * 16 + y), tuple(int(v) for v in np.clip(np.rint(c), 0, 255)) + (255,))
+                        c = paper * (0.80 + 0.12 * t)
+                        if p[0] > 16.0 - 1.6 * line or p[1] > 16.0 - 1.6 * line or p[0] + p[1] > 29.6 - 2.2 * line:
+                            c = mix(c[None, None], ink, 0.75)[0, 0]
+                        if -d < 1.4 * line:
+                            c = mix(c[None, None], ink, 0.55)[0, 0]
+                        img.putpixel((px, py), tuple(int(v) for v in np.clip(np.rint(c), 0, 255)) + (255,))
                         continue
                     foot = p - d * inner
                     flat = foot - (d / curl) * inner
                     if flat[0] <= 16.0 and flat[1] <= 16.0:
-                        # The flap: the back of the leaf, palest along the crease, darker towards its tip and at its edges.
-                        reach = max(0.0, 16.0 - max(flat[0], flat[1]))
-                        c = np.minimum(paper * (1.05 - 0.018 * d), 255.0)
-                        if d < 1.0:
-                            c = np.minimum(paper * 1.08, 255.0)
-                        if 16.0 - flat[0] < 1.2 / curl or 16.0 - flat[1] < 1.2 / curl:
-                            c = mix(c[None, None], edge * 0.78, 0.55)[0, 0]
-                        img.putpixel((col * 16 + x, row * 16 + y), tuple(int(v) for v in np.clip(np.rint(c), 0, 255)) + (255,))
+                        # The flap: the back of the leaf, palest along the crease, darker towards its tip, its free edges inked.
+                        c = np.minimum(paper * (0.97 - 0.016 * d), 255.0)
+                        if d < 1.2:
+                            c = np.minimum(paper * 1.02, 255.0)
+                        if 16.0 - flat[0] < 1.4 * line / curl or 16.0 - flat[1] < 1.4 * line / curl:
+                            c = mix(c[None, None], ink, 0.8)[0, 0]
+                        img.putpixel((px, py), tuple(int(v) for v in np.clip(np.rint(c), 0, 255)) + (255,))
                         continue
-                    wide = foot - (d / (curl * 1.22)) * inner
+                    wide = foot - (d / (curl * 1.25)) * inner
                     if wide[0] <= 16.0 and wide[1] <= 16.0:
                         # Its shadow on the page.
-                        c = edge * 0.42
-                        img.putpixel((col * 16 + x, row * 16 + y), tuple(int(v) for v in c) + (60,))
+                        c = edge * 0.4
+                        img.putpixel((px, py), tuple(int(v) for v in c) + (70,))
     img.save(path)
+
+
+def elements(path):
+    """The furniture of a recipe book's pages, two texels to a unit of the page, in one 128 x 128 texture (Fallow's
+    livres/client/PageParts reads the same places):
+      tabs, 16 x 16 at (0, 0), (16, 0), (32, 0): behind the page, under the cursor, open; drawn in nine pieces, 5 texels a side;
+      the search slip, 16 x 16 at (48, 0) and lit at (64, 0), in nine pieces too;
+      wells, 34 x 34 at (0, 16) and ready (craftable) at (34, 16); the frame round a picked one at (68, 16);
+      the card a group of recipes opens on, 24 x 24 at (0, 52), nine pieces of 8;
+      the magnifier, 16 x 16 at (24, 52); the mark of a new recipe, 8 x 8 at (40, 52);
+      the gutter's shade, 16 x 8 at (48, 52), the fold on its left: a fine dark line and a shade fading over 8 units;
+      the rule under a recipe's name, 106 x 8 at (0, 76).
+    Brown ink lines a texel wide (half a unit: finer than the paper's own grain), corners rounded, wells pressed into the paper
+    (shaded at the top and left, lit at the bottom and right), as Scholar's screens are drawn, in our own colours."""
+    img = np.zeros((128, 128, 4), np.float32)
+    PAPER = np.array([247, 238, 212], np.float32)
+    ink = np.array([96, 64, 32], np.float32)
+    lit_ink = np.array([138, 90, 43], np.float32)
+
+    def put(x, y, rgb, a):
+        if 0 <= x < 128 and 0 <= y < 128:
+            img[y, x, :3] = rgb
+            img[y, x, 3] = a
+
+    def over(x, y, rgb, a):
+        """Lays `rgb` at opacity `a` over what is there."""
+        if not (0 <= x < 128 and 0 <= y < 128) or a <= 0:
+            return
+        base_a = img[y, x, 3]
+        out_a = a + base_a * (1 - a)
+        if out_a <= 0:
+            return
+        img[y, x, :3] = (np.asarray(rgb, np.float32) * a + img[y, x, :3] * base_a * (1 - a)) / out_a
+        img[y, x, 3] = out_a
+
+    def rounded(x0, y0, w, h, r, top_only=False):
+        """Whether each texel of a w x h box is inside its rounded outline, and whether it is on that outline."""
+        inside = np.ones((h, w), bool)
+        rim = np.zeros((h, w), bool)
+        for y in range(h):
+            for x in range(w):
+                cx = r - 0.5 if x < r else (w - r - 0.5 if x >= w - r else None)
+                bottom = not top_only
+                cy = r - 0.5 if y < r else (h - r - 0.5 if (y >= h - r and bottom) else None)
+                if cx is not None and cy is not None:
+                    d = np.hypot(x - cx, y - cy)
+                    if d > r + 0.15:
+                        inside[y, x] = False
+                    elif d > r - 0.85:
+                        rim[y, x] = True
+                else:
+                    if x == 0 or x == w - 1 or y == 0 or (y == h - 1 and not top_only):
+                        rim[y, x] = True
+        return inside, rim
+
+    # Tabs: behind the page (a darker paper, darker still towards the page that hides its foot), under the cursor (warmer),
+    # open (the page's own paper, meeting the page with no line).
+    for i, (paper, foot) in enumerate((((214, 200, 170), 0.88), ((236, 220, 186), 0.92), ((248, 240, 216), 1.0))):
+        inside, rim = rounded(0, 0, 16, 16, 4, top_only=True)
+        for y in range(16):
+            for x in range(16):
+                if not inside[y, x]:
+                    continue
+                k = 1.0 + (foot - 1.0) * max(0.0, (y - 9) / 6.0)
+                c = np.minimum(np.asarray(paper, np.float32) * k, 255)
+                put(16 * i + x, y, c, 1.0)
+                if rim[y, x]:
+                    over(16 * i + x, y, lit_ink if i == 1 else ink, 0.9)
+                elif y == 1 or (y < 4 and rim[max(0, y - 1), x]):
+                    over(16 * i + x, y, (255, 252, 240), 0.45)
+                if y == 15 and i < 2:
+                    # Where the tab goes in behind the page: the page's shadow on it.
+                    over(16 * i + x, y, (90, 60, 30), 0.35)
+    # The search slip: a field of cream in a fine brown line, rounded, a dot of ink inside each corner, the top shaded in.
+    for i, (paper, line) in enumerate((((250, 243, 224), ink), ((253, 236, 208), lit_ink))):
+        inside, rim = rounded(0, 0, 16, 16, 3)
+        for y in range(16):
+            for x in range(16):
+                if not inside[y, x]:
+                    continue
+                put(48 + 16 * i + x, y, paper, 1.0)
+                if rim[y, x]:
+                    over(48 + 16 * i + x, y, line, 0.9)
+                elif y == 1:
+                    over(48 + 16 * i + x, y, ink, 0.18)
+        for x, y in ((3, 3), (12, 3), (3, 12), (12, 12)):
+            over(48 + 16 * i + x, y, line, 0.75)
+    # Wells: pressed into the paper. At rest a faint brown; ready (the recipe can be made), a soft sage green.
+    for i, (tint, a) in enumerate((((120, 86, 44), 0.12), ((98, 128, 78), 0.15))):
+        inside, rim = rounded(0, 0, 34, 34, 3)
+        for y in range(34):
+            for x in range(34):
+                if not inside[y, x]:
+                    continue
+                X, Y = 34 * i + x, 16 + y
+                over(X, Y, tint, a)
+                if rim[y, x]:
+                    over(X, Y, ink if i == 0 else (62, 96, 52), 0.30 if i == 0 else 0.62)
+                elif i == 1 and (y in (1, 32) or x in (1, 32)):
+                    # Ready: a fine green line inside the rim.
+                    over(X, Y, (120, 160, 96), 0.35)
+                elif y in (1, 2) or x in (1, 2):
+                    over(X, Y, ink, 0.16 if (y == 1 or x == 1) else 0.08)
+                elif y in (31, 32) or x in (31, 32):
+                    over(X, Y, (255, 252, 238), 0.35 if (y == 32 or x == 32) else 0.18)
+    # The frame round a picked well: a unit of warm brown with a fine light line inside it, rounded.
+    inside, rim = rounded(0, 0, 34, 34, 4)
+    inner_in, inner_rim = rounded(0, 0, 30, 30, 3)
+    for y in range(34):
+        for x in range(34):
+            if not inside[y, x]:
+                continue
+            ring = rim[y, x] or not (2 <= x < 32 and 2 <= y < 32) or (2 <= x < 32 and 2 <= y < 32 and not inner_in[y - 2, x - 2])
+            if ring:
+                put(68 + x, 16 + y, lit_ink, 1.0)
+            elif 2 <= x < 32 and 2 <= y < 32 and inner_rim[y - 2, x - 2]:
+                put(68 + x, 16 + y, (214, 176, 120), 0.7)
+    # The card: a panel a shade darker than the paper, a fine rounded line round it and a fainter one inside.
+    inside, rim = rounded(0, 0, 24, 24, 4)
+    inner_in, inner_rim = rounded(0, 0, 20, 20, 3)
+    for y in range(24):
+        for x in range(24):
+            if not inside[y, x]:
+                continue
+            # At least 0.12 opaque (what is under 0.1 is thrown away), in a paler brown that shades as 0.07 of the ink would.
+            over(x, 52 + y, PAPER + (np.array((120, 86, 44), np.float32) - PAPER) * (0.07 / 0.12), 0.12)
+            if rim[y, x]:
+                over(x, 52 + y, ink, 0.55)
+            elif 2 <= x < 22 and 2 <= y < 22 and inner_rim[y - 2, x - 2]:
+                over(x, 52 + y, ink, 0.22)
+    # The magnifier: a ring of brown round a pale glass with a glint, and its handle.
+    for y in range(16):
+        for x in range(16):
+            d = np.hypot(x - 5.5, y - 5.5)
+            if d <= 3.4:
+                over(24 + x, 52 + y, (250, 246, 232), 0.55)
+                if 1.0 < d < 2.6 and x < 6 and y < 6 and x + y in (5, 6):
+                    over(24 + x, 52 + y, (255, 255, 255), 0.9)
+            if 3.4 < d <= 5.0:
+                over(24 + x, 52 + y, ink, 1.0 if d <= 4.6 else 0.5)
+    for i in range(6):
+        for w in (0, 1):
+            over(24 + 9 + i, 52 + 9 + i + w, ink, 1.0)
+            over(24 + 9 + i + w, 52 + 9 + i, ink, 1.0)
+        over(24 + 10 + i, 52 + 9 + i, lit_ink, 0.8)
+    # The mark of a new recipe: a small red lozenge with a glint.
+    red, dark = np.array([196, 52, 40], np.float32), np.array([124, 26, 20], np.float32)
+    for y in range(8):
+        for x in range(8):
+            d = abs(x - 3.5) + abs(y - 3.5)
+            if d <= 3.6:
+                put(40 + x, 52 + y, dark if d > 2.6 else red, 1.0)
+    put(40 + 3, 52 + 2, (244, 140, 120), 1.0)
+    # The gutter: where the page goes down into the fold, a fine line of shade and a soft shadow fading out from it.
+    # Texels under 0.1 opaque are thrown away: the faint tail keeps 0.12 and fades by its colour, towards the paper.
+    for x in range(16):
+        shade = 0.5 if x == 0 else 0.26 * (1.0 - x / 16.0) ** 1.6
+        a = max(0.12, shade)
+        colour = PAPER + (np.array((110, 76, 40), np.float32) - PAPER) * (shade / a)
+        for y in range(8):
+            over(48 + x, 52 + y, colour, a)
+    # The rule under a name: a fine line fading out at both ends, a small lozenge in the middle and a dot either side of it.
+    for x in range(106):
+        t = abs(x - 52.5) / 52.5
+        a = 0.62 * min(1.0, (1.0 - t) * 3.0)
+        if abs(x - 52.5) > 7:
+            over(x, 76 + 4, ink, a)
+    for y in range(8):
+        for x in range(106):
+            d = abs(x - 52.5) + abs(y - 3.5) * 1.2
+            if d <= 3.7:
+                over(x, 76 + y, ink, 0.9 if d > 2.4 else 0.35)
+    for x in (44, 61):
+        over(x, 76 + 4, ink, 0.8)
+        over(x, 76 + 3, ink, 0.35)
+    out = np.clip(np.rint(np.dstack([img[:, :, :3], img[:, :, 3:] * 255.0])), 0, 255).astype(np.uint8)
+    Image.fromarray(out, "RGBA").save(path)
 
 
 def main():
@@ -421,8 +595,8 @@ def main():
     recipe_paper(HOV / "recipe_book_paper.png", seed=11)
     big_paper(FALLOW / "livre_d_eveil_papier.png", seed=23, mystic=True)
     big_paper(HOV / "enchanting_book_paper.png", seed=31, mystic=False)
-    mystic_cover(Path(__file__).parent / "source/enchanting_book.png", FALLOW / "livre_d_eveil.png")
     dog_ear(FALLOW / "coin_de_page.png")
+    elements(FALLOW / "livre_elements.png")
 
 
 if __name__ == "__main__":

@@ -24,12 +24,40 @@ public final class DogEar {
      */
     public static final float LIFT = 0.9F;
 
+    /** A recipe book's corner, units of its page (72 x 96), and how far round it the cursor takes it. */
+    public static final float SIZE = 14.0F;
+    public static final float REACH = 16.0F;
+    /**
+     * The same where what the page shows reaches into its corner (the last row of a recipe of three): the corner is turned down
+     * smaller, over what is there, and lifts to its full size only under the cursor.
+     */
+    public static final float SMALL = 10.0F;
+    public static final float SMALL_REACH = 10.0F;
+    /** How far over the paper a corner is drawn when it lies over what the page shows: above the icons and the words. */
+    public static final float OVER = 2.0F;
+
     /** The recipe and lectern books' paper, or the awakening book's. */
     public enum Paper {
         CREAM, MYSTIC
     }
 
     private DogEar() {
+    }
+
+    /**
+     * Whether a box drawn on a right page {@code pageWide} x {@code pageHigh} (x, y its top left corner) reaches into the corner a
+     * page turns by, at the page's foot on its outer side.
+     */
+    public static boolean inCorner(float x, float y, float wide, float high, float pageWide, float pageHigh) {
+        return x + wide > pageWide - SIZE && y + high > pageHigh - SIZE && x < pageWide && y < pageHigh;
+    }
+
+    /**
+     * Where on a right page the cursor finds its corner, from the left: {@code edge} is how far right what the page shows reaches
+     * into the corner (0: nothing does), so the corner never takes the cursor from it.
+     */
+    public static float reachFrom(float edge, float pageWide) {
+        return edge <= 0.0F ? pageWide - REACH : Math.max(pageWide - SMALL_REACH, edge);
     }
 
     /**
