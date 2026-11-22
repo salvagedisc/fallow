@@ -12,7 +12,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -256,7 +255,7 @@ public final class TableEveil {
             }
             ItemStack encre = ctx.state().getItem(ENCRE_REF).copy();
             if (encre.isEmpty()) {
-                player.displayClientMessage(Component.translatable("eveil.fallow.table.sans_encre"), true);
+                // Le livre le dit déjà (« L'encrier est vide »), en rouge au pied de la page.
                 return false;
             }
             encre.shrink(1);

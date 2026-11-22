@@ -34,7 +34,13 @@ public final class EveilClient {
             Eclat eclat = stack.get(EveilModule.ECLAT.get());
             return layer == 0 ? FastColor.ARGB32.opaque(eclat == null ? 0xB98CFF : eclat.couleur()) : -1;
         }, EveilModule.ECLAT_DE_BETE.get()));
+        // L'encre d'éveil est une fiole de vanilla : son liquide (la première couche) a la teinte du lapis et de l'améthyste.
+        modBus.addListener(RegisterColorHandlersEvent.Item.class, event -> event.register(
+                (stack, layer) -> layer == 0 ? FastColor.ARGB32.opaque(ENCRE) : -1, EveilModule.ENCRE_D_EVEIL.get()));
     }
+
+    /** La teinte de l'encre d'éveil, dans la fiole et sur la table. */
+    static final int ENCRE = 0x5B3BD9;
 
     private static void onTooltip(ItemTooltipEvent event) {
         EtatEveil etat = event.getItemStack().get(EveilModule.ETAT.get());

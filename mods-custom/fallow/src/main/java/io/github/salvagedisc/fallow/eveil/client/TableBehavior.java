@@ -86,8 +86,6 @@ final class TableBehavior implements StationBehavior {
     private static final int ROUGE = 0xAA0000;
     private static final int FILET = 0x7A6545;
     private static final int RUNES = 0x685E4A;
-    private static final int BANDE = 0x1E8B5A2B;
-    private static final int BANDE_VIVE = 0x2E6A3FB0;
     /** Les couleurs des runes qui coulent dans l'objet : celles de l'éclat des grandes bêtes et de la lueur des objets enchantés. */
     private static final int[] LUEURS = {0xB98CFF, 0x9FB8FF, 0xE6D9FF, 0xC9A8FF, 0x8F7BFF};
     private static final int GLINT = 0xFFC890FF;
@@ -575,7 +573,6 @@ final class TableBehavior implements StationBehavior {
         if (sansEncre(view) && (ici.aEclat() || TableEveil.ETAT_PRET.equals(ici.etat()))) {
             refus(view);
             view.node(TableEveil.ENCRE).ifPresent(node -> node.shake(0.4F, 0.25F));
-            view.showCaption(Component.translatable("eveil.fallow.table.sans_encre"), 3.0F);
             return;
         }
         if (ici.aEclat()) {
@@ -1128,34 +1125,18 @@ final class TableBehavior implements StationBehavior {
             }
             boolean vive = courante && i == survol;
             boolean coule = courante && i == coulante;
-            if (vive || coule) {
-                canvas.rect(1.0F, haut - 1.0F, LARGE - 2.0F, hauteur - 2.0F, OpenBook.MARK_LIFT * 0.5F, coule ? BANDE_VIVE : BANDE);
-            }
-            if (courante && i == tenue && !tenueEclat && tenueT > 0.0F) {
-                // Le rituel monte : la bande s'emplit de violet sous la voie tenue.
-                canvas.rect(1.0F, haut - 1.0F, (LARGE - 2.0F) * Math.min(1.0F, tenueT / TENUE), hauteur - 2.0F, OpenBook.MARK_LIFT * 0.6F,
-                        BANDE_VIVE);
-            }
             if (i > 0) {
                 filet(canvas, haut - 2.5F);
             }
             float lettres = coule ? Mth.clamp(1.0F - (horloge - clicA) / COULEE, 0.0F, 1.0F) : 1.0F;
             float ly = haut + 3.0F + marge / 2.0F;
-            for (Ligne ligne : texte) {
-                ly += ligne.avant();
-                if (ligne.taille() == 1.0F && ligne.encre() == VIOLET) {
-                    // Le nom de la voie respire d'une lueur faible ; sous le regard, il s'allume.
-                    float souffle = vive ? 0.6F : courante ? 0.16F + 0.12F * Mth.sin(horloge * 2.2F + i * 1.7F) : 0.0F;
-                    canvas.brightText(ligne.texte(), DROITE_X, ly, 1.0F, VIOLET, 0xE6D9FF, souffle, 0.05F);
-                }
-                canvas.text(ligne.texte(), DROITE_X, ly, ligne.taille(), ligne.encre(), ligne.encre() == VIOLET ? lettres : 1.0F);
-                ly += ligne.taille() < 1.0F ? PETITE_LIGNE : LIGNE;
-            }
+            float tenu = courante && i == tenue && !tenueEclat ? Math.min(1.0F, tenueT / TENUE) : 0.0F;
+            ecrireLignes(canvas, texte, ly, vive, courante ? 0.16F + 0.12F * Mth.sin(horloge * 2.2F + i * 1.7F) : 0.0F, 0xE6D9FF, lettres,
+                    tenu);
             haut += hauteur;
         }
         boolean sec = station != null && sansEncre(station);
-        paragraphe(canvas, Component.translatable(sec ? "eveil.fallow.livre.sans_encre" : "eveil.fallow.livre.choisir"), DROITE_X, PIED,
-                PETIT, sec ? ROUGE : PALE, 2);
+        pied(canvas, Component.translatable(sec ? "eveil.fallow.livre.sans_encre" : "eveil.fallow.livre.choisir"), sec ? ROUGE : PALE);
     }
 
     /** La page de droite avec un éclat : la bête, son récit, la force qu'il donnerait, et ce que la table en dit. */
@@ -1189,22 +1170,10 @@ final class TableBehavior implements StationBehavior {
         if (I18n.exists(pouvoir)) {
             ajouter(force, Component.translatable(pouvoir), revele, PETIT, ENCRE, Style.EMPTY, 3, 1.0F);
         }
-        float hauteur = hauteur(force) + 4.0F;
-        if (vive || coule) {
-            canvas.rect(1.0F, y - 2.0F, LARGE - 2.0F, hauteur, OpenBook.MARK_LIFT * 0.5F, coule ? BANDE_VIVE : BANDE);
-        }
-        if (courante && tenueEclat && tenue >= 0 && tenueT > 0.0F) {
-            canvas.rect(1.0F, y - 2.0F, (LARGE - 2.0F) * Math.min(1.0F, tenueT / TENUE), hauteur, OpenBook.MARK_LIFT * 0.6F, BANDE_VIVE);
-        }
         float lettres = coule ? Mth.clamp(1.0F - (horloge - clicA) / COULEE, 0.0F, 1.0F) : 1.0F;
-        for (Ligne ligne : force) {
-            y += ligne.avant();
-            if (vive && ligne.encre() == VIOLET) {
-                canvas.brightText(ligne.texte(), DROITE_X, y, 1.0F, VIOLET, 0xFF000000 | eclat.couleur(), 0.6F, 0.05F);
-            }
-            canvas.text(ligne.texte(), DROITE_X, y, ligne.taille(), ligne.encre(), ligne.encre() == VIOLET ? lettres : 1.0F);
-            y += ligne.taille() < 1.0F ? PETITE_LIGNE : LIGNE;
-        }
+        float tenu = courante && tenueEclat && tenue >= 0 ? Math.min(1.0F, tenueT / TENUE) : 0.0F;
+        y = ecrireLignes(canvas, force, y, vive, courante && ok ? 0.16F + 0.12F * Mth.sin(horloge * 2.2F) : 0.0F,
+                0xFF000000 | eclat.couleur(), lettres, tenu);
         paragraphe(canvas, Component.translatable("eveil.fallow.livre.eclat.place"), DROITE_X, y + 3.0F, PETIT, PALE, 3);
         String cle = switch (contenu.data().getString(TableEveil.ECLAT_ETAT)) {
             case TableEveil.ECLAT_OK -> station != null && sansEncre(station) ? "eveil.fallow.livre.sans_encre"
@@ -1214,7 +1183,7 @@ final class TableBehavior implements StationBehavior {
             case TableEveil.ECLAT_PLEIN -> "eveil.fallow.table.plein";
             default -> "eveil.fallow.eclat.ne_prend_pas";
         };
-        paragraphe(canvas, Component.translatable(cle), DROITE_X, PIED - 6.0F, PETIT, ok && !(station != null && sansEncre(station)) ? SEPIA : ROUGE, 3);
+        pied(canvas, Component.translatable(cle), ok && !(station != null && sansEncre(station)) ? SEPIA : ROUGE);
     }
 
     // ---- l'écriture ----
@@ -1245,6 +1214,52 @@ final class TableBehavior implements StationBehavior {
     }
 
     /** Un paragraphe coupé à la largeur de la page, à la taille {@code taille} ; renvoie le bas de sa dernière ligne. */
+    /**
+     * Les lignes d'une voie (ou de la force d'un éclat) : son nom respire d'une lueur faible ({@code souffle}) et s'allume sous le
+     * regard ({@code vive}) ; pendant le clic maintenu, un trait d'encre violette se tire sous le nom, de gauche à droite
+     * ({@code tenu}, de 0 à 1). Pas de fond : rien que l'encre et la lumière. Renvoie le bas de la dernière ligne.
+     */
+    private static float ecrireLignes(OpenBook.Canvas canvas, List<Ligne> texte, float y, boolean vive, float souffle, int lueur,
+            float lettres, float tenu) {
+        float sousLeNom = -1.0F;
+        for (Ligne ligne : texte) {
+            y += ligne.avant();
+            boolean nom = ligne.taille() == 1.0F && ligne.encre() == VIOLET;
+            if (nom) {
+                canvas.brightText(ligne.texte(), DROITE_X, y, 1.0F, VIOLET, lueur, vive ? 0.75F : souffle, 0.05F);
+            }
+            canvas.text(ligne.texte(), DROITE_X, y, ligne.taille(), vive && !nom ? sombre(ligne.encre()) : ligne.encre(),
+                    nom ? lettres : 1.0F);
+            y += ligne.taille() < 1.0F ? PETITE_LIGNE : LIGNE;
+            if (nom) {
+                sousLeNom = y - 1.0F;
+            }
+        }
+        if (tenu > 0.0F && sousLeNom >= 0.0F) {
+            float large = LARGE - DROITE_X - 6.0F;
+            canvas.rect(DROITE_X, sousLeNom, large * tenu, 1.0F, OpenBook.MARK_LIFT * 1.2F, 0xE0000000 | VIOLET);
+        }
+        return y;
+    }
+
+    /** Une encre un peu plus soutenue : sous le regard, ce que la voie dit se lit mieux. */
+    private static int sombre(int encre) {
+        int r = (encre >> 16 & 0xFF) * 3 / 4;
+        int g = (encre >> 8 & 0xFF) * 3 / 4;
+        int b = (encre & 0xFF) * 3 / 4;
+        return r << 16 | g << 8 | b;
+    }
+
+    /** La phrase du pied de la page de droite, entière : elle monte d'autant de lignes qu'il lui en faut. */
+    private static void pied(OpenBook.Canvas canvas, Component texte, int encre) {
+        List<FormattedCharSequence> lignes = Minecraft.getInstance().font.split(texte, (int) ((LARGE - DROITE_X - 3.0F) / PETIT));
+        float y = PIED + PETITE_LIGNE - lignes.size() * PETITE_LIGNE;
+        for (FormattedCharSequence ligne : lignes) {
+            canvas.text(ligne, DROITE_X, y, PETIT, encre, 1.0F);
+            y += PETITE_LIGNE;
+        }
+    }
+
     /** Une ligne écrite sur une page : son texte, sa taille, son encre, et l'espace laissé au-dessus d'elle. */
     private record Ligne(FormattedCharSequence texte, float taille, int encre, float avant) {
     }
