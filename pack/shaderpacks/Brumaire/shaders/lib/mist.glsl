@@ -92,6 +92,9 @@ vec3 airVeil(vec3 dir, float len, out vec3 inscat) {
     vec3 sky = skyAt(normalize(vec3(dir.x, max(dir.y, 0.03), dir.z)));
     // L'air lointain tire sur le gris chaud des poussières plus que sur le bleu du ciel.
     inscat = mix(sky, vec3(luma(sky)) * vec3(1.04, 1.0, 0.92), 0.45) * (1.0 - pass);
+    // Au couchant, le ciel bas vers le soleil est la partie la plus claire de l'image : l'air n'en prend qu'une part,
+    // sinon le paysage face à l'astre se noie dans un halo au lieu de rester une silhouette sombre.
+    inscat *= mix(1.0, 0.55, gDusk);
     return pass;
 }
 
@@ -117,10 +120,10 @@ vec3 mistColor(vec3 dir, float sun) {
     body *= mix(0.45, 1.0, gDay);
     // Au couchant, la brume n'a plus que la lueur d'un ciel qui baisse : elle s'assombrit avec le paysage au lieu de
     // le noyer dans un halo orangé ; elle reste lisible, une bande plus claire au creux des vallées.
-    body *= mix(1.0, 0.62, gDusk);
+    body *= mix(1.0, 0.5, gDusk);
     // Les gouttelettes renvoient surtout la lumière vers l'avant : un halo vers le soleil, un peu en arrière.
     float mu = dot(dir, gLightDir);
     float phase = 0.75 * mistPhase(mu, 0.5) + 0.25 * mistPhase(mu, -0.3);
-    vec3 beam = gLightColor * (0.03 + 0.18 * phase * SHAFT_STRENGTH) * mix(1.0, 0.5, gDusk);
+    vec3 beam = gLightColor * (0.03 + 0.18 * phase * SHAFT_STRENGTH) * mix(1.0, 0.3, gDusk);
     return body + beam * sun;
 }

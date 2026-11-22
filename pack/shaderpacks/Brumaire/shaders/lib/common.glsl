@@ -73,7 +73,8 @@ void initEnv() {
     // au ras de l'horizon) et de la lune (selon sa phase), tirée vers le bleu comme l'œil la voit la nuit.
     // Un soleil un peu chaud même à midi : la lumière d'un après-midi, pas celle d'un projecteur.
     vec3 sun = skyRow(1) / vec3(0.97, 0.89, 0.78) * 3.4 * vec3(1.0, 0.97, 0.90);
-    vec3 moon = luma(skyRow(2)) * vec3(0.36, 0.48, 0.80) * 0.26;
+    // À peine bleutée : chez Recrafted la lune verse une lumière presque neutre, le sol reste olive sombre.
+    vec3 moon = luma(skyRow(2)) * vec3(0.44, 0.50, 0.62) * 0.25;
 #if LUNAR_EVENTS > 0
     // Les lunes d'Enhanced Celestials (de sang, bleue, des moissons) : le jeu teinte la texture de la lune, que
     // gbuffers_skytextured.vsh range dans la table du ciel. Sa couleur gagne la nuit : la lune et son halo, la
@@ -109,9 +110,9 @@ void initEnv() {
 /** Couleur du ciel dans une direction (repère monde), sans astres ni brume. */
 vec3 skyAt(vec3 d) {
     vec3 c = skyScatter(d, gSunDir) + vec3(0.004, 0.006, 0.012) * (1.0 - gDay);
-    // La nuit, l'œil voit en bleu.
+    // La nuit, l'œil voit un peu en bleu.
     float night = 1.0 - smoothstep(-0.20, 0.0, gSunDir.y);
-    c = mix(c, vec3(luma(c)) * vec3(0.78, 0.88, 1.08), night * 0.5);
+    c = mix(c, vec3(luma(c)) * vec3(0.78, 0.88, 1.08), night * 0.3);
     c = mix(c, vec3(luma(c)) * gLunar * 1.1, 0.6 * gLunarK);
     // Un ciel d'été voilé, pâle, presque blanc vers l'horizon : jamais d'un bleu profond (celui d'une carte postale).
     // Au couchant, le ciel reprend ses couleurs : une bande pêche et rose au-dessus d'un horizon clair.
