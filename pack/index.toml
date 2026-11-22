@@ -4280,6 +4280,16 @@ hash = "0cb5fc8c29fb99530cc20e013347558e198a686420aaf996fa03b9e23fa291dd"
 metafile = true
 
 [[files]]
+file = "resourcepacks/fast-better-grass.pw.toml"
+hash = "9bec6ecb763a81e7ddd77ce07f354c287085f585eb1e8d2442d93520975eae7b"
+metafile = true
+
+[[files]]
+file = "resourcepacks/fbg-ru-compat.pw.toml"
+hash = "836d19e68316cf9bae454a9fea1a85b2b1825fdd2a34c39cec7a6b51821efc33"
+metafile = true
+
+[[files]]
 file = "resourcepacks/fresh-animations-details.pw.toml"
 hash = "fb04a1326015ee6de9994567c6500343b62079324dafd44b8b346a8bc2a49ec3"
 metafile = true
