@@ -102,7 +102,7 @@ final class SechoirAllure implements Allure {
             if (lueur >= 1.8F) {
                 lueur = 0.0F;
                 float haut = 4.0F + random.nextFloat() * 9.0F;
-                view.spawnParticles(DiegesisParticles.GLINT, new Vector3f(4.0F + random.nextFloat() * 8.0F, haut, devant(haut) - 0.6F),
+                view.spawnParticles(DiegesisParticles.GLINT, new Vector3f(4.0F + random.nextFloat() * 8.0F, haut, DEVANT - 0.6F),
                         new Vector3f(0.0F, 0.5F, -1.0F), 0.5F, 2, 0xFFFFF0D0);
             }
         }
@@ -125,7 +125,7 @@ final class SechoirAllure implements Allure {
         while (goutte >= 1.0F) {
             goutte -= 1.0F;
             float x = 3.0F + random.nextFloat() * 10.0F;
-            view.spawnParticles(DiegesisParticles.DROPLET, new Vector3f(x, 3.2F, devant(3.2F) + 0.2F), new Vector3f(0.0F, -2.0F, 0.0F), 0.2F, 1, EAU);
+            view.spawnParticles(DiegesisParticles.DROPLET, new Vector3f(x, 3.2F, DEVANT + 0.2F), new Vector3f(0.0F, -2.0F, 0.0F), 0.2F, 1, EAU);
         }
         // La chaleur le fait fumer : un feu tout près, ou le plein soleil.
         String cause = cause(view);
@@ -135,14 +135,12 @@ final class SechoirAllure implements Allure {
             fumee -= 1.0F;
             float x = 3.0F + random.nextFloat() * 10.0F;
             float y = 5.0F + random.nextFloat() * 8.0F;
-            view.spawnParticles(DiegesisParticles.STEAM, new Vector3f(x, y, devant(y) - 0.5F), new Vector3f(0.0F, 3.0F, -0.6F), 0.5F, 1, VAPEUR);
+            view.spawnParticles(DiegesisParticles.STEAM, new Vector3f(x, y, DEVANT - 0.5F), new Vector3f(0.0F, 3.0F, -0.6F), 0.5F, 1, VAPEUR);
         }
     }
 
-    /** La face avant du cuir à la hauteur {@code y} (pixels) : le cadre penche vers l'arrière de 22,5°. */
-    private static float devant(float y) {
-        return 3.8F + 0.414F * y;
-    }
+    /** La face avant du cuir tendu au milieu du cadre, en pixels. */
+    private static final float DEVANT = 7.9F;
 
     private Component lecture(StationView view, SechoirBlock.Etat etat, float sec) {
         if (etat == SechoirBlock.Etat.SEC) {
@@ -168,7 +166,7 @@ final class SechoirAllure implements Allure {
         if (state.getBlock() instanceof SechoirBlock && state.getValue(SechoirBlock.ETAT) == SechoirBlock.Etat.VIDE
                 && stack.is(TannerieModule.CUIR_MOUILLE.get())) {
             // Le cuir claque en se tendant : il éclabousse un peu.
-            view.spawnParticles(DiegesisParticles.SPLASH, new Vector3f(8.0F, 8.5F, devant(8.5F) - 0.5F), new Vector3f(0.0F, 1.0F, -3.0F), 4.0F, 8, EAU);
+            view.spawnParticles(DiegesisParticles.SPLASH, new Vector3f(8.0F, 8.5F, DEVANT - 0.5F), new Vector3f(0.0F, 1.0F, -3.0F), 4.0F, 8, EAU);
         }
     }
 
@@ -183,17 +181,17 @@ final class SechoirAllure implements Allure {
         if (avant != null && avant != etat && view.isBlockHidden()) {
             switch (etat) {
                 case HUMIDE -> {
-                    volee.arrive(view, TannerieModule.CUIR_MOUILLE.get(), new Vector3f(8.0F, 8.5F, devant(8.5F) - 0.5F));
+                    volee.arrive(view, TannerieModule.CUIR_MOUILLE.get(), new Vector3f(8.0F, 8.5F, DEVANT - 0.5F));
                     view.node("cuir").ifPresent(node -> node.shake(0.4F, 0.25F));
                 }
                 case SEC -> {
-                    view.spawnParticles(DiegesisParticles.GLINT, new Vector3f(8.0F, 8.5F, devant(8.5F) - 0.5F), new Vector3f(0.0F, 1.5F, -1.0F), 5.0F, 10, 0xFFFFF0D0);
+                    view.spawnParticles(DiegesisParticles.GLINT, new Vector3f(8.0F, 8.5F, DEVANT - 0.5F), new Vector3f(0.0F, 1.5F, -1.0F), 5.0F, 10, 0xFFFFF0D0);
                     Son.joue(view, SoundEvents.ARMOR_EQUIP_LEATHER.value(), "cuir", 0.6F, 1.3F);
                 }
                 case VIDE -> {
-                    view.spawnParticles(DiegesisParticles.GLINT, new Vector3f(8.0F, 8.5F, devant(8.5F) - 0.5F), new Vector3f(0.0F, 3.0F, -2.0F), 4.0F, 6, 0xFFFFF0D0);
+                    view.spawnParticles(DiegesisParticles.GLINT, new Vector3f(8.0F, 8.5F, DEVANT - 0.5F), new Vector3f(0.0F, 3.0F, -2.0F), 4.0F, 6, 0xFFFFF0D0);
                     envol.part(view, avant == SechoirBlock.Etat.SEC ? net.minecraft.world.item.Items.LEATHER : TannerieModule.CUIR_MOUILLE.get(),
-                            new Vector3f(8.0F, 7.0F, devant(7.0F) - 1.0F));
+                            new Vector3f(8.0F, 7.0F, DEVANT - 1.0F));
                 }
             }
         }

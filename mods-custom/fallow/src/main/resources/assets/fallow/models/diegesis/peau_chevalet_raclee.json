@@ -3,151 +3,106 @@
   "textures": {
     "peau": "fallow:item/peau_raclee",
     "particle": "fallow:item/peau_raclee",
-    "corde": "fallow:block/corde"
+    "lien": "minecraft:item/leather"
   },
   "elements": [
     {
       "from": [
-        4.94,
-        11.44,
-        0.44
+        5.98,
+        13.02,
+        1
       ],
       "to": [
-        11.06,
-        12.06,
-        15.56
+        10.02,
+        13.02,
+        15
       ],
-      "rotation": {
-        "angle": -22.5,
-        "axis": "x",
-        "origin": [
-          8,
-          11.5,
-          8
-        ]
-      },
       "faces": {
         "up": {
           "texture": "#peau",
           "uv": [
-            5,
-            0,
-            11,
-            16
+            6,
+            1,
+            10,
+            15
           ]
         },
         "down": {
           "texture": "#peau",
           "uv": [
-            5,
-            16,
-            11,
-            0
+            6,
+            1,
+            10,
+            15
           ]
         }
       }
     },
     {
       "from": [
-        4.44,
-        5.44,
-        0.44
+        5.98,
+        9,
+        1
       ],
       "to": [
-        5.06,
-        12.06,
-        15.56
+        5.98,
+        13.02,
+        15
       ],
-      "rotation": {
-        "angle": -22.5,
-        "axis": "x",
-        "origin": [
-          8,
-          11.5,
-          8
-        ]
-      },
       "faces": {
         "west": {
           "texture": "#peau",
           "uv": [
-            0,
-            0,
-            5,
-            16
+            2,
+            1,
+            6,
+            15
           ],
-          "rotation": 90
+          "rotation": 270
         },
         "east": {
           "texture": "#peau",
           "uv": [
-            0,
-            0,
-            5,
-            16
+            2,
+            1,
+            6,
+            15
           ],
-          "rotation": 90
-        },
-        "down": {
-          "texture": "#peau",
-          "uv": [
-            0,
-            0,
-            0.5,
-            16
-          ]
+          "rotation": 270
         }
       }
     },
     {
       "from": [
-        10.94,
-        5.44,
-        0.44
+        10.02,
+        9,
+        1
       ],
       "to": [
-        11.56,
-        12.06,
-        15.56
+        10.02,
+        13.02,
+        15
       ],
-      "rotation": {
-        "angle": -22.5,
-        "axis": "x",
-        "origin": [
-          8,
-          11.5,
-          8
-        ]
-      },
       "faces": {
-        "west": {
-          "texture": "#peau",
-          "uv": [
-            11,
-            0,
-            16,
-            16
-          ],
-          "rotation": 270
-        },
         "east": {
           "texture": "#peau",
           "uv": [
-            11,
-            0,
-            16,
-            16
+            10,
+            1,
+            14,
+            15
           ],
-          "rotation": 270
+          "rotation": 90
         },
-        "down": {
+        "west": {
           "texture": "#peau",
           "uv": [
-            11,
-            0,
-            11.5,
-            16
-          ]
+            10,
+            1,
+            14,
+            15
+          ],
+          "rotation": 90
         }
       }
     }

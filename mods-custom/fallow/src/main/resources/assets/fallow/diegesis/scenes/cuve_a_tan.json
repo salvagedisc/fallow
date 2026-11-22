@@ -74,7 +74,7 @@
       ],
       "rotation": [
         0,
-        -22,
+        0,
         0
       ],
       "pickable": false,
@@ -92,7 +92,7 @@
       ],
       "rotation": [
         0,
-        31,
+        90,
         0
       ],
       "pickable": false,
@@ -110,7 +110,7 @@
       ],
       "rotation": [
         0,
-        -64,
+        180,
         0
       ],
       "pickable": false,
@@ -128,7 +128,7 @@
       ],
       "rotation": [
         0,
-        12,
+        270,
         0
       ],
       "pickable": false,

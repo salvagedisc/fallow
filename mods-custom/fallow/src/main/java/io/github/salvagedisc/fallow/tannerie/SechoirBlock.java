@@ -41,11 +41,9 @@ public class SechoirBlock extends HorizontalDirectionalBlock implements Ouvrage 
     public static final EnumProperty<Etat> ETAT = EnumProperty.create("etat", Etat.class);
     public static final IntegerProperty SECHAGE = IntegerProperty.create("sechage", 0, 15);
     static final int INTERVAL = 400;
-    // Le cadre penche vers l'arrière, retenu par deux jambes de force : il prend toute la profondeur sauf une marge devant.
-    private static final VoxelShape SHAPE_N = Block.box(0.0, 0.0, 2.0, 16.0, 16.0, 16.0);
-    private static final VoxelShape SHAPE_S = Block.box(0.0, 0.0, 0.0, 16.0, 16.0, 14.0);
-    private static final VoxelShape SHAPE_E = Block.box(0.0, 0.0, 0.0, 14.0, 16.0, 16.0);
-    private static final VoxelShape SHAPE_W = Block.box(2.0, 0.0, 0.0, 16.0, 16.0, 16.0);
+    // Le cadre droit sur ses patins (z 4 à 12 vu du nord).
+    private static final VoxelShape SHAPE_NS = Block.box(0.0, 0.0, 4.0, 16.0, 16.0, 12.0);
+    private static final VoxelShape SHAPE_EW = Block.box(4.0, 0.0, 0.0, 12.0, 16.0, 16.0);
 
     public enum Etat implements StringRepresentable {
         VIDE, HUMIDE, SEC;
@@ -78,12 +76,7 @@ public class SechoirBlock extends HorizontalDirectionalBlock implements Ouvrage 
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return switch (state.getValue(FACING)) {
-            case SOUTH -> SHAPE_S;
-            case EAST -> SHAPE_E;
-            case WEST -> SHAPE_W;
-            default -> SHAPE_N;
-        };
+        return state.getValue(FACING).getAxis() == Direction.Axis.Z ? SHAPE_NS : SHAPE_EW;
     }
 
     @Override
@@ -247,11 +240,11 @@ public class SechoirBlock extends HorizontalDirectionalBlock implements Ouvrage 
     }
 
     /**
-     * Un point devant le cuir tendu, le cadre penchant vers l'arrière de 22,5° : {@code u} de gauche à droite (0 à 1) vu de
-     * devant, {@code h} la hauteur dans le bloc (0 à 1). Vu du nord, le cuir est à z = 3,8 + 0,414 · y pixels.
+     * Un point devant le cuir tendu : {@code u} de gauche à droite (0 à 1) vu de devant, {@code h} la hauteur dans le bloc
+     * (0 à 1). Vu du nord, le cuir est au milieu du bloc, à z = 8 pixels.
      */
     static Vec3 surCuir(BlockState state, BlockPos pos, double u, double h) {
-        double profondeur = (3.8 + 0.414 * h * 16.0) / 16.0;
+        double profondeur = 7.6 / 16.0;
         double x;
         double z;
         switch (state.getValue(FACING)) {

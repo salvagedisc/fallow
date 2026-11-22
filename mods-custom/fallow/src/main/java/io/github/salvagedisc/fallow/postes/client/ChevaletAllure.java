@@ -57,15 +57,8 @@ final class ChevaletAllure implements Allure {
         connu = false;
     }
 
-    /** Le dessus de la peau au milieu de la poutre, en pixels ; la poutre penche de 22,5° vers celui qui travaille (basse devant, au nord). */
-    private static final float DESSUS = 12.0F;
-    /** La pente de la poutre, en degrés, que suit le couteau posé sur la peau. */
-    private static final float PENTE = -22.5F;
-
-    /** Le dessus de la peau à la profondeur {@code z} (pixels). */
-    private static float dessus(float z) {
-        return DESSUS - (8.0F - z) * 0.414F;
-    }
+    /** Le dessus de la peau pliée sur la poutre, en pixels. */
+    private static final float DESSUS = 13.0F;
 
     private static boolean couteau(ItemStack stack) {
         return stack.is(TannerieModule.COUTEAUX);
@@ -117,8 +110,7 @@ final class ChevaletAllure implements Allure {
                 node.setVisual(Visual.ofItem(tenu));
             }
             if (coup >= COUP) {
-                // La poutre penche : on vise d'abord à mi-hauteur, puis à la hauteur de la peau là où on visait.
-                view.cursorOn(dessus(vise)).ifPresent(point -> vise = Mth.clamp(point.z(), 3.0F, 13.0F));
+                view.cursorOn(DESSUS).ifPresent(point -> vise = Mth.clamp(point.z(), 3.0F, 13.0F));
             }
             // Un coup : la lame appuie et file de 4 pixels vers soi, puis revient se poser.
             float t = Math.min(1.0F, coup / COUP);
@@ -126,8 +118,8 @@ final class ChevaletAllure implements Allure {
             float press = t < 0.45F ? -0.5F * Mth.sin(t / 0.45F * Mth.PI) : 0.0F;
             float rest = 0.15F * Mth.sin(horloge * 2.0F);
             float z = vise + stroke;
-            node.moveTo(0.0F, dessus(z) - DESSUS + press + rest, z - 8.0F, 0.0F);
-            node.rotateTo(PENTE + (t < 0.45F ? 12.0F * Mth.sin(t / 0.45F * Mth.PI) : 0.0F), 0.0F, 0.0F, 0.0F);
+            node.moveTo(0.0F, press + rest, z - 8.0F, 0.0F);
+            node.rotateTo(t < 0.45F ? 12.0F * Mth.sin(t / 0.45F * Mth.PI) : 0.0F, 0.0F, 0.0F, 0.0F);
         });
 
         // La poutre vide montre, pâle et battant doucement, la peau à y tendre ; la peau posée attend le couteau.
@@ -193,8 +185,8 @@ final class ChevaletAllure implements Allure {
     private void coup(StationView view) {
         coup = 0.0F;
         // Les copeaux partent de la lame, vers soi et un peu en l'air ; la peau tremble sous le coup.
-        view.spawnParticles(DiegesisParticles.DUST, new Vector3f(8.0F, dessus(vise - 1.0F) + 0.2F, vise - 1.0F), new Vector3f(0.0F, 6.0F, -10.0F), 1.5F, 12, CHAIR);
-        view.spawnParticles(DiegesisParticles.DUST, new Vector3f(8.0F, dessus(vise - 2.5F) + 0.2F, vise - 2.5F), new Vector3f(0.0F, 3.0F, -6.0F), 1.0F, 6, 0xFFE8D6C0);
+        view.spawnParticles(DiegesisParticles.DUST, new Vector3f(8.0F, DESSUS + 0.2F, vise - 1.0F), new Vector3f(0.0F, 6.0F, -10.0F), 1.5F, 12, CHAIR);
+        view.spawnParticles(DiegesisParticles.DUST, new Vector3f(8.0F, DESSUS + 0.2F, vise - 2.5F), new Vector3f(0.0F, 3.0F, -6.0F), 1.0F, 6, 0xFFE8D6C0);
         view.node("peau").ifPresent(node -> node.shake(0.25F, 0.15F));
         view.node("raclee").ifPresent(node -> node.shake(0.25F, 0.15F));
         if (coupAutre) {

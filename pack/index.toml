@@ -757,6 +757,10 @@ file = "kubejs/assets/alexsmobs/lang/fr_fr.json"
 hash = "e920ab2af9113aaa45277be8bbe9505e2d46d0875efd0b3e3dfc6a97778dba7b"
 
 [[files]]
+file = "kubejs/assets/alexsmobs/textures/item/kangaroo_hide.png"
+hash = "e9d85c923e73575e8497f874566b330ff3379026fbd1c8881d1c5d04fdc698dd"
+
+[[files]]
 file = "kubejs/assets/alfinolib/lang/fr_fr.json"
 hash = "cd896b05871ba5a2fd17296690cbbf9b045c0a46b2b69295d629e40b9f1b8207"
 
@@ -1103,6 +1107,14 @@ hash = "b5321a9b98b603b81eda54822dbbaf52aaa6f86d9f244db4676266db23ebb457"
 [[files]]
 file = "kubejs/assets/koopascritters/lang/fr_fr.json"
 hash = "044e537e2faffb727c557ff9a73bc7a19d2f187fea5db93189269a1b241ff7cb"
+
+[[files]]
+file = "kubejs/assets/koopascritters/models/item/reptile_hide.json"
+hash = "4958fc355a42558c1d2469cd2e5f07e8341b925e6213c7f65a16a59358298fc9"
+
+[[files]]
+file = "kubejs/assets/koopascritters/textures/item/reptile_hide.png"
+hash = "6ec38abf3d117e6aebd4ef1b153899859c593402d6565ac9046b343651cc7fc6"
 
 [[files]]
 file = "kubejs/assets/lamblanterns/lang/fr_fr.json"
@@ -3634,8 +3646,8 @@ hash = "2c88d3eceb7be9c5964ca32c24612ca08d7326b4cb06104e98d56efa777de640"
 metafile = true
 
 [[files]]
-file = "mods/fallow-0.71.0.jar"
-hash = "70f4d7cbbb83a51cc7df0a9e98ce92e8c8d80d4947ed8af4d314e2c2a62ee45f"
+file = "mods/fallow-0.72.0.jar"
+hash = "4e186b2259599362f91368eae3887baf3fced1d01b520e7d3007ce3f159747a4"
 
 [[files]]
 file = "mods/farmers-delight.pw.toml"

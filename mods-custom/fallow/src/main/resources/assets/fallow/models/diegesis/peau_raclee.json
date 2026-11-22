@@ -1,5 +1,4 @@
 {
-  "parent": "minecraft:block/block",
   "render_type": "minecraft:cutout",
   "textures": {
     "peau": "fallow:item/peau_raclee",
@@ -8,35 +7,36 @@
   "elements": [
     {
       "from": [
-        2.5,
+        2,
         0,
-        2.5
+        2
       ],
       "to": [
-        13.5,
-        0.3,
-        13.5
+        14,
+        0,
+        14
       ],
       "faces": {
         "up": {
+          "texture": "#peau",
           "uv": [
-            0,
-            0,
-            16,
-            16
-          ],
-          "texture": "#peau"
+            2,
+            2,
+            14,
+            14
+          ]
         },
         "down": {
+          "texture": "#peau",
           "uv": [
-            0,
-            16,
-            16,
-            0
-          ],
-          "texture": "#peau"
+            2,
+            14,
+            14,
+            2
+          ]
         }
       }
     }
-  ]
+  ],
+  "parent": "minecraft:block/block"
 }
