@@ -22,7 +22,7 @@ Option A.
 - **Fresh Hidyk's Realm** sits on top of every pack: it joins Hidyk's Realm's creature models to Fresh Animations.
 - Its grass and leaf colours by biome come through Polytone; they have to be judged under Brumaire.
 - Its connected-glass add-on (Con+nections) needs Continuity and is left out. Its interface add-on (Hidyk's Realm UI, by another author) is not added.
-- The study of how to give the pack's mods textures in its style is in the visual study document; nothing of it is in the pack yet.
+- The mods' metal items take its drawing at launch, without any of its images in the repository ([0055](0055-mod-metals-after-the-resource-pack.md)).
 
 ## Licence
 Hidyk's Realm is all rights reserved. Its terms allow adding it to a modpack "with my authorship indicated in the Creators, Dependencies section on Modrinth with a share of the income from downloads (determined individually, during discussion)". The pack downloads it from Modrinth and does not copy its files, but the terms still apply. Before a Modrinth release that contains it: agree the share with its author, credit him on the project page and list it as a dependency. If no agreement is reached, it leaves the pack and option B takes its place.
