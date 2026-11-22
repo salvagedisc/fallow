@@ -42,8 +42,8 @@ public class SechoirBlock extends HorizontalDirectionalBlock implements Ouvrage 
     public static final IntegerProperty SECHAGE = IntegerProperty.create("sechage", 0, 15);
     static final int INTERVAL = 400;
     // Le cadre droit sur ses patins (z 4 à 12 vu du nord).
-    private static final VoxelShape SHAPE_NS = Block.box(0.0, 0.0, 4.0, 16.0, 16.0, 12.0);
-    private static final VoxelShape SHAPE_EW = Block.box(4.0, 0.0, 0.0, 12.0, 16.0, 16.0);
+    private static final VoxelShape SHAPE_NS = Block.box(0.0, 0.0, 2.0, 16.0, 16.0, 14.0);
+    private static final VoxelShape SHAPE_EW = Block.box(2.0, 0.0, 0.0, 14.0, 16.0, 16.0);
 
     public enum Etat implements StringRepresentable {
         VIDE, HUMIDE, SEC;

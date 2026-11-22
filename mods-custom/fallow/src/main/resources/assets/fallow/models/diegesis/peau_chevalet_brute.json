@@ -3,7 +3,7 @@
   "textures": {
     "peau": "fallow:item/peau_brute",
     "particle": "fallow:item/peau_brute",
-    "lien": "minecraft:item/leather"
+    "lien": "fallow:item/cuir_mouille"
   },
   "elements": [
     {
@@ -110,48 +110,48 @@
       "from": [
         5.98,
         8.98,
-        3
+        5
       ],
       "to": [
         10.02,
         13.02,
-        4
+        6
       ],
       "faces": {
         "east": {
           "texture": "#lien",
           "uv": [
+            7,
             4,
-            6,
-            5,
-            7
+            8,
+            8
           ]
         },
         "west": {
           "texture": "#lien",
           "uv": [
+            8,
             4,
-            6,
-            5,
-            7
+            9,
+            8
           ]
         },
         "up": {
           "texture": "#lien",
           "uv": [
-            4,
             6,
-            5,
+            6,
+            10,
             7
           ]
         },
         "down": {
           "texture": "#lien",
           "uv": [
-            4,
             6,
-            5,
-            7
+            9,
+            10,
+            10
           ]
         }
       }
@@ -160,48 +160,48 @@
       "from": [
         5.98,
         8.98,
-        12
+        10
       ],
       "to": [
         10.02,
         13.02,
-        13
+        11
       ],
       "faces": {
         "east": {
           "texture": "#lien",
           "uv": [
+            7,
             4,
-            6,
-            5,
-            7
+            8,
+            8
           ]
         },
         "west": {
           "texture": "#lien",
           "uv": [
+            8,
             4,
-            6,
-            5,
-            7
+            9,
+            8
           ]
         },
         "up": {
           "texture": "#lien",
           "uv": [
-            4,
             6,
-            5,
+            6,
+            10,
             7
           ]
         },
         "down": {
           "texture": "#lien",
           "uv": [
-            4,
             6,
-            5,
-            7
+            9,
+            10,
+            10
           ]
         }
       }

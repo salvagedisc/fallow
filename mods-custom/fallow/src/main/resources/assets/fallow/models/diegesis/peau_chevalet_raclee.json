@@ -2,8 +2,7 @@
   "render_type": "minecraft:cutout",
   "textures": {
     "peau": "fallow:item/peau_raclee",
-    "particle": "fallow:item/peau_raclee",
-    "lien": "minecraft:item/leather"
+    "particle": "fallow:item/peau_raclee"
   },
   "elements": [
     {
