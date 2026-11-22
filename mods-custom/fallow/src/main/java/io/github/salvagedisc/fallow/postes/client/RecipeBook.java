@@ -41,6 +41,7 @@ import com.pockyl.diegesis.api.client.StationView;
 import com.pockyl.diegesis.api.scene.Transform;
 import io.github.salvagedisc.fallow.postes.BookMath;
 import io.github.salvagedisc.fallow.Fallow;
+import io.github.salvagedisc.fallow.livres.client.DogEar;
 import io.github.salvagedisc.fallow.livres.client.RecipeSheets;
 
 import java.util.ArrayList;
@@ -60,7 +61,7 @@ final class RecipeBook implements NodePainter {
     /** The page's paper, a unit to a texel, and the ribbon beside it. */
     private static final ResourceLocation PAPER = ResourceLocation.fromNamespaceAndPath(Fallow.MOD_ID, "textures/entity/livre_de_recettes_papier.png");
     /**
-     * The flat sprite that wells, bars and arrows are tinted from: this mod's own, in the off-white of white concrete that their
+     * The flat sprite that wells and bars are tinted from: this mod's own, in the off-white of white concrete that their
      * colours were chosen against, so that a resource pack that retextures concrete does not show through the book (Hands-On
      * Delight learnt it from a player's pack).
      */
@@ -109,21 +110,19 @@ final class RecipeBook implements NodePainter {
     private static final int PER_PAGE = COLUMNS * ROWS;
     /**
      * Each page is laid out about the middle of its open part, clear of the shade in the fold: the left page's fold is on its right,
-     * the right page's on its left. The list's grid sits in the middle of the left page, the arrows under its outer columns, and
-     * the foot of the right page on the same line as the arrows.
+     * the right page's on its left. The list's grid sits in the middle of the left page, its page number under it, and the foot of
+     * the right page on the same line as the number. A page turns by its corner, turned down at the foot of the outer side.
      */
     /** The grid, 53 units wide, about the middle of the left page's open part, (72 - 5) / 2. */
     private static final int GRID_X = 7;
     private static final int GRID_Y = 5;
+    /** The line of the list's page number and of the right page's small print: its top and its height. */
     private static final int ARROW_Y = 81;
-    private static final int ARROW_WIDTH = 12;
     private static final int ARROW_HEIGHT = 11;
-    /** Where the arrow's head starts along it, and how many rows either side of the middle its shaft has. */
-    private static final int ARROW_HEAD = 5;
-    private static final int ARROW_SHAFT = 1;
-    /** The foot of the list, under the wells: its left half turns back, its right half on. */
-    private static final float FOOT_TOP = 78.0F;
-    /** The widest the page number between the arrows may be before it is drawn smaller. */
+    /** The corner turned down at the foot of the outer side, as drawn, and how far round it the cursor takes it. */
+    private static final float DOG_EAR = 14.0F;
+    private static final float DOG_EAR_REACH = 16.0F;
+    /** The widest the page number may be before it is drawn smaller. */
     private static final float NUMBER_ROOM = 27.0F;
     /** The list's grid across, and its middle: the page number stands there, the two halves of the foot meet there. */
     private static final float LIST_WIDE = COLUMNS * PITCH - (PITCH - WELL_SIZE);
@@ -265,7 +264,7 @@ final class RecipeBook implements NodePainter {
     private long lastTurnSound;
     /** What the left page listed when the running flip started: the sheet turned over shows it, not the list that is there now. */
     private Leaf flipFrom;
-    /** An arrow held down: the way it turns (0: none), since when, and how many pages it has turned. */
+    /** A turned-down corner held: the way it turns (0: none), since when, and how many pages it has turned. */
     private int leafing;
     private float leafSince;
     private int leafDone;
@@ -1309,7 +1308,7 @@ final class RecipeBook implements NodePainter {
         }
     }
 
-    /** An arrow held down goes on turning pages, quicker and quicker, until it is let go, the cursor leaves it or the list ends. */
+    /** A turned-down corner held goes on turning pages, quicker and quicker, until it is let go, the cursor leaves it or the list ends. */
     private void leaf() {
         if (leafing == 0) {
             return;
@@ -1733,18 +1732,22 @@ final class RecipeBook implements NodePainter {
     }
 
     /**
-     * The half of the list's foot under the cursor, where the page arrows are: -1 the left half (back), 1 the right half (on), 0 off
-     * it or with one page only. The whole foot turns pages, not only the arrows drawn on it.
+     * The corner turned down under the cursor: -1 the left page's (back), 1 the right page's (on), 0 none. A corner is there only
+     * where there is a page to turn to, as in a book whose last page has nothing after it.
      */
     private int footSide() {
-        if (pages() <= 1 || cursorY < FOOT_TOP || cursorY >= UNITS_HIGH || cursorX < 0.0F || cursorX >= UNITS_WIDE) {
+        int pages = pages();
+        if (pages <= 1 || cursorY < UNITS_HIGH - DOG_EAR_REACH || cursorY >= UNITS_HIGH) {
             return 0;
         }
-        return cursorX < FOOT_MIDDLE ? -1 : 1;
+        if (cursorX >= 0.0F && cursorX < DOG_EAR_REACH && page > 0) {
+            return -1;
+        }
+        return cursorX >= UNITS_WIDE * 2 - DOG_EAR_REACH && cursorX < UNITS_WIDE * 2 && page < pages - 1 ? 1 : 0;
     }
 
     /**
-     * Whether the open book is under the cursor where nothing of its own is: no place on the list, tab, switch, ribbon, page arrows,
+     * Whether the open book is under the cursor where nothing of its own is: no place on the list, tab, switch, ribbon, turned-down corner,
      * dish or thing that goes in, and no card of variants open (a click beside the card puts it away first). There the book is
      * taken, sized and put back.
      */
@@ -1868,7 +1871,7 @@ final class RecipeBook implements NodePainter {
                 && y < UNITS_HIGH) {
             cursorX = x;
             cursorY = y;
-            // While a sheet goes over, the list it uncovers takes the cursor once it is mostly in view; arrows and tabs at once.
+            // While a sheet goes over, the list it uncovers takes the cursor once it is mostly in view; corners and tabs at once.
             followHover(flip >= FLIP_LIVE && y >= 0.0F ? entryAt(x, y) : null);
             hoveredTab = overTabs ? tabAt(x) : null;
             overFilter = onFilter;
@@ -2299,6 +2302,12 @@ final class RecipeBook implements NodePainter {
         canvas.rect(left ? UNITS_WIDE - 2.0F : 0.0F, 0.0F, 2.0F, UNITS_HIGH, 0.15F, FOLD);
         // Only the resting pages answer the cursor: a sheet going over shows what it holds, unlit.
         boolean live = resting && (flip >= 1.0F || !left || leaf.page() == page && leaf.card() == (opened() != null));
+        // The corner turned down where there is a page to turn to: before this one on the left, after it on the right.
+        int leafPages = Math.max(1, (leaf.list().size() + PER_PAGE - 1) / PER_PAGE);
+        if (left ? leaf.page() > 0 : leaf.page() < leafPages - 1) {
+            boolean under = live && footSide() == (left ? -1 : 1);
+            DogEar.draw(poseStack, buffers, shade, left ? 0.0F : UNITS_WIDE, UNITS_HIGH, DOG_EAR, left, under, DogEar.Paper.CREAM, DogEar.LIFT);
+        }
         if (left) {
             if (resting) {
                 drawTabs(canvas);
@@ -2400,16 +2409,13 @@ final class RecipeBook implements NodePainter {
         }
         int leafPages = Math.max(1, (list.size() + PER_PAGE - 1) / PER_PAGE);
         if (leafPages > 1) {
-            // "7/52" between the arrows, smaller when it would not fit; the arrow of the half under the cursor is lit.
+            // "7/52" under the list, smaller when it would not fit.
             Font font = Minecraft.getInstance().font;
             String number = (leaf.page() + 1) + "/" + leafPages;
             float wide = font.width(number) - 1.0F;
             float scale = Math.min(1.0F, NUMBER_ROOM / wide);
             float high = (font.lineHeight - 2.0F) * scale;
             canvas.text(number, FOOT_MIDDLE - wide * scale / 2.0F, ARROW_Y + (ARROW_HEIGHT - high) / 2.0F, scale);
-            int under = live ? footSide() : 0;
-            canvas.arrow(GRID_X, ARROW_Y, false, under < 0);
-            canvas.arrow(GRID_X + LIST_WIDE - ARROW_WIDTH, ARROW_Y, true, under > 0);
         }
     }
 
@@ -2445,7 +2451,7 @@ final class RecipeBook implements NodePainter {
                 canvas.frame(spot.x(), spot.y(), WELL_SIZE);
             }
         }
-        // The small print goes where there is room left, in the middle, on the line of the list's arrows.
+        // The small print goes where there is room left, in the middle, on the line of the list's page number.
         int count = entry.ingredients().size();
         float footMiddle = ARROW_Y + ARROW_HEIGHT / 2.0F;
         float bottom = footMiddle - FOOT_SIZE / 2.0F;
@@ -2563,28 +2569,6 @@ final class RecipeBook implements NodePainter {
             rect(x, y + size - 1.0F, size, 1.0F, COVER_LIFT, WELL_PICKED);
             rect(x, y, 1.0F, size, COVER_LIFT, WELL_PICKED);
             rect(x + size - 1.0F, y, 1.0F, size, COVER_LIFT, WELL_PICKED);
-        }
-
-        /**
-         * A page arrow in the ink of the page, warmer under the cursor. Drawn here, not taken from vanilla's book screen: a resource
-         * pack restyles that one for its own pages (a dark one makes it light), and on this paper it could not be seen.
-         */
-        void arrow(float x, float y, boolean next, boolean over) {
-            int colour = over ? WELL_PICKED : INK;
-            int middle = ARROW_HEIGHT / 2;
-            for (int row = 0; row < ARROW_HEIGHT; row++) {
-                int off = Math.abs(row - middle);
-                // The head: from its base to the tip, one pixel shorter each row away from the middle.
-                float from = ARROW_HEAD;
-                float to = ARROW_WIDTH - 1 - off;
-                if (off <= ARROW_SHAFT) {
-                    from = 1;
-                }
-                if (to > from) {
-                    float left = next ? x + from : x + ARROW_WIDTH - to;
-                    rect(left, y + row, to - from, 1.0F, WELL_LIFT, colour);
-                }
-            }
         }
 
         private void quad(VertexConsumer consumer, float x0, float y0, float x1, float y1, float lift, int argb, float u0, float u1, float v0, float v1) {

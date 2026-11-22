@@ -38,6 +38,8 @@
     "indices.GuiOverlayAccessor",
     "livres.HovOpenBookMixin",
     "livres.HovRecipeBookMixin",
+    "livres.HovRecipeSheetMixin",
+    "livres.HovLecternCanvasMixin",
     "patine.ArmorTextureMixin",
     "postes.ForgeRendererMixin",
     "postes.MenuCreationMixin",

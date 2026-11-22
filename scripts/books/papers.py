@@ -1,9 +1,14 @@
 """Paper of the books read in the world: the recipe books of the stations (Fallow's and Hands-On Vanilla's), the lectern's
 book and the awakening book of the enchanting table.
 
-Each page is drawn texel by texel from a fixed seed, so a rerun gives the same files: aged paper, darker and worn towards its
-outer edges, a little shade towards the fold, and a frame ruled in ink with knots at its corners. The frame keeps clear of what
-the books write: it runs inside the margins they leave (see the constants of each book below).
+Each page is drawn texel by texel from a fixed seed, so a rerun gives the same files: soft, cloudy paper, the edges of the leaves
+under it showing along its outer side, a little worn (corners rounded and darker, a few nicks, a short tear, a crease, a faint
+water ring), shaded towards the fold. Nothing is ruled on the recipe and lectern pages: the cover is their border. The awakening
+book alone has one fine rule in violet ink, with a small star at each corner. All the wear keeps to the margins the books leave.
+
+The corner turned down at the foot of a page that has a next one (or a previous one) is a sprite of its own, coin_de_page.png:
+the flap of paper folded over, its shadow, and the page under it; its second column is the same corner lifted a little more,
+under the cursor; its second row is the awakening book's paper.
 
 The awakening book's cover is Hands-On Vanilla's enchanting book (MIT, kept in scripts/books/source/) with its brown leather
 turned to a midnight violet and its gilt a shade softer.
@@ -15,6 +20,7 @@ Writes:
   mods-custom/fallow/src/main/resources/assets/fallow/textures/entity/livre_d_eveil_papier.png
   pack/kubejs/assets/handson_vanilla/textures/entity/recipe_book_paper.png
   pack/kubejs/assets/handson_vanilla/textures/entity/enchanting_book_paper.png
+  mods-custom/fallow/src/main/resources/assets/fallow/textures/entity/coin_de_page.png
 """
 
 from pathlib import Path
@@ -118,6 +124,103 @@ class Page:
         self.rgb[1, w - 1] = mix(self.rgb[1, w - 1][None, None], rim, 0.3)[0, 0]
         self.rgb[h - 2, w - 1] = mix(self.rgb[h - 2, w - 1][None, None], rim, 0.3)[0, 0]
 
+    def clouds(self, strength=0.045, light_patches=5):
+        """Large soft clouds in the pulp, and a few paler patches where the paper was pressed thinner."""
+        n = smooth_noise(self.rng, self.w, self.h, 22) * 0.6 + smooth_noise(self.rng, self.w, self.h, 9) * 0.4
+        self.rgb *= (1.0 + n * strength)[:, :, None]
+        for _ in range(light_patches):
+            cx, cy = self.rng.uniform(0, self.w), self.rng.uniform(0, self.h)
+            r = float(self.rng.uniform(self.w * 0.12, self.w * 0.3))
+            d = np.hypot((self.xs - cx) * 1.3, self.ys - cy)
+            self.rgb = mix(self.rgb, np.minimum(self.rgb * 1.04, 255.0), np.clip(1.0 - d / r, 0.0, 1.0) ** 2 * 0.8)
+
+    def leaves(self, count=3):
+        """The leaves under this one, seen along its outer side: a darker hairline every other texel, each running most of the
+        height with breaks where a leaf is shorter, and the outermost texel wavy, some of it bitten away."""
+        h, w = self.h, self.w
+        rim = self.edge * 0.88
+        for k in range(count):
+            x = w - 1 - 2 * k
+            strength = 0.34 - 0.10 * k
+            y = int(self.rng.integers(1, 4))
+            while y < h - 1:
+                run = int(self.rng.integers(18, 60))
+                for yy in range(y, min(h - 1, y + run)):
+                    self.rgb[yy, x] = mix(self.rgb[yy, x][None, None], rim, strength)[0, 0]
+                y += run + int(self.rng.integers(1, 3))
+        # The outermost texel: in and out by one, as a cut stack of leaves is.
+        y = 0
+        while y < h:
+            run = int(self.rng.integers(3, 11))
+            if self.rng.random() < 0.3:
+                for yy in range(y, min(h, y + run)):
+                    self.alpha[yy, w - 1] = 0
+                    self.rgb[yy, w - 2] = mix(self.rgb[yy, w - 2][None, None], rim, 0.45)[0, 0]
+            y += run
+        # The head and the foot: a fine darker edge, the foot's a little stronger, in the shade of the light from above.
+        for x in range(w):
+            self.rgb[h - 1, x] = mix(self.rgb[h - 1, x][None, None], rim * 0.86, 0.62)[0, 0]
+            self.rgb[0, x] = mix(self.rgb[0, x][None, None], rim, 0.30)[0, 0]
+
+    def worn_corners(self, radius=2):
+        """The two outer corners rounded off and darkened, as a corner thumbed many times."""
+        h, w = self.h, self.w
+        rim = self.edge * 0.8
+        for cy, sy in ((0, 1), (h - 1, -1)):
+            for dy in range(radius + 3):
+                for dx in range(radius + 3):
+                    x, y = w - 1 - dx, cy + sy * dy
+                    d = np.hypot(dx, dy)
+                    if dx + dy < radius:
+                        self.alpha[y, x] = 0
+                    elif d < radius + 3:
+                        self.rgb[y, x] = mix(self.rgb[y, x][None, None], rim, 0.5 * (1.0 - d / (radius + 3)))[0, 0]
+
+    def nicks(self, count):
+        """Small bites out of the outer side, the head and the foot, their bottoms a shade darker."""
+        h, w = self.h, self.w
+        rim = self.edge * 0.82
+        for _ in range(count):
+            side = self.rng.integers(0, 3)
+            size = int(self.rng.integers(1, 3))
+            if side == 0:
+                y = int(self.rng.integers(8, h - 8))
+                for dy in range(size + 1):
+                    self.alpha[y + dy, w - 1] = 0
+                    self.rgb[y + dy, w - 2] = mix(self.rgb[y + dy, w - 2][None, None], rim, 0.6)[0, 0]
+            else:
+                x = int(self.rng.integers(w // 2, w - 6))
+                y, sy = (0, 1) if side == 1 else (h - 1, -1)
+                for dx in range(size + 1):
+                    self.alpha[y, x + dx] = 0
+                    self.rgb[y + sy, x + dx] = mix(self.rgb[y + sy, x + dx][None, None], rim, 0.6)[0, 0]
+
+    def tear(self, y, length=4):
+        """A short tear from the outer side, slanting in: its dark lip and, beside it, the lifted paper a shade lighter."""
+        w = self.w
+        for i in range(length):
+            x, yy = w - 1 - i, y + i // 2
+            self.rgb[yy, x] = mix(self.rgb[yy, x][None, None], self.edge * 0.62, 0.75 - 0.12 * i)[0, 0]
+            self.rgb[yy + 1, x] = np.minimum(self.rgb[yy + 1, x] * 1.05, 255.0)
+        self.alpha[y, w - 1] = 0
+
+    def crease(self, x0, y0, length, sx=-1, sy=1, strength=0.10):
+        """A crease left by a corner once folded: a texel of shade along a diagonal and a texel of light beside it."""
+        for i in range(length):
+            x, y = x0 + sx * i, y0 + sy * i
+            if 0 <= x < self.w and 0 <= y < self.h - 1:
+                self.rgb[y, x] *= 1.0 - strength
+                self.rgb[y + 1, x] = np.minimum(self.rgb[y + 1, x] * (1.0 + strength * 0.6), 255.0)
+
+    def water_ring(self, cx, cy, radius, start, sweep, strength=0.07):
+        """Part of a faint ring where a wet cup once stood: the rim of the stain a little darker, its inside a hair paler."""
+        d = np.hypot(self.xs - cx, self.ys - cy)
+        a = (np.arctan2(self.ys - cy, self.xs - cx) - start) % (2 * np.pi)
+        on = a < sweep
+        rim = np.clip(1.0 - np.abs(d - radius) / 0.9, 0.0, 1.0) * on
+        inside = np.clip((radius - d) / radius, 0.0, 1.0) * on * 0.25
+        self.rgb = mix(self.rgb, self.edge * 0.9, rim * strength + inside * strength)
+
     def dot(self, x, y, strength):
         if 0 <= x < self.w and 0 <= y < self.h:
             self.rgb[y, x] = mix(self.rgb[y, x][None, None], self.ink, strength)[0, 0]
@@ -131,37 +234,6 @@ class Page:
         for y in range(y0, y1 + 1):
             if (y - y0) % every == 0:
                 self.dot(x, y, strength)
-
-    def frame(self, left, top, right, bottom, strength, inner=None, inner_strength=0.0):
-        """A ruled frame with a hollow square knot where its lines meet, and an optional dotted hairline inside it."""
-        self.hline(left + 2, right - 2, top, strength)
-        self.hline(left + 2, right - 2, bottom, strength)
-        self.vline(left, top + 2, bottom - 2, strength)
-        self.vline(right, top + 2, bottom - 2, strength)
-        for cx, cy, sx, sy in ((left, top, 1, 1), (right, top, -1, 1), (left, bottom, 1, -1), (right, bottom, -1, -1)):
-            # The knot: a 3 x 3 ring over the corner, its middle left as paper, the lines running into it; a short tail of two
-            # dots runs from it towards the middle of the page, and each line takes a small tick a little way from it.
-            for dx in (-1, 0, 1):
-                for dy in (-1, 0, 1):
-                    if dx or dy:
-                        self.dot(cx + dx, cy + dy, strength)
-            self.dot(cx + 2 * sx, cy + 2 * sy, strength * 0.7)
-            self.dot(cx + 3 * sx, cy + 3 * sy, strength * 0.4)
-            self.dot(cx + 4 * sx, cy + sy, strength * 0.6)
-            self.dot(cx + sx, cy + 4 * sy, strength * 0.6)
-        if inner:
-            i = inner
-            self.hline(left + i + 1, right - i - 1, top + i, inner_strength, every=2)
-            self.hline(left + i + 1, right - i - 1, bottom - i, inner_strength, every=2)
-            self.vline(left + i, top + i + 1, bottom - i - 1, inner_strength, every=2)
-            self.vline(right - i, top + i + 1, bottom - i - 1, inner_strength, every=2)
-
-    def diamond(self, cx, cy, strength, size=1):
-        """A small lozenge on a rule: a leaf of ornament halfway along it."""
-        for d in range(-size, size + 1):
-            r = size - abs(d)
-            self.dot(cx + d, cy - r, strength)
-            self.dot(cx + d, cy + r, strength)
 
     def star(self, cx, cy, strength):
         """A four-pointed star of five texels, with a fainter halo: the awakening book's corners."""
@@ -208,17 +280,19 @@ def ribbon(canvas, x, colours):
 def recipe_paper(path, seed):
     """The recipe books: a page of 72 x 96 texels in the corner, the fold on the left, plain paper to its right for the slip and
     the tabs, and the ribbon and its lit twin at u 80 and 88."""
-    page = Page(72, 96, seed, paper=(245, 234, 205), edge=(210, 178, 126), ink=(118, 82, 46), fold_width=7)
-    page.age(mottle=0.035, grain=0.008, yellowing=0.5, wear=4.0)
-    page.fibres(70)
-    page.foxing(3, strength=0.10)
-    page.fold(depth=0.06)
-    page.deckle()
-    # The books write from x 7 (the list's grid), y 5 and down to y 92 (the arrows), at least 7 texels from the fold:
-    # the frame runs 2 texels from the outer edges and 6 from the fold, its knots never reaching what is written.
-    page.frame(left=6, top=2, right=69, bottom=93, strength=0.56)
-    page.diamond(69, 48, 0.50)
-    page.diamond(6, 48, 0.36)
+    page = Page(72, 96, seed, paper=(246, 237, 211), edge=(208, 178, 128), ink=(118, 82, 46), fold_width=8)
+    page.clouds(strength=0.05, light_patches=5)
+    page.age(mottle=0.0, grain=0.007, yellowing=0.42, wear=3.5)
+    page.fibres(60)
+    page.foxing(2, strength=0.08)
+    page.fold(depth=0.08)
+    # The books write from x 7, y 5 and down to y 92, at least 7 texels from the fold: the wear keeps outside that.
+    page.leaves(count=3)
+    page.worn_corners(radius=2)
+    page.nicks(3)
+    page.tear(y=58, length=3)
+    page.crease(x0=70, y0=1, length=6)
+    page.water_ring(cx=66.0, cy=101.0, radius=11.0, start=3.6, sweep=1.5)
     img = Image.new("RGBA", (128, 128), (0, 0, 0, 0))
     img.paste(page.image(), (0, 0))
     # Plain paper beside the page, under the slip of the search (it reaches u 77) and the tabs: the page's middle, no frame.
@@ -234,32 +308,32 @@ def big_paper(path, seed, mystic):
     """The lectern's and the enchanting table's books: a whole sheet of 115 x 154 texels in a 128 x 256 texture, the fold on the
     left, its first 17 texels arching up out of the gutter, what is written on the flat part beyond them."""
     if mystic:
-        page = Page(115, 154, seed, paper=(238, 228, 206), edge=(188, 160, 128), ink=(72, 46, 122), fold_width=22)
+        page = Page(115, 154, seed, paper=(240, 231, 212), edge=(186, 160, 132), ink=(84, 54, 140), fold_width=22)
     else:
-        page = Page(115, 154, seed, paper=(245, 233, 204), edge=(208, 174, 120), ink=(116, 80, 44), fold_width=22)
-    page.age(mottle=0.045, grain=0.01, yellowing=0.55 if not mystic else 0.65, wear=6.0)
-    page.fibres(160)
-    page.foxing(4, strength=0.10)
+        page = Page(115, 154, seed, paper=(246, 236, 210), edge=(206, 174, 122), ink=(116, 80, 44), fold_width=22)
+    page.clouds(strength=0.055, light_patches=7)
+    page.age(mottle=0.0, grain=0.008, yellowing=0.45 if not mystic else 0.55, wear=5.0)
+    page.fibres(140)
+    page.foxing(3, strength=0.08)
     page.fold(depth=0.10)
-    page.deckle()
-    # Flat part from x 17: the frame 3 texels inside the outer edges and 3 past the gutter's curve; a dotted hairline 2 inside it.
-    page.frame(left=20, top=2, right=112, bottom=151, strength=0.58, inner=2, inner_strength=0.30)
+    page.leaves(count=3)
+    page.worn_corners(radius=3)
+    page.nicks(4)
+    page.tear(y=97, length=4)
+    page.crease(x0=113, y0=1, length=8)
+    page.water_ring(cx=104.0, cy=162.0, radius=16.0, start=3.5, sweep=1.4)
     if mystic:
-        # The awakening book: violet ink, a star at each corner and halfway down each side, and the table's ring as a watermark.
-        for cx, cy in ((20, 2), (112, 2), (20, 151), (112, 151)):
-            page.star(cx, cy, 0.65)
-        page.star(112, 76, 0.55)
-        page.star(20, 76, 0.42)
-        page.star(66, 151, 0.50)
-        page.star(66, 2, 0.50)
-        page.ring(66, 77, 30, 0.07)
-        page.ring(66, 77, 24, 0.05, gap=3)
-        page.ring(66, 77, 9, 0.06)
-    else:
-        page.diamond(112, 76, 0.55, size=2)
-        page.diamond(20, 76, 0.40, size=2)
-        page.diamond(66, 151, 0.45, size=2)
-        page.diamond(66, 2, 0.45, size=2)
+        # The awakening book: one fine rule in violet ink on the flat part, a small star where it turns, and the table's ring
+        # as a watermark. What the book writes stays 8 units inside it.
+        page.hline(23, 109, 4, 0.34)
+        page.hline(23, 109, 149, 0.34)
+        page.vline(21, 6, 147, 0.34)
+        page.vline(111, 6, 147, 0.34)
+        for cx, cy in ((21, 4), (111, 4), (21, 149), (111, 149)):
+            page.star(cx, cy, 0.62)
+        page.ring(66, 77, 30, 0.06)
+        page.ring(66, 77, 24, 0.04, gap=3)
+        page.ring(66, 77, 9, 0.05)
     img = Image.new("RGBA", (128, 256), (0, 0, 0, 0))
     img.paste(page.image(), (0, 0))
     img.save(path)
@@ -287,6 +361,59 @@ def mystic_cover(source, path):
     out.save(path)
 
 
+def dog_ear(path):
+    """The corner turned down, 16 x 16 for the foot of a right page (mirrored for a left one), its corner at the bottom right.
+    The fold runs slantwise from the foot to the outer side; beyond it lies the page under, in the flap's shade; the flap is the
+    corner itself laid back over the page, a little curled (shorter than flat), palest along the crease, its edges a shade darker,
+    with a soft shadow round it. Columns: at rest, lifted further under the cursor. Rows: the recipe and lectern paper, the
+    awakening book's."""
+    img = Image.new("RGBA", (32, 32), (0, 0, 0, 0))
+    papers = (((246, 237, 211), (208, 178, 128)), ((240, 231, 212), (186, 160, 132)))
+    folds = (((5.0, 16.0), (16.0, 3.5)), ((3.0, 16.0), (16.0, 1.0)))
+    curl = 0.82
+    for row, (paper, edge) in enumerate(papers):
+        paper = np.asarray(paper, np.float32)
+        edge = np.asarray(edge, np.float32)
+        for col, (a, b) in enumerate(folds):
+            a, b = np.asarray(a), np.asarray(b)
+            along = (b - a) / np.linalg.norm(b - a)
+            inner = np.array([along[1], -along[0]])
+            if np.dot(inner, np.array([0.0, 0.0]) - a) < 0:
+                inner = -inner
+            for y in range(16):
+                for x in range(16):
+                    p = np.array([x + 0.5, y + 0.5])
+                    d = float(np.dot(p - a, inner))
+                    if d < 0:
+                        # Beyond the fold: the page under it, darkest along the crease, its own corner worn round.
+                        if x + y >= 29:
+                            continue
+                        t = min(1.0, -d / 4.0)
+                        c = paper * (0.78 + 0.12 * t)
+                        if x == 15 or y == 15:
+                            c = mix(c[None, None], edge * 0.8, 0.45)[0, 0]
+                        img.putpixel((col * 16 + x, row * 16 + y), tuple(int(v) for v in np.clip(np.rint(c), 0, 255)) + (255,))
+                        continue
+                    foot = p - d * inner
+                    flat = foot - (d / curl) * inner
+                    if flat[0] <= 16.0 and flat[1] <= 16.0:
+                        # The flap: the back of the leaf, palest along the crease, darker towards its tip and at its edges.
+                        reach = max(0.0, 16.0 - max(flat[0], flat[1]))
+                        c = np.minimum(paper * (1.05 - 0.018 * d), 255.0)
+                        if d < 1.0:
+                            c = np.minimum(paper * 1.08, 255.0)
+                        if 16.0 - flat[0] < 1.2 / curl or 16.0 - flat[1] < 1.2 / curl:
+                            c = mix(c[None, None], edge * 0.78, 0.55)[0, 0]
+                        img.putpixel((col * 16 + x, row * 16 + y), tuple(int(v) for v in np.clip(np.rint(c), 0, 255)) + (255,))
+                        continue
+                    wide = foot - (d / (curl * 1.22)) * inner
+                    if wide[0] <= 16.0 and wide[1] <= 16.0:
+                        # Its shadow on the page.
+                        c = edge * 0.42
+                        img.putpixel((col * 16 + x, row * 16 + y), tuple(int(v) for v in c) + (60,))
+    img.save(path)
+
+
 def main():
     FALLOW.mkdir(parents=True, exist_ok=True)
     HOV.mkdir(parents=True, exist_ok=True)
@@ -295,6 +422,7 @@ def main():
     big_paper(FALLOW / "livre_d_eveil_papier.png", seed=23, mystic=True)
     big_paper(HOV / "enchanting_book_paper.png", seed=31, mystic=False)
     mystic_cover(Path(__file__).parent / "source/enchanting_book.png", FALLOW / "livre_d_eveil.png")
+    dog_ear(FALLOW / "coin_de_page.png")
 
 
 if __name__ == "__main__":

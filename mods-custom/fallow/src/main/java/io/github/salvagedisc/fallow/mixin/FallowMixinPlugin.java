@@ -56,6 +56,8 @@ public final class FallowMixinPlugin implements IMixinConfigPlugin {
             Map.entry("postes.StationHoverMixin", List.of(ModIds.DIEGESIS, ModIds.HANDS_ON_VANILLA)),
             Map.entry("livres.HovOpenBookMixin", List.of(ModIds.HANDS_ON_VANILLA)),
             Map.entry("livres.HovRecipeBookMixin", List.of(ModIds.HANDS_ON_VANILLA)),
+            Map.entry("livres.HovRecipeSheetMixin", List.of(ModIds.HANDS_ON_VANILLA)),
+            Map.entry("livres.HovLecternCanvasMixin", List.of(ModIds.HANDS_ON_VANILLA)),
             Map.entry("navires.VoileMixin", List.of(ModIds.FISH_N_SHIPS)));
 
     private static final Map<String, List<String>> MEMBERS = Map.ofEntries(
@@ -67,7 +69,9 @@ public final class FallowMixinPlugin implements IMixinConfigPlugin {
             Map.entry("compat.PunchyEquipMixin", List.of("shouldIgnoreComponentForEquipDiff")),
             Map.entry("postes.StationHoverMixin", List.of("isOurs")),
             Map.entry("livres.HovOpenBookMixin", List.of("draw", "sheet", "spread", "fromSpread", "flip", "flipWay", "time", "riffleAt", "riffleSpan")),
-            Map.entry("livres.HovRecipeBookMixin", List.of("spread", "flip", "flipWay")),
+            Map.entry("livres.HovRecipeBookMixin", List.of("spread", "flip", "flipWay", "footSide", "cursorX", "cursorY", "page", "pages")),
+            Map.entry("livres.HovRecipeSheetMixin", List.of("arrow", "paper", "poseStack", "buffers")),
+            Map.entry("livres.HovLecternCanvasMixin", List.of("arrow", "poseStack", "buffers", "light", "wide", "high")),
             Map.entry("navires.VoileMixin", List.of("moveWithSailDown")));
 
     @Override

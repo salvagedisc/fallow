@@ -150,7 +150,7 @@ Test commands (operators): `/fallow eveil voir` shows the held item's places, st
 
 **Layout** (0.74.0): the paper carries a filleted frame drawn by the book (about 3 and 5 units from its edges); everything written stays at least 8 units from the sides and between 7 and 149 units from the top, the right page's paths end above its foot sentence whatever its length, and the foot sentences are short (« Lisez une voie, puis tenez le clic. », « Lisez la force, puis tenez le clic. »).
 
-**The book's look** (0.75.0): a violet night cover with soft gold corners (`livre_d_eveil.png`), cream paper with a violet filleted frame, starred corners and a faint watermark of rings (`livre_d_eveil_papier.png`), both drawn by `scripts/books/papers.py`; a page turned or riffled curls over with its writing on it ([mod-fallow](mod-fallow.md#books-livres-client)).
+**The book's look** (0.75.0): a violet night cover with soft gold corners (`livre_d_eveil.png`), cream paper, worn at its edges, with one fine violet rule (about 4 units inside the flat part's edges), a small star at each of its corners and a faint watermark of rings (since 0.77.0; `livre_d_eveil_papier.png`), both drawn by `scripts/books/papers.py`; a page turned or riffled curls over with its writing on it ([mod-fallow](mod-fallow.md#books-livres-client)).
 
 ## In-game tests
 

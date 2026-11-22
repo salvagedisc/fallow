@@ -82,6 +82,88 @@ public final class HovRecipeBooks {
         }
     }
 
+    /** How far round the turned-down corner the cursor takes it, units of a page (72 x 96), and the corner as drawn. */
+    private static final float DOG_EAR_REACH = 16.0F;
+    private static final float DOG_EAR = 14.0F;
+    private static final float UNITS_WIDE = 72.0F;
+    private static final float UNITS_HIGH = 96.0F;
+
+    /**
+     * The turned-down corner under the cursor ({@code x} across both pages, {@code y} down): -1 the left page's, 1 the right page's,
+     * 0 none; a corner is there only where there is a page to turn to.
+     */
+    public static int footSide(float x, float y, int page, int pages) {
+        if (pages <= 1 || y < UNITS_HIGH - DOG_EAR_REACH || y >= UNITS_HIGH) {
+            return 0;
+        }
+        if (x >= 0.0F && x < DOG_EAR_REACH && page > 0) {
+            return -1;
+        }
+        return x >= UNITS_WIDE * 2 - DOG_EAR_REACH && x < UNITS_WIDE * 2 && page < pages - 1 ? 1 : 0;
+    }
+
+    private static boolean sheetLooked;
+    private static Field outer;
+    private static Field page;
+    private static Field cursorX;
+    private static Field cursorY;
+    private static Method pages;
+
+    /** Whether the pages turn by their corners: false once the corners could not be drawn, the book's arrows staying. */
+    public static boolean cornersOn() {
+        return !sheetLooked || outer != null;
+    }
+
+    /** Whether the corners can be drawn on the pages of the book that {@code sheet} paints: else its arrows stay. */
+    public static boolean dogEarsReady(Object sheet) {
+        if (!sheetLooked) {
+            sheetLooked = true;
+            try {
+                outer = sheet.getClass().getDeclaredField("this$0");
+                Class<?> book = outer.getType();
+                page = book.getDeclaredField("page");
+                cursorX = book.getDeclaredField("cursorX");
+                cursorY = book.getDeclaredField("cursorY");
+                pages = book.getDeclaredMethod("pages");
+                if (shade == null) {
+                    shade = book.getDeclaredField("shade");
+                    shade.setAccessible(true);
+                }
+                for (var member : new java.lang.reflect.AccessibleObject[] {outer, page, cursorX, cursorY, pages}) {
+                    member.setAccessible(true);
+                }
+            } catch (ReflectiveOperationException | RuntimeException e) {
+                Fallow.LOGGER.warn("livres : les livres de Hands-On Vanilla gardent leurs flèches ({})", e.toString());
+                outer = null;
+            }
+        }
+        return outer != null;
+    }
+
+    /**
+     * The turned-down corner on the paper {@code sheet} has just laid: the left page's when a page comes before, the right page's
+     * when one follows; lifted under the cursor.
+     */
+    public static void dogEar(Object sheet, PoseStack poseStack, MultiBufferSource buffers, boolean left) {
+        if (!dogEarsReady(sheet)) {
+            return;
+        }
+        try {
+            Object book = outer.get(sheet);
+            int now = page.getInt(book);
+            int count = (int) pages.invoke(book);
+            if (left ? now <= 0 : now >= count - 1) {
+                return;
+            }
+            boolean under = footSide(cursorX.getFloat(book), cursorY.getFloat(book), now, count) == (left ? -1 : 1);
+            DogEar.draw(poseStack, buffers, shade.getInt(book), left ? 0.0F : UNITS_WIDE, UNITS_HIGH, DOG_EAR, left, under,
+                    DogEar.Paper.CREAM, DogEar.LIFT);
+        } catch (ReflectiveOperationException | RuntimeException e) {
+            Fallow.LOGGER.warn("livres : les livres de Hands-On Vanilla gardent leurs flèches ({})", e.toString());
+            outer = null;
+        }
+    }
+
     private static void paintSide(Object book, PoseStack poseStack, MultiBufferSource buffers, boolean left, Object leaf) {
         try {
             int lit = shade.getInt(book);
