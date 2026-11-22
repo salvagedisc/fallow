@@ -254,7 +254,6 @@ vec4 water(vec3 biome, vec3 normal, vec2 lm) {
         slope += clamp(wake.xy * 0.45, -0.45, 0.45);
         foam = wake.z;
 #endif
-        foam = max(foam, rainOnWater(world, t, rain, slope));
         foam = max(foam, fallChurn(around, world, t, slope));
         if (normal.y > 0.5) {
             float energy = clamp(luma(vec3(env.force, env.storm, env.open)) * 1.6, 0.0, 1.0);

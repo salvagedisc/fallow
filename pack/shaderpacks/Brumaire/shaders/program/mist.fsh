@@ -414,16 +414,6 @@ void main() {
             }
         }
 #endif
-#if FALL_SPRAY > 0 && defined VOXELS
-        // Les embruns autour des cascades : un voile blanc de fines gouttes, éclairé par le ciel et le soleil.
-        if (isEyeInWater == 0) {
-            float spray = sprayAlong(dir, len);
-            if (spray > 0.0) color = mix(color, gAmbient * 1.25 + gLightColor * 0.5, spray);
-#if SPRAY_RAINBOW > 0
-            if (spray > 0.0) color += sprayBow(dir) * spray;
-#endif
-        }
-#endif
 #if SOIL_STEAM > 0 && SHADER_RAIN > 0
         // Après l'averse, au soleil, la terre trempée fume : une vapeur blanche, là où le soleil touche le sol.
         if (isEyeInWater == 0) {

@@ -135,11 +135,9 @@
 #define PLANKTON 1 // [0 1]
 #define PLANKTON_STRENGTH 0.10 // [0.04 0.06 0.10 0.15 0.25]
 #define WATER_FALLS 1 // [0 1]
-#define FALL_SPRAY 1 // [0 1]
 #define SHORE_SPRAY 1 // [0 1]
 #define SPRAY_RAINBOW 1 // [0 1]
 #define SHORE_WET 1 // [0 1]
-#define WATER_RAIN_RINGS 1 // [0 1]
 #define AIR_MOTES 1 // [0 1]
 
 // Pluie

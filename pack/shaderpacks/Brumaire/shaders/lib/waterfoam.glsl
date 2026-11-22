@@ -1,6 +1,7 @@
 // Ce qui entoure un point de l'eau, et l'écume qui en naît : la rive et son ressac, la chute qui tombe dans le bassin
-// et le fait bouillonner, les moutons des vagues qui déferlent au large, la pluie qui pique la surface, l'eau qui
+// et le fait bouillonner, les moutons des vagues qui déferlent au large, l'eau qui
 // dévale le long d'une cascade.
+// Les ronds de pluie sur l'eau sont partis le 2026-11-22 : ceux de Particular le font déjà.
 // Demande voxel.glsl, rain.glsl, clouds.glsl et waves.glsl avant lui. Fragments seulement.
 
 #ifdef FSH
@@ -148,23 +149,6 @@ float whitecaps(vec2 p, float t, WaveEnv env, float foldNow) {
     float older = waveFold(waveSum(p, t - 1.5, env, WATER_WAVE_COUNT, 0, big, 1.0 / 16.0));
     float trail = max(smoothstep(edge, edge - 0.22, before) * 0.55, smoothstep(edge, edge - 0.22, older) * 0.28);
     return drive * max(now, trail);
-#else
-    return 0.0;
-#endif
-}
-
-/**
- * La pluie sur l'eau : des ronds qui s'élargissent (pente) et, à l'impact, un point d'écume qui ne dure qu'un instant.
- * rain : la pluie qui tombe ici (0..1).
- */
-float rainOnWater(vec3 world, float t, float rain, inout vec2 slope) {
-#if WATER_RAIN_RINGS > 0
-    if (rain <= 0.01) return 0.0;
-    slope += rippleSlope(world.xz, t) * rain * 0.7;
-    slope += rippleSlope(world.xz * 1.7 + 13.1, t * 1.3) * rain * 0.35;
-    vec2 q = floor(world.xz * 16.0);
-    float drop = foamHash(q + floor(t * 7.0) * vec2(17.0, 29.0));
-    return step(drop, 0.006 * rain);
 #else
     return 0.0;
 #endif
