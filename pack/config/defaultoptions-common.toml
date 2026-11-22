@@ -1,7 +1,10 @@
 # Fallow : packs de ressources activés au premier lancement. Du moins prioritaire
 # au plus prioritaire : les feuilles de Better Leaves, les objets de Team Disco
 # (Fresh Food, Buckets, Ores and Ingots, Flowers and Plants, Music Discs, Paintings),
-# Fresh Animations et ses extensions. Les packs de Team Disco sont faits pour 1.21.4
+# les cultures de Fancy Crops, les échelles de RAY's 3D Ladders, les flammes de
+# Better Flame Particles, l'herbe de Fast Better Grass (au-dessus des packs de blocs,
+# comme son auteur le demande, avec sa compat Regions Unexplored), puis Fresh
+# Animations et ses extensions. Les packs de Team Disco sont faits pour 1.21.4
 # (format 46) : le jeu les dit incompatibles, mais Default Options les sélectionne
 # quand même et le jeu les garde ensuite (incompatibleResourcePacks d'options.txt).
 # Le rendu vient du pack de shaders Brumaire (config/iris.properties).
@@ -20,6 +23,11 @@ defaultResourcePacks = [
 	"file/Fresh Ores and Ingots.zip",
 	"file/Fresh Buckets.zip",
 	"file/Fresh Food.zip",
+	"file/Fancy Crops v1.3.zip",
+	"file/RAYs_3D_Ladders_v2.4.zip",
+	"file/better_flame_particles-v2.2-mc1.14x-1.21x-resourcepack.zip",
+	"file/Fast Better Grass.zip",
+	"file/Fast Better Grass - Regions Unexplored Compat.zip",
 	"file/FreshAnimations_v1.11_1.20+.zip",
 	"file/FA+Details-v2.2.1.zip",
 	"file/FA+Objects-v2.1.2.zip",
