@@ -3899,6 +3899,11 @@ hash = "604b7674b96d10b2c9f03e47a91ec50b448e8193de56f36fca93b5ff0f3132f6"
 metafile = true
 
 [[files]]
+file = "mods/modefite-item-definition-backport.pw.toml"
+hash = "d5e22fe1cacf92f856df16785fd07587ec709b238aca42c91405ff91aa0bed6d"
+metafile = true
+
+[[files]]
 file = "mods/modernfix.pw.toml"
 hash = "ef65836e005bd42a0f40df30a94eba1ad7ee5ed3194b11eafbeadc64edb44252"
 metafile = true
