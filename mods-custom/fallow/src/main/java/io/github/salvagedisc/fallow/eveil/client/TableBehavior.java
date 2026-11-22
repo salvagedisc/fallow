@@ -71,12 +71,19 @@ final class TableBehavior implements StationBehavior {
     /** La partie écrite d'une page en unités, la police d'une unité par pixel : comme chez Hands-On Vanilla, lisible en 1280 x 720. */
     private static final int LARGE = 100;
     private static final int HAUT = 156;
-    private static final float GAUCHE_X = 3.0F;
-    private static final float DROITE_X = 4.0F;
+    /**
+     * Les marges : le papier du livre porte un cadre filé (vers 3 et 5 unités des bords, 2 et 4 du haut) ; ce qui s'écrit reste à
+     * {@link #MARGE} des côtés et entre {@link #HAUT_ECRIT} et {@link #BAS_ECRIT} de haut en bas.
+     */
+    private static final float MARGE = 8.0F;
+    private static final float HAUT_ECRIT = 7.0F;
+    private static final float BAS_ECRIT = 149.0F;
+    private static final float GAUCHE_X = MARGE;
+    private static final float DROITE_X = MARGE;
     private static final float LIGNE = 9.0F;
     private static final float PETIT = 0.72F;
     private static final float PETITE_LIGNE = 7.0F;
-    private static final float PIED = 141.0F;
+    private static final float PIED = 140.0F;
 
     /** Les encres : le texte en brun presque noir, les titres en sépia, les forces en violet d'encre, l'à-côté en brun pâli. */
     private static final int ENCRE = 0x2A2016;
@@ -998,22 +1005,23 @@ final class TableBehavior implements StationBehavior {
             paragraphe(canvas, Component.translatable("eveil.fallow.livre.invite_eclat"), GAUCHE_X, y + 6.0F, PETIT, PALE, 6);
             return;
         }
-        canvas.item(station.level(), objet, GAUCHE_X, 3.0F, 14.0F);
-        List<FormattedCharSequence> nom = font.split(objet.getHoverName().copy().withStyle(Style.EMPTY), (int) ((LARGE - 22.0F) / 1.0F));
-        float y = nom.size() > 1 ? 2.0F : 6.0F;
+        canvas.item(station.level(), objet, GAUCHE_X, HAUT_ECRIT, 12.0F);
+        float nomX = GAUCHE_X + 15.0F;
+        List<FormattedCharSequence> nom = font.split(objet.getHoverName().copy().withStyle(Style.EMPTY), (int) (LARGE - nomX - MARGE));
+        float y = nom.size() > 1 ? HAUT_ECRIT : HAUT_ECRIT + 3.0F;
         for (FormattedCharSequence ligne : nom.subList(0, Math.min(2, nom.size()))) {
-            canvas.text(ligne, 20.0F, y, ENCRE, 1.0F);
+            canvas.text(ligne, nomX, y, ENCRE, 1.0F);
             y += LIGNE;
         }
         EtatEveil etat = objet.get(EveilModule.ETAT.get());
-        y = Math.max(y, 18.0F);
+        y = Math.max(y, HAUT_ECRIT + 15.0F);
         if (etat != null) {
             // Les places en signes, pleins pour les éveils portés, creux pour ceux qui restent : pas de compte.
             StringBuilder signes = new StringBuilder();
             for (int i = 0; i < etat.places(); i++) {
                 signes.append(i < etat.occupees() ? '\u25C6' : '\u25C7').append(' ');
             }
-            canvas.text(Component.literal(signes.toString().trim()).getVisualOrderText(), 20.0F, y - 1.0F, VIOLET, 1.0F);
+            canvas.text(Component.literal(signes.toString().trim()).getVisualOrderText(), nomX, y - 1.0F, VIOLET, 1.0F);
         }
         y += 9.0F;
         filet(canvas, y);
@@ -1101,10 +1109,12 @@ final class TableBehavior implements StationBehavior {
             return;
         }
         ListTag liste = TableEveil.liste(contenu.data(), TableEveil.VOIES);
-        float y = titre(canvas, Component.translatable(liste.size() > 1 ? "eveil.fallow.livre.voies" : "eveil.fallow.livre.voie"), 4.0F);
+        float y = titre(canvas, Component.translatable(liste.size() > 1 ? "eveil.fallow.livre.voies" : "eveil.fallow.livre.voie"), HAUT_ECRIT);
         filet(canvas, y + 1.0F);
         y += 6.0F;
-        float bas = PIED - 6.0F;
+        boolean sec = station != null && sansEncre(station);
+        Component piedTexte = Component.translatable(sec ? "eveil.fallow.livre.sans_encre" : "eveil.fallow.livre.choisir");
+        float bas = PIED + PETITE_LIGNE - lignesDuPied(piedTexte) * PETITE_LIGNE - 4.0F;
         int n = Math.min(2, liste.size());
         // Chaque voie est d'abord mesurée sur ses mots lus : sa bande la couvre toute, et rien ne bouge pendant qu'on la déchiffre.
         List<List<Ligne>> textes = new ArrayList<>();
@@ -1135,8 +1145,7 @@ final class TableBehavior implements StationBehavior {
                     tenu);
             haut += hauteur;
         }
-        boolean sec = station != null && sansEncre(station);
-        pied(canvas, Component.translatable(sec ? "eveil.fallow.livre.sans_encre" : "eveil.fallow.livre.choisir"), sec ? ROUGE : PALE);
+        pied(canvas, piedTexte, sec ? ROUGE : PALE);
     }
 
     /** La page de droite avec un éclat : la bête, son récit, la force qu'il donnerait, et ce que la table en dit. */
@@ -1150,8 +1159,8 @@ final class TableBehavior implements StationBehavior {
         boolean vive = courante && pageSurvolee;
         boolean coule = courante && coulante >= 0;
         float revele = contenu.revele()[0];
-        canvas.item(station.level(), stack, (LARGE - 16.0F) / 2.0F, 2.0F, 16.0F);
-        float y = 20.0F;
+        canvas.item(station.level(), stack, (LARGE - 14.0F) / 2.0F, HAUT_ECRIT, 14.0F);
+        float y = HAUT_ECRIT + 16.0F;
         for (FormattedCharSequence ligne : Minecraft.getInstance().font.split(stack.getHoverName().copy().withStyle(Style.EMPTY),
                 (int) (LARGE - 2.0F * DROITE_X))) {
             canvas.text(ligne, (LARGE - Minecraft.getInstance().font.width(ligne)) / 2.0F, y, ENCRE, 1.0F);
@@ -1195,8 +1204,8 @@ final class TableBehavior implements StationBehavior {
     private static float titre(OpenBook.Canvas canvas, Component texte, float y) {
         Font font = Minecraft.getInstance().font;
         float large = font.width(texte);
-        float place = LARGE - 6.0F;
-        if (large <= place / 0.82F) {
+        float place = LARGE - 2.0F * MARGE;
+        if (large <= place / 0.75F) {
             float taille = Math.min(1.0F, place / large);
             canvas.text(texte.getVisualOrderText(), (LARGE - large * taille) / 2.0F, y, taille, SEPIA, 1.0F);
             return y + LIGNE;
@@ -1236,7 +1245,7 @@ final class TableBehavior implements StationBehavior {
             }
         }
         if (tenu > 0.0F && sousLeNom >= 0.0F) {
-            float large = LARGE - DROITE_X - 6.0F;
+            float large = LARGE - DROITE_X - MARGE;
             canvas.rect(DROITE_X, sousLeNom, large * tenu, 1.0F, OpenBook.MARK_LIFT * 1.2F, 0xE0000000 | VIOLET);
         }
         return y;
@@ -1250,9 +1259,13 @@ final class TableBehavior implements StationBehavior {
         return r << 16 | g << 8 | b;
     }
 
+    private static int lignesDuPied(Component texte) {
+        return Minecraft.getInstance().font.split(texte, (int) ((LARGE - DROITE_X - MARGE) / PETIT)).size();
+    }
+
     /** La phrase du pied de la page de droite, entière : elle monte d'autant de lignes qu'il lui en faut. */
     private static void pied(OpenBook.Canvas canvas, Component texte, int encre) {
-        List<FormattedCharSequence> lignes = Minecraft.getInstance().font.split(texte, (int) ((LARGE - DROITE_X - 3.0F) / PETIT));
+        List<FormattedCharSequence> lignes = Minecraft.getInstance().font.split(texte, (int) ((LARGE - DROITE_X - MARGE) / PETIT));
         float y = PIED + PETITE_LIGNE - lignes.size() * PETITE_LIGNE;
         for (FormattedCharSequence ligne : lignes) {
             canvas.text(ligne, DROITE_X, y, PETIT, encre, 1.0F);
@@ -1281,14 +1294,14 @@ final class TableBehavior implements StationBehavior {
         if (voie.contains(TableEveil.NE_DE)) {
             Component ne = Component.translatable("eveil.fallow.livre.ne_de",
                     Component.translatable(voie.getString(TableEveil.NE_DE), quantite(voie.getDouble(TableEveil.FOIS))));
-            ajouter(texte, ne, revele, PETIT, SEPIA, Style.EMPTY.withItalic(true), 2, 2.0F);
+            ajouter(texte, ne, revele, PETIT, SEPIA, Style.EMPTY.withItalic(true), 3, 2.0F);
         }
         return texte;
     }
 
     private static void ajouter(List<Ligne> texte, Component mots, float revele, float taille, int encre, Style style, int auPlus,
             float avant) {
-        List<FormattedCharSequence> lignes = lignes(mots, revele, (LARGE - DROITE_X - 3.0F) / taille, style);
+        List<FormattedCharSequence> lignes = lignes(mots, revele, (LARGE - DROITE_X - MARGE) / taille, style);
         for (int i = 0; i < Math.min(auPlus, lignes.size()); i++) {
             texte.add(new Ligne(lignes.get(i), taille, encre, i == 0 ? avant : 0.0F));
         }
@@ -1329,7 +1342,7 @@ final class TableBehavior implements StationBehavior {
 
     private static float paragraphe(OpenBook.Canvas canvas, Component texte, float x, float y, float taille, int encre, int auPlus) {
         Font font = Minecraft.getInstance().font;
-        List<FormattedCharSequence> lignes = font.split(texte, (int) ((LARGE - x - 3.0F) / taille));
+        List<FormattedCharSequence> lignes = font.split(texte, (int) ((LARGE - x - MARGE) / taille));
         float pas = taille < 1.0F ? PETITE_LIGNE : LIGNE;
         for (FormattedCharSequence ligne : lignes.subList(0, Math.min(auPlus, lignes.size()))) {
             canvas.text(ligne, x, y, taille, encre, 1.0F);
@@ -1363,8 +1376,8 @@ final class TableBehavior implements StationBehavior {
             Font font = Minecraft.getInstance().font;
             EnchantmentNames.getInstance().initSeed(p * 31L + 7L);
             List<FormattedCharSequence> faites = new ArrayList<>();
-            for (int i = 0; i < 14; i++) {
-                FormattedText mots = EnchantmentNames.getInstance().getRandomName(font, LARGE - 8);
+            for (int i = 0; i < 13; i++) {
+                FormattedText mots = EnchantmentNames.getInstance().getRandomName(font, (int) (LARGE - 2.0F * MARGE));
                 faites.add(net.minecraft.locale.Language.getInstance().getVisualOrder(mots));
             }
             return faites;
@@ -1372,9 +1385,9 @@ final class TableBehavior implements StationBehavior {
         if (runes.size() > 64) {
             runes.clear();
         }
-        float y = 6.0F;
+        float y = HAUT_ECRIT;
         for (FormattedCharSequence ligne : lignes) {
-            canvas.text(ligne, 4.0F, y, RUNES, 0.45F);
+            canvas.text(ligne, MARGE, y, RUNES, 0.45F);
             y += 10.5F;
         }
     }

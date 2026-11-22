@@ -148,6 +148,8 @@ Test commands (operators): `/fallow eveil voir` shows the held item's places, st
 
 **Checked** on the test bench on 2026-11-22 (0.73.0), with Hands-On Vanilla 1.2.2 and the pack's `handson_vanilla.properties` in the development run: without the mixin a right-click with a ready pickaxe opened vanilla's enchanting window (reproduced); with the window guard alone it closes at once; with both, our station opens and an awakening goes through.
 
+**Layout** (0.74.0): the paper carries a filleted frame drawn by the book (about 3 and 5 units from its edges); everything written stays at least 8 units from the sides and between 7 and 149 units from the top, the right page's paths end above its foot sentence whatever its length, and the foot sentences are short (« Lisez une voie, puis tenez le clic. », « Lisez la force, puis tenez le clic. »).
+
 ## In-game tests
 
 | # | Test | Expected |
