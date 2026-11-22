@@ -4973,7 +4973,7 @@ hash = "3afa37d73608b3d60e30a3aa30eb19f27c16cda2bf76f5048769a36978b5b336"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/program/solid.fsh"
-hash = "f2846bafa9afe692eeb03a3ede1ac4333933f7202e98ad89e7beea5bb74feb58"
+hash = "fef884710c4d30d2fcd308beaf9ab232935b42f6cb8f550210e80428d05fb928"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/program/solid.vsh"

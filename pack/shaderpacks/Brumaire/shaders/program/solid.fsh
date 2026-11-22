@@ -214,6 +214,14 @@ void main() {
 #endif
 #endif
     ao = vTint.a * pbrAo;
+#elif defined PROGRAM_PARTICLES
+    // Les feuilles qui tombent de Particular portent la lumière du jeu cuite dans leur couleur : la nuit ou sous une
+    // couronne, leur teinte verte tombe presque au noir et la lumière du pack s'y ajoute encore. Une teinte verte trop
+    // sombre retrouve sa clarté de feuille ; la lumière vient ensuite du pack, comme pour tout le reste.
+    vec3 tint = vTint.rgb;
+    float top = max(tint.r, max(tint.g, tint.b));
+    if (tint.g >= top - 1e-4 && tint.g > tint.b + 0.01 && top < 0.7) tint *= 0.7 / max(top, 0.02);
+    vec4 color = texture(gtexture, vUv) * vec4(tint, vTint.a);
 #else
     vec4 color = texture(gtexture, vUv) * vTint;
 #endif
@@ -619,7 +627,9 @@ void main() {
     // lumière complète : elles ne descendent jamais sous ce que la lumière du jeu leur donne, comme sans pack. Au
     // soleil, une feuille qui tombe est fine et le laisse passer : aussi claire que celles de l'arbre, pas une tache.
     vec3 plain = hemisphereLight(vec3(0.0, 1.0, 0.0), max(lm.y, 0.6)) * 1.3
-        + gLightColor * max(gLightDir.y, 0.0) * 0.75 * smoothstep(0.70, 0.90, lm.y);
+        + gLightColor * max(gLightDir.y, 0.0) * 0.75 * smoothstep(0.70, 0.90, lm.y)
+        // Près d'une torche, la feuille qui passe devant l'œil en prend la lueur, comme ce qui l'entoure.
+        + lightTint(0) * lm.x * lm.x * 0.8;
     lit = max(lit, albedo * plain);
 #endif
 #if (defined PROGRAM_ENTITIES || defined PROGRAM_HAND) && MATERIALS > 0
