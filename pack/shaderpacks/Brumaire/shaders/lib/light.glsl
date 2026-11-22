@@ -174,7 +174,10 @@ vec3 shade(vec3 albedo, vec3 normal, vec2 lm, float ao, vec3 pos, float leaf, ve
     // bleue pour une âme, rouge pour la lave…
     float blockLm = lm.x;
     vec3 tint = blockLightTint(pos, normal, blockLm);
-    float glow = blockLm * blockLm * (0.30 + 2.3 * blockLm * blockLm * blockLm);
+    // Une flamme éclaire fort tout près et peu au loin : à mi-portée (niveau 8) moitié moins qu'avant, comme les grottes
+    // sombres de Recrafted, où une lanterne ne remplit pas toute la salle.
+    float bl2 = blockLm * blockLm;
+    float glow = bl2 * (0.16 + 2.45 * bl2 * bl2);
     gBlockSide = 0.0;
 #if BLOCK_LIGHT_SHAPE > 0
     if (blockLm > 0.02) {
@@ -199,7 +202,8 @@ vec3 shade(vec3 albedo, vec3 normal, vec2 lm, float ao, vec3 pos, float leaf, ve
 #endif
     light += tint * glow * mix(occl, 1.0, blockLm * blockLm);
     gBlockReach = tint * glow;
-    light += vec3(0.016, 0.018, 0.022) * occl;
+    // Le plancher de lumière : un rien sous terre, pour que le noir d'une grotte reste noir.
+    light += vec3(0.016, 0.018, 0.022) * mix(0.45, 1.0, smoothstep(0.0, 0.3, lm.y)) * occl;
     light += vec3(0.30, 0.32, 0.34) * nightVision;
     light *= 1.0 - 0.7 * darknessFactor;
     // Part de la lumière qui vient du ciel et des blocs : c'est elle que l'occlusion d'écran assombrit.

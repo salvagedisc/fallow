@@ -354,8 +354,10 @@ void main() {
     // Et à ce qu'il regarde : une scène sombre s'ouvre, une scène éblouissante se ferme, à moitié seulement, comme un
     // œil et pas comme une caméra de surveillance, et en prenant son temps (lens.csh).
     float seen = max(lens.x, 1e-5) * exposure;
-    // La nuit dehors, il ne rouvre pas plus grand : le noir reste noir.
-    float openMax = mix(1.0, 1.25, max(smoothstep(-0.18, 0.12, sunUp), 1.0 - smoothstep(0.0, 0.5, float(eyeBrightnessSmooth.y) / 240.0)));
+    // La nuit dehors, il ne rouvre pas plus grand : le noir reste noir. Sous terre non plus : une grotte reste sombre
+    // autour de la lanterne, comme chez Recrafted. Une maison de jour, à demi ouverte sur le ciel, l'ouvre un peu.
+    float skySeen = float(eyeBrightnessSmooth.y) / 240.0;
+    float openMax = mix(1.0, 1.25, smoothstep(-0.18, 0.12, sunUp) * smoothstep(0.05, 0.40, skySeen));
     exposure *= clamp(pow(0.10 / seen, 0.3 * EXPOSURE_AUTO_AMOUNT), 0.75, openMax);
 #endif
 #if RAIN_GLOOM > 0
@@ -412,10 +414,11 @@ void main() {
         // brume, ni la pierre, ni l'eau.
         float mx = max(color.r, max(color.g, color.b));
         float chroma = (mx - min(color.r, min(color.g, color.b))) / max(mx, 1e-4);
-        // Les écarts sont lus par rapport au plus fort canal, pour que l'herbe à l'ombre des arbres compte aussi.
+        // Les écarts sont lus par rapport au plus fort canal, pour que l'herbe à l'ombre des arbres compte aussi. Une
+        // herbe déjà très jaune (l'herbe sèche de l'hiver) n'est presque plus réchauffée : elle tournerait à la moutarde.
         float leaf = smoothstep(0.02, 0.17, (color.g - color.b) / max(mx, 1e-4))
                    * smoothstep(-0.40, -0.05, (color.g - color.r) / max(mx, 1e-4))
-                   * smoothstep(0.003, 0.03, l) * smoothstep(0.08, 0.20, chroma) * step(texture(depthtex0, vUv).r, 0.99999);
+                   * smoothstep(0.003, 0.03, l) * smoothstep(0.08, 0.20, chroma) * (1.0 - 0.7 * smoothstep(0.45, 0.80, chroma)) * step(texture(depthtex0, vUv).r, 0.99999);
         vec3 warm = color * vec3(1.03, 1.0, 0.86);
         warm *= l / max(dot(warm, LUMA), 1e-5);
         warm = mix(vec3(l), warm, 1.0 + 0.45 * (1.0 - smoothstep(0.15, 0.50, chroma)));
@@ -427,7 +430,8 @@ void main() {
     color = (color - 0.5) * CONTRAST + 0.5;
     // Une image mate : les noirs à peine levés, les blancs à peine retenus. La nuit, presque pas : 0,016 montait le
     // sol de nuit à 39 sur 255 et grisait tout, Recrafted le laisse vers 20.
-    float lift = mix(0.004, 0.011, smoothstep(-0.18, 0.12, sunUp));
+    // Sous terre aussi : le noir d'une grotte reste noir (vers 10 sur 255 chez Recrafted).
+    float lift = mix(0.004, 0.011, smoothstep(-0.18, 0.12, sunUp) * smoothstep(0.05, 0.40, float(eyeBrightnessSmooth.y) / 240.0));
     color = color * (1.0 - 2.5 * lift) + lift;
     color = pow(max(color, 0.0), vec3(1.0 / 2.2));
 #if NIGHT_GRAIN > 0

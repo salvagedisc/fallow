@@ -39,7 +39,7 @@ float fogMarch(vec3 dir, float reach, float sunAmount, out vec3 light) {
     float open = smoothstep(0.0, 0.55, float(eyeBrightnessSmooth.y) / 240.0);
     float dens0 = mistNearDensity() * (1.0 - MIST_LIFT * brumaireMist.x);
     // Sous terre, une poussière que seules les torches font voir.
-    float cave = (1.0 - open) * 0.0035 * CAVE_HAZE;
+    float cave = (1.0 - open) * 0.0022 * CAVE_HAZE;
     float mu = dot(dir, gLightDir);
     float phaseMist = 0.75 * mistPhase(mu, 0.5) + 0.25 * mistPhase(mu, -0.3);
     float phaseAir = 0.7 * mistPhase(mu, 0.75) + 0.3 * mistPhase(mu, 0.2);
