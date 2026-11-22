@@ -1,7 +1,7 @@
 # 0048 — Ground debris: rocks, fallen wood and pine cones
 
 - **Date**: 2026-11-21
-- **Status**: kept (the team's choice of 2026-11-21); `fallow` 0.61.0, checked on the full pack's dedicated server, not played
+- **Status**: superseded by [0052](0052-gestures-not-debris.md) the same day (too present on the ground); was `fallow` 0.61.0, removed in 0.67.0
 
 ## Context
 The team looked at the Bogwood modpack and kept the idea of This Rocks!: little rocks, sticks and pine cones on the ground that make the world feel natural. This Rocks! is Fabric only (no NeoForge 1.21.1 build on 2026-11-21). Twigs, already in the pack, lays pebbles and twigs, but the same grey pebble and the same twig everywhere, whatever the stone or the tree.

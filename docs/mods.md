@@ -118,7 +118,7 @@ Side: C = client, S = server, CS = both. Versions checked on Modrinth for NeoFor
 | Supplementaries | `supplementaries` | ✅ | CS | The essentials ([0006](decisions/0006-supplementaries.md)); its sconces are enabled again since 2026-11-13 (they were off while No Man's Land had its own) |
 | Amendments | `amendments` | ✅ | CS | 3D lanterns, signs, cauldrons |
 | Handcrafted | `handcrafted` | ✅ | CS | Furniture |
-| Twigs | `twigs` | ✅ | CS | Small decor; rhyolite generation off, tables, Nether blocks and duplicates removed; cobblestone bricks back since 2026-11-13 ([pack sort](plan/tri-du-pack.md)); its pebbles and twigs no longer generate since 2026-11-21, replaced by the `fallow` mod's ground debris ([0048](decisions/0048-ground-debris.md)); its seashells stay |
+| Twigs | `twigs` | ✅ | CS | Small decor; rhyolite generation off, tables, Nether blocks and duplicates removed; cobblestone bricks back since 2026-11-13 ([pack sort](plan/tri-du-pack.md)); its pebbles and twigs no longer generate since 2026-11-21, sticks and rocks now come from gestures, shaking leaves and digging ([0052](decisions/0052-gestures-not-debris.md)); its seashells stay |
 | Every Compat | `every-compat` | ✅ | CS | Furniture and decor in every wood, including those of Regions Unexplored |
 | HT's TreeChop | `treechop` | ✅ | CS | Chop a tree block by block, the trunk falls last |
 
@@ -176,6 +176,7 @@ Side: C = client, S = server, CS = both. Versions checked on Modrinth for NeoFor
 | Chat Heads | `chat-heads` | ✅ | C | Player head in the chat |
 | Lamb Lanterns | `lamb-lanterns` | ✅ | CS | A lantern carried at the hip (Curios slot) gives light as if held in hand |
 | Scholar | `scholar` | ✅ (1.2.10, added 2026-11-21, not seen in game) | CS | Writable and written books on two pages, with formatting without § codes, undo, bookmarks, import and export to a text file; books dyed like leather; a written book's title on a lectern or in a chiseled bookshelf on hover; zombies, husks and skeletons sometimes carry a plain book and read it. A book on a lectern stays Hands-On Vanilla's (read on the lectern); Scholar's screens are the ones opened from the hand. Same author as Exposure; French by the pack |
+| Passable Foliage | `passable-foliage` | ✅ (9.3.2+neoforge, added 2026-11-21, not seen in game) | CS | Leaves are walked through, slowing a little, and a fall into a canopy hurts less; mobs path through them too. Its Leaf Walker enchantment (standing on and climbing leaves) is off: `modules.enchantment: false` in `pack/config/passablefoliage-common.yaml`, which also removes its book recipe. Needs Kiwi, already in the pack. French by the pack |
 
 ## Rules and scripts
 

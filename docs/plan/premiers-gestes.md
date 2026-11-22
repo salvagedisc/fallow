@@ -6,8 +6,8 @@ Status: written on 2026-10-29. Checked on a test server on 2026-10-29 (NeoForge 
 
 ## The chain, for a player
 
-1. **Bare hands.** Pick up gravel (flint), since 2026-11-13 the only source of flint on the ground (the No Man's Land pebble, one chance in two of flint, left with the mod), leaves (a stick 8% of the time) and, since 2026-11-21, the [ground debris](#ground-debris): rocks of the ground's stone in the open, fallen wood of the tree's own wood and pine cones under the trees, all picked up empty-handed with a right-click. A trunk or a rock does not give way: the action bar says « Il vous faut une hache » / « Il vous faut une pioche » ("you need an axe / a pickaxe"; « tu » until 2026-11-21, [interactions](interactions.md)).
-2. **Knapped stone.** Flint used on bare `minecraft:stone` gives a knappable rock (Overgeared, 30% per strike, the flint breaks 15% of the time). A Twigs pebble or a ground rock (not a gravel chip or an ice chip) also turns into a knappable rock in the inventory grid. Right-click with the rock opens Overgeared's knapping grid: axe, pickaxe, shovel, hoe heads, sword blade, hammer head. Head + stick in the 2 × 2 grid = the stone tool (Overgeared's own recipes).
+1. **Bare hands.** Pick up gravel (flint), since 2026-11-13 the only source of flint on the ground (the No Man's Land pebble, one chance in two of flint, left with the mod), leaves (a stick 8% of the time when broken) and, since 2026-11-21, [gestures](#gestures-nothing-on-the-ground): leaves shaken empty-handed with a right-click now and then drop a stick, dirt and gravel dug now and then give a knappable rock. A trunk or a rock does not give way: the action bar says « Il vous faut une hache » / « Il vous faut une pioche » ("you need an axe / a pickaxe"; « tu » until 2026-11-21, [interactions](interactions.md)).
+2. **Knapped stone.** Flint used on bare `minecraft:stone` gives a knappable rock (Overgeared, 30% per strike, the flint breaks 15% of the time). Digging dirt (5%) or gravel (12%) also turns one up, and a Twigs pebble turns into one in the inventory grid. Right-click with the rock opens Overgeared's knapping grid: axe, pickaxe, shovel, hoe heads, sword blade, hammer head. Head + stick in the 2 × 2 grid = the stone tool (Overgeared's own recipes).
 3. **Wood.** The stone axe fells the tree block by block (TreeChop); each chop costs durability. A log and an axe in the grid give **2 planks**; the axe stays in the grid and loses one point. Create's mechanical saw later gives 6 planks per log.
 4. **Fire.** A campfire is three sticks, three logs and **a flint** instead of coal: fire on the first day, before the furnace. It cooks and purifies water (Thirst Was Reclaimed).
 5. **Furnace, copper, iron, steel.** All Overgeared, unchanged: furnace from cobblestone; copper hammer (2 copper ingots, 2 sticks); crouch + right-click on stone with a hammer = stone smithing anvil; clay casts fired in the furnace; blast furnace, heated ingots forged on the stone anvil; smithing anvil and alloy furnace for steel.
@@ -28,10 +28,9 @@ The team chose on 2026-10-29 that crafted wooden blocks need an axe too (planks,
 | Log → planks | 4 by hand | `PREMIERS_GESTES_PLANCHES_A_LA_HACHE` (2) with any axe in the grid, damaged by 1; every single-log shapeless planks recipe is rewritten (vanilla and the other mods' woods, Regions Unexplored's included), id `fallow:premiers_gestes/planches/<original id>`; the log reports how many |
 | Campfire | Sticks + logs + coal | Sticks + logs + flint |
 | Twigs pebble | 4 → cobblestone | Kept, plus 1 → `overgeared:knappable_rock` (`fallow:premiers_gestes/galet_a_tailler`); pebbles no longer generate since 2026-11-21 |
-| Ground rock (`#fallow:cailloux_a_tailler`) | (new) | 1 → `overgeared:knappable_rock` (`fallow:premiers_gestes/caillou_a_tailler`) |
-| Fallen wood (`#fallow:bois_mort`) | (new) | 1 → 2 sticks (recipe of the `fallow` mod); burns 150 ticks |
-| Gravel chip | (new) | 4 → 1 gravel (recipe of the `fallow` mod) |
-| Pine cone | (new) | Burns 300 ticks (one and a half items), composts at 30% |
+| Dirt, coarse dirt, rooted dirt, grass, podzol dug | Their block | Plus `overgeared:knappable_rock` at `PREMIERS_GESTES_PIERRE_TERRE` (5%) |
+| Gravel dug | Gravel or flint | Plus `overgeared:knappable_rock` at `PREMIERS_GESTES_PIERRE_GRAVIER` (12%) |
+| Leaves shaken empty-handed | (nothing) | A stick 30% of the time, once a day per leaf block (`glanage` module of the `fallow` mod) |
 | Leaves broken | Stick 2% | Plus an extra stick at `PREMIERS_GESTES_BATONS_FEUILLES` (6%) |
 
 Unchanged on purpose: Overgeared's stone, copper, iron and steel tools; the vigil fire and clearing lantern recipes (reviewed with the mist settings).
@@ -46,15 +45,14 @@ New chapter « Premiers gestes » (order 1, after Arriver; the other chapters mo
 - [No Tree Punching Remastered](https://modrinth.com/mod/no-tree-punching-remastered) (GPL-3.0): flint and copper tools, rocks, ceramic vessel. Copper tools duplicate Overgeared's, the vessel duplicates the bag.
 - [Primity](https://modrinth.com/mod/primity) (own licence): flint tools, cast iron, harder blocks. Cast iron duplicates Overgeared's steel chain.
 
-## Ground debris
+## Gestures, nothing on the ground
 
-Since 2026-11-21 ([0048](../decisions/0048-ground-debris.md)), the `debris` module of the `fallow` mod ([mod-fallow](mod-fallow.md#debris-module)) lays what a player picks up on the first day, and the ground says where it lies:
+Since 2026-11-21 ([0052](../decisions/0052-gestures-not-debris.md), replacing [0048](../decisions/0048-ground-debris.md)), nothing is laid on the ground for the first day: sticks and rocks come from gestures.
 
-- **Under a tree**, fallen wood of that tree's wood, in three sizes (a twig, two, a branch), and under spruces and the conifers of Regions Unexplored (pine, larch, redwood, cypress), pine cones. The tree is read from the lowest leaves above the spot: tags `fallow:debris/sous_<wood>` (`pack/kubejs/data/fallow/tags/block/debris/`) map each leaf of the pack, Regions Unexplored's included, to the nearest of the eight vanilla woods.
-- **In the open**, rocks of the ground's stone in four sizes: granite, diorite, andesite, sandstone on sand, red sandstone on red sand, gravel chips on gravel, ice chips on ice, plain rocks on stone and, rarely, on grass and dirt.
-- **Picked up empty-handed** (right-click, the gesture « reprendre » of [interactions](interactions.md)); a click with something in hand keeps its use. They break at once, let players walk through, and need solid ground below.
+- **Shaking leaves**: right-click leaves empty-handed or with a stick in hand (the « reprendre » gesture of [interactions](interactions.md); the first stick picked up lands in the hand, so it counts as empty). They rustle and shed a few leaves; one time in three or so, a stick falls towards the player. A leaf block gives at most one try a day, so a player walks round the tree rather than clicking one spot. Code: the `glanage` module of the `fallow` mod ([mod-fallow](mod-fallow.md#glanage-module)). Broken leaves still drop a stick now and then (6 % on top of vanilla's 2 %).
+- **Digging**: dirt, coarse dirt, rooted dirt, grass and podzol give a knappable rock 5 % of the time, gravel 12 % (on top of its flint). Data: `LootJS.modifiers` in `pack/kubejs/server_scripts/premiers_gestes.js`.
 
-Twigs' pebbles and twigs, the same everywhere, no longer generate (`pack/kubejs/data/twigs/neoforge/biome_modifier/add_pebbles.json` and `add_twigs.json` set to `neoforge:none`); its seashells stay on beaches. How many and where: `pack/kubejs/data/fallow/worldgen/configured_feature/debris_au_sol.json` (rules in order, the first whose ground and cover match wins; a rule that matches but whose chance fails leaves the spot empty) and its placed feature (4 starts per chunk, 3 to 5 tries each within 6 blocks), added to `#minecraft:is_overworld` in `top_layer_modification`, the last step, so that the trees of the chunk are already there (ground covered by snow gets none).
+Twigs' pebbles and twigs no longer generate (`pack/kubejs/data/twigs/neoforge/biome_modifier/add_pebbles.json` and `add_twigs.json` set to `neoforge:none`); its seashells stay on beaches, and a Twigs pebble a player places still knaps into a rock.
 
 ## In-game tests
 
@@ -73,7 +71,7 @@ Twigs' pebbles and twigs, the same everywhere, no longer generate (`pack/kubejs/
 | G10 | Questlog | « Premiers gestes » after Arriver; each quest appears after the previous one and completes |
 | G11 | Time to the first furnace | Aim for 20 to 30 minutes |
 | G12 | Create deployer holding nothing in front of a log | Not blocked by the rule (fake player) |
-| G13 | Walk a new world through a forest, a taiga, a plain and a stony shore | Fallen wood of the right wood under oaks, birches, spruces; pine cones under spruces and pines; rocks of the ground's stone in the open; no Twigs pebble or twig; not so many that the ground looks littered |
-| G14 | Right-click a rock, fallen wood and a pine cone empty-handed, then with a block in hand | Empty-handed: picked up with a soft pop; with a block: the block is placed next to it |
-| G15 | Fallen wood in the grid; a granite rock in the grid; 4 gravel chips; a pine cone in a furnace | 2 sticks; a knappable rock; 1 gravel; it burns |
-| G16 | Break the block under a rock; walk through rocks and wood | The rock pops off; no collision, no stumble |
+| G13 | Walk a new world through a forest, a taiga, a plain and a stony shore | Nothing lies on the ground: no Twigs pebble or twig, no rock or fallen wood |
+| G14 | Right-click leaves empty-handed, about ten different blocks, keeping the sticks in hand; then the same block again; then with a block in hand | A rustle and a few falling leaves each time; about a third give a stick that falls towards you; the same block gives nothing more that day; with a block in hand, it is placed |
+| G15 | Dig about twenty dirt or grass blocks, then twenty gravel blocks, by hand | One knappable rock or so in the dirt, two or three in the gravel, besides the flint |
+| G16 | Walk through a forest (Passable Foliage) | Leaves let you through, slowed a little; you cannot stand on them or climb them; a fall into a canopy hurts less |

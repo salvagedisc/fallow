@@ -51,10 +51,11 @@ One record per settled decision: the context, the options compared, the choice a
 | [0045](0045-awakening.md) | Awakening: enchanting as a deed | An item awakens from its own deeds, great beasts leave shards, nothing is found enchanted; Immersive Enchanting removed (replaces 0008) |
 | [0046](0046-wind-on-ships.md) | Wind on ships, and a headwind at the edge | The pack's wind pushes Sable ships; at the disc's edge a rising headwind pushes players, mounts, boats and ships back (refines 0022) |
 | [0047](0047-small-boats.md) | Small boats | Fish 'N' Ships (canoe, sailboat, rafts, fishing boat) and three mods that improve boat handling; big ships stay Sable's |
-| [0048](0048-ground-debris.md) | Ground debris | House rocks, fallen wood and pine cones that follow the ground and the tree above, after This Rocks!; Twigs' pebbles and twigs no longer generate |
+| [0048](0048-ground-debris.md) | Ground debris | House rocks, fallen wood and pine cones that follow the ground and the tree above, after This Rocks!; Twigs' pebbles and twigs no longer generate (superseded by 0052) |
 | [0049](0049-weather-on-ships.md) | Weather on ships | Storm gusts jolt and heel Sable ships, real snow settles on their decks and weighs them down, Fish 'N' Ships' sail follows the pack's wind |
 | [0050](0050-rope-ferry.md) | The rope ferry | Two posts, a rope and a pulley: a raft becomes a Sable body that glides along the rope, carried over by the current |
 | [0051](0051-big-catch-tows.md) | A big catch tows the boat | During Starcatcher's fight a heavy fish takes a light boat or Sable raft along; a heavy hull holds |
+| [0052](0052-gestures-not-debris.md) | Gestures, not ground debris | Nothing laid on the ground: sticks from shaking leaves, rocks from digging; the `debris` module removed; Passable Foliage without its climbing enchantment (replaces 0048) |
 
 ## Template
 

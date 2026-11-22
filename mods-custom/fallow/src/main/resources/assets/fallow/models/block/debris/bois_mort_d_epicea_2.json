@@ -1,7 +1,0 @@
-{
-  "parent": "fallow:block/debris/base_bois_mort_2",
-  "textures": {
-    "0": "minecraft:block/spruce_log",
-    "particle": "minecraft:block/spruce_log"
-  }
-}

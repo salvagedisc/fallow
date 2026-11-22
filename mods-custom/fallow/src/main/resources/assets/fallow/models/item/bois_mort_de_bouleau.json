@@ -1,7 +1,0 @@
-{
-  "parent": "fallow:item/debris/bois_mort",
-  "textures": {
-    "0": "minecraft:block/birch_log",
-    "particle": "minecraft:block/birch_log"
-  }
-}

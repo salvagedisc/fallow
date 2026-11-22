@@ -2,7 +2,7 @@
   "chapter": "questlog:fallow_premiers_gestes",
   "sort_order": 1,
   "title": "Le silex",
-  "description": "Le gravier creusé à la main donne parfois un silex.\n\nLe bois mort tombé sous les arbres donne deux bâtons, une feuille en lâche parfois un.",
+  "description": "Le gravier creusé à la main donne parfois un silex.\n\nLes feuilles secouées main vide, d’un clic droit, lâchent parfois un bâton ; cassées aussi.",
   "icon": {
     "item": "minecraft:flint"
   },

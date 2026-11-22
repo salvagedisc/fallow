@@ -1,0 +1,6 @@
+# Fallow: leaves are walked through, never climbed or stood on. The enchantment
+# module (Leaf Walker, its book recipe) is off. Kiwi fills in the other defaults.
+---
+modules:
+  enchantment: false
+alwaysLeafWalking: false

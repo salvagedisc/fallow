@@ -2,7 +2,7 @@
   "chapter": "questlog:fallow_premiers_gestes",
   "sort_order": 2,
   "title": "La pierre à tailler",
-  "description": "Frappez une roche nue (de la pierre, pas du pavé) avec le silex, clic droit : un éclat s’en détache parfois, une pierre à tailler. Le silex finit par casser.\n\nUn caillou ramassé sur le sol se change aussi en pierre à tailler, dans la grille de l’inventaire (pas le gravillon ni l’éclat de glace).",
+  "description": "Frappez une roche nue (de la pierre, pas du pavé) avec le silex, clic droit : un éclat s’en détache parfois, une pierre à tailler. Le silex finit par casser.\n\nLa terre et le gravier creusés en donnent aussi une, de temps en temps.",
   "icon": {
     "item": "overgeared:knappable_rock"
   },

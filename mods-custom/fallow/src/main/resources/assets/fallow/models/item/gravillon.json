@@ -1,7 +1,0 @@
-{
-  "parent": "fallow:item/debris/caillou",
-  "textures": {
-    "0": "minecraft:block/gravel",
-    "particle": "minecraft:block/gravel"
-  }
-}

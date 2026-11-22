@@ -1,7 +1,0 @@
-{
-  "parent": "fallow:block/debris/base_caillou_3",
-  "textures": {
-    "0": "minecraft:block/sandstone",
-    "particle": "minecraft:block/sandstone"
-  }
-}
