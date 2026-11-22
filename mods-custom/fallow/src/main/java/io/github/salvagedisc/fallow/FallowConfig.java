@@ -431,7 +431,7 @@ public final class FallowConfig {
         TANNERIE_DRYING_POINTS = common
                 .comment("Points de séchage pour qu'un cuir soit sec. Le séchoir en gagne toutes les 20 secondes : 2 au soleil,",
                         "1 à l'ombre ou la nuit, 2 de plus près d'un feu, 1 de moins par temps de neige ; la pluie le mouille (−1).",
-                        "Avec 15 : 2 min 30 au soleil, 5 minutes sous un toit, 1 min 40 sous un toit près d'un feu.")
+                        "Avec 15 : 2 min 40 au soleil, 5 minutes sous un toit, 1 min 40 sous un toit près d'un feu.")
                 .defineInRange("dryingPoints", 15, 1, 15);
         TANNERIE_BARK_CHANCE = common
                 .comment("Chance qu'une bûche écorcée à la hache donne un morceau d'écorce (celle de Farmer's Delight).")
@@ -449,11 +449,13 @@ public final class FallowConfig {
                 .define("tannerie", true);
         POSTES_FORGE = common
                 .comment("Les enclumes de forge d'Overgeared s'ouvrent en postes : les pièces, le marteau et le plan se posent sur",
-                        "l'enclume, le livre de forge à côté ; on frappe toujours accroupi, le marteau en main. Faux : la fenêtre d'Overgeared.")
+                        "l'enclume, le livre de forge à côté ; on frappe toujours accroupi, le marteau en main. Faux : la fenêtre d'Overgeared.",
+                        "Lu par le jeu de chaque joueur (son propre fichier), pas imposé par le serveur.")
                 .define("forge", true);
         POSTES_FOYER = common
                 .comment("Le foyer de Cold Sweat s'ouvre en poste : le combustible se pose devant la grille, ses deux jauges (chaud,",
-                        "froid) sur la façade. Un combustible en main se jette toujours au foyer d'un clic. Faux : la fenêtre de Cold Sweat.")
+                        "froid) sur la façade. Un combustible en main se jette toujours au foyer d'un clic. Faux : la fenêtre de Cold Sweat.",
+                        "Lu par le jeu de chaque joueur (son propre fichier), pas imposé par le serveur.")
                 .define("foyer", true);
         common.pop();
 

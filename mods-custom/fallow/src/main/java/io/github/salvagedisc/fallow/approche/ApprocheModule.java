@@ -28,7 +28,8 @@ public final class ApprocheModule {
     public static void start(IEventBus modBus) {
         NeoForge.EVENT_BUS.addListener(EntityJoinLevelEvent.class, event -> {
             if (!event.getLevel().isClientSide() && event.getEntity() instanceof PathfinderMob mob
-                    && mob.getType().is(FAROUCHES)) {
+                    && mob.getType().is(FAROUCHES)
+                    && mob.goalSelector.getAvailableGoals().stream().noneMatch(goal -> goal.getGoal() instanceof FuiteGoal)) {
                 mob.goalSelector.addGoal(1, new FuiteGoal(mob));
             }
         });

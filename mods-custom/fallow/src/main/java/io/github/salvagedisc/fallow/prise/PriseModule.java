@@ -90,6 +90,10 @@ public final class PriseModule {
     private static void tick(MinecraftServer server) {
         if (!FallowConfig.priseEnabled()) {
             RUNS.clear();
+            if (sable) {
+                // Coupé en cours de partie : un navire qu'un poisson tirait ne doit plus l'être.
+                PriseSable.clear();
+            }
             return;
         }
         long gameTime = server.overworld().getGameTime();

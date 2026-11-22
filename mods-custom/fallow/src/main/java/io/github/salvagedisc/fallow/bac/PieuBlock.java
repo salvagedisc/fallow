@@ -31,6 +31,9 @@ public class PieuBlock extends Block implements EntityBlock {
     static final int MAX_LENGTH = 96;
     private static final String PENDING = "fallow_bac_pieu";
     private static final String PENDING_WORLD = "fallow_bac_pieu_monde";
+    private static final String PENDING_TIME = "fallow_bac_pieu_temps";
+    /** Le premier nœud attend le second cinq minutes ; au-delà (ou après une déconnexion), on recommence. */
+    private static final long PENDING_TICKS = 6000L;
     private static final VoxelShape SHAPE = Block.box(5.0, 0.0, 5.0, 11.0, 16.0, 11.0);
 
     public PieuBlock(Properties properties) {
@@ -66,15 +69,23 @@ public class PieuBlock extends Block implements EntityBlock {
         }
         CompoundTag data = player.getPersistentData();
         String world = level.dimension().location().toString();
-        BlockPos first = data.contains(PENDING) && world.equals(data.getString(PENDING_WORLD)) ? BlockPos.of(data.getLong(PENDING)) : null;
+        long now = level.getGameTime();
+        long since = now - data.getLong(PENDING_TIME);
+        BlockPos first = data.contains(PENDING) && world.equals(data.getString(PENDING_WORLD)) && since >= 0 && since < PENDING_TICKS
+                ? BlockPos.of(data.getLong(PENDING)) : null;
         if (first == null || first.equals(pos) || !(level.getBlockEntity(first) instanceof PieuBlockEntity start)) {
             data.putLong(PENDING, pos.asLong());
             data.putString(PENDING_WORLD, world);
+            data.putLong(PENDING_TIME, now);
             player.displayClientMessage(Component.translatable("message.fallow.bac.attache"), true);
             return ItemInteractionResult.SUCCESS;
         }
         data.remove(PENDING);
         data.remove(PENDING_WORLD);
+        data.remove(PENDING_TIME);
+        if (!(level.getBlockEntity(pos) instanceof PieuBlockEntity end)) {
+            return ItemInteractionResult.SUCCESS;
+        }
         double length = Math.sqrt(first.distSqr(pos));
         if (length > MAX_LENGTH) {
             player.displayClientMessage(Component.translatable("message.fallow.bac.trop_loin", MAX_LENGTH), true);
@@ -88,9 +99,6 @@ public class PieuBlock extends Block implements EntityBlock {
                 return ItemInteractionResult.SUCCESS;
             }
             take(player, cost);
-        }
-        if (!(level.getBlockEntity(pos) instanceof PieuBlockEntity end)) {
-            return ItemInteractionResult.SUCCESS;
         }
         release(level, start);
         release(level, end);

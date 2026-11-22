@@ -115,7 +115,7 @@ public final class HotesModule {
             return 0;
         }
         ServerLevel level = player.serverLevel();
-        Vec3 dir = player.getLookAngle().multiply(1, 0, 1).normalize();
+        Vec3 dir = Vec3.directionFromRotation(0.0F, player.getYRot());
         Vec3 pos = player.position().add(dir.scale(14.0));
         int y = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, (int) Math.floor(pos.x), (int) Math.floor(pos.z));
         Hote hote = HOTE.get().create(level);

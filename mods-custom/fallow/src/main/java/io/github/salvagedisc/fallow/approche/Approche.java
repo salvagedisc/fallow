@@ -221,7 +221,7 @@ public final class Approche {
             return;
         }
         HINTS.put(player.getUUID(), now);
-        player.displayClientMessage(Component.translatable("approche.fallow.indice." + sense.name().toLowerCase(),
+        player.displayClientMessage(Component.translatable("approche.fallow.indice." + sense.name().toLowerCase(java.util.Locale.ROOT),
                 mob.getType().getDescription()), true);
     }
 }

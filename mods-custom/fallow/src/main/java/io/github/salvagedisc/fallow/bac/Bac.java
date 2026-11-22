@@ -34,6 +34,8 @@ import org.joml.Vector3d;
  */
 final class Bac {
     static final String TAG = "fallow_bac";
+    /** Marque, gardée même lâché, d'un navire né radeau de bac : seul lui se reprend à la corde. */
+    static final String RADEAU = "fallow_radeau";
     /** Un radeau de bac compte au plus tant de blocs. */
     static final int MAX_BLOCKS = 400;
 
@@ -50,6 +52,12 @@ final class Bac {
         }
         CompoundTag data = data(ship);
         if (data == null) {
+            CompoundTag all = ship.getUserDataTag();
+            if (all == null || !all.getBoolean(RADEAU)) {
+                // Un navire bâti autrement (Create, Sable) n'a pas été jugé : ni sa taille, ni s'il flotte.
+                say(player, Component.translatable("message.fallow.bac.pas_un_radeau"));
+                return;
+            }
             Vec3 center = center(ship);
             Cordes.Line line = Cordes.near(level, center.x, center.y, center.z);
             if (line == null) {
@@ -131,12 +139,15 @@ final class Bac {
             ship = SubLevelAssemblyHelper.assembleBlocks(level, pos, gathered.blocks(), gathered.boundingBox());
         } catch (RuntimeException e) {
             Fallow.LOGGER.warn("bac : le radeau n'a pas pu être pris à la corde", e);
-            say(player, Component.translatable("message.fallow.bac.trop_grand", MAX_BLOCKS));
+            say(player, Component.translatable("message.fallow.bac.echec"));
             return null;
         }
         if (ship == null) {
             return null;
         }
+        CompoundTag marque = ship.getUserDataTag() == null ? new CompoundTag() : ship.getUserDataTag().copy();
+        marque.putBoolean(RADEAU, true);
+        ship.setUserDataTag(marque);
         store(ship, line, 0);
         level.playSound(null, pos, SoundEvents.LEASH_KNOT_PLACE, SoundSource.BLOCKS, 1.0F, 0.7F);
         say(player, Component.translatable("message.fallow.bac.pris"));

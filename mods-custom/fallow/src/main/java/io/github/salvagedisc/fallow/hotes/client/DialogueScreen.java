@@ -335,6 +335,11 @@ public class DialogueScreen extends Screen {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        if (hote.isRemoved()) {
+            // L'Hôte est reparti (touché, ou rappelé) : la conversation s'arrête avec lui.
+            onClose();
+            return;
+        }
         tournerLeRegard(partialTick);
 
         panneauL = Math.min(360, width - 2 * 8);

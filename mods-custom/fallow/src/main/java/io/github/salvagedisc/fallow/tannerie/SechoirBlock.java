@@ -206,7 +206,8 @@ public class SechoirBlock extends HorizontalDirectionalBlock implements Ouvrage 
             return "feu";
         }
         if (cold(level, pos)) {
-            return "froid";
+            // À l'ombre ou la nuit, le froid l'arrête tout à fait : il le faut dire.
+            return rate(level, pos) <= 0 ? "gel" : "froid";
         }
         return sky && level.isDay() ? "soleil" : "ombre";
     }

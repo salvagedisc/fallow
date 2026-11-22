@@ -17,6 +17,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -178,6 +179,21 @@ public final class EveilModule {
         NeoForge.EVENT_BUS.addListener(LivingDropsEvent.class, EveilModule::onDrops);
         NeoForge.EVENT_BUS.addListener(GrindstoneEvent.OnPlaceItem.class, EveilModule::onGrindstone);
         NeoForge.EVENT_BUS.addListener(PlayerDestroyItemEvent.class, e -> oublier(e.getOriginal()));
+        // Entretenu et arrêté à bout de forces, l'objet ne sert plus tant qu'on ne l'a pas réparé.
+        NeoForge.EVENT_BUS.addListener(net.neoforged.neoforge.event.entity.player.PlayerEvent.BreakSpeed.class, e -> {
+            if (Eveil.arrete(e.getEntity().getMainHandItem())) {
+                e.setCanceled(true);
+            }
+        });
+        NeoForge.EVENT_BUS.addListener(net.neoforged.neoforge.event.entity.player.AttackEntityEvent.class, e -> {
+            if (Eveil.arrete(e.getEntity().getMainHandItem())) {
+                e.setCanceled(true);
+                if (e.getEntity() instanceof ServerPlayer player) {
+                    player.displayClientMessage(Component.translatable("eveil.fallow.lien.tient",
+                            player.getMainHandItem().getHoverName()).withStyle(ChatFormatting.GRAY), true);
+                }
+            }
+        });
         NeoForge.EVENT_BUS.addListener(ItemExpireEvent.class, e -> oublier(e.getEntity().getItem()));
         NeoForge.EVENT_BUS.addListener(EntityLeaveLevelEvent.class, e -> {
             if (e.getEntity() instanceof ItemEntity item && e.getEntity().getRemovalReason() == Entity.RemovalReason.KILLED) {
@@ -334,7 +350,10 @@ public final class EveilModule {
                     HautsFaits.Contexte moment = HautsFaits.Contexte.de(player);
                     Eveil.acte(player, stack, HautsFaits.Type.REPARER, entree -> entree.si(moment), avant - usure);
                     // Réparé à temps, c'est du soin : avant la mi-usure beaucoup, avant le rouge un peu, après rien.
-                    double soin = avant < stack.getMaxDamage() * 0.5 ? Lien.REPARE_TOT
+                    // Seule une vraie réparation compte (un dixième de l'usure au moins) : le raccommodage, qui rend
+                    // quelques points en travaillant, n'est pas un soin.
+                    double soin = avant - usure < Math.max(1, stack.getMaxDamage() / 10) ? 0.0
+                            : avant < stack.getMaxDamage() * 0.5 ? Lien.REPARE_TOT
                             : avant < stack.getMaxDamage() * FallowConfig.eveilAlerte() ? Lien.REPARE : 0.0;
                     Lien.ajouter(player.server, stack, etat, soin, player);
                 } else if (usure >= stack.getMaxDamage() * FallowConfig.eveilAlerte() && ROUGES.add(etat.id())) {
@@ -422,6 +441,13 @@ public final class EveilModule {
     /** Une réparation par Raccommodage n'est pas un haut fait : son usure est notée tout de suite. */
     static void vu(UUID id, int usure) {
         USURES.put(id, usure);
+    }
+
+    /** Un objet au sol brûlé, fondu ou détruit par une explosion (appelé par {@code ObjetEveilleMixin}). */
+    public static void detruit(ItemStack stack) {
+        if (FallowConfig.eveilEnabled()) {
+            oublier(stack);
+        }
     }
 
     /** L'objet a disparu pour de bon : ses actes avec lui. */

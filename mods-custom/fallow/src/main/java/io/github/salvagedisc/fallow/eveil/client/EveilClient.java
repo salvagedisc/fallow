@@ -70,7 +70,8 @@ public final class EveilClient {
         }
         if (!etat.traces().isEmpty() && !etat.eteint() && stack.isDamageableItem()
                 && stack.getDamageValue() >= stack.getMaxDamage() * FallowConfig.eveilAlerte()) {
-            tooltip.add(Component.translatable("eveil.fallow.tooltip.alerte",
+            tooltip.add(Component.translatable(Lien.de(stack) >= Lien.ENTRETENU ? "eveil.fallow.lien.tooltip.alerte"
+                    : "eveil.fallow.tooltip.alerte",
                     nom(etat.traces().get(etat.traces().size() - 1)).getString())
                     .withStyle(ChatFormatting.RED));
         }

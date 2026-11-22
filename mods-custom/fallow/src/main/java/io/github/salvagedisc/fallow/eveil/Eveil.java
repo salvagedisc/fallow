@@ -52,7 +52,9 @@ public final class Eveil {
     /** L'objet vient d'accomplir {@code quantite} unités d'actes de ce type ; {@code filtre} choisit les entrées concernées. */
     static void acte(ServerPlayer player, ItemStack stack, HautsFaits.Type type, Predicate<HautsFaits.Entree> filtre,
             double quantite) {
-        if (!FallowConfig.eveilEnabled() || stack.isEmpty() || quantite <= 0 || player.isSpectator()) {
+        if (!FallowConfig.eveilEnabled() || stack.isEmpty() || quantite <= 0 || player.isSpectator()
+                || player instanceof net.neoforged.neoforge.common.util.FakePlayer) {
+            // Une machine (déployeur de Create, foreuse) n'accomplit rien : seule la main d'un joueur compte.
             return;
         }
         List<HautsFaits.Entree> entrees = new ArrayList<>();
@@ -273,6 +275,39 @@ public final class Eveil {
     }
 
     // ---- l'oubli ----
+
+    /**
+     * Entretenu (ou chéri) et éveillé, l'objet s'arrête à son dernier point de durabilité au lieu de casser : l'usure qui
+     * l'y mènerait plus loin est retenue, quelle que soit la vitesse à laquelle il s'use (appelé par {@code ObjetEveilleMixin}).
+     */
+    public static int retenir(ItemStack stack, int usure) {
+        if (usure <= 0 || !FallowConfig.eveilEnabled() || !stack.isDamageableItem()) {
+            return usure;
+        }
+        EtatEveil etat = stack.get(EveilModule.ETAT.get());
+        if (etat == null || etat.traces().isEmpty() || Lien.de(stack) < Lien.ENTRETENU) {
+            return usure;
+        }
+        return Math.max(0, Math.min(usure, stack.getMaxDamage() - 1 - stack.getDamageValue()));
+    }
+
+    /** L'objet entretenu qui s'est arrêté à bout de forces : il ne sert plus tant qu'on ne l'a pas réparé. */
+    public static boolean arrete(ItemStack stack) {
+        if (stack.isEmpty() || !FallowConfig.eveilEnabled() || !stack.isDamageableItem()
+                || stack.getDamageValue() < stack.getMaxDamage() - 1) {
+            return false;
+        }
+        EtatEveil etat = stack.get(EveilModule.ETAT.get());
+        return etat != null && !etat.traces().isEmpty() && Lien.de(stack) >= Lien.ENTRETENU;
+    }
+
+    /** Juste après une usure : l'oubli (ou l'arrêt) tombe au point exact, sans attendre le tour d'inventaire. */
+    public static void apresUsure(net.minecraft.world.entity.LivingEntity porteur, ItemStack stack) {
+        if (porteur instanceof ServerPlayer player && !(player instanceof net.neoforged.neoforge.common.util.FakePlayer)
+                && !stack.isEmpty() && FallowConfig.eveilEnabled() && stack.has(EveilModule.ETAT.get())) {
+            usure(player, stack);
+        }
+    }
 
     /** À bout de durabilité, l'objet oublie son dernier éveil ; il ne l'oubliera qu'une fois tant qu'il n'est pas réparé. */
     static void usure(ServerPlayer player, ItemStack stack) {

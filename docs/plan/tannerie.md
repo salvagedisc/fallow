@@ -34,7 +34,7 @@ Every 20 seconds the frame gains drying points; at 15 the leather is dry.
 | Open sky, day | 2 | 2 min 30 |
 | Under a roof, or at night | 1 | 5 min |
 | Lit fire within 4 blocks (block tag `fallow:foyers`, the same as rest by the hearth) | +2 | 1 min 40 sheltered by a fire |
-| Where it snows (cold biome, or Ecliptic Seasons' winter, which changes the biome's precipitation) | −1 | a shelter without fire no longer dries in winter |
+| Where it snows (cold biome, or Ecliptic Seasons' winter, which changes the biome's precipitation) | −1 | a shelter without fire no longer dries in winter; the rack then says « Trop froid : sans feu, il ne sèche pas. » |
 | Rain falling on it | −1 (it gets wet again) | |
 
 Breaking a block gives back what is on it (raw hide, scraped hides, wet leather or leather).

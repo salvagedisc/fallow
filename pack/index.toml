@@ -765,10 +765,6 @@ file = "kubejs/assets/alexsmobs/textures/item/kangaroo_hide.png"
 hash = "e9d85c923e73575e8497f874566b330ff3379026fbd1c8881d1c5d04fdc698dd"
 
 [[files]]
-file = "kubejs/assets/alfinolib/lang/fr_fr.json"
-hash = "cd896b05871ba5a2fd17296690cbbf9b045c0a46b2b69295d629e40b9f1b8207"
-
-[[files]]
 file = "kubejs/assets/amendments/lang/fr_fr.json"
 hash = "816de0920a08bf19d363b28f0e2b53a30847947ea6b198e74ebf836e919f24af"
 
@@ -3658,8 +3654,8 @@ hash = "2c88d3eceb7be9c5964ca32c24612ca08d7326b4cb06104e98d56efa777de640"
 metafile = true
 
 [[files]]
-file = "mods/fallow-0.83.0.jar"
-hash = "277947214b7fadb0b9fea33f7a88b7cc875665b18fc1377a8feb19230d2e671e"
+file = "mods/fallow-0.84.0.jar"
+hash = "a9f25f034b98c6f45139545b740b516c70dc7b19483da27f17f489df7b85f27f"
 
 [[files]]
 file = "mods/farmers-delight.pw.toml"

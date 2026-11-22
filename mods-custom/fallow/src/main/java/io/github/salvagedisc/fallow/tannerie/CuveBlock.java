@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
@@ -157,6 +158,10 @@ public class CuveBlock extends Block implements Ouvrage {
         stack.consume(1, player);
         level.setBlock(pos, state.setValue(PEAUX, hides + 1).setValue(TANNAGE, 0), Block.UPDATE_ALL);
         level.playSound(null, pos, SoundEvents.GENERIC_SPLASH, SoundSource.BLOCKS, 0.6F, 0.9F);
+        // Le tannage repart de zéro : le pas déjà prévu (le jeu n'en garde qu'un par bloc) tomberait trop tôt.
+        if (level instanceof ServerLevel server) {
+            server.getBlockTicks().clearArea(new BoundingBox(pos));
+        }
         level.scheduleTick(pos, this, stepTicks());
         return ItemInteractionResult.SUCCESS;
     }

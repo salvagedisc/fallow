@@ -53,7 +53,9 @@ The owner's wish (2026-11-22): taking care of an item should count. Each item ha
 | In fire or lava | −15 every 30 s |
 | In other hands than its first owner's | −4 every 10 min |
 
-- **Entretenu**: at the end of its strength it no longer forgets its last awakening; it stops at its last point (Overgeared's broken state) and waits to be repaired (« … est à bout de forces mais n'a rien oublié : réparez cet objet. »). Its warning at 90 % says so.
+A repair only counts when it gives back a tenth of the item's durability at least (since 0.84.0): mending a point at a time is not care. Deeds done by a machine holding the item (a Create deployer, a fake player) do not count either.
+
+- **Entretenu**: at the end of its strength it no longer forgets its last awakening; it stops at its last point and waits to be repaired (« … est à bout de forces mais n'a rien oublié : réparez cet objet. »). Since 0.84.0 the stop is exact: the wear that would take an awakened Entretenu item past its last point is held back as it happens (`mixin/eveil/ObjetEveilleMixin` on `ItemStack.hurtAndBreak`), so even a tool worn several points in one second does not break, and while it stands there it cannot mine or strike. Its warning at 90 %, in chat and in the tooltip, says it will keep its awakening.
 - **Chéri**: one more place.
 - A named item is called by its name everywhere already, the book included.
 

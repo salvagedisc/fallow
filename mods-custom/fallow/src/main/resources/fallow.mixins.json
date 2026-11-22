@@ -8,6 +8,7 @@
     "compat.IceThawMixin",
     "compat.InStructureMixin",
     "dinos.ChorusoatlArmorMixin",
+    "eveil.ObjetEveilleMixin",
     "eveil.PosteDeTableMixin",
     "eveil.ReparationEtabliMixin",
     "feuillage.ChuteDansLesFeuillesMixin",

@@ -118,7 +118,13 @@ public final class Lien {
         int voulues = Math.min(5, FallowConfig.eveilPlaces(Eveil.qualite(stack)) + metal(stack)) + (de(stack) == CHERI ? 1 : 0);
         voulues = Math.max(voulues, etat.occupees());
         if (voulues != etat.places()) {
-            stack.set(EveilModule.ETAT.get(), etat.avecPlaces(voulues));
+            etat = etat.avecPlaces(voulues);
+            if (etat.pret() && etat.plein()) {
+                // Il a perdu la place qui l'attendait (plus chéri, par exemple) : il n'est plus prêt.
+                etat = etat.avecPret(false);
+                stack.remove(net.minecraft.core.component.DataComponents.ENCHANTMENT_GLINT_OVERRIDE);
+            }
+            stack.set(EveilModule.ETAT.get(), etat);
         }
     }
 

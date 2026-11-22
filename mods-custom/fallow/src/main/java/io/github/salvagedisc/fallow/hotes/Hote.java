@@ -78,14 +78,27 @@ public class Hote extends PathfinderMob {
     /** Change de peuple et revêt l'armure de sa bête, si Archie's Dinosaurs est là. */
     public void setPeuple(Peuple peuple) {
         entityData.set(PEUPLE, peuple.id());
+        // La tête porte le masque du peuple (un objet de Fallow, toujours là) ; pas de casque.
+        setItemSlot(EquipmentSlot.HEAD, new ItemStack(HotesModule.MASQUES.get(peuple).get()));
         if (!ModIds.isLoaded(ModIds.ARCHIES_DINOSAURS)) {
             return;
         }
-        // Plastron, jambières et bottes de la bête ; pas de casque : la tête porte le masque du peuple.
-        setItemSlot(EquipmentSlot.HEAD, new ItemStack(HotesModule.MASQUES.get(peuple).get()));
+        // Plastron, jambières et bottes de la bête.
         setItemSlot(EquipmentSlot.CHEST, piece(peuple, "chestplate"));
         setItemSlot(EquipmentSlot.LEGS, piece(peuple, "leggings"));
         setItemSlot(EquipmentSlot.FEET, piece(peuple, "boots"));
+    }
+
+    /** Appelé par {@code /summon} aussi : l'Hôte arrive toujours masqué, même sans {@link #setPeuple} explicite. */
+    @Override
+    public net.minecraft.world.entity.SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor level,
+            net.minecraft.world.DifficultyInstance difficulty, net.minecraft.world.entity.MobSpawnType reason,
+            net.minecraft.world.entity.SpawnGroupData data) {
+        net.minecraft.world.entity.SpawnGroupData result = super.finalizeSpawn(level, difficulty, reason, data);
+        if (getItemBySlot(EquipmentSlot.HEAD).isEmpty()) {
+            setPeuple(peuple());
+        }
+        return result;
     }
 
     private static ItemStack piece(Peuple peuple, String slot) {
