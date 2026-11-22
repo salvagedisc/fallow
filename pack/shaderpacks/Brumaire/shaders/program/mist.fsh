@@ -386,20 +386,6 @@ void main() {
             }
         }
 #endif
-#if AIR_MOTES > 0 && COLORED_LIGHT > 0 && CAVE_DETAIL > 0
-        // Sous terre, la poussière ne se voit que dans la lumière d'une torche ou de la lave, de sa couleur.
-        {
-            float under = 1.0 - smoothstep(0.0, 0.45, float(eyeBrightnessSmooth.y) / 240.0);
-            if (under > 0.01) {
-                float dist;
-                float mote = moteAlong(dir, min(len, 10.0), 0.30, 0.30, 10.0, dist);
-                if (mote > 0.0) {
-                    vec4 blk = voxelLight(gbufferModelViewInverse[3].xyz + dir * dist, vec3(0.0));
-                    color += blk.rgb * blk.a * blk.a * blk.a * mote * under * 0.35;
-                }
-            }
-        }
-#endif
 #if CAVE_DRIPS > 0 && defined VOXELS && COLORED_LIGHT > 0
         // Sous terre, les gouttes qui tombent des voûtes brillent de la lumière des torches et de la lave.
         {
