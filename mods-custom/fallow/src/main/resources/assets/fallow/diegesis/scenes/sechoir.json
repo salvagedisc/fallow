@@ -1,18 +1,18 @@
 {
   "$schema": "https://raw.githubusercontent.com/Pocky-l/diegesis/main/docs/schema/scene.schema.json",
-  "$comment": "Le séchoir, redessiné par la scène pendant qu'on y travaille (le poste cache le bloc) : cadre est sa copie vide, cuir le cuir mouillé pendu sous la barre (devant elle, z 6, l'image de l'objet en 10 × 10), sec le même cuir sec par-dessus, qui apparaît à mesure qu'il sèche ; le cuir rétrécit un peu en séchant. Tant qu'il est mouillé, il goutte par le bas, et fume près d'un feu ou au soleil. fantome montre, pâle et battant doucement, le cuir à tendre quand le cadre est vide. La caméra se tient devant le cadre, un peu au-dessus, comme devant le four de Hands-On Vanilla. surface prend les clics : le cuir mouillé lâché dessus s'y tend, la main vide prend le cuir sec ou dit où en est le séchage. Le livre de la tannerie est à gauche, presque debout face à la caméra ; rangé, il est posé au sol à gauche du cadre. envol dessine ce qui sort du bloc, qui vole jusqu'à la barre d'inventaire. arrivee_0 à arrivee_2 dessinent ce qui arrive sans passer par le curseur (Maj + clic, le livre) : il vole de sa case de la barre jusqu'au bloc. jauge, au-dessus du cadre, montre le séchage (peinte par le poste).",
-  "work_plane": 6,
+  "$comment": "Le séchoir, redessiné par la scène pendant qu'on y travaille (le poste cache le bloc) : cadre est sa copie vide, cuir le cuir mouillé cloué dans le cadre accroché au mur (z 14, l'image de l'objet à moitié de sa taille, 8 × 8, de x 4 à 12 et de y 4 à 12, ses quatre bouts cloués), sec le même cuir sec par-dessus, qui apparaît à mesure qu'il sèche ; le cuir rétrécit un peu en séchant. Tant qu'il est mouillé, il goutte par le bas, et fume près d'un feu ou au soleil. fantome montre, pâle et battant doucement, le cuir à tendre quand le cadre est vide. La caméra se tient devant le cadre, un peu au-dessus, comme devant le four de Hands-On Vanilla. surface prend les clics : le cuir mouillé lâché dessus s'y tend, la main vide prend le cuir sec ou dit où en est le séchage. Le livre de la tannerie est à gauche, presque debout face à la caméra ; rangé, il est posé au sol à gauche du cadre. envol dessine ce qui sort du bloc, qui vole jusqu'à la barre d'inventaire. arrivee_0 à arrivee_2 dessinent ce qui arrive sans passer par le curseur (Maj + clic, le livre) : il vole de sa case de la barre jusqu'au bloc. jauge, au-dessus du cadre, montre le séchage (peinte par le poste).",
+  "work_plane": 14,
   "idle_visible": false,
   "camera": {
     "position": [
       8,
-      15,
-      -24
+      16,
+      -20
     ],
     "target": [
       8,
-      8,
-      8
+      9.5,
+      12
     ],
     "fov": 40,
     "interactive_at": 0.6
@@ -95,7 +95,7 @@
       "pos": [
         8,
         8,
-        5.5
+        13.5
       ],
       "rotation": [
         12,
@@ -111,7 +111,7 @@
       "pos": [
         8,
         8,
-        5.5
+        13.5
       ],
       "rotation": [
         12,
@@ -127,7 +127,7 @@
       "pos": [
         8,
         8,
-        5.5
+        13.5
       ],
       "rotation": [
         12,
@@ -143,7 +143,7 @@
       "pos": [
         8,
         8,
-        5.5
+        13.5
       ],
       "rotation": [
         12,
@@ -160,12 +160,12 @@
         "from": [
           0,
           0,
-          5
+          12
         ],
         "to": [
           16,
           16,
-          11
+          16
         ]
       }
     },
@@ -174,7 +174,7 @@
       "pos": [
         20.8,
         11.5,
-        4
+        8
       ],
       "rotation": [
         -78,
@@ -216,7 +216,7 @@
       "pos": [
         8,
         17,
-        8
+        13
       ],
       "rotation": [
         12,

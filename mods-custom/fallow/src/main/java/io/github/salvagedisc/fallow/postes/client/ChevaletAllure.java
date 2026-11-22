@@ -57,7 +57,7 @@ final class ChevaletAllure implements Allure {
         connu = false;
     }
 
-    /** Le dessus de la peau pliée sur la poutre, en pixels. */
+    /** Le dessus du plateau du banc, où la peau est posée, en pixels. */
     private static final float DESSUS = 12.0F;
 
     private static boolean couteau(ItemStack stack) {
@@ -110,7 +110,7 @@ final class ChevaletAllure implements Allure {
                 node.setVisual(Visual.ofItem(tenu));
             }
             if (coup >= COUP) {
-                view.cursorOn(DESSUS).ifPresent(point -> vise = Mth.clamp(point.z(), 10.0F, 12.5F));
+                view.cursorOn(DESSUS).ifPresent(point -> vise = Mth.clamp(point.z(), 10.0F, 12.0F));
             }
             // Un coup : la lame appuie et file de 4 pixels vers soi, puis revient se poser.
             float t = Math.min(1.0F, coup / COUP);
@@ -122,7 +122,7 @@ final class ChevaletAllure implements Allure {
             node.rotateTo(t < 0.45F ? 12.0F * Mth.sin(t / 0.45F * Mth.PI) : 0.0F, 0.0F, 0.0F, 0.0F);
         });
 
-        // La poutre vide montre, pâle et battant doucement, la peau à y tendre ; la peau posée attend le couteau.
+        // Le banc vide montre, pâle et battant doucement, la peau à y poser ; la peau posée attend le couteau.
         boolean inUse = shown && view.isFocused();
         boolean wantsHide = inUse && !hide && !carried.is(TannerieModule.PEAU_BRUTE.get());
         view.node("fantome").ifPresent(node -> {
@@ -175,7 +175,7 @@ final class ChevaletAllure implements Allure {
         // Le coup d'un autre : son couteau à lui, au milieu de la peau ; son bruit vient du bloc, son bras n'est pas le nôtre.
         autre = stack.getItem();
         if (!view.isFocused()) {
-            vise = 8.0F;
+            vise = 11.5F;
         }
         coupAutre = true;
         coup(view);

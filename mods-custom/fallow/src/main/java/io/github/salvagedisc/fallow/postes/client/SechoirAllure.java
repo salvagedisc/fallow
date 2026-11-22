@@ -101,7 +101,7 @@ final class SechoirAllure implements Allure {
             lueur += dt;
             if (lueur >= 1.8F) {
                 lueur = 0.0F;
-                float haut = 3.0F + random.nextFloat() * 8.0F;
+                float haut = 4.0F + random.nextFloat() * 8.0F;
                 view.spawnParticles(DiegesisParticles.GLINT, new Vector3f(4.0F + random.nextFloat() * 8.0F, haut, DEVANT - 0.6F),
                         new Vector3f(0.0F, 0.5F, -1.0F), 0.5F, 2, 0xFFFFF0D0);
             }
@@ -124,8 +124,8 @@ final class SechoirAllure implements Allure {
         goutte += dt * (2.2F * (1.0F - sec) + 0.2F);
         while (goutte >= 1.0F) {
             goutte -= 1.0F;
-            float x = 3.0F + random.nextFloat() * 10.0F;
-            view.spawnParticles(DiegesisParticles.DROPLET, new Vector3f(x, 2.2F, DEVANT + 0.2F), new Vector3f(0.0F, -2.0F, 0.0F), 0.2F, 1, EAU);
+            float x = 5.0F + random.nextFloat() * 6.0F;
+            view.spawnParticles(DiegesisParticles.DROPLET, new Vector3f(x, 3.0F, 12.8F), new Vector3f(0.0F, -2.0F, 0.0F), 0.2F, 1, EAU);
         }
         // La chaleur le fait fumer : un feu tout près, ou le plein soleil.
         String cause = cause(view);
@@ -133,14 +133,14 @@ final class SechoirAllure implements Allure {
         fumee += dt * chaleur * (1.0F - 0.6F * sec);
         while (fumee >= 1.0F) {
             fumee -= 1.0F;
-            float x = 3.0F + random.nextFloat() * 10.0F;
-            float y = 3.0F + random.nextFloat() * 8.0F;
+            float x = 4.0F + random.nextFloat() * 8.0F;
+            float y = 4.0F + random.nextFloat() * 8.0F;
             view.spawnParticles(DiegesisParticles.STEAM, new Vector3f(x, y, DEVANT - 0.5F), new Vector3f(0.0F, 3.0F, -0.6F), 0.5F, 1, VAPEUR);
         }
     }
 
-    /** La face avant du cuir tendu au milieu du cadre, en pixels. */
-    private static final float DEVANT = 5.8F;
+    /** Devant le cadre accroché au mur (le cuir est à z 14, le cadre de z 13 à 15), en pixels. */
+    private static final float DEVANT = 12.8F;
 
     private Component lecture(StationView view, SechoirBlock.Etat etat, float sec) {
         if (etat == SechoirBlock.Etat.SEC) {

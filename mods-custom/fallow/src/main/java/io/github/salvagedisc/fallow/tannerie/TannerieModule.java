@@ -67,7 +67,7 @@ public final class TannerieModule {
                     .sound(SoundType.WOOD).noOcclusion().ignitedByLava()));
     public static final DeferredBlock<SechoirBlock> SECHOIR = BLOCKS.register("sechoir",
             () -> new SechoirBlock(BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).strength(1.0F)
-                    .sound(SoundType.WOOD).noOcclusion().ignitedByLava()));
+                    .sound(SoundType.WOOD).noOcclusion().ignitedByLava().pushReaction(net.minecraft.world.level.material.PushReaction.DESTROY)));
 
     public static final DeferredItem<BlockItem> CHEVALET_ITEM = ITEMS.registerSimpleBlockItem(CHEVALET);
     public static final DeferredItem<BlockItem> CUVE_A_TAN_ITEM = ITEMS.registerSimpleBlockItem(CUVE_A_TAN);

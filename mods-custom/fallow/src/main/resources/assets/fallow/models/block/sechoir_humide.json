@@ -3,19 +3,19 @@
   "textures": {
     "peau": "fallow:item/cuir_mouille",
     "particle": "fallow:item/cuir_mouille",
-    "jus": "fallow:block/jus_de_tan"
+    "clou": "minecraft:block/iron_block"
   },
   "elements": [
     {
       "from": [
-        3.0,
-        2.0,
-        5.99
+        4.0,
+        4.0,
+        13.99
       ],
       "to": [
-        13.0,
-        12,
-        5.99
+        12.0,
+        12.0,
+        13.99
       ],
       "faces": {
         "north": {
@@ -41,21 +41,90 @@
     {
       "from": [
         5,
-        1.5,
-        4
+        10,
+        13.98
+      ],
+      "to": [
+        6,
+        11,
+        13.98
+      ],
+      "faces": {
+        "north": {
+          "texture": "#clou",
+          "uv": [
+            7,
+            7,
+            8,
+            8
+          ]
+        }
+      }
+    },
+    {
+      "from": [
+        10,
+        10,
+        13.98
       ],
       "to": [
         11,
-        1.5,
-        8
+        11,
+        13.98
       ],
       "faces": {
-        "up": {
-          "texture": "#jus",
+        "north": {
+          "texture": "#clou",
           "uv": [
-            5,
-            4,
-            11,
+            7,
+            7,
+            8,
+            8
+          ]
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        5,
+        13.98
+      ],
+      "to": [
+        6,
+        6,
+        13.98
+      ],
+      "faces": {
+        "north": {
+          "texture": "#clou",
+          "uv": [
+            7,
+            7,
+            8,
+            8
+          ]
+        }
+      }
+    },
+    {
+      "from": [
+        10,
+        5,
+        13.98
+      ],
+      "to": [
+        11,
+        6,
+        13.98
+      ],
+      "faces": {
+        "north": {
+          "texture": "#clou",
+          "uv": [
+            7,
+            7,
+            8,
             8
           ]
         }

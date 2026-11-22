@@ -33,7 +33,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
- * Le séchoir : un cadre de bois où le cuir mouillé est tendu. Il sèche par à-coups (toutes les 20 secondes) selon
+ * Le séchoir : un cadre de bois accroché à un mur, où le cuir mouillé est cloué, au soleil si le mur y est. Il sèche par à-coups (toutes les 20 secondes) selon
  * l'endroit, voir {@link #rate}. Main vide, on décroche le cuir sec, ou on lit où en est le séchage.
  */
 public class SechoirBlock extends HorizontalDirectionalBlock implements Ouvrage {
@@ -41,9 +41,11 @@ public class SechoirBlock extends HorizontalDirectionalBlock implements Ouvrage 
     public static final EnumProperty<Etat> ETAT = EnumProperty.create("etat", Etat.class);
     public static final IntegerProperty SECHAGE = IntegerProperty.create("sechage", 0, 15);
     static final int INTERVAL = 400;
-    // Le cadre droit sur ses patins (z 4 à 12 vu du nord).
-    private static final VoxelShape SHAPE_NS = Block.box(0.0, 0.0, 3.0, 16.0, 16.0, 13.0);
-    private static final VoxelShape SHAPE_EW = Block.box(3.0, 0.0, 0.0, 13.0, 16.0, 16.0);
+    // Le cadre contre le mur, derrière lui (vu du nord, le mur est au sud : z 13 à 16).
+    private static final VoxelShape SHAPE_N = Block.box(1.0, 1.0, 13.0, 15.0, 16.0, 16.0);
+    private static final VoxelShape SHAPE_S = Block.box(1.0, 1.0, 0.0, 15.0, 16.0, 3.0);
+    private static final VoxelShape SHAPE_E = Block.box(0.0, 1.0, 1.0, 3.0, 16.0, 15.0);
+    private static final VoxelShape SHAPE_W = Block.box(13.0, 1.0, 1.0, 16.0, 16.0, 15.0);
 
     public enum Etat implements StringRepresentable {
         VIDE, HUMIDE, SEC;
@@ -69,14 +71,50 @@ public class SechoirBlock extends HorizontalDirectionalBlock implements Ouvrage 
         builder.add(FACING, ETAT, SECHAGE);
     }
 
+    /** Accroché au mur visé, ou au mur le plus proche du regard, comme une échelle ; sans mur, il ne se pose pas. */
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
+        if (!context.replacingClickedOnBlock()) {
+            BlockState there = context.getLevel().getBlockState(context.getClickedPos().relative(context.getClickedFace().getOpposite()));
+            if (there.is(this) && there.getValue(FACING) == context.getClickedFace()) {
+                return null;
+            }
+        }
+        for (Direction direction : context.getNearestLookingDirections()) {
+            if (direction.getAxis().isHorizontal()) {
+                BlockState state = defaultBlockState().setValue(FACING, direction.getOpposite());
+                if (state.canSurvive(context.getLevel(), context.getClickedPos())) {
+                    return state;
+                }
+            }
+        }
+        return null;
+    }
+
+    /** Le mur derrière le cadre doit être plein de ce côté. */
+    @Override
+    protected boolean canSurvive(BlockState state, net.minecraft.world.level.LevelReader level, BlockPos pos) {
+        Direction facing = state.getValue(FACING);
+        BlockPos mur = pos.relative(facing.getOpposite());
+        return level.getBlockState(mur).isFaceSturdy(level, mur, facing);
+    }
+
+    @Override
+    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighbor,
+            net.minecraft.world.level.LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+        return direction == state.getValue(FACING).getOpposite() && !state.canSurvive(level, pos)
+                ? net.minecraft.world.level.block.Blocks.AIR.defaultBlockState()
+                : super.updateShape(state, direction, neighbor, level, pos, neighborPos);
     }
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return state.getValue(FACING).getAxis() == Direction.Axis.Z ? SHAPE_NS : SHAPE_EW;
+        return switch (state.getValue(FACING)) {
+            case SOUTH -> SHAPE_S;
+            case EAST -> SHAPE_E;
+            case WEST -> SHAPE_W;
+            default -> SHAPE_N;
+        };
     }
 
     @Override
@@ -151,6 +189,11 @@ public class SechoirBlock extends HorizontalDirectionalBlock implements Ouvrage 
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
+        // Posé sans mur derrière (par une machine de Create, une commande), le cadre tombe aussitôt.
+        if (!level.isClientSide() && !state.canSurvive(level, pos)) {
+            level.destroyBlock(pos, true);
+            return;
+        }
         // Déplacé par un piston ou une machine de Create, le séchoir perd son tick prévu : il faut le reprendre.
         if (!oldState.is(this) && !level.isClientSide() && state.getValue(ETAT) == Etat.HUMIDE) {
             level.scheduleTick(pos, this, INTERVAL);
@@ -224,8 +267,8 @@ public class SechoirBlock extends HorizontalDirectionalBlock implements Ouvrage 
     @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
         if (state.getValue(ETAT) == Etat.HUMIDE && random.nextInt(8) == 0) {
-            // Sous le bas du cuir pendu (à 2 pixels du sol, devant la barre).
-            Vec3 bas = surCuir(state, pos, 0.25 + random.nextDouble() * 0.5, 0.12);
+            // Sous le bas du cuir cloué (à 4 pixels du sol), devant la traverse basse du cadre.
+            Vec3 bas = surCuir(state, pos, 0.32 + random.nextDouble() * 0.36, 3.0 / 16.0);
             level.addParticle(net.minecraft.core.particles.ParticleTypes.DRIPPING_WATER, bas.x, bas.y, bas.z, 0.0, 0.0, 0.0);
         }
         // Près d'un feu ou au soleil, le cuir mouillé fume un peu : on le voit sécher en passant (la recherche du feu, qui coûte,
@@ -234,7 +277,7 @@ public class SechoirBlock extends HorizontalDirectionalBlock implements Ouvrage 
             String cause = cause(level, pos);
             int fois = "feu".equals(cause) ? 2 : "soleil".equals(cause) && random.nextBoolean() ? 1 : 0;
             for (int i = 0; i < fois; i++) {
-                Vec3 face = surCuir(state, pos, 0.25 + random.nextDouble() * 0.5, 0.2 + random.nextDouble() * 0.5);
+                Vec3 face = surCuir(state, pos, 0.3 + random.nextDouble() * 0.4, 0.3 + random.nextDouble() * 0.4);
                 level.addParticle(net.minecraft.core.particles.ParticleTypes.WHITE_SMOKE, face.x, face.y, face.z, 0.0, 0.015, 0.0);
             }
         }
@@ -242,10 +285,10 @@ public class SechoirBlock extends HorizontalDirectionalBlock implements Ouvrage 
 
     /**
      * Un point devant le cuir tendu : {@code u} de gauche à droite (0 à 1) vu de devant, {@code h} la hauteur dans le bloc
-     * (0 à 1). Vu du nord, le cuir est au milieu du bloc, à z = 8 pixels.
+     * (0 à 1). Vu du nord, le cuir est dans le cadre contre le mur, à z = 14 pixels : on prend un point devant le cadre (z 12,7).
      */
     static Vec3 surCuir(BlockState state, BlockPos pos, double u, double h) {
-        double profondeur = 5.6 / 16.0;
+        double profondeur = 12.7 / 16.0;
         double x;
         double z;
         switch (state.getValue(FACING)) {
