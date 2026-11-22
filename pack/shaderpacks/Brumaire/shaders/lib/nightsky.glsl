@@ -354,10 +354,13 @@ vec3 nightSky(vec3 d) {
 #if SKY_STARS > 0
     float t = frameTimeCounter;
     // Trois couches : quelques étoiles vives, beaucoup de moyennes, et une poussière de faibles, dense dans la Voie lactée.
-    vec3 stars = starLayer(c, 90.0, 0.10, 1.0, pix, t, low) * 1.6;
-    stars += starLayer(c, 210.0, 0.035 + 0.12 * band, 2.0, pix, t, low) * 0.5 * mix(1.0, 0.45, full);
-    stars += starLayer(c, 420.0, 0.012 + 0.10 * band, 3.0, pix, t, low) * 0.3 * mix(1.0, 0.25, full);
-    sky += stars * 0.16;
+    // Peu d'étoiles franches, comme dans Recrafted : un ciel de nuit sombre et calme, pas un champ d'étoiles serré.
+    // La lune pleine en éteint la plupart, d'autant plus qu'on regarde près d'elle.
+    vec3 stars = starLayer(c, 90.0, 0.05, 1.0, pix, t, low) * 1.6;
+    stars += starLayer(c, 210.0, 0.015 + 0.10 * band, 2.0, pix, t, low) * 0.5 * mix(1.0, 0.30, full);
+    stars += starLayer(c, 420.0, 0.006 + 0.08 * band, 3.0, pix, t, low) * 0.3 * mix(1.0, 0.15, full);
+    float nearMoon = smoothstep(0.80, 0.99, dot(d, -gSunDir)) * full;
+    sky += stars * 0.12 * (1.0 - 0.8 * nearMoon);
 #endif
 #if SKY_METEORS > 0
     sky += meteors(c, pix) * 0.25;

@@ -97,7 +97,7 @@ void initEnv() {
     // par le sol et une lueur nocturne qui ne laisse jamais le noir complet.
     vec3 sky = skyRow(0);
     vec3 amb = mix(sky, vec3(luma(sky)) * vec3(1.03, 1.0, 0.93), 0.78) * 1.1 + (e > 0.0 ? sun * fade * 0.06 : vec3(0.0));
-    amb += vec3(0.020, 0.026, 0.042);
+    amb += vec3(0.012, 0.016, 0.026);
     amb = mix(amb, vec3(luma(amb)) * gLunar, 0.7 * gLunarK);
     gAmbient = mix(amb, vec3(luma(amb)) * vec3(0.95, 0.95, 0.93) * 0.75, rainStrength * 0.7);
     // Un éclair qui frappe blanchit tout d'un coup, en vacillant, moins quand il tombe loin.

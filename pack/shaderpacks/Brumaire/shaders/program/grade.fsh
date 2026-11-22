@@ -343,14 +343,17 @@ void main() {
 #endif
     // L'œil s'habitue : la nuit et sous terre, l'image s'éclaircit un peu.
     float sunUp = normalize(mat3(gbufferModelViewInverse) * sunPosition).y;
-    float adapt = mix(1.6, 1.0, smoothstep(-0.18, 0.12, sunUp));
+    // Peu, la nuit : une nuit de Recrafted reste noire (sol vers 20 sur 255), seuls la lune et les feux éclairent.
+    float adapt = mix(1.1, 1.0, smoothstep(-0.18, 0.12, sunUp));
     adapt *= mix(1.5, 1.0, smoothstep(0.0, 0.5, float(eyeBrightnessSmooth.y) / 240.0));
     float exposure = 0.62 * EXPOSURE * adapt;
 #if EXPOSURE_AUTO > 0
     // Et à ce qu'il regarde : une scène sombre s'ouvre, une scène éblouissante se ferme, à moitié seulement, comme un
     // œil et pas comme une caméra de surveillance, et en prenant son temps (lens.csh).
     float seen = max(lens.x, 1e-5) * exposure;
-    exposure *= clamp(pow(0.10 / seen, 0.3 * EXPOSURE_AUTO_AMOUNT), 0.75, 1.25);
+    // La nuit dehors, il ne rouvre pas plus grand : le noir reste noir.
+    float openMax = mix(1.0, 1.25, max(smoothstep(-0.18, 0.12, sunUp), 1.0 - smoothstep(0.0, 0.5, float(eyeBrightnessSmooth.y) / 240.0)));
+    exposure *= clamp(pow(0.10 / seen, 0.3 * EXPOSURE_AUTO_AMOUNT), 0.75, openMax);
 #endif
 #if RAIN_GLOOM > 0
     // Sous la pluie, l'œil ne rouvre pas tout : un jour gris reste un jour sombre, d'un gris un peu chaud, celui des
@@ -408,17 +411,19 @@ void main() {
         float chroma = (mx - min(color.r, min(color.g, color.b))) / max(mx, 1e-4);
         float leaf = smoothstep(0.004, 0.035, color.g - color.b) * smoothstep(-0.08, -0.01, color.g - color.r)
                    * smoothstep(0.02, 0.10, l) * smoothstep(0.08, 0.20, chroma) * step(texture(depthtex0, vUv).r, 0.99999);
-        vec3 warm = color * vec3(1.05, 1.0, 0.78);
+        vec3 warm = color * vec3(1.03, 1.0, 0.86);
         warm *= l / max(dot(warm, LUMA), 1e-5);
-        warm = mix(vec3(l), warm, 1.0 + 0.6 * (1.0 - smoothstep(0.15, 0.50, chroma)));
+        warm = mix(vec3(l), warm, 1.0 + 0.45 * (1.0 - smoothstep(0.15, 0.50, chroma)));
         color = mix(color, warm, leaf * FOLIAGE_TONE);
     }
 #endif
     // Les ombres gardent leur couleur : une pellicule, pas une vidéo délavée.
-    color = mix(vec3(l), color, SATURATION * mix(1.3, 1.08, smoothstep(0.04, 0.45, l)));
+    color = mix(vec3(l), color, SATURATION * mix(1.18, 1.0, smoothstep(0.04, 0.45, l)));
     color = (color - 0.5) * CONTRAST + 0.5;
-    // Une image mate : les noirs à peine levés, les blancs à peine retenus.
-    color = color * 0.96 + 0.016;
+    // Une image mate : les noirs à peine levés, les blancs à peine retenus. La nuit, presque pas : 0,016 montait le
+    // sol de nuit à 39 sur 255 et grisait tout, Recrafted le laisse vers 20.
+    float lift = mix(0.004, 0.011, smoothstep(-0.18, 0.12, sunUp));
+    color = color * (1.0 - 2.5 * lift) + lift;
     color = pow(max(color, 0.0), vec3(1.0 / 2.2));
 #if NIGHT_GRAIN > 0
     // Le grain de la nuit : dans le noir, l'œil ne voit plus net et l'image fourmille d'un grain fin, sans couleur, qui
