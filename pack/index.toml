@@ -4275,6 +4275,11 @@ hash = "b10943dd0c7472c8782d27e1239a851dfa41ee21608dff9207b84c0a81b56e20"
 metafile = true
 
 [[files]]
+file = "resourcepacks/fancy-crops.pw.toml"
+hash = "0cb5fc8c29fb99530cc20e013347558e198a686420aaf996fa03b9e23fa291dd"
+metafile = true
+
+[[files]]
 file = "resourcepacks/fresh-animations-details.pw.toml"
 hash = "fb04a1326015ee6de9994567c6500343b62079324dafd44b8b346a8bc2a49ec3"
 metafile = true
