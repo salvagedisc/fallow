@@ -43,15 +43,15 @@ float fogMarch(vec3 dir, float reach, float sunAmount, out vec3 light) {
     float mu = dot(dir, gLightDir);
     float phaseMist = 0.75 * mistPhase(mu, 0.5) + 0.25 * mistPhase(mu, -0.3);
     float phaseAir = 0.7 * mistPhase(mu, 0.75) + 0.3 * mistPhase(mu, 0.2);
-    vec3 body = mix(gAmbient, vec3(luma(gAmbient)), 0.75) * vec3(1.03, 1.0, 0.95) * 0.95 * mistTint() * mix(0.45, 1.0, gDay);
+    vec3 body = mix(gAmbient, vec3(luma(gAmbient)), 0.75) * vec3(1.03, 1.0, 0.95) * 0.95 * mistTint() * mix(0.45, 1.0, gDay) * mix(1.0, 0.62, gDusk);
     // Vers l'astre bas, la brume s'allume sans noyer le paysage : on doit encore lire les reliefs à contre-jour.
-    vec3 beam = gLightColor * (0.03 + 0.22 * phaseMist * SHAFT_STRENGTH) * sunAmount;
+    vec3 beam = gLightColor * (0.03 + 0.22 * phaseMist * SHAFT_STRENGTH) * sunAmount * mix(1.0, 0.5, gDusk);
 #if FOG_OPTICS > 0
     beam += gLightColor * fogOptics(dir) * sunAmount;
 #endif
     // Le jour, l'air seul ne renvoie que peu de soleil : face à l'astre bas, il ne doit pas noyer le paysage dans un voile
     // laiteux. La lune, faible, garde ses rayons.
-    float airGlow = (mix(0.0045, 0.0016, gDay) * SHAFT_STRENGTH) * mix(0.8, 1.6, airHumid) * smoothstep(0.2, 0.7, float(eyeBrightnessSmooth.y) / 240.0);
+    float airGlow = (mix(0.0045, 0.0016, smoothstep(-0.14, 0.0, gSunDir.y)) * SHAFT_STRENGTH) * mix(0.8, 1.6, airHumid) * smoothstep(0.2, 0.7, float(eyeBrightnessSmooth.y) / 240.0);
 #if MOON_SHAFTS > 0
     // La nuit, l'œil fait à l'ombre voit les rayons de lune dans la brume bien plus nettement que la lumière qu'elle
     // verse au sol ne le laisse croire : les faisceaux sont renforcés, la lumière des surfaces ne change pas.

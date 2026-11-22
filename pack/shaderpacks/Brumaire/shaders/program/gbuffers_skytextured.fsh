@@ -18,7 +18,8 @@ void main() {
     // jeu ou d'un mod qui la déplace : tout ce qui est dessiné autour du soleil est écarté.
     if (dot(normalize(vView), normalize(sunPosition)) > 0.86) discard;
     vec4 color = texture(gtexture, vUv) * vTint;
-    outColor = vec4(pow(color.rgb, vec3(2.2)) * 1.4, color.a);
+    // La lune ressort franchement de son halo : un carré blanc et net, pas une tache pâle dans la lueur.
+    outColor = vec4(pow(color.rgb, vec3(2.2)) * 2.6, color.a);
 #if EARTHSHINE > 0 && defined MC_RENDER_STAGE_MOON
     // La lumière cendrée : la part sombre de la lune, éclairée par la Terre, se devine en gris bleuté, d'autant plus
     // qu'elle est un mince croissant. Le disque se lit dans l'image de la pleine lune (première case de la texture,

@@ -114,7 +114,8 @@ vec3 skyAt(vec3 d) {
     c = mix(c, vec3(luma(c)) * vec3(0.78, 0.88, 1.08), night * 0.5);
     c = mix(c, vec3(luma(c)) * gLunar * 1.1, 0.6 * gLunarK);
     // Un ciel d'été voilé, pâle, presque blanc vers l'horizon : jamais d'un bleu profond (celui d'une carte postale).
-    c = mix(c, vec3(luma(c)) * vec3(0.95, 0.99, 1.05), (0.52 + 0.25 * (1.0 - smoothstep(0.0, 0.45, d.y))) * gDay);
+    // Au couchant, le ciel reprend ses couleurs : une bande pêche et rose au-dessus d'un horizon clair.
+    c = mix(c, vec3(luma(c)) * vec3(0.95, 0.99, 1.05), (0.52 + 0.25 * (1.0 - smoothstep(0.0, 0.45, d.y))) * gDay * (1.0 - 0.75 * gDusk));
     // Sous la pluie, un gris un peu chaud, celui des nuages chargés.
     c = mix(c, vec3(luma(c)) * vec3(0.85, 0.84, 0.80) * 0.7, rainStrength * 0.85);
     return c + vec3(0.55, 0.60, 0.80) * gFlash * (0.6 + 0.4 * max(d.y, 0.0));

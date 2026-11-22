@@ -54,6 +54,7 @@
 #define SUN_PILLAR 1 // [0 1]
 #define SKY_MOONBOW 1 // [0 1]
 #define EARTHSHINE 1 // [0 1]
+#define MOON_UPRIGHT 1 // [0 1]
 
 // Lumière
 #define SHADOW_FILTER 8 // [1 4 6 8 12 16]

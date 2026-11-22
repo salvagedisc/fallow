@@ -22,7 +22,9 @@ float mistAnchor() {
 float mistNearDensity() {
     // Plus dense à l'aube, la nuit et sous la pluie ; elle ne descend pas dans les grottes.
     float open = smoothstep(0.0, 0.55, float(eyeBrightnessSmooth.y) / 240.0);
-    float hour = mix(0.80, 0.32, gDay) + 0.10 * gDusk;
+    // Le jour garde sa nappe légère jusqu'au coucher : un soleil bas ne l'épaissit pas, sinon le couchant se noie dans un
+    // halo orangé au lieu d'un paysage sombre sous un ciel coloré. Elle s'épaissit une fois le soleil passé.
+    float hour = mix(0.80, 0.32, smoothstep(-0.14, 0.0, gSunDir.y));
     // L'air du biome : plus de brume là où il est humide, moins dans un désert.
     float biome = mix(0.75, 1.3, airHumid) * (1.0 - 0.85 * airDust());
     return 0.010 * MIST_DENSITY * hour * biome * (1.0 + 0.4 * rainStrength) * open;
@@ -113,9 +115,12 @@ vec3 mistColor(vec3 dir, float sun) {
     // La nuit, la brume ne reçoit que la lune et le ciel noir : elle reste sombre, un voile et pas un mur gris qui
     // éclaircirait tout le paysage.
     body *= mix(0.45, 1.0, gDay);
+    // Au couchant, la brume n'a plus que la lueur d'un ciel qui baisse : elle s'assombrit avec le paysage au lieu de
+    // le noyer dans un halo orangé ; elle reste lisible, une bande plus claire au creux des vallées.
+    body *= mix(1.0, 0.62, gDusk);
     // Les gouttelettes renvoient surtout la lumière vers l'avant : un halo vers le soleil, un peu en arrière.
     float mu = dot(dir, gLightDir);
     float phase = 0.75 * mistPhase(mu, 0.5) + 0.25 * mistPhase(mu, -0.3);
-    vec3 beam = gLightColor * (0.03 + 0.18 * phase * SHAFT_STRENGTH);
+    vec3 beam = gLightColor * (0.03 + 0.18 * phase * SHAFT_STRENGTH) * mix(1.0, 0.5, gDusk);
     return body + beam * sun;
 }
