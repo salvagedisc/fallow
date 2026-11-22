@@ -17,6 +17,10 @@ file = "config/adorablehamsterpets/ui.toml"
 hash = "6ea363669c5a9954b29213737c5b429c9e6cb92456bb79381dc3748416b111bb"
 
 [[files]]
+file = "config/amendments-client.toml"
+hash = "b0ee2f06a06b38a70d9e8e19475b3ce8e1fb03854dad523617e436f61c0d4e93"
+
+[[files]]
 file = "config/amendments-common.toml"
 hash = "5cc23f0d3635f51ea8298f4b9bdb8150c960d40168785fe5945c39a23a585a2e"
 
@@ -94,7 +98,7 @@ hash = "e835d69453c8f89e216418cec71966db955bc75ee264e3ac11275e5bff52cd93"
 
 [[files]]
 file = "config/fwa.json"
-hash = "97948a8f546c1f779dec82fa5a1690aff990309efe49d473e270fdee72cbc62d"
+hash = "5e71389a1c8324833a4517ea0ef94a32fc268a76ddbbc6bf29b5248e5a85fb42"
 
 [[files]]
 file = "config/handson_delight.properties"

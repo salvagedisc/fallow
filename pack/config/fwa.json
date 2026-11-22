@@ -1,5 +1,5 @@
 {
-  "lantern_state": "false",
-  "chain_state": "false",
-  "hanging_sign_state": "false"
+  "lantern_state": "true",
+  "chain_state": "true",
+  "hanging_sign_state": "true"
 }

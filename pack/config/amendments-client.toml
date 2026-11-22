@@ -1,0 +1,10 @@
+# Fallow : les lanternes murales et les panneaux suspendus ne se balancent pas par
+# Amendments ; c'est Fancy World Animations qui anime ce qui pend, d'un seul style.
+# Fichier partiel : les options absentes gardent leur valeur par défaut.
+[hanging_sign]
+	#Le balancement des panneaux suspendus vient de Fancy World Animations
+	swinging_signs = false
+
+[lantern]
+	#Lanternes murales en modèle simple, sans balancement
+	fast_lanterns = true
