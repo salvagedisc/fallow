@@ -113,7 +113,7 @@ float fogMarch(vec3 dir, float reach, float sunAmount, out vec3 light) {
     if (FOG_BLOCK_GLOW > 0.0) {
         float haloReach = min(reach, 32.0);
         float hdt = haloReach / 10.0;
-        float glowAir = 0.008 + 0.016 * airHumid + 0.012 * rainStrength + cave * 2.0;
+        float glowAir = 0.008 + 0.016 * airHumid + 0.012 * rainStrength + cave * 1.0;
         vec3 glow = vec3(0.0);
         for (int i = 0; i < 10; i++) {
             float t = (float(i) + noise) * hdt;

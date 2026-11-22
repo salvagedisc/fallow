@@ -174,10 +174,10 @@ vec3 shade(vec3 albedo, vec3 normal, vec2 lm, float ao, vec3 pos, float leaf, ve
     // bleue pour une âme, rouge pour la lave…
     float blockLm = lm.x;
     vec3 tint = blockLightTint(pos, normal, blockLm);
-    // Une flamme éclaire fort tout près et peu au loin : à mi-portée (niveau 8) moitié moins qu'avant, comme les grottes
-    // sombres de Recrafted, où une lanterne ne remplit pas toute la salle.
+    // Une flamme éclaire fort tout près et peu au loin : à mi-portée (niveau 8) 2,5 fois moins qu'avant : comme chez
+    // Recrafted, une lanterne fait une flaque de lumière de quelques blocs et ne remplit pas toute la salle.
     float bl2 = blockLm * blockLm;
-    float glow = bl2 * (0.16 + 2.45 * bl2 * bl2);
+    float glow = bl2 * (0.08 + 2.5 * bl2 * bl2);
     gBlockSide = 0.0;
 #if BLOCK_LIGHT_SHAPE > 0
     if (blockLm > 0.02) {
