@@ -89,7 +89,7 @@ public final class StormClient {
             double vx = wind.x + RANDOM.nextGaussian() * 0.03;
             double vz = wind.z + RANDOM.nextGaussian() * 0.03;
             if (sand) {
-                float shade = (0.85F + RANDOM.nextFloat() * 0.25F) * level.getSkyDarken(1.0F);
+                float shade = 0.85F + RANDOM.nextFloat() * 0.25F;
                 // Un grain qui suit le vent (les poussières du jeu perdent presque toute leur vitesse de départ).
                 Mote.release(level, x, y, z, new float[] {0.82F * shade, 0.67F * shade, 0.46F * shade},
                         0.04F + RANDOM.nextFloat() * 0.05F, push, 20 + RANDOM.nextInt(25));

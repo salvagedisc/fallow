@@ -63,7 +63,7 @@ bubbleGeyserActiveTime = 300
 bubbleGeyserInactiveTime = 500
 
 [fireflies]
-# Fallow : les lucioles sont celles de Particular (fleurs, herbe, nuits tièdes) ; celles-ci les doublaient.
+# Fallow : les lucioles du pack sont celles de Naturalist, de vraies bêtes ; celles-ci n'étaient que des particules.
 firefliesEnabled = false
 dimensionBlocklist = [
     "twilightforest:twilight_forest_type"

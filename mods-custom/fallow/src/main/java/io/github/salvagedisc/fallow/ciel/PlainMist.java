@@ -10,8 +10,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FogType;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.Tags;
@@ -38,8 +38,12 @@ public final class PlainMist {
     private static final float RAIN_SHARE = 0.45F;
     private static final boolean IRIS = ModIds.isLoaded(ModIds.IRIS);
 
+    /** En dessous de cette lumière du ciel, on est sous terre. */
+    private static final int MIN_SKY_LIGHT = 8;
+
     private static float lift;
     private static long last;
+    private static ClientLevel seen;
 
     private PlainMist() {
     }
@@ -47,26 +51,36 @@ public final class PlainMist {
     /** Reçoit la brume d'ATMOSPHERICS ({@code r, g, b, début, fin}) et en change la distance, sans pack de shaders. */
     public static void apply(float[] fog) {
         if (!FallowConfig.cielMistWithoutShader() || fog[4] <= 0.0F || shaderInUse()) {
+            last = 0L;
             return;
         }
         Minecraft minecraft = Minecraft.getInstance();
         ClientLevel level = minecraft.level;
         Camera view = minecraft.gameRenderer.getMainCamera();
         if (level == null || level.dimension() != Level.OVERWORLD || view.getFluidInCamera() != FogType.NONE) {
+            last = 0L;
             return;
         }
         Vec3 camera = view.getPosition();
         BlockPos eye = BlockPos.containing(camera);
-        // Sous terre (un toit de plus de quatre blocs au-dessus), la brume des grottes d'ATMOSPHERICS reste.
-        if (level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, eye.getX(), eye.getZ()) > camera.y + 4.0) {
+        // Sous terre, la brume des grottes d'ATMOSPHERICS reste. On lit la lumière du ciel : la carte des hauteurs
+        // sans feuillage n'est pas envoyée au client, et sous les arbres il fait encore assez clair.
+        if (level.getBrightness(LightLayer.SKY, eye) < MIN_SKY_LIGHT) {
+            last = 0L;
             return;
         }
         long now = System.nanoTime();
-        float dt = last == 0L ? 0.0F : Math.min(0.25F, (now - last) / 1.0E9F);
-        last = now;
         float partial = minecraft.getTimer().getGameTimeDeltaPartialTick(false);
         float target = ClearingClient.liftAt(level, camera, partial, LIFT_BLOCKS);
-        lift += (target - lift) * (1.0F - (float) Math.exp(-dt / LIFT_SECONDS));
+        if (last == 0L || level != seen) {
+            // Au retour (sous terre, sous l'eau, autre monde, nouvelle connexion), la brume repart de l'endroit.
+            lift = target;
+            seen = level;
+        } else {
+            float dt = Math.min(0.25F, (now - last) / 1.0E9F);
+            lift += (target - lift) * (1.0F - (float) Math.exp(-dt / LIFT_SECONDS));
+        }
+        last = now;
 
         // Le jour : 1 à midi, 0 la nuit, un passage d'une heure de jeu environ à l'aube et au crépuscule.
         float sun = Mth.cos(level.getTimeOfDay(partial) * Mth.TWO_PI);

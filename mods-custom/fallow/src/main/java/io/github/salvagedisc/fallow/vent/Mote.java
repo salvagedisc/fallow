@@ -27,15 +27,20 @@ public final class Mote extends TextureSheetParticle {
             ResourceLocation.withDefaultNamespace("generic_3"),
     };
 
+    /** Lumière du ciel seule, pleine (bloc 0, ciel 15). */
+    private static final int SKY_ONLY = LightTexture.pack(0, 15);
     /** Part de l'écart au vent rattrapée en un tick : un grain léger le rejoint en moins d'une demi-seconde. */
     private static final float FOLLOW = 0.25F;
     /** Le vent qui l'emporte, rapporté au vent du pack (une tempête souffle plus fort que lui). */
     private final double push;
     private final float opacity;
+    /** Vrai si un pack de shaders l'éclaire. */
+    private final boolean shaded;
 
     private Mote(ClientLevel level, double x, double y, double z, double push, TextureAtlasSprite sprite) {
         super(level, x, y, z);
         this.push = push;
+        this.shaded = Shaders.inUse();
         this.gravity = 0.0F;
         this.friction = 1.0F;
         // Sans collisions : le jeu fige pour de bon une particule qui touche le sol en descendant. Le grain
@@ -53,7 +58,7 @@ public final class Mote extends TextureSheetParticle {
     /**
      * Lâche un grain en (x, y, z), s'il en reste la place selon le réglage des particules du joueur.
      *
-     * @param rgb   couleur, de 0 à 1, clarté du ciel comprise (le grain n'est pas éclairé)
+     * @param rgb   couleur en plein jour, de 0 à 1 (la clarté du ciel s'y ajoute ici)
      * @param size  demi-côté du grain, en blocs
      * @param push  vent qui l'emporte, rapporté au vent du pack
      * @param ticks durée de vie
@@ -72,7 +77,8 @@ public final class Mote extends TextureSheetParticle {
             return;
         }
         Mote mote = new Mote(level, x, y, z, push, atlas.getSprite(SPRITES[level.random.nextInt(SPRITES.length)]));
-        mote.setColor(rgb[0], rgb[1], rgb[2]);
+        float light = mote.shaded ? 1.0F : level.getSkyDarken(1.0F);
+        mote.setColor(rgb[0] * light, rgb[1] * light, rgb[2] * light);
         mote.quadSize = size;
         mote.lifetime = Math.max(1, ticks);
         minecraft.particleEngine.add(mote);
@@ -102,12 +108,14 @@ public final class Mote extends TextureSheetParticle {
     }
 
     /**
-     * Pleine lumière : le grain vole toujours à ciel ouvert, et sa couleur porte déjà la clarté du ciel. Éclairé
-     * comme un bloc, il sortait gris sombre sur l'air clair d'une tempête.
+     * Le grain vole toujours à ciel ouvert. Sans pack de shaders, il est en pleine lumière et sa couleur porte la
+     * clarté du ciel (éclairé comme un bloc, il sortait gris sombre sur l'air clair d'une tempête). Sous un pack de
+     * shaders, qui lit la lumière des blocs comme celle d'une torche, il reçoit la seule lumière du ciel et le pack
+     * l'éclaire comme le reste de la scène.
      */
     @Override
     protected int getLightColor(float partialTick) {
-        return LightTexture.FULL_BRIGHT;
+        return shaded ? SKY_ONLY : LightTexture.FULL_BRIGHT;
     }
 
     @Override

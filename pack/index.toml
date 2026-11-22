@@ -346,7 +346,7 @@ hash = "af54ebe719135c885a1d457a09ad05be888991e06e959c4226c7e7dd52a662d3"
 
 [[files]]
 file = "config/subtle_effects/environment.toml"
-hash = "5756f7916bb271a0997f394bec93b623b83b8d90345fc6c3c47110b2dacfd95a"
+hash = "e0078942b5056a5ac0c723a8b321cf09db74e32949bf9e6cb5f1c3f8e32fe5d4"
 
 [[files]]
 file = "config/supplementaries-client.toml"
@@ -3662,8 +3662,8 @@ hash = "2c88d3eceb7be9c5964ca32c24612ca08d7326b4cb06104e98d56efa777de640"
 metafile = true
 
 [[files]]
-file = "mods/fallow-0.86.0.jar"
-hash = "fafbaa5720c9219c60432d9de691dc26729b36893aa9262e7cde42e0dfd6936d"
+file = "mods/fallow-0.87.0.jar"
+hash = "f5d1952bb87438ae7a1c1e2e11837870175c25f051bed48f2d6a2002213c8f95"
 
 [[files]]
 file = "mods/farmers-delight.pw.toml"
@@ -4795,7 +4795,7 @@ hash = "effac3ca4ede47835e907152fb2fbc3b4470185f798f6e7065f528085e57e29c"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/program/mist.fsh"
-hash = "faa6b1a7e87492417cc9485de49e87084b92d8aa349828e87604a0e80e0621fb"
+hash = "3a70f8613b717d309825aa454a434ea4c2ee59e3717256bf2a96421ad66f08f4"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/program/motion.fsh"

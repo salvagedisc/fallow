@@ -17,6 +17,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ColorResolver;
@@ -151,6 +152,15 @@ public final class ClearingClient {
         }
         float t = (float) Mth.clamp(inside / blocks, 0.0, 1.0);
         return t * t * (3.0F - 2.0F * t);
+    }
+
+    /** Le premier bloc libre au-dessus du sol en (x, z), feuillage traversé (douze blocs au plus). */
+    private static int groundBelowLeaves(ClientLevel level, BlockPos.MutableBlockPos pos, int x, int z) {
+        int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z);
+        for (int i = 0; i < 12 && level.getBlockState(pos.set(x, y - 1, z)).is(BlockTags.LEAVES); i++) {
+            y--;
+        }
+        return y;
     }
 
     /** Vrai si le biome de {@code pos} fait partie de ceux qui se dégagent (ni océan, ni plage, ni désert, ni grotte). */
@@ -328,7 +338,9 @@ public final class ClearingClient {
             double angle = random.nextDouble() * Math.PI * 2.0, distance = lo + random.nextDouble() * (hi - lo);
             double dx = Math.cos(angle), dz = Math.sin(angle);
             double x = clearing.center().getX() + 0.5 + dx * distance, z = clearing.center().getZ() + 0.5 + dz * distance;
-            int ground = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, (int) Math.floor(x), (int) Math.floor(z));
+            // Le client ne reçoit que WORLD_SURFACE et MOTION_BLOCKING : celle sans feuillage y reste vide (le bas du
+            // monde). On descend donc sous les feuilles depuis MOTION_BLOCKING.
+            int ground = groundBelowLeaves(level, pos, Mth.floor(x), Mth.floor(z));
             if (!clearable.containsKey(level.getBiome(pos.set(x, ground, z)).value())) {
                 continue;
             }
