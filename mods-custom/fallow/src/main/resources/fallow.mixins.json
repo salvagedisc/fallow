@@ -8,6 +8,7 @@
     "compat.IceThawMixin",
     "compat.InStructureMixin",
     "dinos.ChorusoatlArmorMixin",
+    "eveil.PosteDeTableMixin",
     "horizon.ChunkyAccessorMixin",
     "navires.VoileMixin",
     "repos.PlayerExhaustionMixin",

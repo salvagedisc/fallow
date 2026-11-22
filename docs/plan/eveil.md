@@ -29,6 +29,7 @@ With Diegesis in the pack the enchanting table is a station (`TableEveil`, stati
 - **A shard.** With a shard on the table the right page is the shard's: the beast, its story, the power and its level, and what the table says (hold to pour it, lay the item on the left, it does not take, the item already bears it, no place left).
 - **Each new page comes by a page turned**; while the sheets riffle (an item just laid) the last one brings it, and the leaf that goes keeps what it said. Pages with nothing written carry the table's runes, faded, as the floating book does.
 - **Others at the table** see the item rise and come down, and the runes stream, with the server's sound.
+- **Never vanilla's window.** Hands-On Vanilla registers its own enchanting table station, switched off in the pack's config, and Diegesis takes the first station registered for a block: when Hands-On's came first, nothing opened and vanilla's enchanting window let anyone enchant with experience. The mixin `eveil.PosteDeTableMixin` makes Diegesis always answer the enchanting table with ours, on both sides; and whatever opens it, vanilla's enchanting window is closed as soon as it opens (`EveilModule.jamaisVanilla`). A cancelled right-click cannot be the guard: Diegesis fires the same event to ask whether it may open.
 - Crouching, or with `[eveil] poste = false`, the table keeps the one-row window of before (item in the main hand, shard in the other hand).
 
 ## Places by forging quality
@@ -144,6 +145,8 @@ Test commands (operators): `/fallow eveil voir` shows the held item's places, st
 **Checked** on the test bench on 2026-11-22 (ink and selection, 0.70.0), development client and server with Diegesis, in survival: with a ready pickaxe and no ink the paths stay in runes on hover, the foot of the page is red and a click shows « Il manque l'encre d'éveil … »; given three vials and reopened, they go to the inkwell, reading Fortune I draws wisps of ink and the band covers the path to its last line; held, the awakening throws its ring of runes and sparks and the inkwell shows 2. Not checked: the crouching window with ink (EV24), the sounds.
 
 **Checked** on the test bench on 2026-11-22 (after the first play, 0.71.0): the ink is vanilla's potion tinted violet, in the hotbar and in the inkwell; with the inkwell empty the foot of the page reads « L'encrier est vide, les runes se taisent. » on two whole lines and a click adds no caption; with ink, the hovered path lights with no band behind it, the held click draws its line of ink under the name, and the foot « Lisez une voie du regard, puis tenez le clic pour l'éveiller. » is whole on three lines; a shard laid next to a full pickaxe gives its refusal at the foot, whole.
+
+**Checked** on the test bench on 2026-11-22 (0.73.0), with Hands-On Vanilla 1.2.2 and the pack's `handson_vanilla.properties` in the development run: without the mixin a right-click with a ready pickaxe opened vanilla's enchanting window (reproduced); with the window guard alone it closes at once; with both, our station opens and an awakening goes through.
 
 ## In-game tests
 

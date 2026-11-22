@@ -145,6 +145,7 @@ public final class EveilModule {
         NeoForge.EVENT_BUS.addListener(ItemFishedEvent.class, EveilModule::onFished);
         NeoForge.EVENT_BUS.addListener(PlayerTickEvent.Post.class, EveilModule::onTick);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, PlayerInteractEvent.RightClickBlock.class, EveilModule::onTable);
+        NeoForge.EVENT_BUS.addListener(net.neoforged.neoforge.event.entity.player.PlayerContainerEvent.Open.class, EveilModule::jamaisVanilla);
         NeoForge.EVENT_BUS.addListener(VillagerTradesEvent.class,
                 e -> e.getTrades().values().forEach(EveilModule::sansEnchantement));
         NeoForge.EVENT_BUS.addListener(WandererTradesEvent.class, e -> {
@@ -420,7 +421,8 @@ public final class EveilModule {
         Player joueur = event.getEntity();
         boolean poste = DIEGESIS && FallowConfig.eveilPoste() && !joueur.isSecondaryUseActive();
         if (poste && TableEveil.ouvre(joueur, event.getPos(), event.getLevel().getBlockState(event.getPos()))) {
-            // Le poste de Diegesis s'ouvre (TableEveil) ; la table vanilla jamais.
+            // Le poste de Diegesis s'ouvre (TableEveil), par son propre écouteur du clic ; s'il ne s'ouvre pas, jamaisVanilla
+            // ferme la porte à la table de vanilla.
             return;
         }
         event.setCanceled(true);
@@ -475,6 +477,22 @@ public final class EveilModule {
         player.openMenu(new SimpleMenuProvider(
                 (id, inventory, p) -> new ChoixMenu(id, inventory, objet, options, event.getPos()),
                 Component.translatable("eveil.fallow.choix.titre", objet.getHoverName())));
+    }
+
+    /**
+     * La fenêtre d'enchantement de vanilla ne reste jamais ouverte : elle passerait outre l'éveil. La table ouvre notre poste
+     * ({@code PosteDeTableMixin} fait qu'il est trouvé avant celui, coupé, de Hands-On Vanilla) ou la fenêtre de choix ; si une
+     * fenêtre de vanilla s'ouvre quand même, d'où qu'elle vienne, elle se referme aussitôt.
+     */
+    private static void jamaisVanilla(net.neoforged.neoforge.event.entity.player.PlayerContainerEvent.Open event) {
+        if (FallowConfig.eveilEnabled() && event.getContainer() instanceof net.minecraft.world.inventory.EnchantmentMenu
+                && event.getEntity() instanceof ServerPlayer player) {
+            player.server.execute(() -> {
+                if (player.containerMenu instanceof net.minecraft.world.inventory.EnchantmentMenu) {
+                    player.closeContainer();
+                }
+            });
+        }
     }
 
     private static void poserEclat(ServerPlayer player, ItemStack objet, ItemStack eclatStack,
