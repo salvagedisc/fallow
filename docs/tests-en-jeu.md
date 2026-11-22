@@ -42,6 +42,7 @@ The code in brackets, such as [K1], points to the detailed test in the repositor
 - [ ] **Pack sort**: no Chipped, Beautify! or Twigs table in EMI, Twigs cobblestone bricks (mossy, cracked, slabs, stairs, walls) present, Supplementaries sconces present, Steam 'n' Rails reduced to a few tracks and plain locometal, Every Compat without Quark or Ghost woods; no food values in tooltips [TR1, TR2, TR9].
 - [ ] Vanilla animals move with Fresh Animations (pig, cow, chicken, sheep) [F2].
 - [ ] Stone, a torch or bread in hand: the item is drawn and the hand stays still (only a light sway); scrolling the hotbar lowers and raises the hand once per change [A1-A3].
+- [ ] **Items in 3D** (Team Disco, [0053](decisions/0053-team-disco-items.md)): on a new installation Options → Resource Packs lists the six Fresh packs on (marked incompatible), under Fresh Animations; on an existing one turn them on there [OB1]. Bread, an apple, a steak, a bucket, an iron ingot, a poppy, a music disc and a painting are 3D in hand and flat in the inventory [OB2]; eating an apple or a steak takes bites in stages [OB3]; Farmer's Delight food stays flat, as before [OB4]; a door, a trapdoor, a lever and a chest open with an animation, a lantern hung from a chain swings once (Amendments), not twice [OB5]; Punchy still animates the arm with food in hand, without the hand blinking [OB6].
 
 ## Session 2: the mist and the clearings
 
@@ -351,6 +352,7 @@ Once the results are in:
 | PE (fishing) | this file, session 4; context in [decisions/0034](decisions/0034-starcatcher-fishing.md) |
 | SC (books, Scholar) | this file, session 1; context in [mods](mods.md) |
 | CH (chalk, chimneys) | this file, session 1; context in [mods](mods.md) |
+| OB (items in 3D) | this file, session 1; context in [decisions/0053](decisions/0053-team-disco-items.md) |
 | LI (books) | this file, session 1; context in [plan/mod-fallow.md](plan/mod-fallow.md#books-livres-client) |
 | RE (rest by the hearth) | [plan/repos.md](plan/repos.md#in-game-tests) |
 | AP (the approach) | [plan/approche.md](plan/approche.md#in-game-tests) |
