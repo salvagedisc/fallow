@@ -1,0 +1,13 @@
+name = "Fresh Music Discs"
+filename = "Fresh Music Discs.zip"
+side = "both"
+
+[download]
+url = "https://cdn.modrinth.com/data/qdNj7A1T/versions/90f7wz5I/Fresh%20Music%20Discs.zip"
+hash-format = "sha512"
+hash = "95d6cd26f3f55633148e3e967f511ed4afd03b5516971839149889e8db9b4913e4773e27243842e408460118235d3b43f71e3e30e89041245de5ca402ef38192"
+
+[update]
+[update.modrinth]
+mod-id = "qdNj7A1T"
+version = "90f7wz5I"

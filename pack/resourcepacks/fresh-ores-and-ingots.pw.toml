@@ -1,0 +1,13 @@
+name = "Fresh Ores and Ingots"
+filename = "Fresh Ores and Ingots.zip"
+side = "both"
+
+[download]
+url = "https://cdn.modrinth.com/data/paf0m7bo/versions/FC6JCAmV/Fresh%20Ores%20and%20Ingots.zip"
+hash-format = "sha512"
+hash = "c45822443641b7a0eb99c0a8097ee402b1eeec85025fdf4b85331bcee26f51a0f66a68e9d60b8f8c0b37be219df41b705f0e21fcb23df44b645e9e6e6ddcaf1b"
+
+[update]
+[update.modrinth]
+mod-id = "paf0m7bo"
+version = "FC6JCAmV"

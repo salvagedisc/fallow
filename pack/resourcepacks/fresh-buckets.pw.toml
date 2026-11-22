@@ -1,0 +1,13 @@
+name = "Fresh Buckets"
+filename = "Fresh Buckets.zip"
+side = "both"
+
+[download]
+url = "https://cdn.modrinth.com/data/Sb5mtr2w/versions/wjnaVig2/Fresh%20Buckets.zip"
+hash-format = "sha512"
+hash = "7216427b9a9fe1a9a0643807fee123d2fc28bc07e7c5268dc5a30ae3c83eb1da39b8136b0ebb4bced540c911aa37f8321d2431719dcb158b7276a1071c71a06f"
+
+[update]
+[update.modrinth]
+mod-id = "Sb5mtr2w"
+version = "wjnaVig2"

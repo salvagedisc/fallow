@@ -1,0 +1,13 @@
+name = "Fresh Paintings"
+filename = "Fresh Paintings.zip"
+side = "both"
+
+[download]
+url = "https://cdn.modrinth.com/data/BZUceKlq/versions/Fv1DcGhl/Fresh%20Paintings.zip"
+hash-format = "sha512"
+hash = "ebe5c2a1d89b8f9144018763ff29149b5ac1b71e86764a768080e08a0c7a50ee4844b70e400044602d0887b8590e17bbb066a0f42534d2fe108b5289b92df713"
+
+[update]
+[update.modrinth]
+mod-id = "BZUceKlq"
+version = "Fv1DcGhl"

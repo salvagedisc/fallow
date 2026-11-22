@@ -1,6 +1,10 @@
 # Fallow : packs de ressources activés au premier lancement. Du moins prioritaire
-# au plus prioritaire : les feuilles de Better Leaves, Fresh Animations et ses
-# extensions. Le rendu vient du pack de shaders Brumaire (config/iris.properties).
+# au plus prioritaire : les feuilles de Better Leaves, les objets de Team Disco
+# (Fresh Food, Buckets, Ores and Ingots, Flowers and Plants, Music Discs, Paintings),
+# Fresh Animations et ses extensions. Les packs de Team Disco sont faits pour 1.21.4
+# (format 46) : le jeu les dit incompatibles, mais Default Options les sélectionne
+# quand même et le jeu les garde ensuite (incompatibleResourcePacks d'options.txt).
+# Le rendu vient du pack de shaders Brumaire (config/iris.properties).
 # Default Options ne sélectionne que les packs de cette liste : les ressources des
 # mods (mod_resources de NeoForge, fabric de Connector), absentes, étaient rajoutées
 # au-dessus des autres et passaient devant Fresh Animations. Elles sont donc
@@ -10,6 +14,12 @@ defaultResourcePacks = [
 	"mod_resources",
 	"fabric",
 	"file/Better-Leaves-9.6.zip",
+	"file/Fresh Paintings.zip",
+	"file/Fresh Music Discs.zip",
+	"file/Fresh Flowers and Plants.zip",
+	"file/Fresh Ores and Ingots.zip",
+	"file/Fresh Buckets.zip",
+	"file/Fresh Food.zip",
 	"file/FreshAnimations_v1.11_1.20+.zip",
 	"file/FA+Details-v2.2.1.zip",
 	"file/FA+Objects-v2.1.2.zip",

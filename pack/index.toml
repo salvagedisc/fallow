@@ -42,7 +42,7 @@ hash = "48b83973132d41c7fe23f5861c1ff580b3734ee0397c62ae1031e2dd289284f2"
 
 [[files]]
 file = "config/defaultoptions-common.toml"
-hash = "c462ad3cd508f85a37f52b1c41a3aac8bc37ca1ad25ef0c157d52fac9597f36e"
+hash = "6e38209fb418c6c1b2973fbf03ad41c2e5e049423d9450fea46791acb6152a21"
 
 [[files]]
 file = "config/defaultoptions/extra/config/entity_model_features.json"
@@ -4275,6 +4275,36 @@ metafile = true
 [[files]]
 file = "resourcepacks/fresh-animations.pw.toml"
 hash = "070948ef5674abf5d87f737453ee394531834602091aaa04dec192472cfa531e"
+metafile = true
+
+[[files]]
+file = "resourcepacks/fresh-buckets.pw.toml"
+hash = "3e8d74340131a6af85868897950a7c42c99d128c352cb376732c1547e99dfcfa"
+metafile = true
+
+[[files]]
+file = "resourcepacks/fresh-flowers-and-plants.pw.toml"
+hash = "a3506f1f956bb5c076433dae2c43da199ef4fae79637a9d76e92472ea696f7ae"
+metafile = true
+
+[[files]]
+file = "resourcepacks/fresh-food.pw.toml"
+hash = "255e5e16e3f59423b303587cb57796c9043e0bd445707a6c088f0545d20e1f2b"
+metafile = true
+
+[[files]]
+file = "resourcepacks/fresh-music-discs.pw.toml"
+hash = "862f8ea5ba61aa498a60601eccbd5b0d9ad91cf06b5692f08ec6207f77955ed0"
+metafile = true
+
+[[files]]
+file = "resourcepacks/fresh-ores-and-ingots.pw.toml"
+hash = "2827ef76c9078b1878a29c0884a20202b32851a3b1079e8efaca51302659db83"
+metafile = true
+
+[[files]]
+file = "resourcepacks/fresh-paintings.pw.toml"
+hash = "6b9aaae5cd0cb72b042d755bec368e69b07d3106c9525561d9297cff311bff00"
 metafile = true
 
 [[files]]
