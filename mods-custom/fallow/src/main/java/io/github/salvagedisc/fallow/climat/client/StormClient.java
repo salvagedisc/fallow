@@ -2,18 +2,17 @@ package io.github.salvagedisc.fallow.climat.client;
 
 import io.github.salvagedisc.fallow.FallowConfig;
 import io.github.salvagedisc.fallow.climat.Storm;
+import io.github.salvagedisc.fallow.vent.Mote;
 import io.github.salvagedisc.fallow.vent.Wind;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import org.joml.Vector3f;
 
 /**
  * Ce qu'on voit d'une tempête, côté client. Dans le sable, une poussière fauve file avec le vent du pack ; dans une
@@ -85,15 +84,15 @@ public final class StormClient {
                 continue;
             }
             // Le vent du pack, en blocs par tick, avec une part de remous ; la tempête souffle plus fort que lui.
-            Vec3 wind = Wind.velocity(x, z).scale((0.9 + strength) / 20.0);
+            double push = 0.9 + strength;
+            Vec3 wind = Wind.velocity(x, z).scale(push / 20.0);
             double vx = wind.x + RANDOM.nextGaussian() * 0.03;
             double vz = wind.z + RANDOM.nextGaussian() * 0.03;
             if (sand) {
-                float shade = 0.85F + RANDOM.nextFloat() * 0.25F;
-                DustParticleOptions dust = new DustParticleOptions(
-                        new Vector3f(0.82F * shade, 0.67F * shade, 0.46F * shade), 0.5F + RANDOM.nextFloat() * 0.9F);
-                // Les grains de poussière du jeu ralentissent leur vitesse de départ au dixième : on la donne décuplée.
-                level.addParticle(dust, x, y, z, vx * 10.0, RANDOM.nextGaussian() * 0.15, vz * 10.0);
+                float shade = (0.85F + RANDOM.nextFloat() * 0.25F) * level.getSkyDarken(1.0F);
+                // Un grain qui suit le vent (les poussières du jeu perdent presque toute leur vitesse de départ).
+                Mote.release(level, x, y, z, new float[] {0.82F * shade, 0.67F * shade, 0.46F * shade},
+                        0.04F + RANDOM.nextFloat() * 0.05F, push, 20 + RANDOM.nextInt(25));
             } else {
                 level.addParticle(ParticleTypes.SNOWFLAKE, x, y, z, vx, -0.05 - RANDOM.nextDouble() * 0.05, vz);
             }

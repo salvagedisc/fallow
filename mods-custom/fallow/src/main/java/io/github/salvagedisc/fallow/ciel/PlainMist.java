@@ -34,6 +34,8 @@ public final class PlainMist {
     private static final float LIFT_SECONDS = 0.8F;
     /** La nuit, la brume et la clairière se referment à cette part de leur distance de jour. */
     private static final float NIGHT_SHARE = 0.55F;
+    /** Sous une pluie franche, la clairière s'ouvre à cette part de sa distance. */
+    private static final float RAIN_SHARE = 0.45F;
     private static final boolean IRIS = ModIds.isLoaded(ModIds.IRIS);
 
     private static float lift;
@@ -75,7 +77,9 @@ public final class PlainMist {
         boolean dry = biome.is(Tags.Biomes.IS_DESERT) || biome.is(Tags.Biomes.IS_BADLANDS);
         float end = fog[4];
         float misty = dry ? end : Math.min(end, FallowConfig.cielMistDistance() * share);
-        float clear = Math.max(end, FallowConfig.cielClearingDistance() * share);
+        // Sous la pluie, la clairière s'ouvre moins loin : l'averse garde son voile, la brume seule se lève.
+        float rain = level.getRainLevel(partial);
+        float clear = Math.max(end, FallowConfig.cielClearingDistance() * share * Mth.lerp(rain, 1.0F, RAIN_SHARE));
         float newEnd = Mth.lerp(lift, misty, clear);
         // Le début garde la proportion voulue par ATMOSPHERICS.
         fog[3] = newEnd * fog[3] / end;
