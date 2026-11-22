@@ -23,6 +23,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ColorResolver;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
@@ -154,10 +155,17 @@ public final class ClearingClient {
         return t * t * (3.0F - 2.0F * t);
     }
 
-    /** Le premier bloc libre au-dessus du sol en (x, z), feuillage traversé (douze blocs au plus). */
+    /**
+     * Le premier bloc libre au-dessus du sol en (x, z) : on descend depuis MOTION_BLOCKING à travers le feuillage et
+     * l'air sous la ramure, jusqu'à un bloc plein ou un liquide (32 blocs au plus).
+     */
     private static int groundBelowLeaves(ClientLevel level, BlockPos.MutableBlockPos pos, int x, int z) {
         int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z);
-        for (int i = 0; i < 12 && level.getBlockState(pos.set(x, y - 1, z)).is(BlockTags.LEAVES); i++) {
+        for (int i = 0; i < 32; i++) {
+            BlockState below = level.getBlockState(pos.set(x, y - 1, z));
+            if (!below.is(BlockTags.LEAVES) && (below.blocksMotion() || !below.getFluidState().isEmpty())) {
+                break;
+            }
             y--;
         }
         return y;

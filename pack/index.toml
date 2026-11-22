@@ -3662,8 +3662,8 @@ hash = "2c88d3eceb7be9c5964ca32c24612ca08d7326b4cb06104e98d56efa777de640"
 metafile = true
 
 [[files]]
-file = "mods/fallow-0.87.0.jar"
-hash = "f5d1952bb87438ae7a1c1e2e11837870175c25f051bed48f2d6a2002213c8f95"
+file = "mods/fallow-0.88.0.jar"
+hash = "0bb097826117f8c42612e41c7ea56631e164ce54384a4b6dd728a2fd7ec5b30c"
 
 [[files]]
 file = "mods/farmers-delight.pw.toml"
@@ -4515,11 +4515,11 @@ hash = "733afa76798b27aaa427450b596fccba3d15f1380e66bbeae34e001a07a85c92"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lang/en_US.lang"
-hash = "73f4e1e29f7a6d7b65c63d7793c968409d70eeb996dfaaeac191b16120c30d88"
+hash = "a7a2be7c16fd9655502e02f273dd1f2404b0f484bc1a46ee40db5b4c1b98dff5"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lang/fr_FR.lang"
-hash = "2b3d88bbab775914e362b130341dbfbfdd66c363ddea24857f85ae4ce8e20c5e"
+hash = "f95632eac25d5ce02a3705893edf5b984ff601cd82b5cf90074fd47e9de899a1"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/alpenglow.glsl"
