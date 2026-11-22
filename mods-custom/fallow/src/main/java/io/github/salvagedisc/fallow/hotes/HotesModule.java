@@ -117,7 +117,7 @@ public final class HotesModule {
         ServerLevel level = player.serverLevel();
         Vec3 dir = Vec3.directionFromRotation(0.0F, player.getYRot());
         Vec3 pos = player.position().add(dir.scale(14.0));
-        int y = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, (int) Math.floor(pos.x), (int) Math.floor(pos.z));
+        int y = sol(level, (int) Math.floor(pos.x), player.getBlockY(), (int) Math.floor(pos.z));
         Hote hote = HOTE.get().create(level);
         if (hote == null) {
             return 0;
@@ -132,5 +132,24 @@ public final class HotesModule {
                 Component.translatable("screen.fallow.hote." + peuple.id() + ".nom"),
                 Component.translatable("screen.fallow.hote." + peuple.id() + ".titre")), true);
         return 1;
+    }
+
+    /**
+     * Le sol où l'Hôte se tient, à hauteur du joueur : dans une grotte ou sous le toit du Nether, pas à la surface. Le
+     * premier sol libre (deux blocs d'air au-dessus) à huit blocs près ; à défaut, le dessus du monde.
+     */
+    private static int sol(ServerLevel level, int x, int pres, int z) {
+        net.minecraft.core.BlockPos.MutableBlockPos curseur = new net.minecraft.core.BlockPos.MutableBlockPos();
+        for (int d = 0; d <= 8; d++) {
+            for (int y : d == 0 ? new int[] {pres} : new int[] {pres + d, pres - d}) {
+                curseur.set(x, y - 1, z);
+                if (level.getBlockState(curseur).isFaceSturdy(level, curseur, net.minecraft.core.Direction.UP)
+                        && level.getBlockState(curseur.setY(y)).getCollisionShape(level, curseur).isEmpty()
+                        && level.getBlockState(curseur.setY(y + 1)).getCollisionShape(level, curseur).isEmpty()) {
+                    return y;
+                }
+            }
+        }
+        return level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
     }
 }

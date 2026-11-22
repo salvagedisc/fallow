@@ -73,7 +73,15 @@ public class PieuBlock extends Block implements EntityBlock {
         long since = now - data.getLong(PENDING_TIME);
         BlockPos first = data.contains(PENDING) && world.equals(data.getString(PENDING_WORLD)) && since >= 0 && since < PENDING_TICKS
                 ? BlockPos.of(data.getLong(PENDING)) : null;
-        if (first == null || first.equals(pos) || !(level.getBlockEntity(first) instanceof PieuBlockEntity start)) {
+        if (first != null && !first.equals(pos) && first.distSqr(pos) > (double) MAX_LENGTH * MAX_LENGTH) {
+            // Trop loin du premier nœud : le dire sans aller lire (ni charger) le tronçon où il est resté.
+            data.remove(PENDING);
+            data.remove(PENDING_WORLD);
+            data.remove(PENDING_TIME);
+            player.displayClientMessage(Component.translatable("message.fallow.bac.trop_loin", MAX_LENGTH), true);
+            return ItemInteractionResult.SUCCESS;
+        }
+        if (first == null || !level.isLoaded(first) || first.equals(pos) || !(level.getBlockEntity(first) instanceof PieuBlockEntity start)) {
             data.putLong(PENDING, pos.asLong());
             data.putString(PENDING_WORLD, world);
             data.putLong(PENDING_TIME, now);

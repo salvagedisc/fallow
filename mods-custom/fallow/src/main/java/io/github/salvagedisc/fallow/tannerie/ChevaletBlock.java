@@ -105,6 +105,13 @@ public class ChevaletBlock extends HorizontalDirectionalBlock implements Ouvrage
             }
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
+        if (io.github.salvagedisc.fallow.eveil.Eveil.arrete(stack)) {
+            // Un couteau entretenu arrêté à bout de forces ne racle plus tant qu'il n'est pas réparé.
+            if (!level.isClientSide()) {
+                io.github.salvagedisc.fallow.eveil.EveilModule.refuser(player, stack);
+            }
+            return ItemInteractionResult.FAIL;
+        }
         if (level.isClientSide()) {
             // Dans le monde, le raclement s'entend tout de suite chez celui qui racle ; le serveur le fait entendre aux autres.
             level.playSound(player, pos, SoundEvents.BRUSH_GENERIC, SoundSource.BLOCKS, 0.55F, 0.8F + level.getRandom().nextFloat() * 0.3F);

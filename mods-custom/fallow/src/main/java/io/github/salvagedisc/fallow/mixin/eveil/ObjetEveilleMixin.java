@@ -1,5 +1,6 @@
 package io.github.salvagedisc.fallow.mixin.eveil;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import io.github.salvagedisc.fallow.eveil.Eveil;
 import java.util.function.Consumer;
 import net.minecraft.server.level.ServerLevel;
@@ -15,7 +16,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /**
  * L'usure d'un objet éveillé, vue au moment même : entretenu, il s'arrête à son dernier point au lieu de casser (même un
  * outil qui perd plusieurs points en une seconde) ; sinon il oublie son dernier éveil au point exact. L'usure est retenue
- * après {@code Item.damageItem}, où un mod peut encore l'augmenter.
+ * après {@code Item.damageItem}, où un mod peut encore l'augmenter. Seul un joueur le retient : dans un distributeur
+ * ou une machine, l'objet s'use comme un autre.
  */
 @Mixin(ItemStack.class)
 abstract class ObjetEveilleMixin {
@@ -25,8 +27,8 @@ abstract class ObjetEveilleMixin {
     @ModifyVariable(method = HURT, at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/world/item/Item;damageItem("
             + "Lnet/minecraft/world/item/ItemStack;ILnet/minecraft/world/entity/LivingEntity;Ljava/util/function/Consumer;)I"),
             argsOnly = true, ordinal = 0)
-    private int fallow$retenir(int usure) {
-        return Eveil.retenir((ItemStack) (Object) this, usure);
+    private int fallow$retenir(int usure, @Local(argsOnly = true) LivingEntity porteur) {
+        return Eveil.retenir((ItemStack) (Object) this, usure, porteur);
     }
 
     @Inject(method = HURT, at = @At("RETURN"))

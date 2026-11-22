@@ -21,6 +21,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
@@ -77,8 +78,10 @@ public final class GlanageModule {
         if (!(main.isEmpty() || main.is(Tags.Items.RODS_WOODEN))) {
             return;
         }
-        // Un bloc dans l'autre main (une torche) se pose sur les feuilles comme avant : on ne lui prend pas le clic.
-        if (player.getOffhandItem().getItem() instanceof BlockItem) {
+        // L'autre main garde son usage : un bloc (une torche) se pose sur les feuilles, un bouclier se lève, un pain se
+        // mange, un arc se bande ; on ne lui prend pas le clic.
+        ItemStack autre = player.getOffhandItem();
+        if (autre.getItem() instanceof BlockItem || autre.getUseAnimation() != UseAnim.NONE) {
             return;
         }
         Level level = event.getLevel();

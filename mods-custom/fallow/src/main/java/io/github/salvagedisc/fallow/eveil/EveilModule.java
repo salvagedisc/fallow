@@ -179,10 +179,16 @@ public final class EveilModule {
         NeoForge.EVENT_BUS.addListener(LivingDropsEvent.class, EveilModule::onDrops);
         NeoForge.EVENT_BUS.addListener(GrindstoneEvent.OnPlaceItem.class, EveilModule::onGrindstone);
         NeoForge.EVENT_BUS.addListener(PlayerDestroyItemEvent.class, e -> oublier(e.getOriginal()));
-        // Entretenu et arrêté à bout de forces, l'objet ne sert plus tant qu'on ne l'a pas réparé.
+        // Entretenu et arrêté à bout de forces, l'objet ne sert plus tant qu'on ne l'a pas réparé : il ne casse, ne frappe,
+        // ne tond, n'allume ni ne protège plus. Le reste de la main est libre (une porte s'ouvre, un villageois commerce).
         NeoForge.EVENT_BUS.addListener(net.neoforged.neoforge.event.entity.player.PlayerEvent.BreakSpeed.class, e -> {
             if (Eveil.arrete(e.getEntity().getMainHandItem())) {
                 e.setCanceled(true);
+            }
+        });
+        NeoForge.EVENT_BUS.addListener(PlayerInteractEvent.LeftClickBlock.class, e -> {
+            if (e.getAction() == PlayerInteractEvent.LeftClickBlock.Action.START && Eveil.arrete(e.getItemStack())) {
+                refuser(e.getEntity(), e.getItemStack());
             }
         });
         NeoForge.EVENT_BUS.addListener(PlayerInteractEvent.RightClickItem.class, e -> {
@@ -190,21 +196,46 @@ public final class EveilModule {
             if (Eveil.arrete(e.getItemStack())) {
                 e.setCanceled(true);
                 e.setCancellationResult(net.minecraft.world.InteractionResult.FAIL);
+                refuser(e.getEntity(), e.getItemStack());
             }
         });
         NeoForge.EVENT_BUS.addListener(PlayerInteractEvent.RightClickBlock.class, e -> {
-            // Le bloc garde son usage (une porte s'ouvre), l'objet arrêté ne sert pas (houe, pelle, hache, briquet).
+            // Le bloc garde son usage (une porte s'ouvre), l'objet arrêté ne sert pas (houe, pelle, hache). Les outils dont
+            // c'est le bloc qui se sert (cisailles sur une citrouille, briquet sur la TNT, couteau sur le chevalet) n'y
+            // touchent pas du tout.
             if (Eveil.arrete(e.getItemStack())) {
                 e.setUseItem(net.neoforged.neoforge.common.util.TriState.FALSE);
+                if (outilDeGeste(e.getItemStack())) {
+                    e.setUseBlock(net.neoforged.neoforge.common.util.TriState.FALSE);
+                    refuser(e.getEntity(), e.getItemStack());
+                }
+            }
+        });
+        NeoForge.EVENT_BUS.addListener(PlayerInteractEvent.EntityInteract.class, e -> {
+            // Les cisailles ne tondent plus le mouton, le briquet n'allume plus le creeper, la brosse ne brosse plus.
+            if (Eveil.arrete(e.getItemStack()) && outilDeGeste(e.getItemStack())) {
+                e.setCanceled(true);
+                e.setCancellationResult(net.minecraft.world.InteractionResult.FAIL);
+                refuser(e.getEntity(), e.getItemStack());
+            }
+        });
+        NeoForge.EVENT_BUS.addListener(PlayerInteractEvent.EntityInteractSpecific.class, e -> {
+            if (Eveil.arrete(e.getItemStack()) && outilDeGeste(e.getItemStack())) {
+                e.setCanceled(true);
+                e.setCancellationResult(net.minecraft.world.InteractionResult.FAIL);
             }
         });
         NeoForge.EVENT_BUS.addListener(net.neoforged.neoforge.event.entity.player.AttackEntityEvent.class, e -> {
-            if (Eveil.arrete(e.getEntity().getMainHandItem())) {
+            // Il ne frappe plus une bête ; un cadre, un bateau ou un cristal se cassent toujours (rien ne l'y use).
+            if (e.getTarget() instanceof LivingEntity && Eveil.arrete(e.getEntity().getMainHandItem())) {
                 e.setCanceled(true);
-                if (e.getEntity() instanceof ServerPlayer player) {
-                    player.displayClientMessage(Component.translatable("eveil.fallow.lien.tient",
-                            player.getMainHandItem().getHoverName()).withStyle(ChatFormatting.GRAY), true);
-                }
+                refuser(e.getEntity(), e.getEntity().getMainHandItem());
+            }
+        });
+        // Une armure arrêtée ne protège plus (ni outil ni arme n'ajoutent rien) : elle tient sans casser, mais à vide.
+        NeoForge.EVENT_BUS.addListener(net.neoforged.neoforge.event.ItemAttributeModifierEvent.class, e -> {
+            if (Eveil.arrete(e.getItemStack())) {
+                e.clearModifiers();
             }
         });
         NeoForge.EVENT_BUS.addListener(ItemExpireEvent.class, e -> oublier(e.getEntity().getItem()));
@@ -224,6 +255,25 @@ public final class EveilModule {
             io.github.salvagedisc.fallow.eveil.client.EveilClient.start(modBus);
         }
         Fallow.LOGGER.info("eveil : l'enchantement vient des hauts faits et des grandes bêtes");
+    }
+
+    private static final net.minecraft.tags.TagKey<Item> COUTEAUX = net.minecraft.tags.TagKey.create(Registries.ITEM,
+            net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("c", "tools/knife"));
+
+    /** Les outils dont la bête ou le bloc se sert eux-mêmes : cisailles, briquets, brosses, couteaux. */
+    static boolean outilDeGeste(ItemStack stack) {
+        return stack.is(net.neoforged.neoforge.common.Tags.Items.TOOLS_SHEAR)
+                || stack.is(net.neoforged.neoforge.common.Tags.Items.TOOLS_IGNITER)
+                || stack.is(net.minecraft.tags.ItemTags.CREEPER_IGNITERS)
+                || stack.is(net.neoforged.neoforge.common.Tags.Items.TOOLS_BRUSH) || stack.is(COUTEAUX);
+    }
+
+    /** La ligne grise qui dit pourquoi l'objet arrêté ne fait rien (côté serveur, au-dessus de la barre d'objets). */
+    public static void refuser(Player player, ItemStack stack) {
+        if (player instanceof ServerPlayer joueur) {
+            joueur.displayClientMessage(Component.translatable("eveil.fallow.lien.tient", stack.getHoverName())
+                    .withStyle(ChatFormatting.GRAY), true);
+        }
     }
 
     /** Les registres du serveur en cours (le client ne s'en sert pas : ses infobulles lisent les siens). */
@@ -357,9 +407,20 @@ public final class EveilModule {
             if (stack.isDamageableItem()) {
                 int usure = stack.getDamageValue();
                 Integer avant = USURES.put(etat.id(), usure);
-                if (avant != null && usure < avant) {
+                int seuil = (int) Math.ceil(stack.getMaxDamage() * FallowConfig.eveilAlerte());
+                if (usure >= seuil) {
+                    // Laissé filer dans le rouge : l'attachement baisse une fois par passage. Vu là pour la première fois
+                    // (un redémarrage, un objet qu'on vient de prendre), il n'a pas été laissé filer sous nos yeux.
+                    if (ROUGES.add(etat.id()) && avant != null && avant < seuil) {
+                        Lien.ajouter(player.server, stack, etat, Lien.ROUGE, player);
+                    }
+                } else if (usure < seuil - Math.max(1, stack.getMaxDamage() / 10)) {
+                    // Sorti du rouge pour de bon (un dixième plus bas) : le prochain passage comptera et préviendra de nouveau.
+                    // Un point de raccommodage au bord ne suffit pas, sinon chaque orbe coûterait l'attachement.
                     AVERTIS.remove(etat.id());
                     ROUGES.remove(etat.id());
+                }
+                if (avant != null && usure < avant) {
                     HautsFaits.Contexte moment = HautsFaits.Contexte.de(player);
                     Eveil.acte(player, stack, HautsFaits.Type.REPARER, entree -> entree.si(moment), avant - usure);
                     // Réparé à temps, c'est du soin : avant la mi-usure beaucoup, avant le rouge un peu, après rien.
@@ -369,8 +430,6 @@ public final class EveilModule {
                             : avant < stack.getMaxDamage() * 0.5 ? Lien.REPARE_TOT
                             : avant < stack.getMaxDamage() * FallowConfig.eveilAlerte() ? Lien.REPARE : 0.0;
                     Lien.ajouter(player.server, stack, etat, soin, player);
-                } else if (usure >= stack.getMaxDamage() * FallowConfig.eveilAlerte() && ROUGES.add(etat.id())) {
-                    Lien.ajouter(player.server, stack, etat, Lien.ROUGE, player);
                 }
             }
             Eveil.usure(player, stack);
@@ -471,6 +530,7 @@ public final class EveilModule {
             Actes.get(current).oublier(etat.id());
             USURES.remove(etat.id());
             AVERTIS.remove(etat.id());
+            ROUGES.remove(etat.id());
         }
     }
 

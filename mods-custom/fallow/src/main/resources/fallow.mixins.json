@@ -31,6 +31,7 @@
     "clairiere.ClientLevelTintMixin",
     "clairiere.MusicBiomeMixin",
     "clairiere.SodiumTintMixin",
+    "compat.HamsterGuideWarningMixin",
     "compat.PunchyEquipMixin",
     "dinos.ArmorModelCacheMixin",
     "eveil.BrumeDeTableMixin",

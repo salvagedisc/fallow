@@ -118,6 +118,11 @@ public class Hote extends PathfinderMob {
         if (tag.contains("peuple")) {
             entityData.set(PEUPLE, peuple(tag.getString("peuple")));
         }
+        // Un /summon avec données ne passe pas par finalizeSpawn, et un Hôte d'avant le masque obligatoire arrive tête
+        // nue : il retrouve son masque (et sa tenue) au chargement.
+        if (getItemBySlot(EquipmentSlot.HEAD).isEmpty()) {
+            setPeuple(peuple());
+        }
     }
 
     private static String peuple(String id) {

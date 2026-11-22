@@ -193,6 +193,8 @@ Test commands (operators): `/fallow eveil voir` shows the held item's places, st
 
 **Checked** on the test bench on 2026-11-22 (attachment, 0.81.0), development client and server with Diegesis: a diamond pickaxe named « Brise-Roche » gets 25 points; nine repairs from 20 % wear give 12 each, the note goes to Entretenu then Chéri; let down to 95 % wear it loses 12 (121 in all); its places are 4 (1 without quality, 2 for diamond, 1 cherished); its tooltip reads « Chéri : un éveil de plus » in light purple and the table's book « ◇ ◇ ◇ ◇ chéri ». Not checked: the item frame night, the death pickup, the grindstone, the crafting grid refusal, an Entretenu item worn out, Archie's armours (no Archie's Dinosaurs on the bench) (EV26 to EV31).
 
+**Checked** on the test bench on 2026-11-22 (third pass, 0.90.0), development client and dedicated server: an Entretenu iron chestplate stopped at 239 gives 0 armour, 6 once repaired; a pickaxe let into the red loses 12 once, then mended and worn by a few points five times in a row (230, 228, 231, 229, 232) loses nothing more; `/summon` with `peuple` gives a masked Host with its armour; the « Hamster Tips » warning no longer reaches the chat. Not checked: shears, flint and steel and the brush on blocks and creatures, the dispenser, a restart (EV33, EV34).
+
 ## In-game tests
 
 | # | Test | Expected |
@@ -226,5 +228,8 @@ Test commands (operators): `/fallow eveil voir` shows the held item's places, st
 | EV29 | Diamond and orichalcum pickaxes, a steel and a black steel chestplate, all poorly forged | Places 3, 4, 2, 2 |
 | EV30 | Two worn awakened pickaxes in the crafting grid; one alone on the grindstone after « Trop usé ! » | No repair result; the grindstone gives it back with its awakenings and the anvil takes it again |
 | EV31 | An Obsidiceratops chestplate ready to awaken, at the table without then with an obsidian horn | Without: red foot « Il manque Corne d'obsidienne … », the book shivers; with: it awakens and the horn is gone; walking near lava counted toward Fire Protection |
+| EV32 | An Entretenu awakened iron chestplate at 239 of 240 wear (`/item replace … minecraft:damage=239`), then repaired | `/attribute @s minecraft:generic.armor get` gives 0 while it is stopped, 6 once repaired; it never breaks while stopped |
+| EV33 | Entretenu shears and flint and steel stopped at their last point: a sheep, a pumpkin, a creeper, TNT; a stopped knife on the fleshing bench; the same shears in a dispenser | Nothing happens and the grey note says why each time; a door still opens and a villager still trades with them in hand; in the dispenser they wear out and break |
+| EV34 | A Mending pickaxe at 92 % wear picking up XP orbs, then `/fallow eveil voir` | Attachment lowered by 12 once when it entered the red, not again per orb; after a server restart it is not lowered again |
 | EV25 | At the table by day, outdoors, then hold a path, then leave | Sitting: the view widens then settles, a violet mist veils the ground a few blocks away and the sky, rain, creatures and music fall quiet; during the rite only the table, the book and the runes remain, dust comes in from the dark; after the flash the veil comes back; leaving, the mist and the sounds return over about three seconds |
 | EV24 | Crouch-click the table with a ready pickaxe, without ink then with one vial | Without: « Il manque l'encre d'éveil … », no window; with: the window opens and the vial is gone after the choice |

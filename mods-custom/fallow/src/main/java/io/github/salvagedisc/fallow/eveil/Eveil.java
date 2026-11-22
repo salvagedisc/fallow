@@ -280,8 +280,11 @@ public final class Eveil {
      * Entretenu (ou chéri) et éveillé, l'objet s'arrête à son dernier point de durabilité au lieu de casser : l'usure qui
      * l'y mènerait plus loin est retenue, quelle que soit la vitesse à laquelle il s'use (appelé par {@code ObjetEveilleMixin}).
      */
-    public static int retenir(ItemStack stack, int usure) {
-        if (usure <= 0 || !FallowConfig.eveilEnabled() || !stack.isDamageableItem()) {
+    public static int retenir(ItemStack stack, int usure, net.minecraft.world.entity.LivingEntity porteur) {
+        // Un distributeur (pas de porteur) ou une machine (FakePlayer) n'entretient rien : l'objet s'y use jusqu'au bout.
+        if (usure <= 0 || !(porteur instanceof net.minecraft.world.entity.player.Player)
+                || porteur instanceof net.neoforged.neoforge.common.util.FakePlayer
+                || !FallowConfig.eveilEnabled() || !stack.isDamageableItem()) {
             return usure;
         }
         EtatEveil etat = stack.get(EveilModule.ETAT.get());
