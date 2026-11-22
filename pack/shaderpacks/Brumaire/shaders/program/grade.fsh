@@ -431,7 +431,9 @@ void main() {
     // Une image mate : les noirs à peine levés, les blancs à peine retenus. La nuit, presque pas : 0,016 montait le
     // sol de nuit à 39 sur 255 et grisait tout, Recrafted le laisse vers 20.
     // Sous terre aussi : le noir d'une grotte reste noir (vers 10 sur 255 chez Recrafted).
-    float lift = mix(0.004, 0.011, smoothstep(-0.18, 0.12, sunUp) * smoothstep(0.05, 0.40, float(eyeBrightnessSmooth.y) / 240.0));
+    // De jour, à peine plus : 0,011 posait un plancher vers 33 sur 255 et l'ombre d'un arbre restait grise ; Recrafted
+    // descend vers 15-30.
+    float lift = mix(0.004, 0.005, smoothstep(-0.18, 0.12, sunUp) * smoothstep(0.05, 0.40, float(eyeBrightnessSmooth.y) / 240.0));
     color = color * (1.0 - 2.5 * lift) + lift;
     color = pow(max(color, 0.0), vec3(1.0 / 2.2));
 #if NIGHT_GRAIN > 0
