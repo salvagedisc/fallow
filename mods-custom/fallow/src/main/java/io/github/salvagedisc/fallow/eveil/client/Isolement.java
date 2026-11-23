@@ -8,35 +8,37 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * À la table d'éveil, le monde s'en va : une brume violette presque noire se referme à quelques blocs, le ciel et le lointain
+ * Le monde qui s'en va autour d'un moment à part. À la table d'éveil : une brume violette presque noire se referme à quelques blocs, le ciel et le lointain
  * disparaissent, les bruits du monde se taisent presque, et la vue s'ouvre quand on s'assoit (le fond semble reculer) puis se
  * resserre pendant le rite. La table et le livre restent ; en partant, le monde revient lentement. Mené à chaque image par
  * {@link TableBehavior}, lu par les mixins de brume, de ciel, de son et de champ de vision de {@code mixin.eveil}.
+ *
+ * <p>Face à un émissaire des Hôtes, la même chose plus légère ({@link Scene}) : la brume de son Peuple se referme autour de lui
+ * et de soi, le ciel s'y perd, le monde baisse la voix, et la vue s'approche lentement de lui (le dialogue la mène).
  */
 public final class Isolement {
+    /**
+     * Comment le monde s'en va : la couleur de la brume, ses distances au voile et au fond (en blocs depuis la caméra), la part du
+     * volume que gardent les bruits du monde, la portée où un bruit reste celui du lieu, les temps d'aller et de retour (s), et
+     * de combien la vue se resserre au plus fort.
+     */
+    public record Scene(float rouge, float vert, float bleu, float voileDebut, float voileFin, float fondDebut, float fondFin,
+            float silence, double pres, float aller, float retour, float serre) {
+    }
+
+    /** La table d'éveil : un violet presque noir, le monde à trois blocs, presque plus un bruit. */
+    public static final Scene TABLE = new Scene(0.045F, 0.028F, 0.085F, 1.8F, 6.5F, 1.0F, 3.5F, 0.08F, 2.5, 1.4F, 3.0F, 0.10F);
+
+    private static Scene scene = TABLE;
+    private static boolean inscrit;
     /**
      * La brume en blocs depuis la caméra : le voile quand on s'assoit (0,6), le fond quand le monde est tout à fait parti (1) ; les
      * bibliothèques, à deux ou trois blocs, s'y effacent : ne restent que la table et le livre, à un ou deux blocs.
      */
     private static final float VOILE = 0.6F;
-    private static final float VOILE_DEBUT = 1.8F;
-    private static final float VOILE_FIN = 6.5F;
-    private static final float FOND_DEBUT = 1.0F;
-    private static final float FOND_FIN = 3.5F;
-    /** La couleur de la brume, un violet proche du noir. */
-    private static final float ROUGE = 0.045F;
-    private static final float VERT = 0.028F;
-    private static final float BLEU = 0.085F;
-    /** Le plus bas où le monde descend (part de son volume), et jusqu'où un bruit est encore celui de la table, en blocs. */
-    private static final float SILENCE = 0.08F;
-    private static final double PRES_DE_LA_TABLE = 2.5;
-    /** Le temps que le monde met à partir et à revenir, secondes. */
-    private static final float ALLER = 1.4F;
-    private static final float RETOUR = 3.0F;
-    /** La vue s'ouvre d'autant quand on s'assoit, puis se pose ; elle se resserre d'autant au plus fort du rite. */
+    /** La vue s'ouvre d'autant quand on s'assoit à la table, puis se pose. */
     private static final float ELAN = 0.10F;
     private static final float ELAN_DUREE = 2.0F;
-    private static final float SERRE = 0.10F;
 
     private static float valeur;
     private static float cible;
@@ -55,10 +57,36 @@ public final class Isolement {
 
     /** Appelé à chaque image par la table : combien du monde est parti (0 à 1), où est la table, et où en est le rite (0 à 1). */
     static void viser(float k, Vec3 table, float rite) {
+        viser(TABLE, k, table, rite);
+    }
+
+    /**
+     * Appelé à chaque image par ce qui met le monde à part : la scène, combien du monde est parti (0 à 1), le lieu dont les bruits
+     * restent, et combien la vue se resserre (0 à 1). Sans appel pendant deux images, le monde revient.
+     */
+    public static void viser(Scene s, float k, Vec3 lieu, float resserre) {
+        inscrire();
+        if (s != scene && valeur > 0.001F) {
+            // Une autre scène tient encore le monde (on quitte la table et l'on parle aussitôt à un Hôte) : elle repart d'abord,
+            // sans saut de couleur ni de distance, puis la nouvelle vient.
+            cible = 0.0F;
+            sansTable = 0;
+            return;
+        }
+        scene = s;
         cible = k;
         sansTable = 0;
-        centre = table;
-        serreCible = rite;
+        centre = lieu;
+        serreCible = resserre;
+    }
+
+    /** Le monde suit une fois par image, quel que soit le module qui s'en sert le premier. */
+    public static void inscrire() {
+        if (!inscrit) {
+            inscrit = true;
+            net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(net.neoforged.neoforge.client.event.RenderFrameEvent.Pre.class,
+                    event -> avancer());
+        }
     }
 
     /** On s'assoit à la table : la vue prend son souffle. */
@@ -79,7 +107,7 @@ public final class Isolement {
         dernier = now;
         float vise = sansTable < 2 ? cible : 0.0F;
         sansTable = Math.min(10, sansTable + 1);
-        valeur = Mth.approach(valeur, vise, dt / (vise > valeur ? ALLER : RETOUR));
+        valeur = Mth.approach(valeur, vise, dt / (vise > valeur ? scene.aller() : scene.retour()));
         serre = Mth.approach(serre, vise > 0.0F ? serreCible : 0.0F, dt / (serreCible > serre ? 1.8F : 0.4F));
         relache = Math.max(0.0F, relache - dt / 0.8F);
         if (elanT >= 0.0F) {
@@ -118,11 +146,11 @@ public final class Isolement {
 
     /** Le début et la fin de la brume à cette image, depuis ceux du monde. */
     public static float debut(float monde) {
-        return distance(monde, VOILE_DEBUT, FOND_DEBUT);
+        return distance(monde, scene.voileDebut(), scene.fondDebut());
     }
 
     public static float fin(float monde) {
-        return distance(monde, VOILE_FIN, FOND_FIN);
+        return distance(monde, scene.voileFin(), scene.fondFin());
     }
 
     /** La brume du ciel se referme plus vite que celle du terrain : le ciel part avant la terre. */
@@ -131,15 +159,15 @@ public final class Isolement {
     }
 
     public static float rouge(float monde) {
-        return Mth.lerp(doux(), monde, ROUGE);
+        return Mth.lerp(doux(), monde, scene.rouge());
     }
 
     public static float vert(float monde) {
-        return Mth.lerp(doux(), monde, VERT);
+        return Mth.lerp(doux(), monde, scene.vert());
     }
 
     public static float bleu(float monde) {
-        return Mth.lerp(doux(), monde, BLEU);
+        return Mth.lerp(doux(), monde, scene.bleu());
     }
 
     /** Ni soleil, ni lune, ni étoiles quand le monde est presque parti. */
@@ -156,10 +184,10 @@ public final class Isolement {
             return 1.0F;
         }
         if (!sound.isRelative() && sound.getSource() == SoundSource.BLOCKS
-                && centre.distanceToSqr(sound.getX(), sound.getY(), sound.getZ()) < PRES_DE_LA_TABLE * PRES_DE_LA_TABLE) {
+                && centre.distanceToSqr(sound.getX(), sound.getY(), sound.getZ()) < scene.pres() * scene.pres()) {
             return 1.0F;
         }
-        return 1.0F - (1.0F - SILENCE) * Math.min(1.0F, valeur * 1.25F);
+        return 1.0F - (1.0F - scene.silence()) * Math.min(1.0F, valeur * 1.25F);
     }
 
     /** Le facteur du champ de vision : ouvert en s'asseyant, serré quand le rite monte, relâché à l'éclair. */
@@ -170,7 +198,7 @@ public final class Isolement {
         float effets = Minecraft.getInstance().options.fovEffectScale().get().floatValue();
         float elan = elanT >= 0.0F ? Mth.sin(Mth.PI * Math.min(1.0F, elanT / ELAN_DUREE)) : 0.0F;
         elan *= elan;
-        float k = 1.0F + ELAN * elan - SERRE * serre * serre + 0.05F * relache * relache;
+        float k = 1.0F + ELAN * elan - scene.serre() * serre * serre + 0.05F * relache * relache;
         return 1.0 + (k - 1.0) * effets;
     }
 }

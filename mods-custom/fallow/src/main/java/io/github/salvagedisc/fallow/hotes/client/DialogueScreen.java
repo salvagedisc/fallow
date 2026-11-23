@@ -19,6 +19,7 @@ import io.github.salvagedisc.fallow.hotes.visite.Demande;
 import io.github.salvagedisc.fallow.hotes.visite.Echanges;
 import net.neoforged.neoforge.network.PacketDistributor;
 import java.util.ArrayList;
+import java.text.Normalizer;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -27,6 +28,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
@@ -68,6 +70,20 @@ public class DialogueScreen extends Screen {
     private static final float LETTRES_PAR_SECONDE = 38.0F;
     /** Le regard se tourne vers l'Hôte en 150 ms, comme s'ouvrent les autres fenêtres du pack (docs/plan/interactions.md). */
     private static final long REGARD_MS = 150;
+    private static final long FEUILLE_MS = 180;
+    /** Où tombent les yeux de l'Hôte : à cette part de la demi-hauteur de l'écran au-dessus du centre. */
+    /** Du sommet de l'Hôte au milieu de son masque, en blocs. */
+    private static final double TETE = 0.25;
+    /** De combien la vue se resserre sur l'Hôte, au plus fort (avant le réglage des effets de champ de vision). */
+    private static final float SERRE = 0.12F;
+    /** Les bandes du cinéma qui se referment en haut et en bas, en 450 ms, sur un douzième de la hauteur chacune. */
+    private static final long BANDES_MS = 450;
+    private static final float BANDES = 1.0F / 12.0F;
+    /** Les lettres qui viennent de naître s'écrivent d'abord dans l'écriture ancienne (la police de la table d'enchantement). */
+    private static final ResourceLocation ECRITURE_ANCIENNE = ResourceLocation.withDefaultNamespace("alt");
+    private static final int ETRANGERES = 5;
+    /** Les bandes : un brun-noir de suie, pas un noir pur. */
+    private static final int BANDE = 0xF20A0806;
 
     /**
      * Le feuillet : une feuille du papier des livres (scripts/hotes/feuillet.py), son ombre sur le monde comprise. Elle se
@@ -288,6 +304,9 @@ public class DialogueScreen extends Screen {
             cachait = mc.options.hideGui;
             mc.options.hideGui = true;
             ouverture = System.currentTimeMillis();
+            // Un son grave et lointain, comme une note tenue dans la brume : on entre dans le temps de l'Hôte.
+            mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.AMETHYST_BLOCK_RESONATE, ton(hote.peuple()), 0.55F));
+            mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.SOUL_ESCAPE.value(), 0.5F, 0.35F));
             if (mc.player != null) {
                 lacetDepart = mc.player.getYRot();
                 tangageDepart = mc.player.getXRot();
@@ -306,6 +325,21 @@ public class DialogueScreen extends Screen {
         super.removed();
     }
 
+    /**
+     * Des lettres dans l'écriture de la table d'enchantement. Cette police ne connaît que les lettres latines sans accent : on
+     * ôte les accents, et ce qui n'est pas une lettre (espace, ponctuation) reste dans l'écriture ordinaire, à l'encre douce.
+     */
+    private static Component ancienne(String texte) {
+        MutableComponent tout = Component.empty().withColor(ENCRE_DOUCE & 0xFFFFFF);
+        String nu = Normalizer.normalize(texte, Normalizer.Form.NFD).replaceAll("\\p{M}", "");
+        for (int i = 0; i < nu.length(); i++) {
+            char c = nu.charAt(i);
+            boolean lettre = c < 128 && Character.isLetter(c);
+            tout.append(Component.literal(String.valueOf(c)).withStyle(style -> lettre ? style.withFont(ECRITURE_ANCIENNE) : style));
+        }
+        return tout;
+    }
+
     private void tournerLeRegard(float partialTick) {
         var player = Minecraft.getInstance().player;
         if (player == null) {
@@ -317,10 +351,18 @@ public class DialogueScreen extends Screen {
         }
         float lisse = t * t * (3.0F - 2.0F * t);
         Vec3 oeil = player.getEyePosition(partialTick);
-        // Viser bas (les genoux) : le buste et le masque restent au-dessus du panneau.
-        Vec3 cible = hote.getPosition(partialTick).add(0.0, 0.5, 0.0).subtract(oeil);
+        // Cadrer le masque dans la fenêtre que laissent la bande du haut et la feuille : on vise le milieu de sa tête, puis on
+        // baisse le regard d'autant qu'il faut pour que ce point tombe au milieu de cette fenêtre (le champ de vision, une fois
+        // resserré par la rencontre, compris). De près, la tête déborde la fenêtre des deux côtés et les yeux restent au centre.
+        Vec3 cible = hote.getPosition(partialTick).add(0.0, hote.getBbHeight() - TETE, 0.0).subtract(oeil);
         float lacet = (float) (Mth.atan2(cible.z, cible.x) * Mth.RAD_TO_DEG) - 90.0F;
-        float tangage = (float) -(Mth.atan2(cible.y, cible.horizontalDistance()) * Mth.RAD_TO_DEG);
+        var options = Minecraft.getInstance().options;
+        double demiChamp = Math.toRadians(options.fov().get() * (1.0 - SERRE * options.fovEffectScale().get()) / 2.0);
+        double haut = height * BANDES;
+        double bas = panneauH > 0 ? height - panneauH - 10 : height;
+        double ecart = (height / 2.0 - (haut + bas) / 2.0) / (height / 2.0);
+        float baisse = (float) Math.toDegrees(Math.atan(ecart * Math.tan(demiChamp)));
+        float tangage = Mth.clamp((float) -(Mth.atan2(cible.y, cible.horizontalDistance()) * Mth.RAD_TO_DEG) + baisse, -90.0F, 90.0F);
         float y = lacetDepart + Mth.wrapDegrees(lacet - lacetDepart) * lisse;
         float x = tangageDepart + (tangage - tangageDepart) * lisse;
         player.setYRot(y);
@@ -395,6 +437,85 @@ public class DialogueScreen extends Screen {
                 px, py, 0, 0, PORTRAIT, PORTRAIT, PORTRAIT, PORTRAIT);
         RenderSystem.disableBlend();
         graphics.pose().popPose();
+    }
+
+    // --- La rencontre : le monde mis à part autour de l'Hôte ---
+
+    /**
+     * La brume de chaque Peuple, qui se referme autour de l'Hôte et de soi pendant qu'on se parle : sombre et teintée de son
+     * milieu, l'Hôte net à deux ou trois blocs, la lisière qui s'y perd vers onze, le ciel noyé dedans. Le monde baisse la voix
+     * (un quart de son volume), le sien aussi : seuls la note de la rencontre et l'écriture gardent le leur. Elle vient en 1,2 s et repart en 1,6 s quand on se quitte.
+     */
+    private static io.github.salvagedisc.fallow.eveil.client.Isolement.Scene scene(Peuple peuple) {
+        float[] c = switch (peuple) {
+            case ECORCE -> new float[] {0.10F, 0.14F, 0.10F};
+            case BRAISE -> new float[] {0.17F, 0.08F, 0.05F};
+            case GIVRE -> new float[] {0.12F, 0.11F, 0.20F};
+            case FONDS -> new float[] {0.05F, 0.13F, 0.16F};
+            case SABLES -> new float[] {0.12F, 0.14F, 0.08F};
+            case SILENCE -> new float[] {0.04F, 0.07F, 0.08F};
+        };
+        return new io.github.salvagedisc.fallow.eveil.client.Isolement.Scene(c[0], c[1], c[2], 5.0F, 18.0F, 2.5F, 11.0F,
+                0.25F, 3.5, 1.2F, 1.6F, SERRE);
+    }
+
+    /** Ce qui flotte autour de l'Hôte pendant qu'il parle : spores, cendre, flocons, lueurs des fonds, pollen, âmes du sculk. */
+    private static net.minecraft.core.particles.ParticleOptions flottant(Peuple peuple) {
+        return switch (peuple) {
+            case ECORCE -> net.minecraft.core.particles.ParticleTypes.SPORE_BLOSSOM_AIR;
+            case BRAISE -> net.minecraft.core.particles.ParticleTypes.ASH;
+            case GIVRE -> net.minecraft.core.particles.ParticleTypes.SNOWFLAKE;
+            case FONDS -> net.minecraft.core.particles.ParticleTypes.GLOW;
+            case SABLES -> net.minecraft.core.particles.ParticleTypes.SPORE_BLOSSOM_AIR;
+            case SILENCE -> net.minecraft.core.particles.ParticleTypes.SCULK_SOUL;
+        };
+    }
+
+    private long dernierFlottant;
+
+    /**
+     * À chaque image : la brume du Peuple tient le monde à part et la vue s'approche lentement de l'Hôte ; quelques poussières
+     * de son milieu flottent autour de lui ; deux bandes sombres se referment en haut et en bas de l'écran, comme au cinéma.
+     */
+    private void rencontre(GuiGraphics graphics) {
+        io.github.salvagedisc.fallow.eveil.client.Isolement.viser(scene(hote.peuple()), 1.0F, hote.position(), 1.0F);
+
+        long maintenant = System.currentTimeMillis();
+        var level = Minecraft.getInstance().level;
+        // Les spores flottent une demi-minute : moins souvent, pour qu'elles ne s'amassent pas.
+        long cadence = flottant(hote.peuple()) == net.minecraft.core.particles.ParticleTypes.SPORE_BLOSSOM_AIR ? 900L : 220L;
+        if (level != null && maintenant - dernierFlottant > cadence) {
+            dernierFlottant = maintenant;
+            double a = hasard.nextDouble() * Math.PI * 2.0;
+            double r = 0.6 + hasard.nextDouble() * 1.6;
+            Vec3 lieu = new Vec3(hote.getX() + Math.cos(a) * r, hote.getY() + 0.3 + hasard.nextDouble() * 2.0,
+                    hote.getZ() + Math.sin(a) * r);
+            var camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+            // Pas sous le nez : une poussière à moins de deux blocs de l'œil ne serait plus qu'une tache floue.
+            if (lieu.distanceToSqr(camera) > 4.0) {
+                level.addParticle(flottant(hote.peuple()), lieu.x, lieu.y, lieu.z, 0.0, hasard.nextDouble() * 0.01, 0.0);
+            }
+        }
+
+        float t = Mth.clamp((maintenant - ouverture) / (float) BANDES_MS, 0.0F, 1.0F);
+        float e = 1.0F - (1.0F - t) * (1.0F - t) * (1.0F - t);
+        int bande = Math.round(height * BANDES * e);
+        if (bande > 0) {
+            graphics.fill(0, 0, width, bande, BANDE);
+            graphics.fill(0, height - bande, width, height, BANDE);
+        }
+    }
+
+    /** La note de chaque Peuple, du plus grave (le Silence) au plus clair (les Chantres). */
+    private static float ton(Peuple peuple) {
+        return switch (peuple) {
+            case SILENCE -> 0.5F;
+            case BRAISE -> 0.56F;
+            case FONDS -> 0.63F;
+            case ECORCE -> 0.71F;
+            case SABLES -> 0.79F;
+            case GIVRE -> 0.89F;
+        };
     }
 
     /** Le tampon où l'Hôte est rendu à un pixel par pixel d'interface, puis agrandi sans lissage. */
@@ -500,7 +621,11 @@ public class DialogueScreen extends Screen {
         int hauteurTexte = LIGNE + 6 + Math.max(LIGNES, lignes.size()) * LIGNE + 8 + Math.max(REPONSES, reponses.size()) * ligneReponse() - 2;
         panneauH = MARGE + Math.max(hauteurTexte, PORTRAIT) + MARGE;
         panneauX = (width - panneauL) / 2;
-        panneauY = height - panneauH - 10;
+        // La feuille monte de quelques pixels en s'ouvrant, dans le temps des autres fenêtres du pack.
+        float montee = Mth.clamp((System.currentTimeMillis() - ouverture) / (float) FEUILLE_MS, 0.0F, 1.0F);
+        panneauY = height - panneauH - 10 + Math.round((1.0F - montee) * (1.0F - montee) * 14.0F);
+
+        rencontre(graphics);
 
         // Le panneau et son liseré ; le portrait, avec son cadre, en haut à gauche dans le panneau.
         RenderSystem.enableBlend();
@@ -523,9 +648,14 @@ public class DialogueScreen extends Screen {
         y += 4;
 
         int reste = lettresVisibles();
+        // Les dernières lettres écrites viennent d'ailleurs : elles naissent dans l'écriture de la table d'enchantement, puis
+        // se fixent en français, comme si la parole de l'Hôte se traduisait en arrivant.
+        int etrangeres = ecrit() ? 0 : ETRANGERES;
         for (String ligne : lignes) {
-            String part = ligne.substring(0, Math.max(0, Math.min(ligne.length(), reste)));
-            graphics.drawString(font, part, x, y, TEXTE, false);
+            int n = Math.max(0, Math.min(ligne.length(), reste));
+            int fixe = Math.max(0, Math.min(n, reste - etrangeres));
+            graphics.drawString(font, Component.literal(ligne.substring(0, fixe)).append(ancienne(ligne.substring(fixe, n))), x, y,
+                    TEXTE, false);
             reste -= ligne.length() + 1;
             y += LIGNE;
         }

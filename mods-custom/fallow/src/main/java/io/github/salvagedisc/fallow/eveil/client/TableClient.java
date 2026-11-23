@@ -11,7 +11,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.client.event.ClientChatReceivedEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
@@ -63,7 +62,7 @@ final class TableClient {
                 .color(0xFFD9CCFF).size(0.25F, 0.5F).life(0.9F, 1.6F).gravity(-0.4F).drag(1.2F).wobble(0.3F).emissive().build());
         DiegesisClient.registerParticle(POUSSIERE, ParticleStyle.builder(ResourceLocation.withDefaultNamespace("generic_0"))
                 .color(0xFFB4A6D8).size(0.3F, 0.55F).life(2.0F, 2.3F).drag(0.0F).wobble(0.2F).emissive().fadeIn(0.4F).build());
-        NeoForge.EVENT_BUS.addListener(RenderFrameEvent.Pre.class, event -> Isolement.avancer());
+        Isolement.inscrire();
         NeoForge.EVENT_BUS.addListener(InputEvent.InteractionKeyMappingTriggered.class, event -> {
             if (event.isUseItem() && Minecraft.getInstance().hitResult instanceof BlockHitResult hit) {
                 TableBehavior.usage(hit.getBlockPos());
