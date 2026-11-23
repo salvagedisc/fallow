@@ -7,8 +7,9 @@ it. Every board is leather: a fine grain and a few softer clouds, the edges rubb
 rounded (cut out), a double fillet tooled blind a little inside the edge and a small ornament at its inner corners and in the
 middle (shown when the book is shut; open, the pages cover all but the rubbed rim). Every book has the same metal corners on
 its outer corners, a rivet set in the bare rim so they read open as well as shut: brass on the green crafting book and the
-lectern's brown one, aged bronze on the tan workshop books, gold on the oxblood awakening book (the lectern's and the
-awakening book's boards also have a gilt fillet). The spine has raised bands and headbands of the leather's own colours. The blocks of pages show the edges of the leaves, in fine
+lectern's brown one, aged bronze on the tan workshop books, gold on the night-black awakening book, which also has a
+gold sigil (the lectern's and the awakening book's boards also have a gilt fillet). The spine has raised bands and headbands of
+the leather's own colours, plain gold thread on the awakening book. The blocks of pages show the edges of the leaves, in fine
 lines. Everything is drawn from a fixed seed, so a rerun gives the same files.
 
 Run from the repository root: python3 scripts/books/covers.py
@@ -191,52 +192,51 @@ def fleuron(rgb, cx, cy, s):
 
 
 def centre(rgb, cx, cy, s, leather):
-    """The middle of the board: a tooled lozenge with a smaller one inside, and a dot (a star on the awakening book)."""
+    """The middle of the board: a tooled lozenge with a smaller one inside, and a dot; on the awakening book, its gilt seal."""
+    if leather.star and leather.metal is not None:
+        sigil(rgb, cx, cy, s, leather.metal)
+        return
     for r, k in ((int(s * 1.1), 0.76), (int(s * 0.7), 0.82)):
         for t in range(-r, r + 1):
             for x, y in ((cx + t, cy - (r - abs(t)) * 3 // 2), (cx + t, cy + (r - abs(t)) * 3 // 2)):
                 press(rgb, x, y, k)
                 press(rgb, x, y + 1, 1.0 + (1.0 - k) * 0.4)
-    if leather.star and leather.metal is not None:
-        light, mid, dark = (np.asarray(c, np.float32) for c in leather.metal)
-        for i in range(-3, 4):
-            for x, y in ((cx + i, cy), (cx, cy + i)):
-                rgb[y, x] = mid if abs(i) > 1 else light
-        for x, y in ((cx - 1, cy - 1), (cx + 1, cy + 1), (cx + 1, cy - 1), (cx - 1, cy + 1)):
-            rgb[y, x] = rgb[y, x] * 0.5 + mid * 0.5
-    else:
-        press(rgb, cx, cy, 0.7)
-        press(rgb, cx + 1, cy, 0.8)
-        press(rgb, cx, cy + 1, 0.8)
+    press(rgb, cx, cy, 0.7)
+    press(rgb, cx + 1, cy, 0.8)
+    press(rgb, cx, cy + 1, 0.8)
 
 
 def metal_corner(rgb, alpha, w, h, s, corner, metal, star):
     """A corner piece of metal folded over the board, the same on every book: a triangle along the two edges, its legs a pixel
-    and a quarter of the model long, outlined in the metal's dark, lit along its top and left, its inner edge notched in the
-    middle (a cut-out arc, as a smith files it) and a rivet set in the rim the pages leave bare, so the piece reads when the
-    book lies open (half a pixel of board shows round the pages) as well as shut. The awakening book's rivet is a small star."""
+    and a tenth of the model long, its inner edge one clean slant (a texel of the metal's shade, then a texel of bevel), lit along
+    its top and left, a fine line engraved along the slant, and a rivet set in the rim the pages leave bare, so the piece reads
+    when the book lies open (half a pixel of board shows round the pages) as well as shut. No outline: the metal meets the
+    leather by its own shade. The awakening book's rivet is a small star."""
     light, mid, dark = (np.asarray(c, np.float32) for c in metal)
-    size = int(round(s * 1.25))
-    notch = max(2, s // 5)
+    size = int(round(s * 1.1))
     for dy in range(size + 1):
         for dx in range(size + 1):
-            if dx + dy > size:
-                continue
-            # The notch: the middle of the inner edge filed away in a small arc.
-            if dx + dy > size - notch and abs(dx - dy) < notch * 1.4:
+            d = dx + dy
+            if d > size:
                 continue
             x = dx if corner in (0, 2) else w - 1 - dx
             y = dy if corner in (0, 1) else h - 1 - dy
             if alpha[y, x] == 0.0:
                 continue
-            inner_edge = dx + dy >= size - 1 or (dx + dy >= size - notch - 1 and abs(dx - dy) < notch * 1.4 + 1)
-            if inner_edge or dx == 0 or dy == 0:
-                c = dark
-            elif (dx == 1 and corner in (0, 2)) or (dy == 1 and corner in (0, 1)):
+            t = d / size
+            c = mid * (1.0 - 0.22 * t) + light * 0.22 * (1.0 - t)
+            lit_x = dx == 1 and corner in (0, 2)
+            lit_y = dy == 1 and corner in (0, 1)
+            if d == size:
+                c = mid * 0.45 + dark * 0.55
+            elif d == size - 1:
+                c = mid * 0.88
+            elif d == size - 4:
+                c = mid * 0.7 + dark * 0.3
+            elif dx == 0 or dy == 0:
+                c = mid * 0.78 + dark * 0.22
+            elif lit_x or lit_y:
                 c = light
-            else:
-                t = (dx + dy) / size
-                c = mid * (1.0 - 0.18 * t) + light * 0.18 * (1.0 - t)
             rgb[y, x] = np.clip(c, 0.0, 255.0)
     # The rivet, in the bare rim: a quarter of a pixel in from both edges.
     rx = max(2, int(round(s * 0.25)))
@@ -254,6 +254,33 @@ def metal_corner(rgb, alpha, w, h, s, corner, metal, star):
         rgb[y, x + sx] = mid
         rgb[y + sy, x] = mid
         rgb[y + sy, x + sx] = dark
+
+
+def sigil(rgb, cx, cy, s, metal):
+    """The awakening book's seal, gilt in the middle of its boards: a ring, an eight-pointed star inside it, and a dot at its
+    heart."""
+    light, mid, dark = (np.asarray(c, np.float32) for c in metal)
+    h, w = rgb.shape[:2]
+    r = s * 1.15
+    for y in range(int(cy - r - 2), int(cy + r + 3)):
+        for x in range(int(cx - r - 2), int(cx + r + 3)):
+            if not (0 <= x < w and 0 <= y < h):
+                continue
+            d = np.hypot(x - cx, y - cy)
+            if abs(d - r) < 0.55:
+                rgb[y, x] = rgb[y, x] * 0.15 + (light if y < cy else mid) * 0.85
+            elif abs(d - r) < 1.1 and d > r:
+                rgb[y, x] = rgb[y, x] * 0.85
+    for k in range(8):
+        ang = k * np.pi / 4.0
+        reach = r * (0.78 if k % 2 == 0 else 0.48)
+        for i in range(int(reach) + 1):
+            x = int(round(cx + np.cos(ang) * i))
+            y = int(round(cy + np.sin(ang) * i))
+            if 0 <= x < w and 0 <= y < h:
+                rgb[y, x] = rgb[y, x] * 0.1 + (light if i < reach * 0.5 else mid) * 0.9
+    cxi, cyi = int(round(cx)), int(round(cy))
+    rgb[cyi, cxi] = np.asarray((255, 246, 210), np.float32)
 
 
 def spine(rng, w, h, s, leather, bands=4):
@@ -279,6 +306,9 @@ def spine(rng, w, h, s, leather, bands=4):
     rgb[:, 0] = rgb[:, 0] * 0.6
     rgb[:, -1] = rgb[:, -1] * 0.6
     red, cream = leather.rubbed * 0.9, leather.rubbed * 0.5 + np.asarray((214, 186, 136), np.float32) * 0.5
+    if leather.star and leather.metal is not None:
+        # The awakening book's headbands: gold thread.
+        red, cream = np.asarray(leather.metal[1], np.float32), leather.body * 1.2
     for end in (0, 1):
         for j in range(cap):
             y = j if end == 0 else h - 1 - j
@@ -292,6 +322,10 @@ def spine(rng, w, h, s, leather, bands=4):
             # A bead: lit along its middle, the silk twisted in short slanting stitches.
             t = (j - 1) / max(1, cap - 3)
             k = 0.78 + 0.36 * np.sin(np.pi * t)
+            if leather.star and leather.metal is not None:
+                # Gold thread wound smooth, not twisted: a gilt roll, lit along its middle, no stitches to read as stripes.
+                rgb[y] = np.clip(red * k, 0.0, 255.0)
+                continue
             for x in range(w):
                 c = red if ((x + (j if end == 0 else -j)) // 2) % 2 else cream
                 rgb[y, x] = np.clip(c * k, 0.0, 255.0)
@@ -440,12 +474,14 @@ def lectern_book(path, s, seed, leather, paper=(242, 232, 206), edge=(200, 172, 
 # Leathers: bottle green (Hands-On Vanilla's crafting book), natural tan calf (Fallow's workshop books), dark brown with brass
 # corners (the lectern), oxblood with gilt corners (the awakening book, the red of the enchanting table's cloth).
 BRASS = ((240, 206, 122), (190, 146, 66), (104, 70, 28))
-BRONZE = ((214, 170, 104), (156, 110, 56), (82, 52, 24))
+BRONZE = ((226, 176, 102), (138, 92, 40), (66, 40, 16))
 GOLD = ((252, 230, 156), (218, 178, 90), (124, 90, 40))
 GREEN = Leather(body=(38, 84, 62), rubbed=(74, 116, 88), cut=(16, 36, 26), metal=BRASS)
 TAN = Leather(body=(150, 98, 56), rubbed=(186, 136, 88), cut=(70, 42, 22), metal=BRONZE)
 BROWN = Leather(body=(104, 62, 36), rubbed=(140, 94, 60), cut=(44, 24, 12), metal=BRASS, gilt=True)
-OXBLOOD = Leather(body=(98, 30, 32), rubbed=(134, 58, 52), cut=(40, 10, 12), metal=GOLD, gilt=True)
+# The awakening book: a leather near black, a breath of plum in it (the table's world apart), all its tooling gilt, a seal of
+# gold in the middle of its boards and stars for its rivets.
+NIGHT = Leather(body=(30, 24, 27), rubbed=(60, 50, 54), cut=(10, 8, 9), metal=GOLD, star=True, gilt=True)
 
 
 def main():
@@ -454,7 +490,7 @@ def main():
     recipe_book(HOV / "recipe_book.png", 12, 41, GREEN)
     recipe_book(FALLOW / "livre_de_recettes.png", 12, 43, TAN)
     lectern_book(HOV / "enchanting_book.png", 16, 47, BROWN)
-    lectern_book(FALLOW / "livre_d_eveil.png", 16, 53, OXBLOOD)
+    lectern_book(FALLOW / "livre_d_eveil.png", 16, 53, NIGHT, paper=(226, 206, 164), edge=(158, 116, 70))
 
 
 if __name__ == "__main__":

@@ -2,8 +2,8 @@
 book and the awakening book of the enchanting table.
 
 Each page is drawn texel by texel from a fixed seed, so a rerun gives the same files: soft, cloudy paper, the edges of the leaves
-under it showing along its outer side, a little worn (corners rounded and darker, a few nicks, a short tear, a crease, a faint
-water ring, foxing, the outer corner of the foot greyed by thumbs), shaded towards the fold. Nothing is ruled on any page: the
+under it showing along its outer side, a little worn (corners rounded and darker, a few nicks, a short tear, a faint water
+ring, foxing, the outer corner of the foot greyed by thumbs), shaded towards the fold. Nothing is ruled on any page: the
 cover is their border, the page furniture and the ink do the rest. All the wear keeps to the margins the books leave.
 
 The corner turned down at the foot of a page that has a next one (or a previous one) is a sprite of its own, coin_de_page.png:
@@ -217,14 +217,6 @@ class Page:
             self.rgb[yy + 1, x] = np.minimum(self.rgb[yy + 1, x] * 1.05, 255.0)
         self.alpha[y, w - 1] = 0
 
-    def crease(self, x0, y0, length, sx=-1, sy=1, strength=0.10):
-        """A crease left by a corner once folded: a texel of shade along a diagonal and a texel of light beside it."""
-        for i in range(length):
-            x, y = x0 + sx * i, y0 + sy * i
-            if 0 <= x < self.w and 0 <= y < self.h - 1:
-                self.rgb[y, x] *= 1.0 - strength
-                self.rgb[y + 1, x] = np.minimum(self.rgb[y + 1, x] * (1.0 + strength * 0.6), 255.0)
-
     def water_ring(self, cx, cy, radius, start, sweep, strength=0.07):
         """Part of a faint ring where a wet cup once stood: the rim of the stain a little darker, its inside a hair paler."""
         d = np.hypot(self.xs - cx, self.ys - cy)
@@ -275,7 +267,6 @@ def recipe_paper(path, seed):
     page.nicks(6)
     page.thumbed(radius=13.0, strength=0.12)
     page.tear(y=58, length=3)
-    page.crease(x0=70, y0=1, length=6)
     page.water_ring(cx=66.0, cy=101.0, radius=11.0, start=3.6, sweep=1.5)
     img = Image.new("RGBA", (128, 128), (0, 0, 0, 0))
     img.paste(page.image(), (0, 0))
@@ -303,8 +294,46 @@ def big_paper(path, seed):
     page.nicks(7)
     page.thumbed(radius=20.0, strength=0.12)
     page.tear(y=97, length=4)
-    page.crease(x0=113, y0=1, length=8)
     page.water_ring(cx=104.0, cy=162.0, radius=16.0, start=3.5, sweep=1.4)
+    img = Image.new("RGBA", (128, 256), (0, 0, 0, 0))
+    img.paste(page.image(), (0, 0))
+    img.save(path)
+
+
+def mystic_paper(path, seed):
+    """The awakening book's vellum, as big_paper lays it out (115 x 154 texels in a 128 x 256 texture, the fold on the left):
+    warmer and darker than paper, cloudier, browned in a broad band towards its edges as a page kept by candlelight, scorched
+    along the very edge, the outer corners darker still; a few flecks of gilt caught in the skin. No tear, no ring, no crease: a book kept with care."""
+    page = Page(115, 154, seed, paper=VELLUM, edge=(196, 156, 100), ink=(116, 80, 44), fold_width=22)
+    page.clouds(strength=0.05, light_patches=3)
+    page.age(mottle=0.03, grain=0.010, yellowing=0.45, wear=7.0)
+    page.fibres(120, darker=0.05, lighter=0.04)
+    page.foxing(3, strength=0.10)
+    # The browning: a band some 20 texels deep along the head, the foot and the outer side, uneven, deepest at the edge.
+    reach = 20.0 * (1.0 + 0.3 * smooth_noise(page.rng, page.w, page.h, 11))
+    t = np.clip(1.0 - page.outer / reach, 0.0, 1.0) ** 1.7
+    page.rgb = mix(page.rgb, VELLUM_BURN, t * 0.7)
+    # And nearest the edge a scorch, as if the candle had come too close: deep umber, a few texels deep, its inner edge ragged.
+    scorch = 5.0 * (1.0 + 0.6 * smooth_noise(page.rng, page.w, page.h, 5))
+    u = np.clip(1.0 - page.outer / scorch, 0.0, 1.0) ** 1.4
+    page.rgb = mix(page.rgb, SCORCH, u * 0.6)
+    corner = np.clip(1.0 - np.hypot(np.minimum(page.ys, page.h - 1 - page.ys), page.w - 1 - page.xs) / 30.0, 0.0, 1.0) ** 1.6
+    page.rgb = mix(page.rgb, SCORCH, corner * 0.4)
+    page.fold(depth=0.22)
+    # Its edges darkened, never cut: a bitten edge or a rounded corner would show the paler block of leaves under the sheet.
+    rim = np.asarray(VELLUM_BURN, np.float32)
+    for x in range(page.w):
+        page.rgb[0, x] = mix(page.rgb[0, x][None, None], rim, 0.45)[0, 0]
+        page.rgb[page.h - 1, x] = mix(page.rgb[page.h - 1, x][None, None], rim, 0.55)[0, 0]
+    for y in range(page.h):
+        page.rgb[y, page.w - 1] = mix(page.rgb[y, page.w - 1][None, None], rim, 0.5)[0, 0]
+        page.rgb[y, page.w - 3] = mix(page.rgb[y, page.w - 3][None, None], rim, 0.18)[0, 0]
+    # Gilt flecks: a few single texels, kept to the margins.
+    for _ in range(14):
+        x = int(page.rng.integers(4, page.w - 3))
+        y = int(page.rng.integers(3, page.h - 3))
+        if page.outer[y, x] < 14 or x < 24:
+            page.rgb[y, x] = np.asarray((214, 172, 92), np.float32) * 0.6 + page.rgb[y, x] * 0.4
     img = Image.new("RGBA", (128, 256), (0, 0, 0, 0))
     img.paste(page.image(), (0, 0))
     img.save(path)
@@ -321,55 +350,189 @@ RIM_DARK = (184, 158, 112)
 RIM_LIGHT = (255, 249, 230)
 SELECT = (90, 58, 28)
 ACCENT = (163, 50, 42)
+# The awakening book's vellum: warmer and darker than the paper of the other books, browned towards its edges.
+VELLUM = (234, 216, 174)
+VELLUM_BURN = (134, 92, 52)
+# The darkest of it, where the edge was nearly burnt.
+SCORCH = (84, 52, 28)
 
 
 def dog_ear(path, size=14):
     """The corner turned down, `size` texels for `size` units of the page (one texel to a unit, the paper's and the icons'
     scale), for the foot of a right page (mirrored for a left one), its corner at the bottom right. Along a fold slanting
     across the corner the corner of the leaf is laid back over the page: the flap, the back of the leaf, palest along the crease
-    and darker towards its tip, its free edges in soft ink, a unit of shadow beyond them; where the corner was, the leaf under it
-    shows, a shade darker, with its own edge. No box round it: it is a fold of the page. Columns: at rest, turned further down
-    under the cursor. Rows: the recipe and lectern paper, the awakening book's (the same paper now, kept apart for later)."""
+    where the light catches it and greying towards its tip, which stands a little off the page; its free edges only a shade
+    darker than itself (paper, never an ink line), and its shadow on the page beyond them, deepest under the tip. Where the corner
+    was, nothing is drawn but the flap's shade along the crease: the page under it is paper as this one is. No box round it: a
+    triangle laid on the page. Columns: at rest, turned further down under the cursor. Rows: the recipe and lectern paper, the awakening book's vellum."""
     n = size
-    img = Image.new("RGBA", (2 * n, 2 * n), (0, 0, 0, 0))
-    under = np.array((238, 226, 196), np.float32)
-    flap_light = np.array(RIM_LIGHT, np.float32)
-    flap_dark = np.array((236, 222, 188), np.float32)
-    crease = np.array((196, 164, 110), np.float32)
-    outline = np.array((176, 146, 100), np.float32)
-    shadow = np.array((90, 60, 30), np.float32)
+    img = np.zeros((2 * n, 2 * n, 4), np.float32)
+    papers = (np.array((246, 237, 212), np.float32), np.array(VELLUM, np.float32))
+    shadow = np.array((70, 46, 24), np.float32)
     for row in range(2):
+        paper = papers[row]
         for col, turned in enumerate((8, 10)):
             f = 2 * n - turned  # the fold: x + y = f, `turned` texels in from the corner along both edges
-            tip = f - n  # the flap's tip, reflected corner: (tip, tip)
+            tip = f - n  # the flap's tip, the corner laid back: (tip, tip)
+            span = max(1.0, f - 1 - 2 * tip)
             for y in range(n):
                 for x in range(n):
                     px, py = col * n + x, row * n + y
-                    s = x + y  # texel's own diagonal index; the fold falls between s = f - 1 and s = f
-                    if s >= f:
-                        # The leaf under: its paper a shade darker, its own edge along the foot and the outer side, its
-                        # corner rounded off.
-                        if x == n - 1 and y == n - 1:
-                            continue
-                        c = under
-                        if s == f:
-                            c = c * 0.86  # the shade of the flap's crease over it
-                        img.putpixel((px, py), tuple(int(v) for v in np.rint(c)) + (255,))
+                    s_ = x + y
+                    if s_ >= f:
+                        # Where the corner was: the page under it, which is paper as this one is (left bare), and the
+                        # flap's shade along the crease.
+                        if s_ <= f + 1:
+                            img[py, px] = (*shadow, 0.26 if s_ == f else 0.12)
                     elif x >= tip and y >= tip:
-                        # The flap.
-                        if x == tip or y == tip:
-                            c = outline
-                        elif s == f - 1:
-                            c = crease
-                        else:
-                            t = (f - 1 - s) / max(1.0, f - 1 - 2 * tip)
-                            c = flap_light + (flap_dark - flap_light) * t
-                        img.putpixel((px, py), tuple(int(v) for v in np.rint(c)) + (255,))
-                    elif (x == tip - 1 and y >= tip - 1) or (y == tip - 1 and x >= tip - 1):
-                        # A unit of shadow beyond its free edges, fading towards the fold.
-                        if s < f:
-                            img.putpixel((px, py), tuple(int(v) for v in shadow) + (56,))
-    img.save(path)
+                        t = (f - 1 - s_) / span  # 0 at the crease, 1 at the tip
+                        # A shade under the page's own paper (the page is drawn shaded, the flap is not), deeper at the tip.
+                        c = paper * (0.93 * (1.0 - t) + 0.84 * t)
+                        if s_ == f - 1:
+                            c = paper * 0.97
+                        elif x == tip or y == tip:
+                            c = c * 0.95
+                        img[py, px] = (*c, 1.0)
+                    else:
+                        # The flap's shadow on the page, two texels beyond its free edges, deepest by the tip.
+                        d = max(tip - x, tip - y) if (x >= tip - 2 and y >= tip - 2) else 9
+                        if d in (1, 2) and min(x, y) >= tip - 2:
+                            # Only by the tip, which stands off the page; none along the crease, where the flap lies flat.
+                            k = 1.0 - (s_ - 2 * tip) / span
+                            k = max(0.0, min(1.0, k)) ** 1.5
+                            a = (0.36 if d == 1 else 0.16) * k
+                            if a >= 0.1:
+                                img[py, px] = (*shadow, a)
+    out = np.clip(np.rint(np.dstack([img[:, :, :3], img[:, :, 3:] * 255.0])), 0, 255).astype(np.uint8)
+    Image.fromarray(out, "RGBA").save(path)
+
+
+# The tabs' pictograms, 9 x 9 texels, in the order PageParts.Glyph lists them: drawn in the books' inks (# ink, o soft ink,
+# r rubric, g gilt), never an item's own picture, so every tab belongs to the book.
+TAB_GLYPH_ORDER = ("all", "recent", "building", "redstone", "equipment", "misc", "filter", "banner", "tools", "armour", "ingot")
+GLYPHS = {
+ "tools": [  # a pickaxe
+  "..#####..",
+  ".#ooooo#.",
+  "#o..g..o#",
+  "#...g...#",
+  "....g....",
+  "....g....",
+  "....g....",
+  "....g....",
+  "....g....",
+ ],
+ "armour": [  # a breastplate
+  ".........",
+  ".##...##.",
+  "#o#####o#",
+  "#ooooooo#",
+  ".#ooooo#.",
+  ".#ooooo#.",
+  ".#ooooo#.",
+  ".#######.",
+  ".........",
+ ],
+ "ingot": [  # an ingot
+  ".........",
+  ".........",
+  "..#####..",
+  ".#ggggg#.",
+  "#ggggggg#",
+  "#########",
+  ".........",
+  ".........",
+  ".........",
+ ],
+ "all": [   # a compass rose: four points, the north one red
+  ".........",
+  "..#####..",
+  ".#..r..#.",
+  ".#.rrr.#.",
+  ".#..#..#.",
+  ".#.ooo.#.",
+  ".#..o..#.",
+  "..#####..",
+  ".........",
+ ],
+ "recent": [  # an hourglass, sand running
+  ".#######.",
+  "..#...#..",
+  "..#ggg#..",
+  "...#g#...",
+  "....#....",
+  "...#g#...",
+  "..#.g.#..",
+  "..#ggg#..",
+  ".#######.",
+ ],
+ "building": [  # a wall of bricks
+  ".........",
+  "#########",
+  "#rrr#rrr#",
+  "#########",
+  "#r#rrr#r#",
+  "#########",
+  "#rrr#rrr#",
+  "#########",
+  ".........",
+ ],
+ "redstone": [  # a torch, its flame red
+  "....r....",
+  "...rrr...",
+  "...rgr...",
+  "....r....",
+  "...###...",
+  "....#....",
+  "....#....",
+  "....#....",
+  "...###...",
+ ],
+ "equipment": [  # a sword, point up
+  ".........",
+  "......##.",
+  ".....#o#.",
+  "....#o#..",
+  ".#.#o#...",
+  "..#o#....",
+  "..##.....",
+  ".g..#....",
+  "g........",
+ ],
+ "misc": [  # a stoppered flask
+  "...ooo...",
+  "...#o#...",
+  "...#.#...",
+  "..#...#..",
+  ".#.....#.",
+  ".#rrrrr#.",
+  ".#rrrrr#.",
+  "..#####..",
+  ".........",
+ ],
+ "filter": [  # the crafting grid, three by three
+  ".........",
+  ".#######.",
+  ".#o#o#o#.",
+  ".#######.",
+  ".#o#o#o#.",
+  ".#######.",
+  ".#o#o#o#.",
+  ".#######.",
+  ".........",
+ ],
+ "banner": [  # a banner on its pole
+  "#########",
+  ".#rrrrr#.",
+  ".#rrrrr#.",
+  ".#rrgrr#.",
+  ".#rgrgr#.",
+  ".#rrgrr#.",
+  ".#rrrrr#.",
+  ".#r#.#r#.",
+  ".##...##.",
+ ],
+}
 
 
 def elements(path):
@@ -378,11 +541,14 @@ def elements(path):
       tabs, 16 x 16 at (0, 0), (16, 0), (32, 0): behind the page, under the cursor, open; nine pieces, 3 texels a side;
       the search slip, 16 x 16 at (48, 0) and lit at (64, 0), nine pieces of 3;
       wells, 17 x 17 at (0, 16) (a recipe out of reach, or a thing not at hand) and ready at (17, 16);
-      the frame round a picked well, 19 x 19 at (34, 16), a unit out from the well;
+      the frame of a picked well, 17 x 17 at (34, 16), on the well's own rim;
+      the mark of a well holding variants, 17 x 17 at (52, 16), a second rim inside it;
       the card a group of recipes opens on, 16 x 16 at (0, 36), its shadow in its last row and column, nine pieces of 4;
       the magnifier, 8 x 8 at (16, 36); the mark of a new recipe, 4 x 4 at (24, 36);
       the gutter's shade, 16 x 8 at (48, 52), the fold on its left;
-      the rule under a name, 31 x 5 at (0, 76).
+      the rule under a name, 31 x 5 at (0, 76);
+      the red head of a tab with something new, 16 x 2 at (80, 0);
+      the tabs' pictograms, 9 x 9 from (0, 88) in the order of TAB_GLYPH_ORDER.
     One palette for every book: brown inks (never black), paper and its shades, the rubric red for what is new. Lines are a texel,
     corners notched by a texel, wells pressed into the paper (darker rim above and left, lit below and right), nothing green."""
     img = np.zeros((128, 128, 4), np.float32)
@@ -441,21 +607,33 @@ def elements(path):
             else:
                 c = PAPER_SHADE
             put(17 + x, 16 + y, c, 1.0)
-    # The frame round a picked well: a texel of dark ink a unit out from the well, its corners notched, a texel of light inside.
-    for y in range(19):
-        for x in range(19):
-            if x in (0, 18) and y in (0, 18):
+    # The frame of a picked well, on the well itself (17 square, its rim): a texel of dark ink with the corners notched, a
+    # texel of light inside it and the corners of a second line of ink a texel further in, so the pick is framed without
+    # touching the wells beside it.
+    for y in range(17):
+        for x in range(17):
+            edge = x in (0, 16) or y in (0, 16)
+            inner = x in (1, 15) or y in (1, 15)
+            if x in (0, 16) and y in (0, 16):
                 continue
-            if x in (0, 18) or y in (0, 18):
+            if edge:
                 put(34 + x, 16 + y, SELECT)
-            elif (x in (1, 17) or y in (1, 17)) and not (x in (1, 17) and y in (1, 17)):
-                put(34 + x, 16 + y, RIM_LIGHT, 0.85)
+            elif inner and not (x in (1, 15) and y in (1, 15)):
+                put(34 + x, 16 + y, RIM_LIGHT, 0.9)
+            elif (x in (2, 14) and y in (2, 3, 13, 14)) or (y in (2, 14) and x in (2, 3, 13, 14)):
+                put(34 + x, 16 + y, SELECT, 0.75)
+    # A well holding several variants: a second rim a texel inside its right and bottom sides, as the edges of cards stacked
+    # under it, 17 x 17 at (52, 16); it keeps inside the well, clear of the wells beside it.
+    for i in range(3, 16):
+        put(52 + 15, 16 + i, RIM_DARK, 0.75)
+        put(52 + i, 16 + 15, RIM_DARK, 0.75)
+    put(52 + 15, 16 + 15, RIM_DARK, 0.9)
     # The card: one line of soft ink round the lightest paper, notched, and a texel of shadow below and right.
     for y in range(15):
         for x in range(15):
             if x in (0, 14) and y in (0, 14):
                 continue
-            put(1 + x, 36 + 1 + y, (90, 60, 30), 0.25)
+            put(1 + x, 36 + 1 + y, (90, 60, 30), 0.4)
     box(0, 36, 15, 15, RIM_LIGHT, INK_SOFT)
     # The magnifier: a ring of ink round a pale glass with a glint, and its handle.
     glass = ["..###...",
@@ -478,6 +656,21 @@ def elements(path):
     for x, y in ((1, 0), (2, 0), (0, 1), (1, 1), (2, 1), (3, 1), (0, 2), (1, 2), (2, 2), (3, 2), (1, 3), (2, 3)):
         put(24 + x, 36 + y, ACCENT)
     put(24 + 1, 36 + 1, (214, 110, 92))
+    # What is new on a tab: its head drawn in the rubric red, 16 x 2 at (80, 0), the corners notched as the tab's are; it
+    # stops where the tab's pictogram begins.
+    for x in range(16):
+        for y in range(2):
+            if y == 0 and x in (0, 15):
+                continue
+            c = (126, 34, 28) if y == 0 or x in (0, 15) else ACCENT
+            put(80 + x, y, c)
+    # The tabs' pictograms, a row of 9 x 9 at v 88.
+    colours = {"#": INK, "o": INK_SOFT, "r": ACCENT, "g": (190, 146, 66)}
+    for i, name in enumerate(TAB_GLYPH_ORDER):
+        for y, rowtxt in enumerate(GLYPHS[name]):
+            for x, ch in enumerate(rowtxt):
+                if ch in colours:
+                    put(i * 9 + x, 88 + y, colours[ch])
     # The gutter: where the page goes down into the fold, a fine line of shade and a soft shadow fading out from it.
     # Texels under 0.1 opaque are thrown away: the faint tail keeps 0.12 and fades by its colour, towards the paper.
     paper = np.array(PAPER_RGB, np.float32)
@@ -506,7 +699,7 @@ def main():
     HOV.mkdir(parents=True, exist_ok=True)
     recipe_paper(FALLOW / "livre_de_recettes_papier.png", seed=11)
     recipe_paper(HOV / "recipe_book_paper.png", seed=11)
-    big_paper(FALLOW / "livre_d_eveil_papier.png", seed=23)
+    mystic_paper(FALLOW / "livre_d_eveil_papier.png", seed=23)
     big_paper(HOV / "enchanting_book_paper.png", seed=31)
     dog_ear(FALLOW / "coin_de_page.png")
     elements(FALLOW / "livre_elements.png")

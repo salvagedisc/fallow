@@ -77,33 +77,74 @@ final class TableBehavior implements StationBehavior {
     private static final int LARGE = 100;
     private static final int HAUT = 156;
     /**
-     * Les marges : le papier du livre porte un cadre filé (vers 3 et 5 unités des bords, 2 et 4 du haut) ; ce qui s'écrit reste à
-     * {@link #MARGE} des côtés et entre {@link #HAUT_ECRIT} et {@link #BAS_ECRIT} de haut en bas.
+     * Les marges. Le papier écrit commence après la courbe de la gouttière (près d'un pixel du modèle, 17 unités) : du côté du
+     * pli, {@link #DEDANS} suffit, la courbe fait le reste de la marge ; du côté de la tranche, {@link #DEHORS}. Ainsi ce qui est
+     * centré l'est sur la page qu'on voit, non sur sa partie plate. {@link #bordG} et {@link #bordD} sont ceux de la page qu'on
+     * peint ({@link #peindre}) ; de haut en bas, ce qui s'écrit reste entre {@link #HAUT_ECRIT} et le pied.
      */
-    private static final float MARGE = 8.0F;
+    private static final float DEDANS = 1.0F;
+    private static final float DEHORS = 16.0F;
+    private static float bordG = DEHORS;
+    private static float bordD = LARGE - DEDANS;
     private static final float HAUT_ECRIT = 7.0F;
-    private static final float BAS_ECRIT = 149.0F;
-    private static final float GAUCHE_X = MARGE;
-    private static final float DROITE_X = MARGE;
     private static final float LIGNE = 9.0F;
     private static final float PETIT = 0.72F;
     private static final float PETITE_LIGNE = 7.0F;
     private static final float PIED = 140.0F;
-    /** Le demi-côté du losange où un objet est en majesté, en haut de page. */
-    private static final float EMBLEME = 13.0F;
+    /** Le médaillon où un objet est en majesté, en haut de page : son cercle d'or, et ce qui l'entoure jusqu'à ses pointes. */
+    private static final float MEDAILLON = 11.0F;
+    private static final float EMBLEME = 23.0F;
     /** D'où partent les lignes sous un intitulé, et l'écart entre deux places d'éveil. */
-    private static final float CORPS_X = GAUCHE_X + 6.0F;
+    private static final float RETRAIT = 6.0F;
     private static final float PAS_DE_PLACE = 7.0F;
     /** Les losanges du chemin vers le prochain éveil. */
     private static final int PAS_DU_CHEMIN = 9;
     /** La fourche : la tige dans la marge, les cartouches à sa droite, leur texte, leur intérieur et ce qui les sépare. */
-    private static final float TIGE_X = 4.0F;
-    private static final float CARTOUCHE_X = 10.0F;
-    private static final float CARTOUCHE_LARGE = LARGE - 5.0F - CARTOUCHE_X;
+    private static final float TIGE = 3.0F;
+    private static final float CARTOUCHE = 8.0F;
+    /** La place laissée sous les cartouches pour la racine de la fourche, au-dessus de la phrase du pied. */
+    private static final float RACINE = 6.0F;
+    /** Le temps entre deux reflets sur un filet d'or, secondes. */
+    private static final float REFLET = 5.0F;
     private static final float CARTOUCHE_DEDANS = 3.0F;
     private static final float ENTRE_VOIES = 3.0F;
-    private static final float VOIE_X = CARTOUCHE_X + 4.0F;
-    private static final float VOIE_LARGE = CARTOUCHE_X + CARTOUCHE_LARGE - 3.0F - VOIE_X;
+    private static final float VOIE = 4.0F;
+    /** Le milieu de la page de droite, celle des voies, d'où l'encre part. */
+    private static final float MILIEU_DROITE = (DEDANS + LARGE - DEHORS) / 2.0F;
+
+    /** Les bords de ce qui s'écrit sur une page : la page de droite a le pli à sa gauche. */
+    private static void cadrer(boolean droite) {
+        bordG = droite ? DEDANS : DEHORS;
+        bordD = droite ? LARGE - DEHORS : LARGE - DEDANS;
+    }
+
+    private static float milieu() {
+        return (bordG + bordD) / 2.0F;
+    }
+
+    private static float largeur() {
+        return bordD - bordG;
+    }
+
+    private static float corpsX() {
+        return bordG + RETRAIT;
+    }
+
+    private static float cartoucheX() {
+        return bordG + CARTOUCHE;
+    }
+
+    private static float cartoucheLarge() {
+        return bordD - cartoucheX();
+    }
+
+    private static float voieX() {
+        return cartoucheX() + VOIE;
+    }
+
+    private static float voieLarge() {
+        return bordD - 3.0F - voieX();
+    }
 
     /**
      * Les encres, celles des autres livres : le texte et les titres en brun d'encre (jamais de noir), l'à-côté en encre douce,
@@ -111,11 +152,21 @@ final class TableBehavior implements StationBehavior {
      */
     private static final int ENCRE = 0x3B2A1A;
     private static final int SEPIA = 0x8A6B45;
-    private static final int RUBRIQUE = 0xA3322A;
+    private static final int RUBRIQUE = 0x8F2A22;
     private static final int PALE = 0x6E5A40;
     private static final int PALE_FILET = 0xC9B184;
     private static final int ROUGE = 0x8E1C14;
     private static final int RUNES = 0x9C8462;
+    /** Les runes de la couronne autour de l'objet, éteintes : une sépia assez soutenue pour se lire sur le vélin. */
+    private static final int RUNES_DE_COURONNE = 0x7A5E3C;
+    /**
+     * L'or du livre : ses dorures (cercles, filets, coins des cartouches, nœuds de la fourche), d'un or bruni qui se lit sur le
+     * vélin, et la lueur qu'elles jettent, à pleine lumière, quand la pièce s'assombrit autour de la table.
+     */
+    private static final int OR = 0xB0802E;
+    private static final int OR_CLAIR = 0xE2B95E;
+    private static final int OR_VIF = 0xC98A1E;
+    private static final int LUEUR_D_OR = 0xFFE3A0;
     /** La lueur du nom d'une voie : l'or pâle d'une dorure, sur l'encre rouge. */
     private static final int LUEUR_DE_RUBRIQUE = 0xF2D27A;
     /** Les couleurs de l'encre qui monte de l'encrier et coule dans l'objet : les rouges de la rubrique et l'or. */
@@ -151,6 +202,8 @@ final class TableBehavior implements StationBehavior {
     private final OpenBook book = new OpenBook(LARGE, HAUT, this::peindre);
     private StationView station;
     private float horloge;
+    /** L'horloge du livre, pour ce que la page anime d'elle-même (le médaillon, les dorures, les paillettes). */
+    private static float battement;
     private float glisse;
     private boolean vient;
     private float ouvert;
@@ -705,12 +758,12 @@ final class TableBehavior implements StationBehavior {
         if (tenueEclat) {
             view.sendAction(TableEveil.VERSER, new CompoundTag());
             Eclat eclat = ici.eclat().get(EveilModule.ECLAT.get());
-            commencerCoulee(view, pose, LARGE / 2.0F, 60.0F, 0, eclat == null ? -1 : eclat.couleur());
+            commencerCoulee(view, pose, MILIEU_DROITE, 60.0F, 0, eclat == null ? -1 : eclat.couleur());
         } else {
             CompoundTag how = new CompoundTag();
             how.putInt(TableEveil.VOIE, tenue);
             view.sendAction(TableEveil.CHOISIR, how);
-            commencerCoulee(view, pose, LARGE / 2.0F, (voies[tenue][0] + voies[tenue][1]) / 2.0F, tenue, -1);
+            commencerCoulee(view, pose, MILIEU_DROITE, (voies[tenue][0] + voies[tenue][1]) / 2.0F, tenue, -1);
         }
         eclair = 1.0F;
         Isolement.relacher();
@@ -754,7 +807,7 @@ final class TableBehavior implements StationBehavior {
             return;
         }
         Pose pose = pose(view);
-        Vector3f vers = pose.versLaScene(book.onPage(true, LARGE / 2.0F, y, pose.open, pose.right, pose.left));
+        Vector3f vers = pose.versLaScene(book.onPage(true, MILIEU_DROITE, y, pose.open, pose.right, pose.left));
         view.node(TableEveil.ENCRE).ifPresent(encrier -> {
             Vector3f depuis = new Vector3f(encrier.definition().transform().pos()).add(0.0F, 2.0F, 0.0F);
             while (volutesReste >= 1.0F) {
@@ -806,7 +859,7 @@ final class TableBehavior implements StationBehavior {
         boolean moi = player != null && data.hasUUID(TableEveil.ACTEUR) && player.getUUID().equals(data.getUUID(TableEveil.ACTEUR));
         if (!moi) {
             Pose pose = pose(view);
-            commencerCoulee(view, pose, LARGE / 2.0F, HAUT / 2.0F, 0, -1);
+            commencerCoulee(view, pose, MILIEU_DROITE, HAUT / 2.0F, 0, -1);
         }
         coulante = -1;
         sautA = horloge;
@@ -1055,6 +1108,9 @@ final class TableBehavior implements StationBehavior {
             return;
         }
         boolean droite = Math.floorMod(page, 2) == 1;
+        cadrer(droite);
+        battement = horloge;
+        paillettes(canvas, page);
         boolean courante = repos && spread == book.spread();
         if (droite) {
             if (courante) {
@@ -1081,14 +1137,14 @@ final class TableBehavior implements StationBehavior {
         if (objet.isEmpty()) {
             float y = titre(canvas, Component.translatable("eveil.fallow.livre.titre"), 10.0F);
             filet(canvas, y + 2.0F);
-            y = paragraphe(canvas, Component.translatable("eveil.fallow.livre.invite"), GAUCHE_X, y + 8.0F, 1.0F, ENCRE, 12);
-            paragraphe(canvas, Component.translatable("eveil.fallow.livre.invite_eclat"), GAUCHE_X, y + 6.0F, PETIT, PALE, 6);
+            y = paragraphe(canvas, Component.translatable("eveil.fallow.livre.invite"), bordG, y + 8.0F, 1.0F, ENCRE, 12);
+            paragraphe(canvas, Component.translatable("eveil.fallow.livre.invite_eclat"), bordG, y + 6.0F, PETIT, PALE, 6);
             return;
         }
-        float milieu = LARGE / 2.0F;
+        float milieu = milieu();
         enMajeste(canvas, objet, HAUT_ECRIT + EMBLEME);
-        float y = HAUT_ECRIT + 2.0F * EMBLEME + 4.0F;
-        List<FormattedCharSequence> nom = font.split(objet.getHoverName().copy().withStyle(Style.EMPTY), (int) (LARGE - 2.0F * MARGE));
+        float y = HAUT_ECRIT + 2.0F * EMBLEME + 3.0F;
+        List<FormattedCharSequence> nom = font.split(objet.getHoverName().copy().withStyle(Style.EMPTY), (int) largeur());
         for (FormattedCharSequence ligne : nom.subList(0, Math.min(2, nom.size()))) {
             canvas.text(ligne, milieu - font.width(ligne) / 2.0F, y, ENCRE, 1.0F);
             y += LIGNE;
@@ -1119,7 +1175,7 @@ final class TableBehavior implements StationBehavior {
         float pourLesFaits = LIGNE + 2.0F * PETITE_LIGNE;
         y = entete(canvas, Component.translatable("eveil.fallow.livre.eveils"), y);
         if (etat == null || etat.traces().isEmpty()) {
-            canvas.text(Component.translatable("eveil.fallow.livre.aucun_eveil").getVisualOrderText(), CORPS_X, y, PETIT, PALE, 1.0F);
+            canvas.text(Component.translatable("eveil.fallow.livre.aucun_eveil").getVisualOrderText(), corpsX(), y, PETIT, PALE, 1.0F);
             y += PETITE_LIGNE + 3.0F;
         } else {
             for (EtatEveil.Trace trace : etat.traces()) {
@@ -1128,31 +1184,31 @@ final class TableBehavior implements StationBehavior {
                         ? Component.translatable("eveil.fallow.livre.trace.eclat", trace.jour(), trace.par(),
                                 Component.translatable(trace.eclat().get()))
                         : Component.translatable("eveil.fallow.livre.trace", trace.jour(), trace.par());
-                float haute = hauteurDe(nomTrace, CORPS_X, 1.0F, 2) - 1.0F + hauteurDe(detail, CORPS_X, PETIT, 3) + 2.0F;
+                float haute = hauteurDe(nomTrace, corpsX(), 1.0F, 2) - 1.0F + hauteurDe(detail, corpsX(), PETIT, 3) + 2.0F;
                 if (y + haute > limite - pourLesFaits) {
                     break;
                 }
-                y = paragraphe(canvas, nomTrace, CORPS_X, y, 1.0F, RUBRIQUE, 2) - 1.0F;
-                y = paragraphe(canvas, detail, CORPS_X, y, PETIT, PALE, 3) + 2.0F;
+                y = paragraphe(canvas, nomTrace, corpsX(), y, 1.0F, RUBRIQUE, 2) - 1.0F;
+                y = paragraphe(canvas, detail, corpsX(), y, PETIT, PALE, 3) + 2.0F;
             }
             y += 1.0F;
         }
         ListTag faits = TableEveil.liste(contenu.data(), TableEveil.FAITS);
         y = entete(canvas, Component.translatable("eveil.fallow.livre.faits"), y);
         if (faits.isEmpty()) {
-            canvas.text(Component.translatable("eveil.fallow.livre.aucun_fait").getVisualOrderText(), CORPS_X, y, PETIT, PALE, 1.0F);
+            canvas.text(Component.translatable("eveil.fallow.livre.aucun_fait").getVisualOrderText(), corpsX(), y, PETIT, PALE, 1.0F);
         } else {
             for (int i = 0; i < faits.size(); i++) {
                 CompoundTag fait = faits.getCompound(i);
                 Component ligne = majuscule(Component.translatable(fait.getString(TableEveil.NOM), quantite(fait.getDouble(TableEveil.FOIS))));
                 // Le premier toujours (sur une ligne s'il le faut), les suivants s'il reste la place.
-                int auPlus = y + hauteurDe(ligne, CORPS_X + 5.0F, PETIT, 2) <= limite ? 2 : 1;
-                if (i > 0 && y + hauteurDe(ligne, CORPS_X + 5.0F, PETIT, auPlus) > limite) {
+                int auPlus = y + hauteurDe(ligne, corpsX() + 5.0F, PETIT, 2) <= limite ? 2 : 1;
+                if (i > 0 && y + hauteurDe(ligne, corpsX() + 5.0F, PETIT, auPlus) > limite) {
                     break;
                 }
                 // Chaque haut fait marqué d'un point de rubrique, comme un article de compte.
-                losange(canvas, CORPS_X + 1.5F, y + 2.5F, 1, RUBRIQUE, true);
-                y = paragraphe(canvas, ligne, CORPS_X + 5.0F, y, PETIT, ENCRE, auPlus) + 1.5F;
+                losange(canvas, corpsX() + 1.5F, y + 2.5F, 1, RUBRIQUE, true);
+                y = paragraphe(canvas, ligne, corpsX() + 5.0F, y, PETIT, ENCRE, auPlus) + 1.5F;
             }
         }
         chemin(canvas, contenu, etat);
@@ -1178,9 +1234,9 @@ final class TableBehavior implements StationBehavior {
             avancee = contenu.data().getFloat(TableEveil.AVANCEE);
         }
         Font font = Minecraft.getInstance().font;
-        float milieu = LARGE / 2.0F;
+        float milieu = milieu();
         boolean pret = avancee >= 1.0F;
-        float taille = Math.min(PETIT, (LARGE - 2.0F * MARGE - 20.0F) / Math.max(1.0F, font.width(mots)));
+        float taille = Math.min(PETIT, (largeur() - 20.0F) / Math.max(1.0F, font.width(mots)));
         float large = font.width(mots) * taille;
         float y = PIED - 4.0F;
         canvas.text(mots.getVisualOrderText(), milieu - large / 2.0F, y, taille, pret ? RUBRIQUE : SEPIA, 1.0F);
@@ -1194,8 +1250,15 @@ final class TableBehavior implements StationBehavior {
         if (avancee >= 0.0F) {
             int pleins = Mth.floor(Mth.clamp(avancee, 0.0F, 1.0F) * PAS_DU_CHEMIN);
             float x = milieu - (PAS_DU_CHEMIN - 1) * 8.0F / 2.0F;
+            x = Mth.floor(x) + 0.5F;
             for (int i = 0; i < PAS_DU_CHEMIN; i++) {
-                losange(canvas, x + i * 8.0F, PIED + 8.0F, 1, i < pleins ? (pret ? RUBRIQUE : SEPIA) : PALE_FILET, i < pleins);
+                losange(canvas, x + i * 8.0F, PIED + 8.0F, 1, i < pleins ? (pret ? RUBRIQUE : OR) : PALE_FILET, i < pleins);
+                if (pret) {
+                    // Prêt : chaque losange luit d'or, l'un après l'autre, comme une flamme qui court.
+                    float onde = 0.5F + 0.5F * Mth.sin(battement * 3.0F - i * 0.7F);
+                    canvas.brightRect(x + i * 8.0F - 0.5F, PIED + 7.5F, 1.0F, 1.0F, LUEUR_D_OR, (0.35F + 0.5F * onde) * canvas.ink(),
+                            OpenBook.MARK_LIFT * 1.1F);
+                }
             }
         }
     }
@@ -1216,10 +1279,10 @@ final class TableBehavior implements StationBehavior {
                 default -> "eveil.fallow.table.pas_encore";
             };
             // Au milieu de la page, comme une phrase seule dans un livre.
-            List<FormattedCharSequence> lignes = Minecraft.getInstance().font.split(Component.translatable(cle), (int) (LARGE - 2.0F * DROITE_X - 8.0F));
+            List<FormattedCharSequence> lignes = Minecraft.getInstance().font.split(Component.translatable(cle), (int) (largeur() - 8.0F));
             float y = HAUT / 2.0F - lignes.size() * LIGNE / 2.0F;
             for (FormattedCharSequence ligne : lignes) {
-                float x = (LARGE - Minecraft.getInstance().font.width(ligne)) / 2.0F;
+                float x = milieu() - Minecraft.getInstance().font.width(ligne) / 2.0F;
                 canvas.text(ligne, x, y, PALE, 1.0F);
                 y += LIGNE;
             }
@@ -1234,6 +1297,8 @@ final class TableBehavior implements StationBehavior {
         boolean sec = manque != null;
         Component piedTexte = sec ? manque : Component.translatable("eveil.fallow.livre.choisir");
         float bas = PIED + PETITE_LIGNE - lignesDuPied(piedTexte) * PETITE_LIGNE - 2.0F;
+        // Sous les cartouches, la place de la racine de la fourche : elle ne touche jamais la phrase du pied.
+        float fond = bas - RACINE;
         int n = Math.min(2, liste.size());
         // Chaque voie est d'abord mesurée sur ses mots lus : son cartouche la couvre toute, et rien ne bouge pendant qu'on la déchiffre.
         // Trop long pour la page, une voie se resserre : d'abord sans ce qu'il portait avant, puis sans l'acte qui l'a éveillée,
@@ -1248,12 +1313,12 @@ final class TableBehavior implements StationBehavior {
                 textes.add(texte);
                 pris += hauteur(texte) + 2.0F * CARTOUCHE_DEDANS + (i > 0 ? ENTRE_VOIES : 0.0F);
             }
-            if (y + pris <= bas) {
+            if (y + pris <= fond) {
                 break;
             }
         }
         // Le reste de la page se partage entre les cartouches, sans qu'un cartouche seul s'étire sur toute la page.
-        float marge = Mth.clamp((bas - y - pris) / Math.max(1, n), 0.0F, 10.0F);
+        float marge = Mth.clamp((fond - y - pris) / Math.max(1, n), 0.0F, 10.0F);
         float haut = y;
         float[] noeuds = new float[n];
         int lue = -1;
@@ -1271,14 +1336,14 @@ final class TableBehavior implements StationBehavior {
             }
             float lettres = coule ? Mth.clamp(1.0F - (horloge - clicA) / COULEE, 0.0F, 1.0F) : 1.0F;
             float tenu = courante && i == tenue && !tenueEclat ? Math.min(1.0F, tenueT / TENUE) : 0.0F;
-            cartouche(canvas, CARTOUCHE_X, haut, CARTOUCHE_LARGE, hauteur, vive, tenu);
+            cartouche(canvas, cartoucheX(), haut, cartoucheLarge(), hauteur, vive, tenu);
             float ly = haut + CARTOUCHE_DEDANS + marge / 2.0F;
             ecrireLignes(canvas, texte, ly, vive, courante ? 0.16F + 0.12F * Mth.sin(horloge * 2.2F + i * 1.7F) : 0.0F, LUEUR_DE_RUBRIQUE,
                     lettres);
             noeuds[i] = haut + hauteur / 2.0F;
             haut += hauteur + ENTRE_VOIES;
         }
-        fourche(canvas, noeuds, Math.max(haut - ENTRE_VOIES + 2.0F, bas - 2.0F), lue);
+        fourche(canvas, noeuds, haut - ENTRE_VOIES + 2.0F, lue, contenu.revele());
         pied(canvas, piedTexte, sec ? ROUGE : SEPIA);
     }
 
@@ -1295,15 +1360,15 @@ final class TableBehavior implements StationBehavior {
         boolean coule = courante && coulante >= 0;
         float revele = contenu.revele()[0];
         enMajeste(canvas, stack, HAUT_ECRIT + EMBLEME);
-        float y = HAUT_ECRIT + 2.0F * EMBLEME + 4.0F;
-        for (FormattedCharSequence ligne : font.split(stack.getHoverName().copy().withStyle(Style.EMPTY), (int) (LARGE - 2.0F * DROITE_X))) {
-            canvas.text(ligne, (LARGE - font.width(ligne)) / 2.0F, y, ENCRE, 1.0F);
+        float y = HAUT_ECRIT + 2.0F * EMBLEME + 3.0F;
+        for (FormattedCharSequence ligne : font.split(stack.getHoverName().copy().withStyle(Style.EMPTY), (int) largeur())) {
+            canvas.text(ligne, milieu() - font.width(ligne) / 2.0F, y, ENCRE, 1.0F);
             y += LIGNE;
         }
         filet(canvas, y + 2.0F);
         y += 8.0F;
         if (!eclat.recit().isEmpty()) {
-            y = paragraphe(canvas, Component.translatable(eclat.recit()).copy().withStyle(s -> s.withItalic(true)), DROITE_X, y, PETIT,
+            y = paragraphe(canvas, Component.translatable(eclat.recit()).copy().withStyle(s -> s.withItalic(true)), bordG, y, PETIT,
                     PALE, 4) + 4.0F;
         }
         // La force de l'éclat, en runes jusqu'à ce qu'on la lise, dans son cartouche.
@@ -1316,12 +1381,12 @@ final class TableBehavior implements StationBehavior {
         float lettres = coule ? Mth.clamp(1.0F - (horloge - clicA) / COULEE, 0.0F, 1.0F) : 1.0F;
         float tenu = courante && tenueEclat && tenue >= 0 ? Math.min(1.0F, tenueT / TENUE) : 0.0F;
         float hauteur = hauteur(force) + 2.0F * CARTOUCHE_DEDANS;
-        cartouche(canvas, CARTOUCHE_X, y, CARTOUCHE_LARGE, hauteur, vive, tenu);
+        cartouche(canvas, cartoucheX(), y, cartoucheLarge(), hauteur, vive, tenu);
         ecrireLignes(canvas, force, y + CARTOUCHE_DEDANS, vive, courante && ok ? 0.16F + 0.12F * Mth.sin(horloge * 2.2F) : 0.0F,
                 0xFF000000 | eclat.couleur(), lettres);
-        fourche(canvas, new float[] {y + hauteur / 2.0F}, y + hauteur + 4.0F, vive ? 0 : -1);
+        fourche(canvas, new float[] {y + hauteur / 2.0F}, y + hauteur + 4.0F, vive ? 0 : -1, contenu.revele());
         y += hauteur + 5.0F;
-        paragraphe(canvas, Component.translatable("eveil.fallow.livre.eclat.place"), DROITE_X, y, PETIT, PALE, 3);
+        paragraphe(canvas, Component.translatable("eveil.fallow.livre.eclat.place"), bordG, y, PETIT, PALE, 3);
         Component manque = station == null ? null : manque(station, contenu);
         String cle = switch (contenu.data().getString(TableEveil.ECLAT_ETAT)) {
             case TableEveil.ECLAT_OK -> "eveil.fallow.livre.eclat.verser";
@@ -1337,23 +1402,135 @@ final class TableBehavior implements StationBehavior {
     // ---- le dessin ----
 
     /**
-     * Un objet en majesté, centré en ({@code LARGE / 2}, {@code milieu}) : son icône dans un losange de rubrique, le losange teinté
-     * d'un voile de la même encre, un point à chacune de ses pointes.
+     * Un objet en majesté, au milieu de la page à la hauteur {@code cy} : un cercle d'or autour de lui, une lueur d'or derrière
+     * qui respire, et autour du cercle une couronne de runes de la table, à l'encre pâle ; une lumière en fait lentement le tour,
+     * et chaque rune s'allume d'or à son passage puis s'éteint. L'or est celui du vélin (l'encre, à la lumière de la pièce), ses
+     * lueurs à pleine lumière : quand le monde s'en va autour de la table, le médaillon reste.
      */
-    private static void enMajeste(OpenBook.Canvas canvas, ItemStack stack, float milieu) {
-        float cx = LARGE / 2.0F;
-        int r = (int) EMBLEME;
-        for (int dy = -r + 1; dy <= r - 1; dy++) {
-            int w = r - 1 - Math.abs(dy);
-            canvas.rect(cx - w - 0.5F, milieu + dy - 0.5F, 2.0F * w + 1.0F, 1.0F, OpenBook.MARK_LIFT * 0.5F, 0x2C000000 | RUBRIQUE);
+    private static void enMajeste(OpenBook.Canvas canvas, ItemStack stack, float cy) {
+        Font font = Minecraft.getInstance().font;
+        float cx = Mth.floor(milieu()) + 0.5F;
+        cy = Mth.floor(cy) + 0.5F;
+        int r = Math.round(MEDAILLON);
+        float souffle = 0.5F + 0.5F * Mth.sin(battement * 1.4F);
+        float encre = canvas.ink();
+        disque(canvas, cx, cy, r - 1.5F, LUEUR_D_OR, (0.07F + 0.05F * souffle) * encre);
+        disque(canvas, cx, cy, r - 5.0F, LUEUR_D_OR, (0.06F + 0.05F * souffle) * encre);
+        cercle(canvas, cx, cy, r, OR, 1, 0xFF);
+        for (int[] point : anneau(r)) {
+            canvas.brightRect(Mth.floor(cx) + point[0], Mth.floor(cy) + point[1], 1.0F, 1.0F, OR_CLAIR, 0.2F * encre,
+                    OpenBook.MARK_LIFT * 1.1F);
         }
-        losange(canvas, cx, milieu, r, RUBRIQUE, false);
-        for (float[] pointe : new float[][] {{0, -r - 3}, {0, r + 3}, {-r - 3, 0}, {r + 3, 0}}) {
-            canvas.rect(cx + pointe[0] - 0.5F, milieu + pointe[1] - 0.5F, 1.0F, 1.0F, OpenBook.MARK_LIFT, 0xFF000000 | RUBRIQUE);
+        cercle(canvas, cx, cy, COURONNE_BORD, OR, 2, 0xA0);
+        // La couronne de runes : chacune droite, à sa place sur le tour ; la lumière qui tourne, et les runes qu'elle touche.
+        float tour = battement * TOUR_DES_RUNES;
+        for (int i = 0; i < COURONNE.length(); i++) {
+            float angle = Mth.TWO_PI * i / COURONNE.length() - Mth.HALF_PI;
+            FormattedCharSequence rune = Component.literal(String.valueOf(COURONNE.charAt(i)))
+                    .withStyle(Style.EMPTY.withFont(Minecraft.ALT_FONT)).getVisualOrderText();
+            float w = font.width(rune) * TAILLE_RUNE;
+            float h = (font.lineHeight - 1) * TAILLE_RUNE;
+            float x = Math.round(cx + Mth.cos(angle) * COURONNE_R - w / 2.0F);
+            float y = Math.round(cy + Mth.sin(angle) * COURONNE_R - h / 2.0F) - (font.lineHeight * (1.0F - TAILLE_RUNE) * 0.5F);
+            float ecart = Mth.wrapDegrees((angle - tour) * Mth.RAD_TO_DEG) / 360.0F;
+            float allume = ecart <= 0.0F && ecart > -0.22F ? 1.0F + ecart / 0.22F : 0.0F;
+            canvas.text(rune, x, y, TAILLE_RUNE, RUNES_DE_COURONNE, 0.9F * (1.0F - allume));
+            if (allume > 0.02F) {
+                // Allumée : un or soutenu, à pleine lumière, cerné de sa lueur ; elle s'éteint en revenant à l'encre pâle.
+                canvas.brightText(rune, x, y, TAILLE_RUNE, OR_VIF, LUEUR_D_OR, allume, 0.0F);
+            }
         }
         Level level = Minecraft.getInstance().level;
         if (level != null) {
-            canvas.item(level, stack, cx - 8.0F, milieu - 8.0F, 16.0F);
+            canvas.item(level, stack, cx - 8.0F, cy - 8.0F, 16.0F);
+        }
+    }
+
+    /**
+     * Les runes de la couronne, dans l'alphabet de la table (la police des runes de vanilla) : celles qui ont un corps, pas les
+     * traits seuls ou les points ; et leur taille.
+     */
+    private static final String COURONNE = "abcdeghkmnos";
+    private static final float TAILLE_RUNE = 0.75F;
+    /** Le rayon où tournent les runes, et à quelle vitesse la lumière en fait le tour, radians par seconde. */
+    private static final float COURONNE_R = 17.0F;
+    /** Le cercle de points d'or qui ferme la couronne. */
+    private static final int COURONNE_BORD = 22;
+    private static final float TOUR_DES_RUNES = 0.7F;
+
+    /** Les cercles déjà tracés, par rayon : les points d'un cercle d'une unité, dans l'ordre du tour, depuis la droite. */
+    private static final Map<Integer, List<int[]>> ANNEAUX = new HashMap<>();
+
+    /**
+     * Les points d'un cercle de rayon {@code r} autour d'une unité (le cercle du point milieu : une unité d'épaisseur, sans
+     * doublon), rangés dans l'ordre du tour.
+     */
+    private static List<int[]> anneau(int r) {
+        return ANNEAUX.computeIfAbsent(r, rayon -> {
+            java.util.Set<Long> vus = new java.util.HashSet<>();
+            List<int[]> points = new ArrayList<>();
+            int x = rayon;
+            int y = 0;
+            int err = 1 - rayon;
+            while (x >= y) {
+                for (int[] p : new int[][] {{x, y}, {y, x}, {-y, x}, {-x, y}, {-x, -y}, {-y, -x}, {y, -x}, {x, -y}}) {
+                    if (vus.add((long) p[0] << 32 | p[1] & 0xFFFFFFFFL)) {
+                        points.add(p);
+                    }
+                }
+                y++;
+                if (err < 0) {
+                    err += 2 * y + 1;
+                } else {
+                    x--;
+                    err += 2 * (y - x) + 1;
+                }
+            }
+            points.sort(java.util.Comparator.comparingDouble(p -> Math.atan2(p[1], p[0])));
+            return points;
+        });
+    }
+
+    /** Un cercle d'or de rayon {@code r} autour de l'unité où tombe ({@code cx}, {@code cy}) ; {@code pas} 2 : un point sur deux. */
+    private static void cercle(OpenBook.Canvas canvas, float cx, float cy, int r, int rgb, int pas, int alpha) {
+        List<int[]> points = anneau(r);
+        for (int i = 0; i < points.size(); i += pas) {
+            int[] p = points.get(i);
+            canvas.rect(Mth.floor(cx) + p[0], Mth.floor(cy) + p[1], 1.0F, 1.0F, OpenBook.MARK_LIFT, alpha << 24 | rgb);
+        }
+    }
+
+    /** Un disque de lumière, à pleine lumière sous l'encre : la lueur derrière ce qui est en majesté. */
+    private static void disque(OpenBook.Canvas canvas, float cx, float cy, float r, int rgb, float alpha) {
+        float ox = Mth.floor(cx) + 0.5F;
+        float oy = Mth.floor(cy) + 0.5F;
+        for (int dy = -Mth.floor(r); dy <= Mth.floor(r); dy++) {
+            float w = Mth.sqrt(r * r - dy * dy);
+            float x0 = Math.round(ox - w);
+            float x1 = Math.round(ox + w);
+            canvas.brightRect(x0, Mth.floor(oy) + dy, x1 - x0, 1.0F, rgb, alpha, OpenBook.MARK_LIFT * 0.4F);
+        }
+    }
+
+    /**
+     * Des paillettes d'or qui montent lentement dans les marges de la page, s'allument et s'éteignent : la poussière qui vient au
+     * livre, sur la page. Peu, et jamais sur ce qui est écrit au milieu.
+     */
+    private static void paillettes(OpenBook.Canvas canvas, int page) {
+        float encre = canvas.ink();
+        for (int i = 0; i < 5; i++) {
+            long graine = page * 7919L + i * 104729L;
+            float hasard = (float) ((graine * 2654435761L >>> 8 & 0xFFFF) / 65535.0);
+            float hasard2 = (float) ((graine * 40503L + 977L >>> 4 & 0xFFFF) / 65535.0);
+            float duree = 7.0F + 5.0F * hasard2;
+            float t = (battement + hasard * duree) % duree / duree;
+            // Dans la marge de la tranche ou du pied : jamais au milieu de l'écriture.
+            boolean tranche = i % 2 == 0;
+            float x = tranche ? (bordG < DEHORS ? bordD + 2.0F + hasard2 * (DEHORS - 5.0F) : 2.0F + hasard2 * (DEHORS - 5.0F))
+                    : bordG + hasard2 * largeur();
+            float y = tranche ? HAUT - 10.0F - t * (HAUT - 20.0F) : HAUT - 3.0F - t * 6.0F;
+            float a = Mth.sin(t * Mth.PI) * 0.55F * encre;
+            canvas.brightRect(Math.round(x), Math.round(y), 1.0F, 1.0F, LUEUR_D_OR, a, OpenBook.MARK_LIFT * 1.2F);
         }
     }
 
@@ -1376,62 +1553,116 @@ final class TableBehavior implements StationBehavior {
     }
 
     /**
-     * Un cartouche : un trait d'une unité aux coins coupés, d'encre douce, rouge sous le regard ({@code vive}, l'intérieur alors
-     * éclairci) ; {@code tenu} de 0 à 1 : la part du tour déjà repassée à la rubrique, depuis le coin haut gauche.
+     * Un cartouche : un trait d'une unité d'encre douce, et à chaque coin une équerre d'or posée par-dessus, deux unités de long,
+     * avec un point d'or juste dedans ; sous le regard ({@code vive}) le trait passe à l'or et luit ; {@code tenu} de 0 à 1 : la
+     * part du tour déjà repassée d'une lumière d'or, depuis le coin haut gauche.
      */
     private static void cartouche(OpenBook.Canvas canvas, float x, float y, float w, float h, boolean vive, float tenu) {
         float lift = OpenBook.MARK_LIFT;
+        x = Math.round(x);
+        y = Math.round(y);
+        w = Math.round(w);
+        h = Math.round(h);
         if (vive) {
-            canvas.rect(x + 1.0F, y + 1.0F, w - 2.0F, h - 2.0F, lift * 0.5F, 0x50FFF9E6);
+            canvas.rect(x + 1.0F, y + 1.0F, w - 2.0F, h - 2.0F, lift * 0.5F, 0x48FFF6DC);
         }
-        int trait = vive ? 0xFF000000 | RUBRIQUE : 0xC0000000 | SEPIA;
-        canvas.rect(x + 1.0F, y, w - 2.0F, 1.0F, lift, trait);
-        canvas.rect(x + 1.0F, y + h - 1.0F, w - 2.0F, 1.0F, lift, trait);
-        canvas.rect(x, y + 1.0F, 1.0F, h - 2.0F, lift, trait);
-        canvas.rect(x + w - 1.0F, y + 1.0F, 1.0F, h - 2.0F, lift, trait);
+        int trait = vive ? 0xFF000000 | OR : 0xB0000000 | SEPIA;
+        canvas.rect(x + 3.0F, y, w - 6.0F, 1.0F, lift, trait);
+        canvas.rect(x + 3.0F, y + h - 1.0F, w - 6.0F, 1.0F, lift, trait);
+        canvas.rect(x, y + 3.0F, 1.0F, h - 6.0F, lift, trait);
+        canvas.rect(x + w - 1.0F, y + 3.0F, 1.0F, h - 6.0F, lift, trait);
+        int or = 0xFF000000 | OR;
+        float encre = canvas.ink();
+        if (vive) {
+            // Lue, la voie s'encadre d'or qui luit : le trait passe à l'or et la lumière le suit.
+            float a = (0.35F + 0.1F * Mth.sin(battement * 2.0F)) * encre;
+            canvas.brightRect(x + 3.0F, y, w - 6.0F, 1.0F, OR_CLAIR, a, lift * 1.1F);
+            canvas.brightRect(x + 3.0F, y + h - 1.0F, w - 6.0F, 1.0F, OR_CLAIR, a, lift * 1.1F);
+            canvas.brightRect(x, y + 3.0F, 1.0F, h - 6.0F, OR_CLAIR, a, lift * 1.1F);
+            canvas.brightRect(x + w - 1.0F, y + 3.0F, 1.0F, h - 6.0F, OR_CLAIR, a, lift * 1.1F);
+        }
+        for (int coin = 0; coin < 4; coin++) {
+            boolean droite = coin % 2 == 1;
+            boolean bas = coin >= 2;
+            float cx = droite ? x + w - 1.0F : x;
+            float cy = bas ? y + h - 1.0F : y;
+            float sx = droite ? -1.0F : 1.0F;
+            float sy = bas ? -1.0F : 1.0F;
+            // L'équerre : le coin et deux unités de chaque côté ; un point d'or en diagonale, dedans.
+            canvas.rect(cx, cy, 1.0F, 1.0F, lift * 1.05F, or);
+            canvas.rect(droite ? cx - 2.0F : cx + 1.0F, cy, 2.0F, 1.0F, lift * 1.05F, or);
+            canvas.rect(cx, bas ? cy - 2.0F : cy + 1.0F, 1.0F, 2.0F, lift * 1.05F, or);
+            canvas.rect(cx + 2.0F * sx, cy + 2.0F * sy, 1.0F, 1.0F, lift * 1.05F, 0xC0000000 | OR);
+            if (vive) {
+                canvas.brightRect(cx, cy, 1.0F, 1.0F, LUEUR_D_OR, 0.6F * encre, lift * 1.1F);
+                canvas.brightRect(cx + 2.0F * sx, cy + 2.0F * sy, 1.0F, 1.0F, LUEUR_D_OR, 0.45F * encre, lift * 1.1F);
+            }
+        }
         if (tenu <= 0.0F) {
             return;
         }
-        // Le tour repassé, d'une unité plus épais, côté par côté : haut, droite, bas, gauche.
+        // Le tour repassé de lumière d'or, côté par côté : haut, droite, bas, gauche.
         float reste = tenu * 2.0F * (w + h);
-        int rouge = 0xFF000000 | RUBRIQUE;
         float haut = Math.min(reste, w);
-        canvas.rect(x, y - 0.5F, haut, 1.5F, lift * 1.2F, rouge);
+        canvas.brightRect(x, y, haut, 1.0F, LUEUR_D_OR, encre, lift * 1.2F);
         reste -= haut;
         float droite = Math.min(reste, h);
-        canvas.rect(x + w - 1.0F, y, 1.5F, droite, lift * 1.2F, rouge);
+        canvas.brightRect(x + w - 1.0F, y, 1.0F, droite, LUEUR_D_OR, encre, lift * 1.2F);
         reste -= droite;
         float bas = Math.min(reste, w);
-        canvas.rect(x + w - bas, y + h - 1.0F, bas, 1.5F, lift * 1.2F, rouge);
+        canvas.brightRect(x + w - bas, y + h - 1.0F, bas, 1.0F, LUEUR_D_OR, encre, lift * 1.2F);
         reste -= bas;
         float gauche = Math.min(reste, h);
-        canvas.rect(x - 0.5F, y + h - gauche, 1.5F, gauche, lift * 1.2F, rouge);
+        canvas.brightRect(x, y + h - gauche, 1.0F, gauche, LUEUR_D_OR, encre, lift * 1.2F);
     }
 
     /**
      * La fourche : une tige d'une unité le long de la marge, de {@code pied} jusqu'à la plus haute des voies, une branche vers
      * chaque cartouche à la hauteur de son milieu ({@code noeuds}), un nœud en losange à chaque embranchement et une racine au
-     * pied. La voie {@code lue} (ou aucune, -1) s'encre de rubrique, et la tige depuis le pied jusqu'à elle.
+     * pied. La voie {@code lue} (ou aucune, -1) passe à l'or qui luit, et la tige depuis le pied jusqu'à elle ; une voie déjà
+     * déchiffrée ({@code revele} à 1) garde son nœud plein.
      */
-    private static void fourche(OpenBook.Canvas canvas, float[] noeuds, float pied, int lue) {
+    private static void fourche(OpenBook.Canvas canvas, float[] noeuds, float pied, int lue, float[] revele) {
         if (noeuds.length == 0) {
             return;
         }
         float lift = OpenBook.MARK_LIFT;
         int doux = 0xC0000000 | SEPIA;
-        int rouge = 0xFF000000 | RUBRIQUE;
-        float x = TIGE_X;
-        float haut = noeuds[0];
-        canvas.rect(x - 0.5F, haut + 2.5F, 1.0F, pied - haut - 2.5F, lift, doux);
-        if (lue >= 0) {
-            canvas.rect(x - 0.5F, noeuds[lue] + 2.5F, 1.0F, pied - noeuds[lue] - 2.5F, lift * 1.1F, rouge);
+        int or = 0xFF000000 | OR;
+        float encre = canvas.ink();
+        float x = bordG + TIGE;
+        // Every node on a whole unit, so that all of them are drawn alike; the stem stops at each node's outline, so a hollow
+        // node stays hollow.
+        for (int i = 0; i < noeuds.length; i++) {
+            noeuds[i] = Math.round(noeuds[i]);
         }
         for (int i = 0; i < noeuds.length; i++) {
-            int trait = i == lue ? rouge : doux;
-            canvas.rect(x + 2.0F, noeuds[i] - 0.5F, CARTOUCHE_X - x - 2.0F, 1.0F, lift, trait);
-            losange(canvas, x, noeuds[i], 2, i == lue ? RUBRIQUE : SEPIA, i == lue);
+            float bas = i + 1 < noeuds.length ? noeuds[i + 1] - 2.5F : pied;
+            float de = noeuds[i] + 2.5F;
+            if (bas <= de) {
+                continue;
+            }
+            canvas.rect(x - 0.5F, de, 1.0F, bas - de, lift, doux);
+            if (lue >= 0 && i >= lue) {
+                // Le chemin de la voie lue, du pied jusqu'à elle, passe à l'or qui luit.
+                canvas.rect(x - 0.5F, de, 1.0F, bas - de, lift * 1.1F, or);
+                canvas.brightRect(x - 0.5F, de, 1.0F, bas - de, OR_CLAIR, 0.35F * encre, lift * 1.2F);
+            }
         }
-        losange(canvas, x, pied + 2.0F, 1, lue >= 0 ? RUBRIQUE : SEPIA, true);
+        for (int i = 0; i < noeuds.length; i++) {
+            float bx = x + 2.0F;
+            float bw = cartoucheX() - x - 2.0F;
+            canvas.rect(bx, noeuds[i] - 0.5F, bw, 1.0F, lift, i == lue ? or : doux);
+            // Un nœud plein pour une voie déjà lue, creux pour celle qui reste à déchiffrer.
+            losange(canvas, x, noeuds[i], 2, OR, i == lue || i < revele.length && revele[i] >= 1.0F);
+            if (i == lue) {
+                canvas.brightRect(bx, noeuds[i] - 0.5F, bw, 1.0F, OR_CLAIR, 0.35F * encre, lift * 1.2F);
+                canvas.brightRect(x - 0.5F, noeuds[i] - 0.5F, 1.0F, 1.0F, LUEUR_D_OR, 0.8F * encre, lift * 1.2F);
+            }
+        }
+        // La racine : un losange d'or serti d'un point de rubrique, comme les intitulés de la page d'en face.
+        losange(canvas, x, pied + 2.5F, 2, OR, false);
+        canvas.rect(x - 0.5F, pied + 2.0F, 1.0F, 1.0F, lift, 0xFF000000 | RUBRIQUE);
     }
 
     // ---- l'écriture ----
@@ -1443,14 +1674,21 @@ final class TableBehavior implements StationBehavior {
     private static float titre(OpenBook.Canvas canvas, Component texte, float y) {
         Font font = Minecraft.getInstance().font;
         float large = font.width(texte);
-        float place = LARGE - 2.0F * MARGE;
+        float place = largeur();
+        // À l'encre de rubrique, cerné d'une lueur d'or qui respire : le titre est doré, et luit quand la pièce s'assombrit.
+        float lueur = 0.22F + 0.1F * Mth.sin(battement * 1.4F);
         if (large <= place / 0.75F) {
             float taille = Math.min(1.0F, place / large);
-            canvas.text(texte.getVisualOrderText(), (LARGE - large * taille) / 2.0F, y, taille, ENCRE, 1.0F);
+            FormattedCharSequence ligne = texte.getVisualOrderText();
+            float x = milieu() - large * taille / 2.0F;
+            canvas.brightText(ligne, x, y, taille, RUBRIQUE, LUEUR_DE_RUBRIQUE, lueur, 0.05F);
+            canvas.text(ligne, x, y, taille, RUBRIQUE, 1.0F);
             return y + LIGNE;
         }
         for (FormattedCharSequence ligne : font.split(texte, (int) place)) {
-            canvas.text(ligne, (LARGE - font.width(ligne)) / 2.0F, y, ENCRE, 1.0F);
+            float x = milieu() - font.width(ligne) / 2.0F;
+            canvas.brightText(ligne, x, y, 1.0F, RUBRIQUE, LUEUR_DE_RUBRIQUE, lueur, 0.05F);
+            canvas.text(ligne, x, y, RUBRIQUE, 1.0F);
             y += LIGNE;
         }
         return y;
@@ -1458,8 +1696,9 @@ final class TableBehavior implements StationBehavior {
 
     /** Un intitulé de partie : un petit losange creux, puis le mot à l'encre de rubrique. */
     private static float entete(OpenBook.Canvas canvas, Component texte, float y) {
-        losange(canvas, GAUCHE_X + 1.5F, y + 3.0F, 2, RUBRIQUE, false);
-        canvas.text(texte.getVisualOrderText(), CORPS_X, y, 0.85F, RUBRIQUE, 1.0F);
+        losange(canvas, bordG + 1.5F, y + 3.0F, 2, OR, false);
+        canvas.rect(bordG + 1.0F, y + 2.5F, 1.0F, 1.0F, OpenBook.MARK_LIFT, 0xFF000000 | RUBRIQUE);
+        canvas.text(texte.getVisualOrderText(), corpsX(), y, 0.85F, RUBRIQUE, 1.0F);
         return y + LIGNE;
     }
 
@@ -1473,9 +1712,9 @@ final class TableBehavior implements StationBehavior {
             y += ligne.avant();
             boolean nom = ligne.taille() == 1.0F && ligne.encre() == RUBRIQUE;
             if (nom) {
-                canvas.brightText(ligne.texte(), VOIE_X, y, 1.0F, RUBRIQUE, lueur, vive ? 0.75F : souffle, 0.05F);
+                canvas.brightText(ligne.texte(), voieX(), y, 1.0F, RUBRIQUE, lueur, vive ? 0.75F : souffle, 0.05F);
             }
-            canvas.text(ligne.texte(), VOIE_X, y, ligne.taille(), vive && !nom ? sombre(ligne.encre()) : ligne.encre(),
+            canvas.text(ligne.texte(), voieX(), y, ligne.taille(), vive && !nom ? sombre(ligne.encre()) : ligne.encre(),
                     nom ? lettres : 1.0F);
             y += ligne.taille() < 1.0F ? PETITE_LIGNE : LIGNE;
         }
@@ -1491,16 +1730,16 @@ final class TableBehavior implements StationBehavior {
     }
 
     private static int lignesDuPied(Component texte) {
-        return Minecraft.getInstance().font.split(texte, (int) ((LARGE - 2.0F * MARGE) / PETIT)).size();
+        return Minecraft.getInstance().font.split(texte, (int) (largeur() / PETIT)).size();
     }
 
     /** La phrase du pied de la page de droite, entière et centrée : elle monte d'autant de lignes qu'il lui en faut. */
     private static void pied(OpenBook.Canvas canvas, Component texte, int encre) {
         Font font = Minecraft.getInstance().font;
-        List<FormattedCharSequence> lignes = font.split(texte, (int) ((LARGE - 2.0F * MARGE) / PETIT));
+        List<FormattedCharSequence> lignes = font.split(texte, (int) (largeur() / PETIT));
         float y = PIED + PETITE_LIGNE - lignes.size() * PETITE_LIGNE;
         for (FormattedCharSequence ligne : lignes) {
-            canvas.text(ligne, (LARGE - font.width(ligne) * PETIT) / 2.0F, y, PETIT, encre, 1.0F);
+            canvas.text(ligne, milieu() - font.width(ligne) * PETIT / 2.0F, y, PETIT, encre, 1.0F);
             y += PETITE_LIGNE;
         }
     }
@@ -1534,7 +1773,7 @@ final class TableBehavior implements StationBehavior {
 
     private static void ajouter(List<Ligne> texte, Component mots, float revele, float taille, int encre, Style style, int auPlus,
             float avant) {
-        List<FormattedCharSequence> lignes = lignes(mots, revele, VOIE_LARGE / taille, style);
+        List<FormattedCharSequence> lignes = lignes(mots, revele, voieLarge() / taille, style);
         for (int i = 0; i < Math.min(auPlus, lignes.size()); i++) {
             texte.add(new Ligne(lignes.get(i), taille, encre, i == 0 ? avant : 0.0F));
         }
@@ -1575,13 +1814,13 @@ final class TableBehavior implements StationBehavior {
 
     /** La hauteur que prendrait {@link #paragraphe}. */
     private static float hauteurDe(Component texte, float x, float taille, int auPlus) {
-        int n = Minecraft.getInstance().font.split(texte, (int) ((LARGE - x - MARGE) / taille)).size();
+        int n = Minecraft.getInstance().font.split(texte, (int) ((bordD - x) / taille)).size();
         return Math.min(auPlus, n) * (taille < 1.0F ? PETITE_LIGNE : LIGNE);
     }
 
     private static float paragraphe(OpenBook.Canvas canvas, Component texte, float x, float y, float taille, int encre, int auPlus) {
         Font font = Minecraft.getInstance().font;
-        List<FormattedCharSequence> lignes = font.split(texte, (int) ((LARGE - x - MARGE) / taille));
+        List<FormattedCharSequence> lignes = font.split(texte, (int) ((bordD - x) / taille));
         float pas = taille < 1.0F ? PETITE_LIGNE : LIGNE;
         for (FormattedCharSequence ligne : lignes.subList(0, Math.min(auPlus, lignes.size()))) {
             canvas.text(ligne, x, y, taille, encre, 1.0F);
@@ -1592,13 +1831,37 @@ final class TableBehavior implements StationBehavior {
 
     /** Le filet des livres, court, un losange au milieu, comme entre deux parties d'un livre. */
     private static void filet(OpenBook.Canvas canvas, float y) {
-        canvas.rule(MARGE, y + 0.5F, LARGE - 2.0F * MARGE);
+        // Un filet d'or qui s'amincit vers ses bouts, un losange de rubrique serti d'or au milieu, un point d'or à chaque bout.
+        float cx = Mth.floor(milieu());
+        float ly = Math.round(y);
+        float demi = Math.min(22.0F, largeur() / 2.0F - 4.0F);
+        for (int i = 3; i <= demi; i++) {
+            int a = i < demi * 0.6F ? 0xFF : i < demi * 0.85F ? 0xB0 : 0x70;
+            canvas.rect(cx + i, ly, 1.0F, 1.0F, OpenBook.MARK_LIFT, a << 24 | OR);
+            canvas.rect(cx - i, ly, 1.0F, 1.0F, OpenBook.MARK_LIFT, a << 24 | OR);
+        }
+        canvas.rect(cx + demi + 2.0F, ly, 1.0F, 1.0F, OpenBook.MARK_LIFT, 0xC0000000 | OR);
+        canvas.rect(cx - demi - 2.0F, ly, 1.0F, 1.0F, OpenBook.MARK_LIFT, 0xC0000000 | OR);
+        losange(canvas, cx + 0.5F, ly + 0.5F, 2, OR, false);
+        canvas.rect(cx, ly, 1.0F, 1.0F, OpenBook.MARK_LIFT, 0xFF000000 | RUBRIQUE);
+        // De loin en loin, un reflet court le long du filet, comme la lumière sur une dorure qu'on incline.
+        float course = (battement % REFLET) / 1.4F;
+        if (course < 1.0F) {
+            float px = Math.round(cx - demi + course * 2.0F * demi);
+            float force = Mth.sin(course * Mth.PI) * canvas.ink();
+            for (int d = -2; d <= 2; d++) {
+                if (Math.abs(px + d - cx) < 3.0F) {
+                    continue;
+                }
+                canvas.brightRect(px + d, ly, 1.0F, 1.0F, LUEUR_D_OR, force * (1.0F - Math.abs(d) * 0.35F), OpenBook.MARK_LIFT * 1.2F);
+            }
+        }
     }
 
     /** Trois petits losanges sous une phrase seule. */
     private static void fleuron(OpenBook.Canvas canvas, float y) {
         for (int i = -1; i <= 1; i++) {
-            losange(canvas, LARGE / 2.0F + i * 7.0F, y + 1.0F, 1, i == 0 ? RUBRIQUE : SEPIA, true);
+            losange(canvas, Mth.floor(milieu()) + 0.5F + i * 7.0F, y + 1.0F, 1, i == 0 ? RUBRIQUE : OR, true);
         }
     }
 
@@ -1610,12 +1873,13 @@ final class TableBehavior implements StationBehavior {
         if (!OpenBook.isRiffleSheet(page) && contenus.containsKey(Math.floorDiv(page, 2))) {
             return;
         }
+        cadrer(Math.floorMod(page, 2) == 1);
         List<FormattedCharSequence> lignes = runes.computeIfAbsent(page, p -> {
             Font font = Minecraft.getInstance().font;
             EnchantmentNames.getInstance().initSeed(p * 31L + 7L);
             List<FormattedCharSequence> faites = new ArrayList<>();
             for (int i = 0; i < 13; i++) {
-                FormattedText mots = EnchantmentNames.getInstance().getRandomName(font, (int) (LARGE - 2.0F * MARGE));
+                FormattedText mots = EnchantmentNames.getInstance().getRandomName(font, (int) largeur());
                 faites.add(net.minecraft.locale.Language.getInstance().getVisualOrder(mots));
             }
             return faites;
@@ -1625,7 +1889,7 @@ final class TableBehavior implements StationBehavior {
         }
         float y = HAUT_ECRIT;
         for (FormattedCharSequence ligne : lignes) {
-            canvas.text(ligne, MARGE, y, RUNES, 0.45F);
+            canvas.text(ligne, bordG, y, RUNES, 0.45F);
             y += 10.5F;
         }
     }

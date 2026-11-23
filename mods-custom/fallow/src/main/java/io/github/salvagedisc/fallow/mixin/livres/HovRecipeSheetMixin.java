@@ -38,12 +38,36 @@ abstract class HovRecipeSheetMixin implements HovSheetState {
     private static final int RULE = 0x405A3C18;
     private static final int FRESH = 0xFFB5372B;
     private static final int FOLD = 0x285A3C18;
-    /** The count of a dish: the books' soft ink. */
-    private static final int COUNT_INK = 0xFF8A6B45;
+    /** The count of a dish: the books' ink. */
+    private static final int COUNT_INK = 0xFF3B2A1A;
     /** Where Hands-On Vanilla 1.2.2 writes the count of a dish: its top, DISH_Y + DISH_SIZE - the line's height + 2. */
     private static final float DISH_COUNT_Y = 2.0F + 16.0F - 9.0F + 2.0F;
+    /** The count's size, and its gap from the dish. */
+    private static final float COUNT_SCALE = 0.75F;
+    private static final float COUNT_GAP = 1.0F;
     /** As Hands-On Vanilla writes on its pages: at the icons' lift. */
     private static final float COUNT_LIFT = 1.2F;
+    /** The slip starts this far in from the page's edge. */
+    private static final float SLIP_INSET = 2.0F;
+    /** Where Hands-On Vanilla 1.2.2 writes what is typed in the slip. */
+    private static final float SLIP_TEXT_X = 13.0F;
+    private static final float SLIP_TEXT_Y = -9.0F;
+    /** Hands-On Vanilla 1.2.2's well behind one holding variants: how far behind, and how far over the paper. */
+    private static final float STACK_OFFSET = 1.5F;
+    private static final float STACK_LIFT = 0.15F;
+    /** The mark of variants drawn over the well (0.3), under the icon. */
+    private static final float WELL_LIFT_OVER = 0.32F;
+    /** A tab's height over the page: behind it, and open. */
+    private static final float TAB_REST = 12.0F;
+    private static final float TAB_OPEN = 14.0F;
+    /** How far under a tab's head what it shows begins: its line and a unit of paper. */
+    private static final float TAB_HEAD = 2.0F;
+    /** Where Hands-On Vanilla 1.2.2 puts the magnifier of its search slip. */
+    private static final float SLIP_MAGNIFIER_Y = -9.0F;
+    /** Where Hands-On Vanilla 1.2.2 puts the magnifier of the search's tab behind the page. */
+    private static final float SEARCH_REST_Y = -8.0F;
+    /** Where Hands-On Vanilla 1.2.2 puts the filter's tab, on the right page. */
+    private static final float FILTER_X = 6.0F;
     /** How much lower than Hands-On Vanilla's the rule under a name is drawn. */
     private static final float RULE_DROP = 1.0F;
 
@@ -64,6 +88,9 @@ abstract class HovRecipeSheetMixin implements HovSheetState {
 
     @Shadow(remap = false)
     abstract void rect(float x, float y, float width, float height, float lift, int argb);
+
+    @Shadow(remap = false)
+    abstract void text(String text, float x, float y);
 
     @Inject(method = "arrow", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void fallow$sansFleche(float x, float y, boolean next, boolean over, CallbackInfo callback) {
@@ -114,19 +141,24 @@ abstract class HovRecipeSheetMixin implements HovSheetState {
             return;
         }
         int light = HovRecipeBooks.light(this);
-        float high = chosen ? 14.0F : 11.0F;
+        float high = chosen ? TAB_OPEN : TAB_REST;
         // Every tab stops at the page's edge: nothing of them lies on the page. The filter, when on, is drawn as the open tab
         // (the page's paper): no colour of its own.
-        PageParts.tab(poseStack, buffers, light, x, -high, wide, 0.0F, chosen ? 0.25F : 0.05F,
+        PageParts.tab(poseStack, buffers, light, x, -high - nod, wide, 0.0F, chosen ? 0.25F : 0.05F,
                 chosen || washed ? PageParts.Tab.OPEN : lit ? PageParts.Tab.LIT : PageParts.Tab.REST);
-        if (!icon.isEmpty()) {
-            // The icon keeps inside its tab, a unit off its foot, in its own colours: a tab behind the page is told by its paper.
-            float size = Math.min(iconSize, high - 3.0F);
-            item(icon, x + (wide - size) / 2.0F, -high + 2.0F - nod, size, false);
-        }
         if (marked) {
-            // What is new: a lozenge of red inside the tab's top corner.
-            PageParts.mark(poseStack, buffers, light, x + wide - 3.0F, -high - nod + 3.0F, 1.95F);
+            // Something new behind it: its head in the rubric red, clear of what it shows.
+            PageParts.cap(poseStack, buffers, light, x, -high - nod, wide, chosen ? 0.3F : 0.1F);
+        }
+        // What it shows sits two units under its head, in the middle of its width: a pictogram of the book's inks when the tab is
+        // one Hands-On Vanilla's books know (the filter of the right page among them), else the item, as small, inside it.
+        float top = -high - nod + TAB_HEAD;
+        PageParts.Glyph glyph = !fallow$left && x == FILTER_X ? PageParts.Glyph.FILTER : HovRecipeBooks.glyph(icon);
+        if (glyph != null) {
+            PageParts.glyph(poseStack, buffers, light, glyph, x + (wide - PageParts.GLYPH) / 2.0F, top, chosen ? 0.35F : 0.15F);
+        } else if (!icon.isEmpty()) {
+            float size = Math.min(iconSize, PageParts.GLYPH);
+            item(icon, x + (wide - size) / 2.0F, top + (PageParts.GLYPH - size) / 2.0F, size, false);
         }
         callback.cancel();
     }
@@ -134,8 +166,8 @@ abstract class HovRecipeSheetMixin implements HovSheetState {
     @Inject(method = "slip", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void fallow$fiche(float x, float wide, float high, boolean lit, CallbackInfo callback) {
         if (HovRecipeBooks.dogEarsReady(this)) {
-            // The slip starts on the page, never left of its edge.
-            float from = Math.max(x, 0.0F);
+            // The slip starts on the page, two units in from its outer edge, never over the cover.
+            float from = Math.max(x, SLIP_INSET);
             PageParts.slip(poseStack, buffers, HovRecipeBooks.light(this), from, -high, wide - (from - x), 0.0F, 0.25F, lit);
             callback.cancel();
         }
@@ -144,7 +176,12 @@ abstract class HovRecipeSheetMixin implements HovSheetState {
     @Inject(method = "magnifier", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void fallow$loupe(float x, float y, CallbackInfo callback) {
         if (HovRecipeBooks.dogEarsReady(this)) {
-            PageParts.magnifier(poseStack, buffers, HovRecipeBooks.light(this), x, y, 1.9F);
+            // On the search's tab behind the page (Hands-On Vanilla puts it 3 under an 11 high tab's head), it keeps to where the
+            // pictograms of the other tabs sit.
+            float at = y == SEARCH_REST_Y ? -TAB_REST + TAB_HEAD + 1.0F : y;
+            // On the search slip, half a unit right: a unit clear of the slip's edge and of the words typed after it.
+            float from = y == SLIP_MAGNIFIER_Y ? x + 0.5F : x;
+            PageParts.magnifier(poseStack, buffers, HovRecipeBooks.light(this), from, at, 1.9F);
             callback.cancel();
         }
     }
@@ -177,7 +214,11 @@ abstract class HovRecipeSheetMixin implements HovSheetState {
             return;
         }
         int light = HovRecipeBooks.light(this);
-        if ((argb == WELL || argb == WELL_READY) && width == 17.0F && height == 17.0F) {
+        if ((argb == WELL || argb == WELL_READY) && width == 17.0F && height == 17.0F && lift == STACK_LIFT) {
+            // Hands-On Vanilla's second well a unit and a half behind one holding variants reached into the gap and touched the
+            // well beside it: a second rim inside the well instead.
+            PageParts.stack(poseStack, buffers, light, x - STACK_OFFSET, y - STACK_OFFSET, width, WELL_LIFT_OVER);
+        } else if ((argb == WELL || argb == WELL_READY) && width == 17.0F && height == 17.0F) {
             PageParts.well(poseStack, buffers, light, x, y, width, lift, argb == WELL_READY);
         } else if (argb == CARD) {
             PageParts.card(poseStack, buffers, light, x, y, width, height, lift);
@@ -201,17 +242,26 @@ abstract class HovRecipeSheetMixin implements HovSheetState {
 
     /**
      * Le nombre que fait une recette, au pied du plat (le seul texte fait de chiffres écrit à cette hauteur) : juste à droite de
-     * l'icône, plus sur son coin, où l'icône d'un bloc, dessinée après, le cachait.
+     * l'icône, plus sur son coin, où l'icône d'un bloc, dessinée après, le cachait. Et ce qui est tapé dans la fiche de recherche,
+     * une unité plus haut.
      */
     @Inject(method = "text(Ljava/lang/String;FF)V", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void fallow$nombre(String text, float x, float y, CallbackInfo callback) {
+        if (x == SLIP_TEXT_X && y == SLIP_TEXT_Y && HovRecipeBooks.dogEarsReady(this)) {
+            // What is typed in the slip, a unit higher: a "p" or a "g" no longer sits on its lower line.
+            text(text, x, y - 1.0F);
+            callback.cancel();
+            return;
+        }
         if (y != DISH_COUNT_Y || text.isEmpty() || !text.chars().allMatch(Character::isDigit) || !HovRecipeBooks.dogEarsReady(this)) {
             return;
         }
         Font font = Minecraft.getInstance().font;
-        Matrix4f matrix = new Matrix4f(poseStack.last().pose()).translate(0.0F, 0.0F, COUNT_LIFT);
-        font.drawInBatch(text, x + font.width(text) - 1.0F, y, COUNT_INK, false, matrix, buffers, Font.DisplayMode.NORMAL, 0,
-                HovRecipeBooks.light(this));
+        // Small, a unit right of the dish's foot: Hands-On Vanilla writes it over the icon's corner, ending 2 units past it.
+        float left = x + font.width(text) - 2.0F + COUNT_GAP;
+        float top = DISH_COUNT_Y - 2.0F + font.lineHeight - font.lineHeight * COUNT_SCALE + 1.0F;
+        Matrix4f matrix = new Matrix4f(poseStack.last().pose()).translate(left, top, COUNT_LIFT).scale(COUNT_SCALE, COUNT_SCALE, 1.0F);
+        font.drawInBatch(text, 0.0F, 0.0F, COUNT_INK, false, matrix, buffers, Font.DisplayMode.NORMAL, 0, HovRecipeBooks.light(this));
         callback.cancel();
     }
 }

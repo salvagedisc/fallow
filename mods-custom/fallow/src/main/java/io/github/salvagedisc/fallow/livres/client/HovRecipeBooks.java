@@ -4,12 +4,16 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import io.github.salvagedisc.fallow.Fallow;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.IdentityHashMap;
 import java.util.WeakHashMap;
 
 /**
@@ -117,6 +121,27 @@ public final class HovRecipeBooks {
 
     /** Whether a page of a recipe book has been seen drawn through {@code mixin.livres.HovRecipeSheetMixin}. */
     private static boolean pageSeen;
+
+    /**
+     * The tabs of the recipe books, Hands-On Vanilla 1.2.2's and the pack's own (the forge's: its heads, armour and metal), by the
+     * item each shows, and the pictogram drawn for it.
+     */
+    private static final Map<Item, PageParts.Glyph> GLYPHS = new IdentityHashMap<>(Map.ofEntries(
+            Map.entry(Items.COMPASS, PageParts.Glyph.ALL),
+            Map.entry(Items.CLOCK, PageParts.Glyph.RECENT),
+            Map.entry(Items.BRICKS, PageParts.Glyph.BUILDING),
+            Map.entry(Items.REDSTONE, PageParts.Glyph.REDSTONE),
+            Map.entry(Items.IRON_AXE, PageParts.Glyph.EQUIPMENT),
+            Map.entry(Items.LAVA_BUCKET, PageParts.Glyph.MISC),
+            Map.entry(Items.GRAY_BANNER, PageParts.Glyph.BANNER),
+            Map.entry(Items.IRON_PICKAXE, PageParts.Glyph.TOOLS),
+            Map.entry(Items.IRON_CHESTPLATE, PageParts.Glyph.ARMOUR),
+            Map.entry(Items.IRON_INGOT, PageParts.Glyph.INGOT)));
+
+    /** The pictogram of a tab of Hands-On Vanilla's books, by the item it shows; null for one it does not know. */
+    public static PageParts.Glyph glyph(ItemStack icon) {
+        return icon.isEmpty() ? null : GLYPHS.get(icon.getItem());
+    }
 
     /**
      * Whether the pages turn by their corners: only once the corners are drawn on a page (the sheet's mixin applied and the book's

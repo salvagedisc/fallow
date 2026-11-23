@@ -26,6 +26,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix3f;
@@ -42,6 +43,7 @@ import com.pockyl.diegesis.api.scene.Transform;
 import io.github.salvagedisc.fallow.postes.BookMath;
 import io.github.salvagedisc.fallow.Fallow;
 import io.github.salvagedisc.fallow.livres.client.DogEar;
+import io.github.salvagedisc.fallow.livres.client.HovRecipeBooks;
 import io.github.salvagedisc.fallow.livres.client.PageParts;
 import io.github.salvagedisc.fallow.livres.client.RecipeSheets;
 
@@ -152,7 +154,9 @@ final class RecipeBook implements NodePainter {
     private static final float TAB_WIDE = 13.0F;
     private static final float TAB_PITCH = 14.0F;
     private static final float TAB_HIGH = 14.0F;
-    private static final float TAB_DROP = 3.0F;
+    private static final float TAB_DROP = 2.0F;
+    /** How far under a tab's head what it shows begins: its line and a unit of paper. */
+    private static final float TAB_HEAD = 2.0F;
     private static final float TAB_ICON = 11.0F;
     /** More than five tabs are narrower, so that all of them stand side by side without covering each other. */
     private static final int TABS_FULL = 5;
@@ -183,12 +187,17 @@ final class RecipeBook implements NodePainter {
     private static final float FOOT_PITCH = 15.0F;
     private static final float DISH_SIZE = 16.0F;
     private static final float DISH_Y = 2.0F;
+    /** The number a recipe makes: smaller than the name, a little right of the dish's foot. */
+    private static final float COUNT_SCALE = 0.75F;
+    /** The size of the note at a recipe's foot (its time): the name's. */
+    private static final float NOTE_SCALE = RecipeBook.LONG_NAME_SCALE;
+    private static final float COUNT_GAP = 1.0F;
     /** Where the dish's name starts, and the room between the rule under it and what goes in. */
     private static final float NAME_Y = 20.0F;
     /** A name longer than two lines: drawn this much smaller, in this many lines at most. */
     private static final float LONG_NAME_SCALE = 0.72F;
     private static final int LONG_NAME_LINES = 3;
-    private static final float INGREDIENTS_GAP = 3.0F;
+    private static final float INGREDIENTS_GAP = 4.0F;
     /** How many recipes laid last the "made lately" tab keeps, and its kind. */
     private static final int RECENT_MOST = 24;
     static final String RECENT = "#recent";
@@ -1760,7 +1769,7 @@ final class RecipeBook implements NodePainter {
             return edge;
         }
         Component noted = entry.page().note();
-        float noteWide = noted == null ? 0.0F : Minecraft.getInstance().font.width(noted) + 1.0F;
+        float noteWide = noted == null ? 0.0F : Minecraft.getInstance().font.width(noted) * NOTE_SCALE + 1.0F;
         List<ItemStack> foot = entry.page().foot();
         float wide = foot.isEmpty() ? noteWide : (foot.size() - 1) * FOOT_PITCH + FOOT_SIZE + noteWide;
         float x = RIGHT_MIDDLE - wide / 2.0F;
@@ -1972,8 +1981,8 @@ final class RecipeBook implements NodePainter {
     }
 
     /**
-     * The dish's name broken into lines: two at most, or a name that needs more (a banner's "Blue Creeper Charge") smaller in three,
-     * so that a long modded name still leaves room for what goes in.
+     * The dish's name broken into lines, always at the small size Hands-On Vanilla keeps for long names, in three lines at most, so
+     * that a long modded name still leaves room for what goes in.
      */
     private List<FormattedCharSequence> nameLines(Entry entry) {
         if (nameFor != entry) {
@@ -1981,12 +1990,9 @@ final class RecipeBook implements NodePainter {
             Font font = Minecraft.getInstance().font;
             // Centred on the page, as far from the outer edge as from the fold, clear of the ribbon.
             float wide = 2.0F * (UNITS_WIDE - RIGHT_MIDDLE) - 13.0F;
-            nameScale = 1.0F;
-            nameLines = font.split(entry.dish().getHoverName(), Math.round(wide));
-            if (nameLines.size() > 2) {
-                nameScale = LONG_NAME_SCALE;
-                nameLines = font.split(entry.dish().getHoverName(), Math.round(wide / LONG_NAME_SCALE));
-            }
+            // Every name at one size, in up to three lines: a short name does not stand twice as tall as a long one.
+            nameScale = LONG_NAME_SCALE;
+            nameLines = font.split(entry.dish().getHoverName(), Math.round(wide / LONG_NAME_SCALE));
         }
         return nameLines;
     }
@@ -2053,6 +2059,11 @@ final class RecipeBook implements NodePainter {
     /** How wide a tab is: narrower when more than five stand over the page. */
     private float tabWide() {
         return tabs.size() > TABS_FULL ? TAB_WIDE_NARROW : TAB_WIDE;
+    }
+
+    /** A tab's height over the page: the chosen one's, or one behind it. */
+    private static float tabHigh(boolean chosen) {
+        return chosen ? TAB_HIGH : TAB_HIGH - TAB_DROP;
     }
 
     private float tabIcon() {
@@ -2334,11 +2345,11 @@ final class RecipeBook implements NodePainter {
                 float since = time - switchNodFrom;
                 float nod = since >= 0.0F && since < NOD_TIME ? Math.abs(Mth.sin(since / NOD_TIME * Mth.TWO_PI)) * NOD_HEIGHT : 0.0F;
                 canvas.tab(FILTER_X, TAB_WIDE, TAB_ICON, source.filtering(), overFilter,
-                        source.filterIcon(), nod, source.filtering(), false);
+                        source.filterIcon(), nod, source.filtering(), false, PageParts.Glyph.FILTER);
             }
             if (resting) {
                 canvas.tab(SEARCH_X, TAB_WIDE, TAB_ICON, searching(), overSearch, ItemStack.EMPTY, 0.0F, false, false);
-                canvas.magnifier(SEARCH_X + (TAB_WIDE - 7.0F) / 2.0F, -(searching() ? TAB_HIGH : TAB_HIGH - TAB_DROP) + 3.0F);
+                canvas.magnifier(SEARCH_X + (TAB_WIDE - 7.0F) / 2.0F, -tabHigh(searching()) + TAB_HEAD + 1.0F);
             }
             Entry shown = rightShown();
             if (shown != null) {
@@ -2366,13 +2377,14 @@ final class RecipeBook implements NodePainter {
         Font font = Minecraft.getInstance().font;
         float wide = UNITS_WIDE - TAB_MARGIN - TABS_X;
         canvas.slip(TABS_X, wide, SLIP_HIGH, overSlip && !typing);
-        canvas.magnifier(TABS_X + 2.0F, -SLIP_HIGH + 2.0F);
+        // The magnifier a unit clear of the slip's edge and of the words; the words a unit above its lower line, clear of a "p".
+        canvas.magnifier(TABS_X + 2.5F, -SLIP_HIGH + 2.0F);
         float room = wide - SLIP_TEXT_X - 3.0F;
         String shown = query;
         while (!shown.isEmpty() && font.width(shown) > room) {
             shown = shown.substring(1);
         }
-        float textY = -SLIP_HIGH + 2.0F;
+        float textY = -SLIP_HIGH + 1.0F;
         canvas.text(shown, TABS_X + SLIP_TEXT_X, textY);
         if (typing && (time - typingFrom) % (CARET_BLINK * 2.0F) < CARET_BLINK) {
             canvas.rect(TABS_X + SLIP_TEXT_X + font.width(shown), textY - 1.0F, 1.0F, 9.0F, COVER_LIFT, INK);
@@ -2413,11 +2425,11 @@ final class RecipeBook implements NodePainter {
             boolean ready = card ? place.isReady() : place.anyReady();
             int x = GRID_X + (i - first) % COLUMNS * PITCH;
             int y = GRID_Y + (i - first) / COLUMNS * PITCH;
-            if (!card && place.variants().size() > 1) {
-                // More than one recipe here: a second well peeks out from under it, as a stack of cards.
-                canvas.well(x + 1.5F, y + 1.5F, WELL_LIFT * 0.5F, ready);
-            }
             canvas.well(x, y, WELL_LIFT, ready);
+            if (!card && place.variants().size() > 1) {
+                // More than one recipe here: a second rim inside the well, as the edges of cards stacked under it.
+                PageParts.stack(canvas.poseStack, canvas.buffers, shade, x, y, WELL_SIZE, WELL_LIFT + 0.02F);
+            }
             canvas.item(shown.dish(), x + 0.5F, y + 0.5F, 16.0F, !shown.isReady());
             // Null-safe: the lists of variants are immutable and refuse to look for null.
             boolean here = card ? place == picked || place == pointed
@@ -2483,16 +2495,22 @@ final class RecipeBook implements NodePainter {
             Component noted = entry.page().note();
             FormattedCharSequence note = noted == null ? null : noted.getVisualOrderText();
             // The note stands close after the last thing, as a time after its clock.
-            float noteWide = note == null ? 0.0F : font.width(note) + 1.0F;
+            // Written at the name's size: a fact under the recipe, not a second title.
+            float noteWide = note == null ? 0.0F : font.width(note) * NOTE_SCALE + 1.0F;
             float wide = foot.isEmpty() ? noteWide : (foot.size() - 1) * FOOT_PITCH + FOOT_SIZE + noteWide;
             float x = middle - wide / 2.0F;
             for (ItemStack small : foot) {
-                canvas.item(small, x, bottom, FOOT_SIZE);
+                if (small.is(Items.CLOCK)) {
+                    // A time: the books' hourglass, drawn in their inks, never the clock's own picture.
+                    canvas.glyph(PageParts.Glyph.RECENT, x + (FOOT_SIZE - PageParts.GLYPH) / 2.0F, bottom + (FOOT_SIZE - PageParts.GLYPH) / 2.0F);
+                } else {
+                    canvas.item(small, x, bottom, FOOT_SIZE);
+                }
                 x += FOOT_PITCH;
             }
             if (note != null) {
                 float noteX = foot.isEmpty() ? x : x - FOOT_PITCH + FOOT_SIZE + 1.0F;
-                canvas.text(note, noteX, footMiddle - font.lineHeight / 2.0F + 1.0F);
+                canvas.text(note, noteX, footMiddle - (font.lineHeight - 2.0F) * NOTE_SCALE / 2.0F, NOTE_SCALE);
             }
         }
     }
@@ -2527,19 +2545,28 @@ final class RecipeBook implements NodePainter {
          */
         void tab(float x, float wide, float iconSize, boolean chosen, boolean lit, ItemStack icon, float nod, boolean washed,
                 boolean marked) {
-            float high = chosen ? TAB_HIGH : TAB_HIGH - TAB_DROP;
+            tab(x, wide, iconSize, chosen, lit, icon, nod, washed, marked, HovRecipeBooks.glyph(icon));
+        }
+
+        /** A tab showing {@code glyph} (null: its icon, small, inside it). */
+        void tab(float x, float wide, float iconSize, boolean chosen, boolean lit, ItemStack icon, float nod, boolean washed,
+                boolean marked, PageParts.Glyph glyph) {
+            float high = tabHigh(chosen);
             // The filter, when on, is drawn as the open tab (the page's paper): no colour of its own.
-            PageParts.tab(poseStack, buffers, shade, x, -high, wide, 0.0F, chosen ? 0.25F : 0.05F,
+            PageParts.tab(poseStack, buffers, shade, x, -high - nod, wide, 0.0F, chosen ? 0.25F : 0.05F,
                     chosen || washed ? PageParts.Tab.OPEN : lit ? PageParts.Tab.LIT : PageParts.Tab.REST);
-            if (!icon.isEmpty()) {
-                // The icon keeps inside its tab, a unit off its foot, in its own colours: a tab behind the page is told by its
-                // paper.
-                float size = Math.min(iconSize, high - 3.0F);
-                item(icon, x + (wide - size) / 2.0F, -high + 2.0F - nod, size, false);
-            }
             if (marked) {
-                // Recipes the player has not seen are in it: the red mark of the list's wells, inside its top right corner.
-                mark(x + wide - 3.0F, -high - nod + 3.0F);
+                // Recipes the player has not seen are in it: its head in the rubric red, clear of what it shows.
+                PageParts.cap(poseStack, buffers, shade, x, -high - nod, wide, chosen ? 0.3F : 0.1F);
+            }
+            // What it shows sits two units under its head, in the middle of its width: a pictogram of the book's inks for the
+            // switch and the kinds the books know, else the item, as small, inside it.
+            float top = -high - nod + TAB_HEAD;
+            if (glyph != null) {
+                PageParts.glyph(poseStack, buffers, shade, glyph, x + (wide - PageParts.GLYPH) / 2.0F, top, chosen ? 0.35F : 0.15F);
+            } else if (!icon.isEmpty()) {
+                float size = Math.min(iconSize, PageParts.GLYPH);
+                item(icon, x + (wide - size) / 2.0F, top + (PageParts.GLYPH - size) / 2.0F, size, false);
             }
         }
 
@@ -2591,6 +2618,11 @@ final class RecipeBook implements NodePainter {
             PageParts.frame(poseStack, buffers, shade, x, y, size, COVER_LIFT);
         }
 
+        /** One of the books' pictograms, 9 units square from ({@code x}, {@code y}). */
+        void glyph(PageParts.Glyph glyph, float x, float y) {
+            PageParts.glyph(poseStack, buffers, shade, glyph, x, y, WELL_LIFT);
+        }
+
         private void quad(VertexConsumer consumer, float x0, float y0, float x1, float y1, float lift, int argb, float u0, float u1, float v0, float v1) {
             Matrix4f matrix = poseStack.last().pose();
             int a = argb >>> 24;
@@ -2635,9 +2667,12 @@ final class RecipeBook implements NodePainter {
          * writes it. Off the icon: a block's icon, drawn after, hid a number written over it.
          */
         void count(String text, float x, float y) {
-            Matrix4f matrix = new Matrix4f(poseStack.last().pose()).translate(Minecraft.getInstance().font.width(text) - 1.0F, 0.0F,
-                    ITEM_LIFT);
-            Minecraft.getInstance().font.drawInBatch(text, x, y, SOFT_INK, false, matrix, buffers, Font.DisplayMode.NORMAL, 0, shade);
+            // Small, just right of the icon's foot: {@code x} is where a slot would write it, over the icon's corner.
+            Font font = Minecraft.getInstance().font;
+            float left = x + font.width(text) - 2.0F + COUNT_GAP;
+            float top = DISH_Y + DISH_SIZE - font.lineHeight * COUNT_SCALE + 1.0F;
+            Matrix4f matrix = new Matrix4f(poseStack.last().pose()).translate(left, top, ITEM_LIFT).scale(COUNT_SCALE, COUNT_SCALE, 1.0F);
+            font.drawInBatch(text, 0.0F, 0.0F, INK, false, matrix, buffers, Font.DisplayMode.NORMAL, 0, shade);
         }
 
         /** Text drawn smaller ({@code scale} under 1) from its top left corner: scaled as a whole, never wrapped. */

@@ -731,13 +731,26 @@ final class OpenBook {
 
         /** A flat colour at full light, over the writing: a spark's ray. */
         void brightRect(float x, float y, float width, float height, int rgb, float alpha) {
+            brightRect(x, y, width, height, rgb, alpha, INK_LIFT * 1.4F);
+        }
+
+        /**
+         * A flat colour at full light, {@code lift} units over the paper: under the ink ({@link #MARK_LIFT} or less), the gilding
+         * of a page catching the light, which shows when the room goes dark round the book.
+         */
+        void brightRect(float x, float y, float width, float height, int rgb, float alpha, float lift) {
             int a = Math.round(255.0F * Mth.clamp(alpha, 0.0F, 1.0F));
             if (a < 4) {
                 return;
             }
-            quad(buffers.getBuffer(RenderType.text(TextureAtlas.LOCATION_BLOCKS)), x, y, x + width, y + height, INK_LIFT * 1.4F,
+            quad(buffers.getBuffer(RenderType.text(TextureAtlas.LOCATION_BLOCKS)), x, y, x + width, y + height, lift,
                     a << 24 | rgb & 0xFFFFFF, white.getU0(), white.getU1(), white.getV0(), white.getV1(), true,
                     LightTexture.FULL_BRIGHT);
+        }
+
+        /** How far the ink has come in, 0 to 1: what is drawn at full light fades in with it. */
+        float ink() {
+            return ink;
         }
 
         /**
