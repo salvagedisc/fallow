@@ -1,5 +1,7 @@
 # Fallow : packs de ressources activés au premier lancement. Du moins prioritaire
-# au plus prioritaire : les feuilles de Better Leaves, les objets de Team Disco
+# au plus prioritaire : Forager, la base de tout le jeu (blocs, objets, interface,
+# armures, créatures), tout en bas pour que les packs choisis un par un passent
+# devant lui ; puis les feuilles de Better Leaves, les objets de Team Disco
 # (Fresh Food, Buckets, Ores and Ingots, Flowers and Plants, Music Discs, Paintings),
 # les cultures de Fancy Crops, les échelles de RAY's 3D Ladders, les flammes de
 # Better Flame Particles, l'herbe de Fast Better Grass (au-dessus des packs de blocs,
@@ -16,6 +18,7 @@ defaultResourcePacks = [
 	"vanilla",
 	"mod_resources",
 	"fabric",
+	"file/Forager.zip",
 	"file/Better-Leaves-9.6.zip",
 	"file/Fresh Paintings.zip",
 	"file/Fresh Music Discs.zip",

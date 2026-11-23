@@ -1,0 +1,13 @@
+name = "Forager"
+filename = "Forager.zip"
+side = "both"
+
+[download]
+url = "https://cdn.modrinth.com/data/CTGMIPQp/versions/fTmYV77g/Forager.zip"
+hash-format = "sha512"
+hash = "0080261431c7de0c78d3950672d63ed5f5c038b2fae706c311f4af2da0212566cdc4f185d07a921b2f7e9c929c1fcdd0a604f14437662b6e46dcbc3d53b3fd6c"
+
+[update]
+[update.modrinth]
+mod-id = "CTGMIPQp"
+version = "fTmYV77g"

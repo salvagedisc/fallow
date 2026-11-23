@@ -215,6 +215,7 @@ Side: C = client, S = server, CS = both. Versions checked on Modrinth for NeoFor
 
 | Pack | Slug | Status | Role |
 |---|---|---|---|
+| Forager | `forager` | ✅ (added 2026-11-23, its own terms: credit, no copy, ask its author before a Modrinth release, see [0056](decisions/0056-forager.md)) | Base look of the whole game, rustic and warm: blocks, items, interface, armours, creatures; lowest of the file packs so that the packs chosen one by one win over it; creature models need EMF and ETF |
 | Hidyk's Realm | `hidyksrealm` | ❌ (added 2026-11-22, removed 2026-11-23: the team did not like the look, see [0054](decisions/0054-hidyks-realm.md)) | Base look of the whole game, close to vanilla: blocks, items, interface, creatures, grass and leaf colours by biome; lowest of the file packs so that the packs chosen one by one win over it; needs Polytone, EMF, ETF and Respackopts |
 | Fresh Hidyk's Realm | `fresh-hidyks-realm` | ❌ (added 2026-11-22, removed 2026-11-23 with Hidyk's Realm) | Joins Hidyk's Realm's creatures to Fresh Animations; on top of every pack |
 | Fresh Animations | `fresh-animations` | ✅ | Animated creatures |
