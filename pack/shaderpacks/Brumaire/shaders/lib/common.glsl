@@ -120,6 +120,8 @@ vec3 skyAt(vec3 d) {
     // La nuit, l'œil voit un peu en bleu.
     float night = 1.0 - smoothstep(-0.20, 0.0, gSunDir.y);
     c = mix(c, vec3(luma(c)) * vec3(0.78, 0.88, 1.08), night * 0.3);
+    // Puis la plus grande part de ce bleu repart : le ciel de nuit de Recrafted est un gris presque neutre.
+    c = mix(c, vec3(luma(c)) * vec3(0.96, 1.0, 1.02), 0.6 * night);
     c = mix(c, vec3(luma(c)) * gLunar * 1.1, 0.6 * gLunarK);
     // Un ciel d'été voilé, pâle, presque blanc vers l'horizon : jamais d'un bleu profond (celui d'une carte postale).
     // Au couchant, le ciel reprend ses couleurs : une bande pêche et rose au-dessus d'un horizon clair.

@@ -28,7 +28,7 @@ vec3 waterExtinction(vec3 hue) {
  * Recrafted : le fond s'efface en un ou deux blocs dans un vert-de-gris laiteux, sans turquoise sur les hauts-fonds.
  */
 vec3 waterAlbedo(vec3 hue) {
-    return hue * 0.70;
+    return mix(hue, vec3(luma(hue)), 0.35) * 0.70;
 }
 
 /** Ce que renvoie l'eau profonde vue de loin : la lumière du ciel et de l'astre diffusée dans la masse. */

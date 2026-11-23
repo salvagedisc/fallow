@@ -35,7 +35,7 @@ float mistNearDensity() {
     // (Recrafted). Le paysage à découvert garde sa nappe légère, sans quoi une vallée vue d'en haut se noie.
     float eye = float(eyeBrightnessSmooth.y) / 240.0;
     float under = (1.0 - smoothstep(0.86, 0.99, eye)) * smoothstep(0.25, 0.45, eye) * smoothstep(0.0, 0.3, gSunDir.y);
-    return 0.010 * MIST_DENSITY * hour * biome * (1.0 + 1.6 * rainStrength) * open * (1.0 + 1.5 * under);
+    return 0.010 * MIST_DENSITY * hour * biome * (1.0 + 3.0 * rainStrength) * open * (1.0 + 1.5 * under);
 }
 
 /** Brume retirée par une clairière : un cylindre vertical, au bord adouci par deux rayons. */
@@ -131,6 +131,8 @@ vec3 mistColor(vec3 dir, float sun) {
     // Au couchant, la brume n'a plus que la lueur d'un ciel qui baisse : elle s'assombrit avec le paysage au lieu de
     // le noyer dans un halo orangé ; elle reste lisible, une bande plus claire au creux des vallées.
     body *= mix(1.0, 0.5, gDusk);
+    // Sous la pluie, une brume sépia qui avale le lointain, comme les averses de Recrafted.
+    body = mix(body, vec3(luma(body)) * vec3(1.06, 0.99, 0.88), 0.7 * rainStrength);
     // Les gouttelettes renvoient surtout la lumière vers l'avant : un halo vers le soleil, un peu en arrière. Au
     // couchant ce halo est paille pâle, pas orange : le paysage reste vert sous un ciel coloré (Recrafted).
     float mu = dot(dir, gLightDir);
