@@ -189,12 +189,13 @@ class Page:
         amount = np.clip(1.0 - d / (radius * n), 0.0, 1.0) ** 1.3 * strength
         self.rgb = mix(self.rgb, self.edge * np.asarray((0.80, 0.78, 0.78), np.float32), amount)
 
-    def nicks(self, count):
-        """Small bites out of the outer side, the head and the foot, their bottoms a shade darker."""
+    def nicks(self, count, sides=3):
+        """Small bites out of the outer side, the head and the foot (`sides` 1: the outer side only), their bottoms a shade
+        darker."""
         h, w = self.h, self.w
         rim = self.edge * 0.82
         for _ in range(count):
-            side = self.rng.integers(0, 3)
+            side = self.rng.integers(0, sides)
             size = int(self.rng.integers(1, 3))
             if side == 0:
                 y = int(self.rng.integers(8, h - 8))
@@ -264,7 +265,8 @@ def recipe_paper(path, seed):
     # The books write from x 7, y 5 and down to y 92, at least 7 texels from the fold: the wear keeps outside that.
     page.leaves(count=3)
     page.worn_corners(radius=2)
-    page.nicks(6)
+    # Only along the outer side: at the head they showed as pale dashes under the tabs.
+    page.nicks(6, sides=1)
     page.thumbed(radius=13.0, strength=0.12)
     page.tear(y=58, length=3)
     page.water_ring(cx=66.0, cy=101.0, radius=11.0, start=3.6, sweep=1.5)
@@ -414,7 +416,6 @@ def elements(path):
       wells, 17 x 17 at (0, 16) (a recipe out of reach, or a thing not at hand) and ready at (17, 16);
       the mark of a well holding variants, 17 x 17 at (52, 16), a second rim inside it;
       the card a group of recipes opens on, 16 x 16 at (0, 36), its shadow in its last row and column, nine pieces of 4;
-      the mark of a new recipe, 4 x 4 at (24, 36);
       the gutter's shade, 16 x 8 at (48, 52), the fold on its left;
       the rule under a name, 31 x 5 at (0, 76).
     The tabs, their icons, the search slip, the magnifier and the frame of a picked well are Hands-On Vanilla's own drawing.
@@ -442,8 +443,9 @@ def elements(path):
                 else:
                     put(x0 + x, y0 + y, fill, fill_a)
 
-    # Wells, 17 square. Out of reach: a faint rim only, the paper bare. Ready: pressed in, a shade darker, rim dark above and
-    # left, lit below and right.
+    # Wells, 17 square. Out of reach: a faint rim only, the paper bare. Ready: pressed in, a shade darker, its rim the same dark
+    # line on all four sides (so the frame of a picked well, drawn on it, sits exactly on it), shaded inside above and left and
+    # lit inside below and right.
     for y in range(17):
         for x in range(17):
             corner = x in (0, 16) and y in (0, 16)
@@ -456,9 +458,9 @@ def elements(path):
             corner = x in (0, 16) and y in (0, 16)
             if corner:
                 continue
-            if x == 0 or y == 0:
+            if x in (0, 16) or y in (0, 16):
                 c = RIM_DARK
-            elif x == 16 or y == 16:
+            elif x == 15 or y == 15:
                 c = RIM_LIGHT
             elif x == 1 or y == 1:
                 c = (222, 204, 164)
@@ -478,10 +480,6 @@ def elements(path):
                 continue
             put(1 + x, 36 + 1 + y, (90, 60, 30), 0.4)
     box(0, 36, 15, 15, RIM_LIGHT, INK_SOFT)
-    # The mark of a new recipe: a lozenge of the rubric red, 4 texels.
-    for x, y in ((1, 0), (2, 0), (0, 1), (1, 1), (2, 1), (3, 1), (0, 2), (1, 2), (2, 2), (3, 2), (1, 3), (2, 3)):
-        put(24 + x, 36 + y, ACCENT)
-    put(24 + 1, 36 + 1, (214, 110, 92))
     # The gutter: where the page goes down into the fold, a fine line of shade and a soft shadow fading out from it.
     # Texels under 0.1 opaque are thrown away: the faint tail keeps 0.12 and fades by its colour, towards the paper.
     paper = np.array(PAPER_RGB, np.float32)

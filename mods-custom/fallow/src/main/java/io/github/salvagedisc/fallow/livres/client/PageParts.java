@@ -2,7 +2,9 @@ package io.github.salvagedisc.fallow.livres.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
@@ -11,11 +13,11 @@ import io.github.salvagedisc.fallow.Fallow;
 
 /**
  * The furniture of a recipe book's pages, drawn on the page in its own units (x across from its left edge, y down from its head):
- * the wells the recipes sit in, the second rim of a place of variants, the card a group of recipes opens on, the mark of a new
- * recipe, the rule under a recipe's name and the gutter's shade. All come from one texture, {@code livre_elements.png}, one texel
- * to a unit, drawn by {@code scripts/books/papers.py}; the card is drawn in nine pieces so it takes any size. The tabs, their
- * icons, the search slip, the magnifier and the frame of a picked well are Hands-On Vanilla's own drawing. Used by the pack's own
- * books and, through {@code mixin.livres.HovRecipeSheetMixin}, by Hands-On Vanilla's.
+ * the wells the recipes sit in, the second rim of a place of variants, the card a group of recipes opens on, the rule under a
+ * recipe's name and the gutter's shade, all from one texture, {@code livre_elements.png}, one texel to a
+ * unit, drawn by {@code scripts/books/papers.py} (the card in nine pieces, so it takes any size); and where a tab's icon goes, the
+ * game's own search icon and its red dot for a new recipe. The tabs' paper, the search slip and the frame of a picked well are Hands-On Vanilla's drawing.
+ * Used by the pack's own books and, through {@code mixin.livres.HovRecipeSheetMixin}, by Hands-On Vanilla's.
  */
 public final class PageParts {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Fallow.MOD_ID, "textures/entity/livre_elements.png");
@@ -25,7 +27,55 @@ public final class PageParts {
     /** Texels of the texture to a unit of the page: one, the scale of the paper, the icons and the letters. */
     private static final float DENSITY = 1.0F;
 
+    /** The game's own search icon, the magnifier of its menus: a blue glass on a wooden handle, 12 pixels square. */
+    private static final ResourceLocation SEARCH = ResourceLocation.withDefaultNamespace("icon/search");
+    /** The game's red dot of something new, as its menus show news. */
+    private static final ResourceLocation NEWS = ResourceLocation.withDefaultNamespace("icon/unseen_notification");
+    /** The mark's size, units. */
+    public static final float MARK = 3.5F;
+    /** The size of what a tab shows, units: well inside its frame, as the game's recipe book has its icons. */
+    public static final float TAB_ICON = 8.0F;
+    /**
+     * The search icon's size, units: its 12 pixels at the items' density (16 pixels to {@link #TAB_ICON}), so it is as crisp as
+     * the icons beside it.
+     */
+    public static final float SEARCH_ICON = 6.0F;
+    /** Room kept round a tab's icon on either side. */
+    private static final float TAB_ICON_MARGIN = 2.0F;
+
     private PageParts() {
+    }
+
+    /** The size of the icon of a tab {@code wide} units across: {@link #TAB_ICON}, less on a narrow tab. */
+    public static float tabIcon(float wide) {
+        return Math.min(TAB_ICON, wide - 2.0F * TAB_ICON_MARGIN);
+    }
+
+    /**
+     * Where the icon of a tab goes, down from the page's head: in the middle of the part of the tab that stands over the page
+     * ({@code high} units of it), {@code size} high.
+     */
+    public static float tabIconTop(float high, float size) {
+        return -high + (high - size) / 2.0F;
+    }
+
+    /** The game's search icon, {@code size} units square from ({@code x}, {@code y}). */
+    public static void search(PoseStack poseStack, MultiBufferSource buffers, int light, float x, float y, float size, float lift) {
+        gui(poseStack, buffers, light, SEARCH, x, y, size, lift);
+    }
+
+    /** One of the game's interface sprites, {@code size} units square from ({@code x}, {@code y}). */
+    private static void gui(PoseStack poseStack, MultiBufferSource buffers, int light, ResourceLocation id, float x, float y, float size,
+            float lift) {
+        TextureAtlasSprite sprite = Minecraft.getInstance().getGuiSprites().getSprite(id);
+        VertexConsumer consumer = buffers.getBuffer(RenderType.text(sprite.atlasLocation()));
+        Matrix4f matrix = poseStack.last().pose();
+        float x1 = x + size;
+        float y1 = y + size;
+        consumer.addVertex(matrix, x, y, lift).setColor(255, 255, 255, 255).setUv(sprite.getU0(), sprite.getV0()).setLight(light);
+        consumer.addVertex(matrix, x, y1, lift).setColor(255, 255, 255, 255).setUv(sprite.getU0(), sprite.getV1()).setLight(light);
+        consumer.addVertex(matrix, x1, y1, lift).setColor(255, 255, 255, 255).setUv(sprite.getU1(), sprite.getV1()).setLight(light);
+        consumer.addVertex(matrix, x1, y, lift).setColor(255, 255, 255, 255).setUv(sprite.getU1(), sprite.getV0()).setLight(light);
     }
 
     /**
@@ -45,15 +95,18 @@ public final class PageParts {
         sprite(poseStack, buffers, light, x, y, size, size, lift, 52, 16, 17, 17);
     }
 
-    /** The card a group of recipes opens on. */
+    /**
+     * The card a group of recipes opens on, its line on the box given and its shadow a unit beyond its right and bottom sides,
+     * so that the line keeps the same unit of paper from the wells on all four sides.
+     */
     public static void card(PoseStack poseStack, MultiBufferSource buffers, int light, float x, float y, float wide, float high,
             float lift) {
-        nine(poseStack, buffers, light, x, y, wide, high, lift, 0, 36, 16, 16, 4);
+        nine(poseStack, buffers, light, x, y, wide + 1.0F, high + 1.0F, lift, 0, 36, 16, 16, 4);
     }
 
-    /** The mark of a new recipe, 4 units square centred on ({@code x}, {@code y}). */
+    /** The mark of a new recipe, {@link #MARK} units square centred on ({@code x}, {@code y}): the game's own red dot of news. */
     public static void mark(PoseStack poseStack, MultiBufferSource buffers, int light, float x, float y, float lift) {
-        sprite(poseStack, buffers, light, x - 2.0F, y - 2.0F, 4.0F, 4.0F, lift, 24, 36, 4, 4);
+        gui(poseStack, buffers, light, NEWS, x - MARK / 2.0F, y - MARK / 2.0F, MARK, lift);
     }
 
     /**

@@ -1090,7 +1090,7 @@ hash = "9fa1fe7695f81a5b86710dc8cd57b126b68b4c0ff1bad07d8c19c47945fbe837"
 
 [[files]]
 file = "kubejs/assets/handson_vanilla/textures/entity/recipe_book_paper.png"
-hash = "a9ab42f8dd3457ebd561f7287fb6ce1eb03a566a1f83d0a83c515f0b1ea25b84"
+hash = "a9b7198597088e405ed6f97c2c82c14ac17c617c43a303470ef019cc56bb8649"
 
 [[files]]
 file = "kubejs/assets/hapi/lang/fr_fr.json"
@@ -3698,8 +3698,8 @@ hash = "2c88d3eceb7be9c5964ca32c24612ca08d7326b4cb06104e98d56efa777de640"
 metafile = true
 
 [[files]]
-file = "mods/fallow-0.102.0.jar"
-hash = "ecba27759bfdc89ca42f61323666c55aed294c19ca8675f0b0829f634c5d2487"
+file = "mods/fallow-0.103.0.jar"
+hash = "f2c00b13111170dde63590ec917b9dd511d9fad1cd6efeedaf26c65981ad6cf6"
 
 [[files]]
 file = "mods/farmers-delight.pw.toml"

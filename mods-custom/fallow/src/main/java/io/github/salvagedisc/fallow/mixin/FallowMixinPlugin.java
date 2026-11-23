@@ -81,7 +81,7 @@ public final class FallowMixinPlugin implements IMixinConfigPlugin {
             Map.entry("livres.HovOpenBookMixin", List.of("draw", "sheet", "spread", "fromSpread", "flip", "flipWay", "time", "riffleAt", "riffleSpan")),
             Map.entry("livres.HovRecipeBookMixin", List.of("spread", "side", "nameLines", "ingredientsTop", "flip", "flipWay", "footSide", "cursorX", "cursorY", "page",
                     "pages")),
-            Map.entry("livres.HovRecipeSheetMixin", List.of("arrow", "paper", "poseStack", "buffers", "item", "text", "rect", "outline", "slip")),
+            Map.entry("livres.HovRecipeSheetMixin", List.of("arrow", "paper", "poseStack", "buffers", "item", "text", "rect", "outline", "slip", "tab", "magnifier")),
             Map.entry("livres.HovLecternCanvasMixin", List.of("arrow", "text", "poseStack", "buffers", "light", "wide", "high")),
             Map.entry("livres.HovLecternPageMixin", List.of("paintPage", "styleAt")),
             Map.entry("livres.HovRecipeBookModelMixin", List.of("createBodyLayer", "setupAnim", "frontCover", "backCover")),

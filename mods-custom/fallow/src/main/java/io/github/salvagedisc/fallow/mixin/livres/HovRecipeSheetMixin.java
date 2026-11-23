@@ -27,8 +27,9 @@ import io.github.salvagedisc.fallow.livres.client.PageParts;
  * Les pages des livres de recettes de Hands-On Vanilla : leurs flèches ne sont plus dessinées, le coin corné l'est sur le papier
  * de chaque page qui a une page à tourner de son côté ({@link HovRecipeBooks#dogEar}) une fois la page finie, plus petit et
  * par-dessus si ce qu'elle montre atteint le coin (une recette de trois rangs), et une partie du mobilier de la page (cases,
- * carte d'un groupe, filet sous le nom, marque des nouveautés) est dessinée par {@link PageParts}. Les onglets et leurs icônes,
- * la fiche de recherche, la loupe et le cadre de la case choisie restent ceux de Hands-On Vanilla. Les cases, la carte, le filet et la marque passent par {@code rect} : on les reconnaît à leur couleur,
+ * carte d'un groupe, filet sous le nom, marque des nouveautés) est dessinée par {@link PageParts}. Le papier des onglets, la
+ * fiche de recherche et le cadre de la case choisie restent ceux de Hands-On Vanilla ; l'icône d'un onglet est plus petite et
+ * tient dedans, et la loupe est l'icône de recherche du jeu. Les cases, la carte, le filet et la marque passent par {@code rect} : on les reconnaît à leur couleur,
  * celles de Hands-On Vanilla 1.2.2 ; les deux bandes du pli aussi, remplacées par l'ombre de la gouttière.
  */
 @Pseudo
@@ -44,6 +45,13 @@ abstract class HovRecipeSheetMixin implements HovSheetState {
     private static final int COUNT_INK = 0xFF3B2A1A;
     /** Where Hands-On Vanilla 1.2.2 writes the count of a dish: its top, DISH_Y + DISH_SIZE - the line's height + 2. */
     private static final float DISH_COUNT_Y = 2.0F + 16.0F - 9.0F + 2.0F;
+    /** Hands-On Vanilla 1.2.2's tabs: their height over the page, behind it and open; the search tab's width. */
+    private static final float TAB_REST = 11.0F;
+    private static final float TAB_OPEN = 14.0F;
+    private static final float SEARCH_TAB_WIDE = 13.0F;
+    /** Hands-On Vanilla 1.2.2's search slip: its height over the page, and where it puts the magnifier on it. */
+    private static final float SLIP_HIGH = 11.0F;
+    private static final float SLIP_MAGNIFIER_Y = -9.0F;
     /** The texture width the slip's paper is read against: 128 would take it to the page's edge (see fallow$papierDeLaFiche). */
     private static final float SLIP_PAPER = 160.0F;
     /** The count's size, and its gap from the dish. */
@@ -76,6 +84,14 @@ abstract class HovRecipeSheetMixin implements HovSheetState {
 
     @Shadow(remap = false)
     abstract void rect(float x, float y, float width, float height, float lift, int argb);
+
+    @Shadow(remap = false)
+    abstract void tab(float x, float wide, float iconSize, boolean chosen, boolean lit, ItemStack icon, float nod, boolean washed,
+            boolean marked);
+
+    /** While Hands-On Vanilla draws a tab's paper for {@link #fallow$onglet}. */
+    @Unique
+    private boolean fallow$papierDOnglet;
 
     @Inject(method = "arrow", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void fallow$sansFleche(float x, float y, boolean next, boolean over, CallbackInfo callback) {
@@ -126,6 +142,61 @@ abstract class HovRecipeSheetMixin implements HovSheetState {
     @ModifyConstant(method = "slip", constant = @Constant(floatValue = 128.0F, ordinal = 0), remap = false, require = 0)
     private float fallow$papierDeLaFiche(float atlas) {
         return SLIP_PAPER;
+    }
+
+    /**
+     * A tab: its paper and line as Hands-On Vanilla draws them, its icon smaller ({@link PageParts#tabIcon}) and in the middle of
+     * the part of the tab over the page, in full colour, so it never runs past the tab; the mark of something new on its top
+     * right corner.
+     */
+    @Inject(method = "tab", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
+    private void fallow$onglet(float x, float wide, float iconSize, boolean chosen, boolean lit, ItemStack icon, float nod,
+            boolean washed, boolean marked, CallbackInfo callback) {
+        if (fallow$papierDOnglet || !HovRecipeBooks.dogEarsReady(this)) {
+            return;
+        }
+        fallow$papierDOnglet = true;
+        try {
+            tab(x, wide, iconSize, chosen, lit, ItemStack.EMPTY, nod, false, false);
+        } finally {
+            fallow$papierDOnglet = false;
+        }
+        float high = chosen ? TAB_OPEN : TAB_REST;
+        if (washed) {
+            // The filter on: washed with the green of what can be made, down to the page's edge, never over the page.
+            rect(x + 1.0F, -high + 1.0F, wide - 2.0F, high - 1.0F, 0.08F, WELL_READY);
+        }
+        if (!icon.isEmpty()) {
+            float size = PageParts.tabIcon(wide);
+            item(icon, x + (wide - size) / 2.0F, PageParts.tabIconTop(high, size) - nod, size, false);
+        }
+        if (marked) {
+            PageParts.mark(poseStack, buffers, HovRecipeBooks.light(this), x + wide - 3.0F, -high - nod + 3.0F, 1.95F);
+        }
+        callback.cancel();
+    }
+
+    /**
+     * The magnifier: the game's own search icon instead of Hands-On Vanilla's few strokes of ink, on the search's tab (in the
+     * middle of it, as a tab's icon) and at the head of the search slip.
+     */
+    @Inject(method = "magnifier", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
+    private void fallow$loupe(float x, float y, CallbackInfo callback) {
+        if (!HovRecipeBooks.dogEarsReady(this)) {
+            return;
+        }
+        float size = PageParts.SEARCH_ICON;
+        int light = HovRecipeBooks.light(this);
+        if (y == SLIP_MAGNIFIER_Y) {
+            // On the slip, a unit in from its edge and clear of the words typed after it.
+            PageParts.search(poseStack, buffers, light, x + 1.0F, -SLIP_HIGH + (SLIP_HIGH + 1.0F - size) / 2.0F, size, 1.9F);
+        } else {
+            // Hands-On Vanilla puts it 3 units in from its tab's left side and 3 under the tab's head.
+            float high = 3.0F - y;
+            PageParts.search(poseStack, buffers, light, x - 3.0F + (SEARCH_TAB_WIDE - size) / 2.0F, PageParts.tabIconTop(high, size), size,
+                    1.9F);
+        }
+        callback.cancel();
     }
 
     @Inject(method = "outline", at = @At("HEAD"), cancellable = true, remap = false, require = 0)

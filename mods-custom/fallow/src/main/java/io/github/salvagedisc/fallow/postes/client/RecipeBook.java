@@ -153,8 +153,6 @@ final class RecipeBook implements NodePainter {
     private static final float TAB_PITCH = 14.0F;
     private static final float TAB_HIGH = 14.0F;
     private static final float TAB_DROP = 3.0F;
-    /** How far under a tab's head its icon begins. */
-    private static final float TAB_HEAD = 2.0F;
     /** Hands-On Vanilla's tab and slip papers (under the cursor, behind the page), their line, and the frame of a picked well. */
     private static final int TAB_LIT = 0xFFEDE4D0;
     private static final int TAB_REST_PAPER = 0xFFD6CAAC;
@@ -2353,7 +2351,8 @@ final class RecipeBook implements NodePainter {
             }
             if (resting) {
                 canvas.tab(SEARCH_X, TAB_WIDE, TAB_ICON, searching(), overSearch, ItemStack.EMPTY, 0.0F, false, false);
-                canvas.magnifier(SEARCH_X + (TAB_WIDE - 7.0F) / 2.0F, -tabHigh(searching()) + 3.0F);
+                canvas.search(SEARCH_X + (TAB_WIDE - PageParts.SEARCH_ICON) / 2.0F,
+                        PageParts.tabIconTop(tabHigh(searching()), PageParts.SEARCH_ICON), PageParts.SEARCH_ICON);
             }
             Entry shown = rightShown();
             if (shown != null) {
@@ -2381,7 +2380,8 @@ final class RecipeBook implements NodePainter {
         Font font = Minecraft.getInstance().font;
         float wide = UNITS_WIDE - TAB_MARGIN - TABS_X;
         canvas.slip(TABS_X, wide, SLIP_HIGH, overSlip && !typing);
-        canvas.magnifier(TABS_X + 2.0F, -SLIP_HIGH + 2.0F);
+        // A unit in from the slip's edge, clear of the words typed after it.
+        canvas.search(TABS_X + 3.0F, -SLIP_HIGH + (SLIP_HIGH + 1.0F - PageParts.SEARCH_ICON) / 2.0F, PageParts.SEARCH_ICON);
         float room = wide - SLIP_TEXT_X - 3.0F;
         String shown = query;
         while (!shown.isEmpty() && font.width(shown) > room) {
@@ -2538,8 +2538,8 @@ final class RecipeBook implements NodePainter {
 
         /**
          * A paper tab standing over the page's top edge, drawn as Hands-On Vanilla's: the chosen one taller, in the page's own paper
-         * and reaching a unit onto the page, the others a shade darker, under a fine line; its kind's icon as Hands-On Vanilla
-         * draws it, faded on a tab behind the page; the filter, when on, washed with the green of what can be made.
+         * and reaching a unit onto the page, the others a shade darker, under a fine line; its kind's icon inside it; the filter,
+         * when on, washed with the green of what can be made.
          */
         void tab(float x, float wide, float iconSize, boolean chosen, boolean lit, ItemStack icon, float nod, boolean washed,
                 boolean marked) {
@@ -2549,17 +2549,21 @@ final class RecipeBook implements NodePainter {
             quad(buffers.getBuffer(RenderType.text(PAPER)), x, -high, x + wide, bottom, chosen ? 0.05F : 0.0F,
                     chosen ? 0xFFFFFFFF : lit ? TAB_LIT : TAB_REST_PAPER, u0, u0 + wide / PAPER_SIZE, u0, u0 + (bottom + high) / PAPER_SIZE);
             if (washed) {
-                rect(x + 1.0F, -high + 1.0F, wide - 2.0F, high - 1.0F + bottom, 0.08F, 0x603D7845);
+                // Down to the page's edge, never over the page.
+                rect(x + 1.0F, -high + 1.0F, wide - 2.0F, high - 1.0F, 0.08F, 0x603D7845);
             }
             rect(x + 1.0F, -high, wide - 2.0F, 1.0F, 0.1F, TAB_LINE);
             rect(x, -high + 1.0F, 1.0F, high - 1.0F, 0.1F, TAB_LINE);
             rect(x + wide - 1.0F, -high + 1.0F, 1.0F, high - 1.0F, 0.1F, TAB_LINE);
+            // Its icon smaller than Hands-On Vanilla's and in the middle of the part over the page, in full colour: it never runs
+            // past the tab.
             if (!icon.isEmpty()) {
-                item(icon, x + (wide - iconSize) / 2.0F, -high + TAB_HEAD - nod, iconSize, !chosen && !lit && !washed);
+                float size = PageParts.tabIcon(wide);
+                item(icon, x + (wide - size) / 2.0F, PageParts.tabIconTop(high, size) - nod, size, false);
             }
             if (marked) {
-                // Recipes the player has not seen are in it.
-                mark(x + wide - 2.5F, -high - nod + 2.5F);
+                // Recipes the player has not seen are in it: the mark on its top right corner.
+                mark(x + wide - 3.0F, -high - nod + 3.0F);
             }
         }
 
@@ -2574,15 +2578,9 @@ final class RecipeBook implements NodePainter {
             rect(x + wide - 1.0F, -high + 1.0F, 1.0F, high - 1.0F, 0.1F, TAB_LINE);
         }
 
-        /** Hands-On Vanilla's magnifying glass, 7 units square: a ring and its handle going down to the right. */
-        void magnifier(float x, float y) {
-            rect(x + 1.0F, y, 3.0F, 1.0F, COVER_LIFT, INK);
-            rect(x + 1.0F, y + 4.0F, 3.0F, 1.0F, COVER_LIFT, INK);
-            rect(x, y + 1.0F, 1.0F, 3.0F, COVER_LIFT, INK);
-            rect(x + 4.0F, y + 1.0F, 1.0F, 3.0F, COVER_LIFT, INK);
-            rect(x + 4.0F, y + 4.0F, 1.0F, 1.0F, COVER_LIFT, INK);
-            rect(x + 5.0F, y + 5.0F, 2.0F, 1.0F, COVER_LIFT, INK);
-            rect(x + 6.0F, y + 6.0F, 1.0F, 1.0F, COVER_LIFT, INK);
+        /** The game's own search icon, {@code size} units square from ({@code x}, {@code y}). */
+        void search(float x, float y, float size) {
+            PageParts.search(poseStack, buffers, shade, x, y, size, COVER_LIFT);
         }
 
         /** A well a recipe or an ingredient sits in: pressed into the paper when it can be made (or is at hand), a faint rim if not. */
