@@ -121,6 +121,9 @@ vec3 skyAt(vec3 d) {
     // Un ciel d'été voilé, pâle, presque blanc vers l'horizon : jamais d'un bleu profond (celui d'une carte postale).
     // Au couchant, le ciel reprend ses couleurs : une bande pêche et rose au-dessus d'un horizon clair.
     c = mix(c, vec3(luma(c)) * vec3(0.95, 0.99, 1.05), (0.52 + 0.25 * (1.0 - smoothstep(0.0, 0.45, d.y))) * gDay * (1.0 - 0.75 * gDusk));
+    // Au couchant, le haut du ciel pâlit lui aussi : un bleu lavande et laiteux au-dessus de la bande pêche, pas un
+    // bleu franc (Recrafted : saturation vers 0,10 au zénith, ici 0,22-0,26 avant).
+    c = mix(c, vec3(luma(c)) * vec3(1.0, 0.98, 1.02), 0.55 * gDusk * smoothstep(0.08, 0.40, d.y));
     // Sous la pluie, un gris beige, celui des nuages chargés (Recrafted : teinte 36-38°, saturation 0,11-0,18).
     c = mix(c, vec3(luma(c)) * vec3(0.92, 0.83, 0.72) * 0.9, rainStrength * 0.85);
     return c + vec3(0.55, 0.60, 0.80) * gFlash * (0.6 + 0.4 * max(d.y, 0.0));
