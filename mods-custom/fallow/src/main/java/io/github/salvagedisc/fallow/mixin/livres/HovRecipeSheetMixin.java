@@ -38,11 +38,14 @@ abstract class HovRecipeSheetMixin implements HovSheetState {
     private static final int RULE = 0x405A3C18;
     private static final int FRESH = 0xFFB5372B;
     private static final int FOLD = 0x285A3C18;
-    private static final int INK = 0xFF4A3418;
+    /** The count of a dish: the books' soft ink. */
+    private static final int COUNT_INK = 0xFF8A6B45;
     /** Where Hands-On Vanilla 1.2.2 writes the count of a dish: its top, DISH_Y + DISH_SIZE - the line's height + 2. */
     private static final float DISH_COUNT_Y = 2.0F + 16.0F - 9.0F + 2.0F;
     /** As Hands-On Vanilla writes on its pages: at the icons' lift. */
     private static final float COUNT_LIFT = 1.2F;
+    /** How much lower than Hands-On Vanilla's the rule under a name is drawn. */
+    private static final float RULE_DROP = 1.0F;
 
     @Unique
     private boolean fallow$left;
@@ -112,20 +115,18 @@ abstract class HovRecipeSheetMixin implements HovSheetState {
         }
         int light = HovRecipeBooks.light(this);
         float high = chosen ? 14.0F : 11.0F;
-        // Every tab stops at the page's edge: nothing of them lies on the page.
-        float bottom = 0.0F;
-        PageParts.tab(poseStack, buffers, light, x, -high, wide, bottom, chosen ? 0.25F : 0.05F,
-                chosen ? PageParts.Tab.OPEN : lit ? PageParts.Tab.LIT : PageParts.Tab.REST);
-        if (washed) {
-            rect(x + 1.0F, -high + 1.0F, wide - 2.0F, high - 1.0F + bottom, 0.3F, WELL_READY);
-        }
+        // Every tab stops at the page's edge: nothing of them lies on the page. The filter, when on, is drawn as the open tab
+        // (the page's paper): no colour of its own.
+        PageParts.tab(poseStack, buffers, light, x, -high, wide, 0.0F, chosen ? 0.25F : 0.05F,
+                chosen || washed ? PageParts.Tab.OPEN : lit ? PageParts.Tab.LIT : PageParts.Tab.REST);
         if (!icon.isEmpty()) {
-            // The icon keeps inside its tab, a unit off its foot: nothing of it lies on the page.
+            // The icon keeps inside its tab, a unit off its foot, in its own colours: a tab behind the page is told by its paper.
             float size = Math.min(iconSize, high - 3.0F);
-            item(icon, x + (wide - size) / 2.0F, -high + 2.0F - nod, size, !chosen && !lit && !washed);
+            item(icon, x + (wide - size) / 2.0F, -high + 2.0F - nod, size, false);
         }
         if (marked) {
-            PageParts.mark(poseStack, buffers, light, x + wide - 2.5F, -high - nod + 2.5F, 1.95F);
+            // What is new: a lozenge of red inside the tab's top corner.
+            PageParts.mark(poseStack, buffers, light, x + wide - 3.0F, -high - nod + 3.0F, 1.95F);
         }
         callback.cancel();
     }
@@ -133,7 +134,9 @@ abstract class HovRecipeSheetMixin implements HovSheetState {
     @Inject(method = "slip", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void fallow$fiche(float x, float wide, float high, boolean lit, CallbackInfo callback) {
         if (HovRecipeBooks.dogEarsReady(this)) {
-            PageParts.slip(poseStack, buffers, HovRecipeBooks.light(this), x, -high, wide, 0.0F, 0.25F, lit);
+            // The slip starts on the page, never left of its edge.
+            float from = Math.max(x, 0.0F);
+            PageParts.slip(poseStack, buffers, HovRecipeBooks.light(this), from, -high, wide - (from - x), 0.0F, 0.25F, lit);
             callback.cancel();
         }
     }
@@ -179,7 +182,8 @@ abstract class HovRecipeSheetMixin implements HovSheetState {
         } else if (argb == CARD) {
             PageParts.card(poseStack, buffers, light, x, y, width, height, lift);
         } else if (argb == RULE && height < 1.0F) {
-            PageParts.rule(poseStack, buffers, light, x, y + height / 2.0F, width, lift);
+            // A unit lower than the book's: clear of the descenders of the name above it.
+            PageParts.rule(poseStack, buffers, light, x, y + height / 2.0F + RULE_DROP, width, lift);
         } else if (argb == FRESH && width == 3.0F && height == 1.0F) {
             PageParts.mark(poseStack, buffers, light, x + 1.5F, y + 0.5F, 1.95F);
         } else if (argb == FOLD && height == 96.0F && width > 2.0F) {
@@ -206,7 +210,7 @@ abstract class HovRecipeSheetMixin implements HovSheetState {
         }
         Font font = Minecraft.getInstance().font;
         Matrix4f matrix = new Matrix4f(poseStack.last().pose()).translate(0.0F, 0.0F, COUNT_LIFT);
-        font.drawInBatch(text, x + font.width(text) - 1.0F, y, INK, false, matrix, buffers, Font.DisplayMode.NORMAL, 0,
+        font.drawInBatch(text, x + font.width(text) - 1.0F, y, COUNT_INK, false, matrix, buffers, Font.DisplayMode.NORMAL, 0,
                 HovRecipeBooks.light(this));
         callback.cancel();
     }

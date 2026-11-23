@@ -127,8 +127,9 @@ final class RecipeBook implements NodePainter {
     private static final float LIST_WIDE = COLUMNS * PITCH - (PITCH - WELL_SIZE);
     private static final float FOOT_MIDDLE = GRID_X + LIST_WIDE / 2.0F;
     private static final int INK = 0xFF4A3418;
+    /** The books' soft ink: a count, a hint. */
+    private static final int SOFT_INK = 0xFF8A6B45;
     /** A well whose recipe can be made now: washed with the cover's green. */
-    private static final int WELL_READY = 0x603D7845;
     private static final int FADED = 0x55FFFFFF;
     /** Stars on a page: open (the cover's green), the part of the next one already earned, still shut. */
     private static final int STAR_OPEN = 0xFF306842;
@@ -1978,7 +1979,8 @@ final class RecipeBook implements NodePainter {
         if (nameFor != entry) {
             nameFor = entry;
             Font font = Minecraft.getInstance().font;
-            float wide = 2.0F * (UNITS_WIDE - RIGHT_MIDDLE) - 6.0F;
+            // Centred on the page, as far from the outer edge as from the fold, clear of the ribbon.
+            float wide = 2.0F * (UNITS_WIDE - RIGHT_MIDDLE) - 13.0F;
             nameScale = 1.0F;
             nameLines = font.split(entry.dish().getHoverName(), Math.round(wide));
             if (nameLines.size() > 2) {
@@ -2459,7 +2461,7 @@ final class RecipeBook implements NodePainter {
             canvas.text(text, middle - font.width(text) * nameScale / 2.0F, line, nameScale);
             line += font.lineHeight * nameScale;
         }
-        canvas.rule(middle - LIST_WIDE / 2.0F, ruleY(entry) + 0.8F, LIST_WIDE);
+        canvas.rule(middle - LIST_WIDE / 2.0F, ruleY(entry) + 1.8F, LIST_WIDE);
         for (Spot spot : layout(entry)) {
             int i = spot.index();
             boolean pointed = live && hoveredSpot != null && hoveredSpot.index() == i && spotFor == entry;
@@ -2526,20 +2528,18 @@ final class RecipeBook implements NodePainter {
         void tab(float x, float wide, float iconSize, boolean chosen, boolean lit, ItemStack icon, float nod, boolean washed,
                 boolean marked) {
             float high = chosen ? TAB_HIGH : TAB_HIGH - TAB_DROP;
-            float bottom = 0.0F;
-            PageParts.tab(poseStack, buffers, shade, x, -high, wide, bottom, chosen ? 0.25F : 0.05F,
-                    chosen ? PageParts.Tab.OPEN : lit ? PageParts.Tab.LIT : PageParts.Tab.REST);
-            if (washed) {
-                rect(x + 1.0F, -high + 1.0F, wide - 2.0F, high - 1.0F + bottom, WELL_LIFT, WELL_READY);
-            }
+            // The filter, when on, is drawn as the open tab (the page's paper): no colour of its own.
+            PageParts.tab(poseStack, buffers, shade, x, -high, wide, 0.0F, chosen ? 0.25F : 0.05F,
+                    chosen || washed ? PageParts.Tab.OPEN : lit ? PageParts.Tab.LIT : PageParts.Tab.REST);
             if (!icon.isEmpty()) {
-                // The icon keeps inside its tab, a unit off its foot: nothing of it lies on the page.
+                // The icon keeps inside its tab, a unit off its foot, in its own colours: a tab behind the page is told by its
+                // paper.
                 float size = Math.min(iconSize, high - 3.0F);
-                item(icon, x + (wide - size) / 2.0F, -high + 2.0F - nod, size, !chosen && !lit && !washed);
+                item(icon, x + (wide - size) / 2.0F, -high + 2.0F - nod, size, false);
             }
             if (marked) {
-                // Recipes the player has not seen are in it: the red mark of the list's wells, in its top right corner.
-                mark(x + wide - 2.5F, -high - nod + 2.5F);
+                // Recipes the player has not seen are in it: the red mark of the list's wells, inside its top right corner.
+                mark(x + wide - 3.0F, -high - nod + 3.0F);
             }
         }
 
@@ -2553,7 +2553,7 @@ final class RecipeBook implements NodePainter {
             PageParts.magnifier(poseStack, buffers, shade, x, y, COVER_LIFT);
         }
 
-        /** A well a recipe or an ingredient sits in, pressed into the paper; green when it can be made (or is at hand). */
+        /** A well a recipe or an ingredient sits in: pressed into the paper when it can be made (or is at hand), a faint rim if not. */
         void well(float x, float y, float lift, boolean ready) {
             PageParts.well(poseStack, buffers, shade, x, y, WELL_SIZE, lift, ready);
         }
@@ -2637,7 +2637,7 @@ final class RecipeBook implements NodePainter {
         void count(String text, float x, float y) {
             Matrix4f matrix = new Matrix4f(poseStack.last().pose()).translate(Minecraft.getInstance().font.width(text) - 1.0F, 0.0F,
                     ITEM_LIFT);
-            Minecraft.getInstance().font.drawInBatch(text, x, y, INK, false, matrix, buffers, Font.DisplayMode.NORMAL, 0, shade);
+            Minecraft.getInstance().font.drawInBatch(text, x, y, SOFT_INK, false, matrix, buffers, Font.DisplayMode.NORMAL, 0, shade);
         }
 
         /** Text drawn smaller ({@code scale} under 1) from its top left corner: scaled as a whole, never wrapped. */

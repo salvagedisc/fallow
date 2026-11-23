@@ -1078,19 +1078,19 @@ hash = "004bae7e2a39389c78bb687ad91332bb2f74877b351089790b7d28259a2785ae"
 
 [[files]]
 file = "kubejs/assets/handson_vanilla/textures/entity/enchanting_book.png"
-hash = "038603010c672eba8b09000d7b2d9cf465a5a8907b391d11996fadb52fc156ff"
+hash = "d38aabd9fc9d5706146371c493d5a78aabe73c1997219a3c816a0bed390cc0e4"
 
 [[files]]
 file = "kubejs/assets/handson_vanilla/textures/entity/enchanting_book_paper.png"
-hash = "810c92cff5793d415bdd57da4383dfc5379f6d619ca2222e492e0dc501bcee4b"
+hash = "c4d357960d05a6002e8cc1ee8aac6fc6717677a4897365b9b92482e704f14c64"
 
 [[files]]
 file = "kubejs/assets/handson_vanilla/textures/entity/recipe_book.png"
-hash = "683b47ce70634015355f9d4cf9d6a0fb07deba8527339532309a0b41f351bf72"
+hash = "44b3e8ffaf2122748a1fb4d4238c1c71fb0d307e39b26de42889bfab33bc6d52"
 
 [[files]]
 file = "kubejs/assets/handson_vanilla/textures/entity/recipe_book_paper.png"
-hash = "fd3bca9b88e0dca8e5aa04e67587af85b5838d5014a40f8dce32d55125929ada"
+hash = "fcbb93d48afee8e7011c3de787886c5af439f458b2956ba0ce53c83b40f0fce7"
 
 [[files]]
 file = "kubejs/assets/hapi/lang/fr_fr.json"
@@ -3698,8 +3698,8 @@ hash = "2c88d3eceb7be9c5964ca32c24612ca08d7326b4cb06104e98d56efa777de640"
 metafile = true
 
 [[files]]
-file = "mods/fallow-0.99.0.jar"
-hash = "cbdcb149676cf587fab4026e321a3128aac14703921e20ec480b36b22b592294"
+file = "mods/fallow-0.100.0.jar"
+hash = "b64b21594b6f0155811c1fb74c3f6a3c5d4b505c666471f5c57e6640e28036b2"
 
 [[files]]
 file = "mods/farmers-delight.pw.toml"

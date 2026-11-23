@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import io.github.salvagedisc.fallow.livres.client.DogEar;
@@ -24,6 +25,9 @@ abstract class HovLecternCanvasMixin {
     /** La couleur de la flèche sous le curseur, chez le pupitre. */
     @Unique
     private static final int FALLOW$LIT = 0xFF8A5A2B;
+    /** L'encre des livres. */
+    @Unique
+    private static final int FALLOW$INK = 0x3B2A1A;
     /** Le coin, en unités de la page du pupitre (155 x 242). */
     @Unique
     private static final float FALLOW$SIZE = 26.0F;
@@ -43,6 +47,16 @@ abstract class HovLecternCanvasMixin {
     @Shadow(remap = false)
     @Final
     private int high;
+
+    /**
+     * What Hands-On Vanilla writes in black on its books' pages (the lectern's text) is written in the books' brown ink, as
+     * every page of the pack is: black never sits on this paper.
+     */
+    @ModifyVariable(method = "text(Lnet/minecraft/util/FormattedCharSequence;FFIF)V", at = @At("HEAD"), argsOnly = true, index = 4,
+            remap = false, require = 0)
+    private int fallow$encre(int colour) {
+        return (colour & 0xFFFFFF) == 0 ? (colour & 0xFF000000) | FALLOW$INK : colour;
+    }
 
     @Inject(method = "arrow", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void fallow$coinCorne(float x, float y, boolean next, int colour, CallbackInfo callback) {

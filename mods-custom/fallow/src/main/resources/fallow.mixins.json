@@ -51,6 +51,7 @@
     "livres.HovRecipeBookMixin",
     "livres.HovRecipeSheetMixin",
     "livres.HovLecternCanvasMixin",
+    "livres.HovLecternPageMixin",
     "livres.HovRecipeBookModelMixin",
     "livres.HovEnchantingBookModelMixin",
     "patine.ArmorTextureMixin",

@@ -7,6 +7,8 @@ import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Coerce;
+import org.spongepowered.asm.mixin.injection.Constant;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -23,6 +25,12 @@ import io.github.salvagedisc.fallow.livres.client.HovRecipeBooks;
 @Pseudo
 @Mixin(targets = "com.pockyl.handson_vanilla.client.RecipeBook", remap = false)
 abstract class HovRecipeBookMixin {
+    /**
+     * How wide a recipe's name may run before it wraps (Hands-On Vanilla's 61): centred on the right page, it keeps clear of the
+     * ribbon and as far from the outer edge as from the fold.
+     */
+    private static final float NAME_WIDE = 54.0F;
+
     @Shadow(remap = false)
     private float flip;
     @Shadow(remap = false)
@@ -59,5 +67,10 @@ abstract class HovRecipeBookMixin {
     private void fallow$coinDeLaPage(PoseStack poseStack, MultiBufferSource buffers, boolean left, float turn, float height,
             @Coerce Object leaf, boolean resting, CallbackInfo callback) {
         HovRecipeBooks.pageDrawn(poseStack, buffers, resting);
+    }
+
+    @ModifyConstant(method = "nameLines", constant = @Constant(floatValue = 61.0F), remap = false, require = 0)
+    private float fallow$largeurDuNom(float wide) {
+        return NAME_WIDE;
     }
 }

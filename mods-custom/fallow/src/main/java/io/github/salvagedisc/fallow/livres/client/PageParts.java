@@ -13,15 +13,17 @@ import io.github.salvagedisc.fallow.Fallow;
  * The furniture of a recipe book's pages, drawn on the page in its own units (x across from its left edge, y down from its head):
  * the tabs over the head of the left page, the search slip, the wells the recipes sit in, the frame round a picked one, the card a
  * group of recipes opens on, the magnifier, the mark of a new recipe, the rule under a recipe's name. All come from one texture,
- * {@code livre_elements.png} (the gutter's shade with them), two texels to a unit, drawn by {@code scripts/books/papers.py}; the tabs, the slip and the card are
+ * {@code livre_elements.png} (the gutter's shade with them), one texel to a unit, drawn by {@code scripts/books/papers.py}; the tabs, the slip and the card are
  * drawn in nine pieces so they take any size. Used by the pack's own books and, through {@code mixin.livres.HovRecipeSheetMixin},
  * by Hands-On Vanilla's.
  */
 public final class PageParts {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Fallow.MOD_ID, "textures/entity/livre_elements.png");
     private static final float ATLAS = 128.0F;
-    /** Texels of the texture to a unit of the page. */
-    private static final float DENSITY = 2.0F;
+    /** The rule's length: a short rule, as a title has in a printed book. */
+    private static final float RULE_WIDE = 31.0F;
+    /** Texels of the texture to a unit of the page: one, the scale of the paper, the icons and the letters. */
+    private static final float DENSITY = 1.0F;
 
     /** A tab behind the page, under the cursor, or open (the page's paper, meeting the page). */
     public enum Tab {
@@ -34,40 +36,43 @@ public final class PageParts {
     /** A tab from {@code top} down to {@code bottom}, {@code x} to {@code x + wide}. */
     public static void tab(PoseStack poseStack, MultiBufferSource buffers, int light, float x, float top, float wide, float bottom,
             float lift, Tab state) {
-        nine(poseStack, buffers, light, x, top, wide, bottom - top, lift, 16 * state.ordinal(), 0, 16, 16, 5);
+        nine(poseStack, buffers, light, x, top, wide, bottom - top, lift, 16 * state.ordinal(), 0, 16, 16, 3);
     }
 
     /** The search slip, a field from {@code top} down to {@code bottom}. */
     public static void slip(PoseStack poseStack, MultiBufferSource buffers, int light, float x, float top, float wide, float bottom,
             float lift, boolean lit) {
-        nine(poseStack, buffers, light, x, top, wide, bottom - top, lift, lit ? 64 : 48, 0, 16, 16, 5);
+        nine(poseStack, buffers, light, x, top, wide, bottom - top, lift, lit ? 64 : 48, 0, 16, 16, 3);
     }
 
-    /** A well {@code size} units square, pressed into the paper: faint at rest, a soft green when its recipe can be made. */
+    /**
+     * A well {@code size} units square: pressed into the paper when it is ready (its recipe can be made, or what it shows is at
+     * hand), a faint rim on bare paper when not.
+     */
     public static void well(PoseStack poseStack, MultiBufferSource buffers, int light, float x, float y, float size, float lift,
             boolean ready) {
-        sprite(poseStack, buffers, light, x, y, size, size, lift, ready ? 34 : 0, 16, 34, 34);
+        sprite(poseStack, buffers, light, x, y, size, size, lift, ready ? 17 : 0, 16, 17, 17);
     }
 
-    /** The frame round a picked well. */
+    /** The frame round a picked well {@code size} units square at ({@code x}, {@code y}): a line of dark ink a unit out from it. */
     public static void frame(PoseStack poseStack, MultiBufferSource buffers, int light, float x, float y, float size, float lift) {
-        sprite(poseStack, buffers, light, x, y, size, size, lift, 68, 16, 34, 34);
+        sprite(poseStack, buffers, light, x - 1.0F, y - 1.0F, size + 2.0F, size + 2.0F, lift, 34, 16, 19, 19);
     }
 
     /** The card a group of recipes opens on. */
     public static void card(PoseStack poseStack, MultiBufferSource buffers, int light, float x, float y, float wide, float high,
             float lift) {
-        nine(poseStack, buffers, light, x, y, wide, high, lift, 0, 52, 24, 24, 8);
+        nine(poseStack, buffers, light, x, y, wide, high, lift, 0, 36, 16, 16, 4);
     }
 
     /** The magnifier, 7 units square from ({@code x}, {@code y}), as the books' own was. */
     public static void magnifier(PoseStack poseStack, MultiBufferSource buffers, int light, float x, float y, float lift) {
-        sprite(poseStack, buffers, light, x - 0.5F, y - 0.5F, 8.0F, 8.0F, lift, 24, 52, 16, 16);
+        sprite(poseStack, buffers, light, x - 0.5F, y - 0.5F, 8.0F, 8.0F, lift, 16, 36, 8, 8);
     }
 
     /** The mark of a new recipe, 4 units square centred on ({@code x}, {@code y}). */
     public static void mark(PoseStack poseStack, MultiBufferSource buffers, int light, float x, float y, float lift) {
-        sprite(poseStack, buffers, light, x - 2.0F, y - 2.0F, 4.0F, 4.0F, lift, 40, 52, 8, 8);
+        sprite(poseStack, buffers, light, x - 2.0F, y - 2.0F, 4.0F, 4.0F, lift, 24, 36, 4, 4);
     }
 
     /**
@@ -81,7 +86,7 @@ public final class PageParts {
         quad(consumer, poseStack.last().pose(), light, x0, 0.0F, x0 + 8.0F, high, lift, left ? 64 : 48, 52, left ? 48 : 64, 60);
     }
 
-    /** The rule under a recipe's name, {@code wide} across, its line at {@code y}. */
+    /** The rule under a recipe's name, centred on the {@code wide} units from {@code x} (31 at most), its line at {@code y}. */
     public static void rule(PoseStack poseStack, MultiBufferSource buffers, int light, float x, float y, float wide, float lift) {
         rule(poseStack, buffers, light, x, y, wide, lift, 255);
     }
@@ -90,7 +95,10 @@ public final class PageParts {
     public static void rule(PoseStack poseStack, MultiBufferSource buffers, int light, float x, float y, float wide, float lift,
             int alpha) {
         VertexConsumer consumer = buffers.getBuffer(RenderType.text(TEXTURE));
-        quad(consumer, poseStack.last().pose(), light, x, y - 2.0F, x + wide, y + 2.0F, lift, 0, 76, 106, 84, alpha);
+        float shown = Math.min(RULE_WIDE, wide);
+        float cut = (RULE_WIDE - shown) / 2.0F;
+        float x0 = x + (wide - shown) / 2.0F;
+        quad(consumer, poseStack.last().pose(), light, x0, y - 2.5F, x0 + shown, y + 2.5F, lift, cut, 76, RULE_WIDE - cut, 81, alpha);
     }
 
     private static void sprite(PoseStack poseStack, MultiBufferSource buffers, int light, float x, float y, float wide, float high,

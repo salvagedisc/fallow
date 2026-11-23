@@ -4,9 +4,11 @@ tannery and forge), the lectern's book and the awakening book of the enchanting 
 Each texture follows the layout of the model it dresses (64 x 32 units, Hands-On Vanilla's models with their boards cut to the
 pages by Fallow's livres/client/BookShapes: half a pixel beyond the pages all round) but is drawn S times finer, as fine as the paper laid on the pages, so the leather does not look coarse beside
 it. Every board is leather: a fine grain and a few softer clouds, the edges rubbed paler, the very edge dark, the corners
-rounded (cut out), a double fillet tooled blind a little inside the edge (it frames the pages when the book lies open) and a
-small ornament at each of its corners and in the middle (shown when the book is shut; open, the pages cover all but the rubbed
-rim). The lectern's book has brass corners instead of the tooled ones, the awakening book gilt ones on oxblood leather. The spine has raised bands. The blocks of pages show the edges of the leaves, in fine
+rounded (cut out), a double fillet tooled blind a little inside the edge and a small ornament at its inner corners and in the
+middle (shown when the book is shut; open, the pages cover all but the rubbed rim). Every book has the same metal corners on
+its outer corners, a rivet set in the bare rim so they read open as well as shut: brass on the green crafting book and the
+lectern's brown one, aged bronze on the tan workshop books, gold on the oxblood awakening book (the lectern's and the
+awakening book's boards also have a gilt fillet). The spine has raised bands and headbands of the leather's own colours. The blocks of pages show the edges of the leaves, in fine
 lines. Everything is drawn from a fixed seed, so a rerun gives the same files.
 
 Run from the repository root: python3 scripts/books/covers.py
@@ -69,13 +71,14 @@ class Sheet:
 class Leather:
     """The colours of a leather: its body, its rubbed edge, its dark cut edge, and its tooling."""
 
-    def __init__(self, body, rubbed, cut, metal=None, star=False, ornament=True):
+    def __init__(self, body, rubbed, cut, metal=None, star=False, ornament=True, gilt=False):
         self.body = np.asarray(body, np.float32)
         self.rubbed = np.asarray(rubbed, np.float32)
         self.cut = np.asarray(cut, np.float32)
         self.metal = metal  # (light, mid, dark) of brass or gilt corners, or None for tooled ones
         self.star = star
         self.ornament = ornament
+        self.gilt = gilt  # a gilt fillet inside the edge, for the finer bindings
 
 
 def leather_ground(rng, w, h, s, leather):
@@ -117,7 +120,7 @@ def board(rng, w, h, s, leather, corner_radius=None, outer=(0, 1, 2, 3)):
     inset = int(round(s * 0.5))
     for k, strength in ((inset, 0.30), (inset + 2, 0.18)):
         fillet(rgb, k, w, h, strength)
-    if leather.metal is not None:
+    if leather.gilt:
         # Bound to be shown: the inner fillet gilt, a fine line of the corners' metal.
         gilt(rgb, inset + 2, w, h, leather.metal)
     if leather.metal is None:
@@ -125,6 +128,11 @@ def board(rng, w, h, s, leather, corner_radius=None, outer=(0, 1, 2, 3)):
             for cx, cy in ((inset, inset), (w - 1 - inset, inset), (inset, h - 1 - inset), (w - 1 - inset, h - 1 - inset)):
                 fleuron(rgb, cx, cy, s)
     else:
+        if leather.ornament:
+            for corner in [c for c in range(4) if c not in outer]:
+                cx = inset if corner in (0, 2) else w - 1 - inset
+                cy = inset if corner in (0, 1) else h - 1 - inset
+                fleuron(rgb, cx, cy, s)
         for corner in outer:
             metal_corner(rgb, alpha, w, h, s, corner, leather.metal, leather.star)
     if leather.ornament:
@@ -203,43 +211,56 @@ def centre(rgb, cx, cy, s, leather):
 
 
 def metal_corner(rgb, alpha, w, h, s, corner, metal, star):
-    """A corner piece of brass (or gilt) folded over the board: a rounded triangle along the two edges, lit from the top left,
-    a rivet near its point; the awakening book's carries a small star instead of the rivet."""
+    """A corner piece of metal folded over the board, the same on every book: a triangle along the two edges, its legs a pixel
+    and a quarter of the model long, outlined in the metal's dark, lit along its top and left, its inner edge notched in the
+    middle (a cut-out arc, as a smith files it) and a rivet set in the rim the pages leave bare, so the piece reads when the
+    book lies open (half a pixel of board shows round the pages) as well as shut. The awakening book's rivet is a small star."""
     light, mid, dark = (np.asarray(c, np.float32) for c in metal)
-    size = int(s * 1.05)
+    size = int(round(s * 1.25))
+    notch = max(2, s // 5)
     for dy in range(size + 1):
         for dx in range(size + 1):
             if dx + dy > size:
+                continue
+            # The notch: the middle of the inner edge filed away in a small arc.
+            if dx + dy > size - notch and abs(dx - dy) < notch * 1.4:
                 continue
             x = dx if corner in (0, 2) else w - 1 - dx
             y = dy if corner in (0, 1) else h - 1 - dy
             if alpha[y, x] == 0.0:
                 continue
-            t = (dx + dy) / size
-            if dx + dy >= size - 1:
+            inner_edge = dx + dy >= size - 1 or (dx + dy >= size - notch - 1 and abs(dx - dy) < notch * 1.4 + 1)
+            if inner_edge or dx == 0 or dy == 0:
                 c = dark
-            elif dx == 0 or dy == 0:
-                c = dark * 0.6 + mid * 0.4
+            elif (dx == 1 and corner in (0, 2)) or (dy == 1 and corner in (0, 1)):
+                c = light
             else:
-                # Lit from the top left: paler towards that side of the piece, a highlight band near its edge.
-                c = mid * (1.0 - t * 0.25) + light * (0.25 if 0.55 < t < 0.75 else 0.0)
+                t = (dx + dy) / size
+                c = mid * (1.0 - 0.18 * t) + light * 0.18 * (1.0 - t)
             rgb[y, x] = np.clip(c, 0.0, 255.0)
-    rx = int(size * 0.32)
+    # The rivet, in the bare rim: a quarter of a pixel in from both edges.
+    rx = max(2, int(round(s * 0.25)))
     x = rx if corner in (0, 2) else w - 1 - rx
     y = rx if corner in (0, 1) else h - 1 - rx
     if star:
         for i in (-1, 0, 1):
             rgb[y, x + i] = light
             rgb[y + i, x] = light
+        rgb[y, x] = np.asarray((255, 246, 210), np.float32)
     else:
+        sx = 1 if corner in (0, 2) else -1
+        sy = 1 if corner in (0, 1) else -1
         rgb[y, x] = light
-        rgb[y + (1 if corner in (0, 1) else -1), x + (1 if corner in (0, 2) else -1)] = dark
+        rgb[y, x + sx] = mid
+        rgb[y + sy, x] = mid
+        rgb[y + sy, x + sx] = dark
 
 
 def spine(rng, w, h, s, leather, bands=4):
     """The spine, w x h texels, along its height: leather a shade darker, with raised bands (a light ridge over a dark
     shadow) and a tooled line either side of each, and at both ends the headbands: the little rolls of red and cream silk sewn
-    at the head and the tail of the leaves, which show between the pages at the top and the foot of the fold."""
+    at the head and the tail of the leaves, which show between the pages at the top and the foot of the fold: silk of the leather's
+    own colour and of the leaves' edge, so they belong to the book."""
     rgb = leather_ground(rng, w, h, s, leather) * 0.94
     alpha = np.ones((h, w), np.float32)
     cap = max(3, int(round(s * 0.5)))
@@ -257,7 +278,7 @@ def spine(rng, w, h, s, leather, bands=4):
                     rgb[y + dy, 1:-1] = rgb[y + dy, 1:-1] * 0.25 + mid * 0.75
     rgb[:, 0] = rgb[:, 0] * 0.6
     rgb[:, -1] = rgb[:, -1] * 0.6
-    red, cream = np.asarray((156, 40, 34), np.float32), np.asarray((234, 222, 192), np.float32)
+    red, cream = leather.rubbed * 0.9, leather.rubbed * 0.5 + np.asarray((214, 186, 136), np.float32) * 0.5
     for end in (0, 1):
         for j in range(cap):
             y = j if end == 0 else h - 1 - j
@@ -290,7 +311,8 @@ def leaves(rng, w, h, along_x, paper, edge):
         k = np.repeat(lines[None, :], h, axis=0)
     k *= 1.0 + smooth_noise(rng, w, h, 6) * 0.03
     # The leaves' edges are warmer than the page, aged where the air reaches them.
-    rgb = (np.asarray(paper, np.float32) * np.asarray((0.935, 0.905, 0.865), np.float32))[None, None, :] * k[:, :, None]
+    warm = np.asarray(paper, np.float32) * 0.62 + np.asarray(edge, np.float32) * 0.38
+    rgb = warm[None, None, :] * k[:, :, None]
     # Darker towards the boards on both faces of the block: the leaves there are older.
     t = np.linspace(0.0, 1.0, across)
     side = np.clip(1.0 - np.minimum(t, 1.0 - t) * 6.0, 0.0, 1.0) * 0.35
@@ -328,7 +350,7 @@ def block_of_pages(sheet, u, v, paper, edge):
             img, a = leaves(sheet.rng, w, h, True, paper, edge)
             if name == "down":
                 # Turned from the light, this face is drawn at half light: painted paler, it keeps the leaves' colour.
-                img = np.clip(img * 1.5, 0.0, 255.0)
+                img = np.clip(img * 1.25, 0.0, 255.0)
         else:
             img, a = leaves(sheet.rng, w, h, False, paper, edge)
             if name == "east":
@@ -371,7 +393,8 @@ def recipe_book(path, s, seed, leather, paper=(242, 232, 206), edge=(200, 172, 1
     for u0 in (0, 14):
         for i, u in enumerate((u0, u0 + bw)):
             w, h = int(round(bw * s)), int(round(bh * s))
-            img, a = board(sheet.rng, w, h, s, leather)
+            # The spine is at the boards' right end: on the face first in the texture, the outer corners are its left ones.
+            img, a = board(sheet.rng, w, h, s, leather, outer=(0, 2) if i == 0 else (1, 3))
             face(sheet, u, 1, w, h, img, a, pad=(True, True, i == 0, i == 1))
     # The spine: its patches plain leather, then the banded faces, each 9 units along: the box's two sides at (28, 2), the
     # planes' at (0, 14) and (6, 13).
@@ -416,12 +439,13 @@ def lectern_book(path, s, seed, leather, paper=(242, 232, 206), edge=(200, 172, 
 
 # Leathers: bottle green (Hands-On Vanilla's crafting book), natural tan calf (Fallow's workshop books), dark brown with brass
 # corners (the lectern), oxblood with gilt corners (the awakening book, the red of the enchanting table's cloth).
-GREEN = Leather(body=(38, 84, 62), rubbed=(74, 116, 88), cut=(16, 36, 26))
-TAN = Leather(body=(150, 98, 56), rubbed=(186, 136, 88), cut=(70, 42, 22))
-BROWN = Leather(body=(104, 62, 36), rubbed=(140, 94, 60), cut=(44, 24, 12),
-                metal=((246, 214, 132), (196, 152, 70), (112, 78, 30)))
-OXBLOOD = Leather(body=(98, 30, 32), rubbed=(134, 58, 52), cut=(40, 10, 12),
-                  metal=((250, 226, 150), (214, 176, 92), (128, 96, 44)))
+BRASS = ((240, 206, 122), (190, 146, 66), (104, 70, 28))
+BRONZE = ((214, 170, 104), (156, 110, 56), (82, 52, 24))
+GOLD = ((252, 230, 156), (218, 178, 90), (124, 90, 40))
+GREEN = Leather(body=(38, 84, 62), rubbed=(74, 116, 88), cut=(16, 36, 26), metal=BRASS)
+TAN = Leather(body=(150, 98, 56), rubbed=(186, 136, 88), cut=(70, 42, 22), metal=BRONZE)
+BROWN = Leather(body=(104, 62, 36), rubbed=(140, 94, 60), cut=(44, 24, 12), metal=BRASS, gilt=True)
+OXBLOOD = Leather(body=(98, 30, 32), rubbed=(134, 58, 52), cut=(40, 10, 12), metal=GOLD, gilt=True)
 
 
 def main():
