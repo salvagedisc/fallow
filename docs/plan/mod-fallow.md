@@ -49,7 +49,6 @@ The version is set in `gradle.properties` (`mod_version`). The targeted mods are
 | `hotes` | both (the emissaries and masks on the server, the dialogue window, masks and regalia on the client) | none; Archie's Dinosaurs for the beasts' armour | none |
 | `postes` | both (the stations and their work on the server, the scenes and the book on the client) | Diegesis; Overgeared for the forge; Cold Sweat for the hearth | 3, client: `postes.MenuOuvertureMixin` (NeoForge) and `postes.MenuCreationMixin` (vanilla code) with Diegesis, `postes.ForgeRendererMixin` (vanilla code) with Overgeared too |
 | `feuillage` | server | Passable Foliage | 1, common (`feuillage.ChuteDansLesFeuillesMixin`, @Pseudo on Passable Foliage) |
-| `gabarits` | client | none (it acts only when a resource pack redraws vanilla iron) | none |
 | (compatibility fix) | client | Punchy! and Sensible Stackables | 1, client (`compat.PunchyEquipMixin`) |
 | (compatibility fix) | both | Streams Reflowing and Spelunkery | 1 (`compat.IceThawMixin`) |
 | (compatibility fix) | both | Lithostitched (used by Regions Unexplored) | 1 (`compat.InStructureMixin`) |

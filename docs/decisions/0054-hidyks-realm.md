@@ -1,7 +1,7 @@
 # 0054 — Hidyk's Realm as the base look of the game
 
 - **Date**: 2026-11-22
-- **Status**: kept (the team's choice of 2026-11-22); checked on a NeoForge 1.21.1 client without the shader, not played in the full pack. **Not to be published on Modrinth before an agreement with its author** (see Licence)
+- **Status**: abandoned on 2026-11-23: the team did not like the look once in the pack, and no answer from its author is expected. Both packs left the pack. Kept on 2026-11-22 (the team's choice), checked on a NeoForge 1.21.1 client without the shader
 
 ## Context
 After the item packs ([0053](0053-team-disco-items.md)), the team wanted a resource pack for the rest of the game. A study ranked 416 resource packs for 1.21.1, opened 19 of them file by file and compared 10 on the same test world (ore cliff, workshop with Farmer's Delight, Create and Supplementaries, creatures, taiga village, inventory), each above the pack's current resource packs.

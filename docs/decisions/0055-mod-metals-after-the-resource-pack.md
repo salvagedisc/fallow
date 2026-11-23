@@ -1,7 +1,7 @@
 # 0055 — Mod metals drawn after the active resource pack
 
 - **Date**: 2026-11-22
-- **Status**: kept (the team's request of 2026-11-22, after a steel prototype); checked on a NeoForge 1.21.1 client with Hidyk's Realm, not played in the full pack
+- **Status**: abandoned on 2026-11-23 with Hidyk's Realm ([0054](0054-hidyks-realm.md)): the team did not like the look. The `gabarits` module left `fallow` in 0.99.0. Made on 2026-11-22 at the team's request, checked on a NeoForge 1.21.1 client with Hidyk's Realm
 
 ## Context
 With Hidyk's Realm ([0054](0054-hidyks-realm.md)) the vanilla iron sword, pickaxe, ingot and armour are redrawn, but the mods' metal items keep vanilla's drawing in their own colour: Overgeared's steel tools sat next to Hidyk's Realm's iron tools and looked older. A study of the mods' 14,764 textures found that most metal items made as recolours of vanilla iron can take the resource pack's iron drawing in their own colour. Hidyk's Realm is all rights reserved, so images derived from it cannot be committed to the public repository or shipped as a pack before an agreement with its author.

@@ -215,8 +215,8 @@ Side: C = client, S = server, CS = both. Versions checked on Modrinth for NeoFor
 
 | Pack | Slug | Status | Role |
 |---|---|---|---|
-| Hidyk's Realm | `hidyksrealm` | ✅ (2.15.4, added 2026-11-22, all rights reserved; modpack use needs its author's agreement, see [0054](decisions/0054-hidyks-realm.md)) | Base look of the whole game, close to vanilla: blocks, items, interface, creatures, grass and leaf colours by biome; lowest of the file packs so that the packs chosen one by one win over it; needs Polytone, EMF, ETF and Respackopts |
-| Fresh Hidyk's Realm | `fresh-hidyks-realm` | ✅ (added 2026-11-22, all rights reserved) | Joins Hidyk's Realm's creatures to Fresh Animations; on top of every pack |
+| Hidyk's Realm | `hidyksrealm` | ❌ (added 2026-11-22, removed 2026-11-23: the team did not like the look, see [0054](decisions/0054-hidyks-realm.md)) | Base look of the whole game, close to vanilla: blocks, items, interface, creatures, grass and leaf colours by biome; lowest of the file packs so that the packs chosen one by one win over it; needs Polytone, EMF, ETF and Respackopts |
+| Fresh Hidyk's Realm | `fresh-hidyks-realm` | ❌ (added 2026-11-22, removed 2026-11-23 with Hidyk's Realm) | Joins Hidyk's Realm's creatures to Fresh Animations; on top of every pack |
 | Fresh Animations | `fresh-animations` | ✅ | Animated creatures |
 | FA: Details, Objects, Emissive | `fresh-animations-details`, `fresh-animations-objects`, `fresh-animations-emissive` | ✅ | Details, animated objects, glowing eyes |
 | FA: Player Extension | `fa-player-extension` | ✅ | The player in the same style |

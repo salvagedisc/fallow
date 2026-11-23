@@ -46,7 +46,7 @@ hash = "48b83973132d41c7fe23f5861c1ff580b3734ee0397c62ae1031e2dd289284f2"
 
 [[files]]
 file = "config/defaultoptions-common.toml"
-hash = "c92903c1d512a5f86d0a88f5a791a5b309e8aa240262697a8d6f33154ec0f383"
+hash = "1c9faaa469f6bf4093d242453211ea79a1136285eb928d568a256d1f49de420d"
 
 [[files]]
 file = "config/defaultoptions/extra/config/entity_model_features.json"
@@ -3698,8 +3698,8 @@ hash = "2c88d3eceb7be9c5964ca32c24612ca08d7326b4cb06104e98d56efa777de640"
 metafile = true
 
 [[files]]
-file = "mods/fallow-0.98.0.jar"
-hash = "783bc1d537786a9d965f4548ab004cda6628e7abd7b653bc826b4d3779b39639"
+file = "mods/fallow-0.99.0.jar"
+hash = "cbdcb149676cf587fab4026e321a3128aac14703921e20ec480b36b22b592294"
 
 [[files]]
 file = "mods/farmers-delight.pw.toml"
@@ -4330,11 +4330,6 @@ hash = "255e5e16e3f59423b303587cb57796c9043e0bd445707a6c088f0545d20e1f2b"
 metafile = true
 
 [[files]]
-file = "resourcepacks/fresh-hidyks-realm.pw.toml"
-hash = "72f37e6bcb04241e70295166c31cbe7a893c2abb1e4ff75b80b6f83354492409"
-metafile = true
-
-[[files]]
 file = "resourcepacks/fresh-music-discs.pw.toml"
 hash = "862f8ea5ba61aa498a60601eccbd5b0d9ad91cf06b5692f08ec6207f77955ed0"
 metafile = true
@@ -4347,11 +4342,6 @@ metafile = true
 [[files]]
 file = "resourcepacks/fresh-paintings.pw.toml"
 hash = "6b9aaae5cd0cb72b042d755bec368e69b07d3106c9525561d9297cff311bff00"
-metafile = true
-
-[[files]]
-file = "resourcepacks/hidyksrealm.pw.toml"
-hash = "15da6b575cf019e31e177f77b5ebb2c21d82e2d7f0cc56394b8992272e1fe666"
 metafile = true
 
 [[files]]

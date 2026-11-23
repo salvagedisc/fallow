@@ -86,10 +86,7 @@ public enum FallowModule {
      *  d'un butin ni d'un échange (client et serveur : composants et éclat enregistrés des deux côtés). Aucun mod requis ;
      *  la qualité de forge d'Overgeared et TreeChop sont lus s'ils sont là. */
     EVEIL("eveil", null, bus -> io.github.salvagedisc.fallow.eveil.EveilModule.start(bus)),
-    POSTES("postes", null, bus -> io.github.salvagedisc.fallow.postes.PostesModule.start(bus), ModIds.DIEGESIS),
-    /** Les gabarits : les objets en métal des mods redessinés d'après le fer du pack de textures actif, chacun dans sa
-     *  couleur, au chargement des ressources (client). Aucun mod requis ; sans pack qui redessine le fer, rien ne change. */
-    GABARITS("gabarits", Dist.CLIENT, bus -> io.github.salvagedisc.fallow.gabarits.GabaritsModule.start(bus));
+    POSTES("postes", null, bus -> io.github.salvagedisc.fallow.postes.PostesModule.start(bus), ModIds.DIEGESIS);
 
     private final String id;
     private final Dist side;
