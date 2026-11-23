@@ -27,7 +27,11 @@ float mistNearDensity() {
     float hour = mix(0.80, 0.32, smoothstep(-0.14, 0.0, gSunDir.y));
     // L'air du biome : plus de brume là où il est humide, moins dans un désert.
     float biome = mix(0.75, 1.3, airHumid) * (1.0 - 0.85 * airDust());
-    return 0.010 * MIST_DENSITY * hour * biome * (1.0 + 1.6 * rainStrength) * open;
+    // Sous un couvert, de jour, l'air se voit : entre les troncs, ce qui est à vingt blocs pâlit dans un voile clair
+    // (Recrafted). Le paysage à découvert garde sa nappe légère, sans quoi une vallée vue d'en haut se noie.
+    float eye = float(eyeBrightnessSmooth.y) / 240.0;
+    float under = (1.0 - smoothstep(0.86, 0.99, eye)) * smoothstep(0.25, 0.45, eye) * smoothstep(0.0, 0.3, gSunDir.y);
+    return 0.010 * MIST_DENSITY * hour * biome * (1.0 + 1.6 * rainStrength) * open * (1.0 + 1.5 * under);
 }
 
 /** Brume retirée par une clairière : un cylindre vertical, au bord adouci par deux rayons. */
