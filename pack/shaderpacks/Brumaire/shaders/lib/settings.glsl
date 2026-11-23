@@ -22,7 +22,7 @@
 // Nuages
 #define CLOUD_STEPS 16 // [0 10 16 24 32]
 #define CLOUD_HEIGHT 220.0 // [180.0 200.0 220.0 250.0 280.0]
-#define CLOUD_COVERAGE 0.45 // [0.2 0.3 0.45 0.6 0.75]
+#define CLOUD_COVERAGE 0.6 // [0.2 0.3 0.45 0.6 0.75]
 #define CLOUD_SPEED 1.0 // [0.0 0.5 1.0 2.0 3.0]
 #define CLOUD_LIGHT 1.0 // [0.6 0.8 1.0 1.2 1.5]
 #define CLOUD_RANGE 3000.0 // [1500.0 2000.0 3000.0 4000.0]
@@ -109,7 +109,7 @@
 // jusqu'à la distance du feuillage touffu.
 #define GRASS_TUFTS 1 // [0 1]
 #define WATER_WAVES 1.0 // [0.0 0.5 1.0 1.5]
-#define WATER_MURK 1.0 // [0.5 0.75 1.0 1.5 2.0]
+#define WATER_MURK 2.0 // [0.5 0.75 1.0 1.5 2.0 3.0]
 #define WATER_PIXELS 1 // [0 1]
 #define WATER_CAUSTICS 2 // [0 1 2]
 #define WATER_REFLECTIONS 20 // [0 12 20 32]

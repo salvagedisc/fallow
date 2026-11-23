@@ -131,9 +131,10 @@ vec3 mistColor(vec3 dir, float sun) {
     // Au couchant, la brume n'a plus que la lueur d'un ciel qui baisse : elle s'assombrit avec le paysage au lieu de
     // le noyer dans un halo orangé ; elle reste lisible, une bande plus claire au creux des vallées.
     body *= mix(1.0, 0.5, gDusk);
-    // Les gouttelettes renvoient surtout la lumière vers l'avant : un halo vers le soleil, un peu en arrière.
+    // Les gouttelettes renvoient surtout la lumière vers l'avant : un halo vers le soleil, un peu en arrière. Au
+    // couchant ce halo est paille pâle, pas orange : le paysage reste vert sous un ciel coloré (Recrafted).
     float mu = dot(dir, gLightDir);
     float phase = 0.75 * mistPhase(mu, 0.5) + 0.25 * mistPhase(mu, -0.3);
-    vec3 beam = gLightColor * (0.03 + 0.18 * phase * SHAFT_STRENGTH) * mix(1.0, 0.3, gDusk);
+    vec3 beam = mix(gLightColor, vec3(luma(gLightColor)) * vec3(1.0, 0.93, 0.78), 0.6 * gDusk) * (0.03 + 0.18 * phase * SHAFT_STRENGTH) * mix(1.0, 0.3, gDusk);
     return body + beam * sun;
 }

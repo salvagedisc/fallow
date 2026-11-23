@@ -77,6 +77,9 @@ vec3 cloudWeather(vec2 q, float coverage) {
     // L'orage fait monter les cumulus en tours, la pluie fine les étale en couche grise.
     kind = clamp(kind + 0.6 * thunderStrength - 0.25 * rainStrength * (1.0 - thunderStrength), 0.0, 1.0);
     float anvil = thunderStrength * smoothstep(0.55, 0.9, kind);
+    // Par beau temps, surtout des bancs plats : de larges nappes aux bords flous plutôt que des flocons nets, comme le
+    // ciel de Recrafted. L'orage garde ses tours et ses enclumes.
+    kind = mix(kind * 0.3, kind, thunderStrength);
 #else
     float kind = 0.6;
     float anvil = 0.0;
@@ -113,8 +116,8 @@ float cloudDensity(vec3 p, float coverage, bool detail) {
     float v = shape * profile * (0.6 + 0.8 * weather.x);
     // L'enclume s'étale : sa base est plus pleine.
     v += weather.z * smoothstep(0.75, 0.9, h) * 0.25 * shape;
-    // Un seuil net : des cumulus aux bords francs, du ciel bleu entre eux. Un banc plat est plus égal.
-    float edge = mix(0.30, 0.22, weather.y);
+    // Un seuil adouci : des bords qui s'effilochent dans le ciel plutôt que des découpes. Un banc plat est plus égal.
+    float edge = mix(0.30, 0.22, weather.y) * 2.2;
     float d = smoothstep(1.0 - weather.x, 1.0 - weather.x + edge, v);
     if (detail && d > 0.0) {
         // Les cellules fines, déformées par un tourbillon lent pour ne pas montrer leur grille.
