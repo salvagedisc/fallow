@@ -86,7 +86,10 @@ public enum FallowModule {
      *  d'un butin ni d'un échange (client et serveur : composants et éclat enregistrés des deux côtés). Aucun mod requis ;
      *  la qualité de forge d'Overgeared et TreeChop sont lus s'ils sont là. */
     EVEIL("eveil", null, bus -> io.github.salvagedisc.fallow.eveil.EveilModule.start(bus)),
-    POSTES("postes", null, bus -> io.github.salvagedisc.fallow.postes.PostesModule.start(bus), ModIds.DIEGESIS);
+    POSTES("postes", null, bus -> io.github.salvagedisc.fallow.postes.PostesModule.start(bus), ModIds.DIEGESIS),
+    /** Les fiches : les fenêtres de poste des mods en fiche de papier des livres posée sur la caisse en bois de
+     *  l'inventaire (client). Aucun mod requis ; seules les fenêtres présentes sont touchées. */
+    FICHES("fiches", Dist.CLIENT, bus -> io.github.salvagedisc.fallow.fiches.FichesModule.start(bus));
 
     private final String id;
     private final Dist side;

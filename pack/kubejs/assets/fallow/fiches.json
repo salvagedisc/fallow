@@ -1,0 +1,156 @@
+{
+  "screens": {
+    "com.momosoftworks.coldsweat.client.gui.BoilerScreen": {
+      "fiche": true,
+      "rows": 0,
+      "x": 0,
+      "y": 60
+    },
+    "com.momosoftworks.coldsweat.client.gui.HearthScreen": {
+      "fiche": true,
+      "rows": 0,
+      "x": 0,
+      "y": 53
+    },
+    "com.momosoftworks.coldsweat.client.gui.IceboxScreen": {
+      "fiche": true,
+      "rows": 0,
+      "x": 0,
+      "y": 60
+    },
+    "com.momosoftworks.coldsweat.client.gui.SewingScreen": {
+      "fiche": true,
+      "rows": 0,
+      "x": 0,
+      "y": 53
+    },
+    "dev.hybridlabs.aquatic.client.gui.screen.ArgonautScreen": {
+      "fiche": false,
+      "rows": 0,
+      "x": 3,
+      "y": 108
+    },
+    "dev.hybridlabs.fishnships.client.gui.screen.ShipScreen": {
+      "fiche": false,
+      "rows": 0,
+      "title": false,
+      "x": 3,
+      "y": 112
+    },
+    "io.github.mortuusars.chalk.client.gui.screens.ChalkBoxScreen": {
+      "fiche": true,
+      "rows": 0,
+      "x": 0,
+      "y": 53
+    },
+    "io.github.mortuusars.envelope.client.gui.screen.PackageScreen": {
+      "fiche": true,
+      "rows": 0,
+      "x": 0,
+      "y": 65
+    },
+    "io.github.mortuusars.envelope.client.gui.screen.PackingScreen": {
+      "fiche": true,
+      "rows": 0,
+      "x": 0,
+      "y": 65
+    },
+    "io.github.mortuusars.envelope.client.gui.screen.PaybackPackageScreen": {
+      "fiche": true,
+      "rows": 0,
+      "x": 0,
+      "y": 65
+    },
+    "io.github.mortuusars.envelope.client.gui.screen.PaybackPackingScreen": {
+      "fiche": true,
+      "rows": 0,
+      "x": 0,
+      "y": 65
+    },
+    "io.github.mortuusars.exposure.client.gui.screen.LightroomScreen": {
+      "fiche": true,
+      "rows": 0,
+      "x": 0,
+      "y": 96
+    },
+    "net.mehvahdjukaar.supplementaries.client.screens.CannonScreen": {
+      "fiche": true,
+      "rows": 0,
+      "x": 0,
+      "y": 53
+    },
+    "net.mehvahdjukaar.supplementaries.client.screens.NoticeBoardScreen": {
+      "fiche": true,
+      "rows": 0,
+      "title": false,
+      "x": 0,
+      "y": 53
+    },
+    "net.mehvahdjukaar.supplementaries.client.screens.PresentScreen": {
+      "fiche": true,
+      "rows": 0,
+      "x": 0,
+      "y": 53
+    },
+    "net.mehvahdjukaar.supplementaries.client.screens.TrappedPresentScreen": {
+      "fiche": true,
+      "rows": 0,
+      "x": 0,
+      "y": 53
+    },
+    "net.stirdrem.overgeared.screen.AlloySmelterScreen": {
+      "fiche": true,
+      "rows": 0,
+      "x": 0,
+      "y": 53
+    },
+    "net.stirdrem.overgeared.screen.BlueprintWorkbenchScreen": {
+      "fiche": true,
+      "rows": 0,
+      "x": 0,
+      "y": 53
+    },
+    "net.stirdrem.overgeared.screen.CastingSmelterScreen": {
+      "fiche": true,
+      "rows": 0,
+      "x": 0,
+      "y": 53
+    },
+    "net.stirdrem.overgeared.screen.FletchingStationScreen": {
+      "fiche": true,
+      "rows": 0,
+      "x": 0,
+      "y": 53
+    },
+    "net.stirdrem.overgeared.screen.NetherAlloySmelterScreen": {
+      "fiche": true,
+      "rows": 0,
+      "x": 0,
+      "y": 53
+    },
+    "net.stirdrem.overgeared.screen.RockKnappingScreen": {
+      "fiche": true,
+      "rows": 0,
+      "x": 0,
+      "y": 53
+    },
+    "org.violetmoon.quark.addons.oddities.client.screen.CrateScreen": {
+      "fiche": false,
+      "rows": 6,
+      "x": 0,
+      "y": 0
+    },
+    "org.violetmoon.quark.content.automation.client.screen.TroughScreen": {
+      "fiche": true,
+      "rows": 0,
+      "x": 0,
+      "y": 53
+    },
+    "vectorwing.farmersdelight.client.gui.CookingPotScreen": {
+      "fiche": true,
+      "rows": 0,
+      "x": 0,
+      "y": 53
+    }
+  }
+}

@@ -833,6 +833,10 @@ file = "kubejs/assets/chalk/lang/fr_fr.json"
 hash = "1d8846f219052f48b18d844f74c5c596438e4deb82d73d7886858a29f741c03d"
 
 [[files]]
+file = "kubejs/assets/chalk/textures/gui/container/chalk_box.png"
+hash = "5496021a54e5e3e534323f528f2aa0603d55376bb4c4b693ba28986a06b9eabe"
+
+[[files]]
 file = "kubejs/assets/chalk_chars/lang/fr_fr.json"
 hash = "438c951d50e5d18c187ae37ada943b7b1d26bd8cfcf0b7f5b6796f985277ba20"
 
@@ -851,6 +855,22 @@ hash = "9833592f40d2f740a35397b395e94df7b8b81f9c29b082a0279f60f6b693e830"
 [[files]]
 file = "kubejs/assets/cold_sweat/lang/fr_fr.json"
 hash = "95d7a62bd7c03d2882b745ac4d4967222e4dbd8a3f9e9209b018f290a90a4c62"
+
+[[files]]
+file = "kubejs/assets/cold_sweat/textures/gui/screen/boiler_gui.png"
+hash = "90bb0c846f10c5e5dfe10e9a0b281cad333c3c7bf9cc06e935180771586a27e3"
+
+[[files]]
+file = "kubejs/assets/cold_sweat/textures/gui/screen/hearth_gui.png"
+hash = "056aff494ae1b40030311b67f5213ff1b96b64517d4e183864e8fa114d42ea60"
+
+[[files]]
+file = "kubejs/assets/cold_sweat/textures/gui/screen/icebox_gui.png"
+hash = "ba1d4f773ffb721ee2f5417cafde76de57b5d016d3bbe3bbe1bb940ff72056a2"
+
+[[files]]
+file = "kubejs/assets/cold_sweat/textures/gui/screen/sewing_gui.png"
+hash = "6841bc6889cce76ad93fac040f428b0e15f7788d6b119d6372f3eaea9d39eb09"
 
 [[files]]
 file = "kubejs/assets/coldsweat_altitude/lang/fr_fr.json"
@@ -997,12 +1017,120 @@ file = "kubejs/assets/envelope/lang/fr_fr.json"
 hash = "529a40c64afae1ca243f828cc69867efa37e87979bba62a5114b501088d5380d"
 
 [[files]]
+file = "kubejs/assets/envelope/textures/gui/package.png"
+hash = "eb502f413f2ea9b91165994295325d6cbe778863745d4059dbad6d8d492f38fc"
+
+[[files]]
+file = "kubejs/assets/envelope/textures/gui/packing.png"
+hash = "a7ea85c9d733f1e01413c19789897dfe928ace9664fc65e27eba85b4d9c01d20"
+
+[[files]]
+file = "kubejs/assets/envelope/textures/gui/payback_package.png"
+hash = "ec7d00be97a00e4525633b631e049e753287871b3daf1b947693200a5c5928fa"
+
+[[files]]
+file = "kubejs/assets/envelope/textures/gui/payback_packing.png"
+hash = "ca35eea1a3e3404df16e5ec3e55ce0a4c026aebcee7313a04b1d108dac89b1ef"
+
+[[files]]
 file = "kubejs/assets/everycomp/lang/fr_fr.json"
 hash = "a248eddf3df034e6e7726537122151dafaaa53a8a6409995dfc7a9803c85dc66"
 
 [[files]]
 file = "kubejs/assets/exposure/lang/fr_fr.json"
 hash = "e83b2dad45cfc64bb620c1fcca3e77d63d979b1149504ce46668d5824aa56e5a"
+
+[[files]]
+file = "kubejs/assets/exposure/textures/gui/lightroom.png"
+hash = "dea4d84b48b53a455f8ab47a81d7ec35c9d2816c77e87cca12301ccf2813f292"
+
+[[files]]
+file = "kubejs/assets/exposure/textures/gui/lightroom_film_overlays.png"
+hash = "e12be93a9bb25a653f0324c0e9c73ff7656dfc25cb0211a06092d78cc6ba89af"
+
+[[files]]
+file = "kubejs/assets/exposure/textures/gui/sprites/lightroom/print_button.png"
+hash = "04a83c4ed779c904088bab7f7ffa9c5a22a16b41c476db7095d5ad663e6fa20a"
+
+[[files]]
+file = "kubejs/assets/exposure/textures/gui/sprites/lightroom/print_button_disabled.png"
+hash = "da7586971560b6dcaad03e5d83669b354f5ea9fc20a7207abfb04a619f18b653"
+
+[[files]]
+file = "kubejs/assets/exposure/textures/gui/sprites/lightroom/print_button_highlighted.png"
+hash = "0f71a74f648ed5bd488b78e27e7c67dcaec0e76cc4bcd752a63d4beddfb308d3"
+
+[[files]]
+file = "kubejs/assets/exposure/textures/gui/sprites/lightroom/printing_mode_chromatic.png"
+hash = "966b8a51e3ac697fd20163cf3ac1bdf3d5e3e8ed96f864a631197523c94988c9"
+
+[[files]]
+file = "kubejs/assets/exposure/textures/gui/sprites/lightroom/printing_mode_chromatic_disabled.png"
+hash = "7b518e305b9e49f0f0cecf766c136428da5a7bd7410ccc7446c14bf6d73f8f3a"
+
+[[files]]
+file = "kubejs/assets/exposure/textures/gui/sprites/lightroom/printing_mode_chromatic_highlighted.png"
+hash = "413ebf43fa7f34ab42ffb206c4e135986a03a90dae0ea9d1a2e32e6b0c9780f0"
+
+[[files]]
+file = "kubejs/assets/exposure/textures/gui/sprites/lightroom/printing_mode_regular.png"
+hash = "0b7024bb0139660385bb5e704c4407c1a01408ac2724ca9965ed662d402aef71"
+
+[[files]]
+file = "kubejs/assets/exposure/textures/gui/sprites/lightroom/printing_mode_regular_disabled.png"
+hash = "37d1a0bef0816b6cae2bc38cb3d527bac54f604806999ddf80d21f7e8b82c6c5"
+
+[[files]]
+file = "kubejs/assets/exposure/textures/gui/sprites/lightroom/printing_mode_regular_highlighted.png"
+hash = "5ca38aea3d418f9bbfb2cbd4d99e966985d1b5576f32e01b8d6af43079f902c3"
+
+[[files]]
+file = "kubejs/assets/exposure/textures/gui/sprites/widgets/cancel_button.png"
+hash = "01c8bf05db66a2ba35843d634ab7de7383a3f2022b98e2803b532d42faef0a66"
+
+[[files]]
+file = "kubejs/assets/exposure/textures/gui/sprites/widgets/cancel_button_disabled.png"
+hash = "1c644119baa647ae88a46a4c82fffd2d3407c7577044cd8a415bcf9abc70cec4"
+
+[[files]]
+file = "kubejs/assets/exposure/textures/gui/sprites/widgets/cancel_button_highlighted.png"
+hash = "3de13a5501a6605c077b0c2fcef16e9d0c5d1315eb3b21eb481597b04c9b1eaf"
+
+[[files]]
+file = "kubejs/assets/exposure/textures/gui/sprites/widgets/confirm_button.png"
+hash = "c7ad2d35f0eefa1b01249f96246b601862ffbc54c92a1d8c00428737e4fd0b0b"
+
+[[files]]
+file = "kubejs/assets/exposure/textures/gui/sprites/widgets/confirm_button_disabled.png"
+hash = "a29e2246c453fc3108c484f1c6a251b87a2c40c9d5ad618000c6e0232075f347"
+
+[[files]]
+file = "kubejs/assets/exposure/textures/gui/sprites/widgets/confirm_button_highlighted.png"
+hash = "24b28d17ac1141fe9f26d7176f48a139fc80a5045b5c6bef4f4c67f049857f67"
+
+[[files]]
+file = "kubejs/assets/exposure/textures/gui/sprites/widgets/next_button.png"
+hash = "87e6cb2b21570bf4e463c0b84ca5530fdc437546059a6d44fbb50927c16fbc16"
+
+[[files]]
+file = "kubejs/assets/exposure/textures/gui/sprites/widgets/next_button_disabled.png"
+hash = "eb17c2337e7890c3ba1a1d47e4a4f43f3f3edf2e3f5aab6ab588cec8222e25dc"
+
+[[files]]
+file = "kubejs/assets/exposure/textures/gui/sprites/widgets/next_button_highlighted.png"
+hash = "79023a0f15bfc1594ae63d5b46941b56398877da96bbc215177724bff2ff3437"
+
+[[files]]
+file = "kubejs/assets/exposure/textures/gui/sprites/widgets/previous_button.png"
+hash = "c2f55262e9e2700bf5ee34d8dcf888f8e59bf693347a0d3da8ef16fde74bf776"
+
+[[files]]
+file = "kubejs/assets/exposure/textures/gui/sprites/widgets/previous_button_disabled.png"
+hash = "46f43f117d0a0a23d4656977c1479d0262b41d15949ece6156aa47091139ad4b"
+
+[[files]]
+file = "kubejs/assets/exposure/textures/gui/sprites/widgets/previous_button_highlighted.png"
+hash = "f5cf5fa547dd9b550679a0cd2f72de7c2ae2b47c7e0485e9eba16e80b74a336c"
 
 [[files]]
 file = "kubejs/assets/fabric-convention-tags-v2/lang/fr_fr.json"
@@ -1013,12 +1141,56 @@ file = "kubejs/assets/fabric-data-attachment-api-v1/lang/fr_fr.json"
 hash = "2bba661d1f0b6ae0c1a65c567ce02b44eeb646d92d4cc6fc2f8f107b53226d68"
 
 [[files]]
+file = "kubejs/assets/fallow/fiches.json"
+hash = "6c067327f9b7427bd303aabcd84543abc1caed333ed88d0af21a959dae20fc31"
+
+[[files]]
 file = "kubejs/assets/fallow/lang/en_us.json"
 hash = "7739b2fb0c5ed92bb288417adc8d10de85d39b36250c47bd2122b3ce658d089a"
 
 [[files]]
 file = "kubejs/assets/fallow/lang/fr_fr.json"
 hash = "4be0166714468d3b24a4760e47913b1aed4aa65df87dbb288c0af70a00a17def"
+
+[[files]]
+file = "kubejs/assets/fallow/textures/gui/sprites/fiche/button.png"
+hash = "debc9985e086b1b4b84add79fc7ed3eae87f0e18d801329d82673a1877022905"
+
+[[files]]
+file = "kubejs/assets/fallow/textures/gui/sprites/fiche/button.png.mcmeta"
+hash = "ae038ca9cbda5e9d01b4702623e493fefbf33c13a6f268518a125d5aa6ee31fa"
+
+[[files]]
+file = "kubejs/assets/fallow/textures/gui/sprites/fiche/button_disabled.png"
+hash = "612357cc749eafd2fed5556fc223045c3377b0778e3ce07d88ca0b4f051886ad"
+
+[[files]]
+file = "kubejs/assets/fallow/textures/gui/sprites/fiche/button_disabled.png.mcmeta"
+hash = "ae038ca9cbda5e9d01b4702623e493fefbf33c13a6f268518a125d5aa6ee31fa"
+
+[[files]]
+file = "kubejs/assets/fallow/textures/gui/sprites/fiche/button_highlighted.png"
+hash = "a79625de7aac6250512c39ae41bf58154603366f534731ca7155219340197064"
+
+[[files]]
+file = "kubejs/assets/fallow/textures/gui/sprites/fiche/button_highlighted.png.mcmeta"
+hash = "ae038ca9cbda5e9d01b4702623e493fefbf33c13a6f268518a125d5aa6ee31fa"
+
+[[files]]
+file = "kubejs/assets/fallow/textures/gui/sprites/fiche/text_field.png"
+hash = "2e67203dc4215a0483a85d5fafe193ba21881b6d335e7fac8a72293aee212c01"
+
+[[files]]
+file = "kubejs/assets/fallow/textures/gui/sprites/fiche/text_field.png.mcmeta"
+hash = "53b3eefb4b73b43cce04b834dd7b0b7cbcf912efdd2f3e2d1a2ec2eef385c68d"
+
+[[files]]
+file = "kubejs/assets/fallow/textures/gui/sprites/fiche/text_field_highlighted.png"
+hash = "70ef5a976f16e803a9ea4921aba6052e44e28501f01b587072fb56b799dc5160"
+
+[[files]]
+file = "kubejs/assets/fallow/textures/gui/sprites/fiche/text_field_highlighted.png.mcmeta"
+hash = "53b3eefb4b73b43cce04b834dd7b0b7cbcf912efdd2f3e2d1a2ec2eef385c68d"
 
 [[files]]
 file = "kubejs/assets/fancytabsections/lang/fr_fr.json"
@@ -1033,8 +1205,16 @@ file = "kubejs/assets/farm_and_charm/lang/fr_fr.json"
 hash = "2b60bdaac28192ae2739ae94cd2c9e12121ac9f21cc443784b63eea7b0992778"
 
 [[files]]
+file = "kubejs/assets/farmersdelight/textures/gui/cooking_pot.png"
+hash = "257aafc859eb805ed16f72215f9b2bfd0e3dbeed6f14d2df7aa2ff4c620f6516"
+
+[[files]]
 file = "kubejs/assets/fish_n_ships/lang/fr_fr.json"
 hash = "31edf09b186b5c1f210c3e9735a06319abf326bc77ea6d0ba0217c4d660229eb"
+
+[[files]]
+file = "kubejs/assets/fish_n_ships/textures/gui/container/ship_3row.png"
+hash = "3f695f92eddd6d43e36f9b116b11d9d2191538f76677340cb9ffce4aa227358d"
 
 [[files]]
 file = "kubejs/assets/flywheel/lang/fr_fr.json"
@@ -1099,6 +1279,10 @@ hash = "2cb9f05fac1b3d925cae5f48caa0186e1ddbe5870dce9fd8cc233ef6c5b5b70d"
 [[files]]
 file = "kubejs/assets/hybrid_aquatic/lang/fr_fr.json"
 hash = "1543b57164b89f53956c46f14171f61f9e5005a3ad10aa08888f13cca1760140"
+
+[[files]]
+file = "kubejs/assets/hybrid_aquatic/textures/gui/container/argonaut_3row.png"
+hash = "f49b84c6a64e70da74cc95718093075b9dfa3d8138aef2658cea6ab8c7820dc0"
 
 [[files]]
 file = "kubejs/assets/hybrid_aquatic_starcatcher_compat/lang/fr_fr.json"
@@ -1221,6 +1405,30 @@ file = "kubejs/assets/overgeared/lang/fr_fr.json"
 hash = "20600088923fda52e62e7fa5b7255f3794176b544fdaf53058959688ab2378f3"
 
 [[files]]
+file = "kubejs/assets/overgeared/textures/gui/blueprint_workbench.png"
+hash = "7b148060941892b522f98d0b327e7c5686a4a5c2e5488f6aa6b989f4452db523"
+
+[[files]]
+file = "kubejs/assets/overgeared/textures/gui/brick_alloy_furnace.png"
+hash = "6d91b336c6bcf5ce506d37ce4dacbfb85ae1a817acf31e315d8fcbec00bfb258"
+
+[[files]]
+file = "kubejs/assets/overgeared/textures/gui/cast_furnace.png"
+hash = "a7bbd55e28c8926e57e615fe4d42379675e850b800c2cb9deeb6cece0fc32e22"
+
+[[files]]
+file = "kubejs/assets/overgeared/textures/gui/fletching_table.png"
+hash = "0dbd97ef9e741ccaaf14a4e29c78b8c00fd93689bd179a1390cc067f7f28e6eb"
+
+[[files]]
+file = "kubejs/assets/overgeared/textures/gui/nether_alloy_furnace.png"
+hash = "585561af5728129d6e51946184435df986ce13562294e8f0e9c7eaed2e967abf"
+
+[[files]]
+file = "kubejs/assets/overgeared/textures/gui/rock_knapping_gui.png"
+hash = "a9610ec66a601b568e7d1c5942f1757ff799229f91c84e046b35f3d1e1cd8cf4"
+
+[[files]]
 file = "kubejs/assets/particular/lang/fr_fr.json"
 hash = "0fddeb2112e0cd9a75286b2a7b41aa5bfcbc3dfc32fa0ca5a310959902ee815b"
 
@@ -1247,6 +1455,14 @@ hash = "e1b4965eb10dca790df00e810d305f4b75c590006f47e81a95b917ad726de0c9"
 [[files]]
 file = "kubejs/assets/quark/lang/fr_fr.json"
 hash = "b15797c3311898390a26a37068b7748d15120d7a9604955459824e9ae4b9ddad"
+
+[[files]]
+file = "kubejs/assets/quark/textures/gui/container/feeding_trough.png"
+hash = "ba506c4d0874bbebd924aba51ce089833785cbda2758bbe1683ccc4fd3ee62dd"
+
+[[files]]
+file = "kubejs/assets/quark/textures/gui/crate.png"
+hash = "45041d492d7f95a7e02880dc02e68f23e9427a6f77ce6239e289c490fa0b4a0d"
 
 [[files]]
 file = "kubejs/assets/questlog/lang/fr_fr.json"
@@ -1387,6 +1603,94 @@ hash = "b265aa9e35aaeb8ae8e4c95824d5ab481951b2d18407269b097e6284f0ac2ebf"
 [[files]]
 file = "kubejs/assets/supplementaries/lang/fr_fr.json"
 hash = "0d8d2d4f9741abe6bb96e00063fa6f3c7cc287f1a640331cfcd1d51cd2cb7313"
+
+[[files]]
+file = "kubejs/assets/supplementaries/textures/gui/cannon_gui.png"
+hash = "530f1203b93d1bd9058e73b5ee0f5f8bee773ab3f7b501485747f02146b1a274"
+
+[[files]]
+file = "kubejs/assets/supplementaries/textures/gui/notice_board_gui.png"
+hash = "29fbb2d2685033ba2fd78e6353cb9bff1da9e4a0c7b405264d0b6dd4347b9b27"
+
+[[files]]
+file = "kubejs/assets/supplementaries/textures/gui/present_empty_gui.png"
+hash = "cc4738673f940d89c140a084001e2078d6ce04b5859047bdb8760f03b87c00b5"
+
+[[files]]
+file = "kubejs/assets/supplementaries/textures/gui/present_gui.png"
+hash = "8178e18e92b09b28f4459dbb003235c3eb26e69086ebcd234213562c093daaa5"
+
+[[files]]
+file = "kubejs/assets/supplementaries/textures/gui/sprites/cannon/depleted.png"
+hash = "dc69fd69da0991a912df886df63e3cccd1a2327781956c2f5fdc087f480e7ed5"
+
+[[files]]
+file = "kubejs/assets/supplementaries/textures/gui/sprites/cannon/depleted_highlighted.png"
+hash = "41e6572e29ff431add4e0b8e53837d764975b3057425323a040f2a419936f2f5"
+
+[[files]]
+file = "kubejs/assets/supplementaries/textures/gui/sprites/cannon/empty.png"
+hash = "0255c57aaeda975795e18644e8e36ca6a84426b27acc1bd65d97a0385b12ec60"
+
+[[files]]
+file = "kubejs/assets/supplementaries/textures/gui/sprites/cannon/empty_highlighted.png"
+hash = "1aa0afc685555b17db8481ae0a410c0713d1d8f8604dbb7d3df4f9c40218b584"
+
+[[files]]
+file = "kubejs/assets/supplementaries/textures/gui/sprites/cannon/maneuver.png"
+hash = "01092b52198afa55bb9483b21062a48d9c8283b24cdb6772567eeadb008e2bb3"
+
+[[files]]
+file = "kubejs/assets/supplementaries/textures/gui/sprites/cannon/maneuver_disabled.png"
+hash = "d935ef61973695ea091c4c6788ca4e44f85e423c3b9ff73efc02bdb02b7e74dc"
+
+[[files]]
+file = "kubejs/assets/supplementaries/textures/gui/sprites/cannon/maneuver_highlighted.png"
+hash = "b4737a49d50fd1117eec628b63da0fe9921ab8eb7e05cc88a6e4dacec4efa7ca"
+
+[[files]]
+file = "kubejs/assets/supplementaries/textures/gui/sprites/cannon/power.png"
+hash = "221232d66842e7152d8381a3b8a338cb1b92203e5e3eee20f35b45811c14c011"
+
+[[files]]
+file = "kubejs/assets/supplementaries/textures/gui/sprites/cannon/power_highlighted.png"
+hash = "a0d85ccb76fa4554152b84a18fb77776cf0e88e6456611b8074b1e7b7c217f1b"
+
+[[files]]
+file = "kubejs/assets/supplementaries/textures/gui/sprites/present/button.png"
+hash = "1b16d10d5d1cabb7605fcd0f0f15a9777d610499cb5ec37b3535e00a6d0fc8e1"
+
+[[files]]
+file = "kubejs/assets/supplementaries/textures/gui/sprites/present/button_disabled.png"
+hash = "7049dbae0d9bd1513a0ffa8e50f834b5c27059655e90e6a0f878c55fc1293d6e"
+
+[[files]]
+file = "kubejs/assets/supplementaries/textures/gui/sprites/present/button_highlighted.png"
+hash = "c16a39c3cae06d2ba7253e7ab10e94728d6072414fa8aa30d9ab384500d7a548"
+
+[[files]]
+file = "kubejs/assets/supplementaries/textures/gui/sprites/present/button_selected.png"
+hash = "5ff991e7c8521e79891b9dc5577d03d4741ce91379d77f3493d116fa254d85a7"
+
+[[files]]
+file = "kubejs/assets/supplementaries/textures/gui/sprites/trapped_present/button.png"
+hash = "25bfa2304ac02f362bc4ffa51985c8110be01a3f478863b419d91023ef01a4d5"
+
+[[files]]
+file = "kubejs/assets/supplementaries/textures/gui/sprites/trapped_present/button_disabled.png"
+hash = "02df468ec1d3cf3f7e03324bc4ec33d967dfd9fcd59a4d39e8ef04c5d62d2ffd"
+
+[[files]]
+file = "kubejs/assets/supplementaries/textures/gui/sprites/trapped_present/button_highlighted.png"
+hash = "290d024a9db0c24334c8b9773cd96fd49a335872912a614793a665d00b52ec26"
+
+[[files]]
+file = "kubejs/assets/supplementaries/textures/gui/sprites/trapped_present/button_selected.png"
+hash = "4924c068b84b085a042e7e890dfdbc5de8524f90197992470f3f997e06341728"
+
+[[files]]
+file = "kubejs/assets/supplementaries/textures/gui/trapped_present_gui.png"
+hash = "edc5161234e92b34761f9b7d8bc01a0bbcf2ee8dd061034f0ec07d20e8f9ef3f"
 
 [[files]]
 file = "kubejs/assets/surefooting/lang/fr_fr.json"
@@ -3698,8 +4002,8 @@ hash = "2c88d3eceb7be9c5964ca32c24612ca08d7326b4cb06104e98d56efa777de640"
 metafile = true
 
 [[files]]
-file = "mods/fallow-0.105.0.jar"
-hash = "b366698a684b8c1ac37113e238ff5b0168e16d5aad81b64d64d84c24d6171d07"
+file = "mods/fallow-0.106.0.jar"
+hash = "f8ae3c3dd3f956caac87829ff2f3c99977ac520df7731175e417fa24ad824dfa"
 
 [[files]]
 file = "mods/farmers-delight.pw.toml"

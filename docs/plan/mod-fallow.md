@@ -49,6 +49,7 @@ The version is set in `gradle.properties` (`mod_version`). The targeted mods are
 | `hotes` | both (the emissaries and masks on the server, the dialogue window, masks and regalia on the client) | none; Archie's Dinosaurs for the beasts' armour | none |
 | `postes` | both (the stations and their work on the server, the scenes and the book on the client) | Diegesis; Overgeared for the forge; Cold Sweat for the hearth | 3, client: `postes.MenuOuvertureMixin` (NeoForge) and `postes.MenuCreationMixin` (vanilla code) with Diegesis, `postes.ForgeRendererMixin` (vanilla code) with Overgeared too |
 | `feuillage` | server | Passable Foliage | 1, common (`feuillage.ChuteDansLesFeuillesMixin`, @Pseudo on Passable Foliage) |
+| `fiches` | client | none; works only with the pack's resources (`pack/kubejs/assets/fallow/fiches.json`) | 3, client, on vanilla code: `fiches.ContainerScreenFicheMixin`, `fiches.GuiGraphicsEncreMixin`, `fiches.WidgetFicheMixin` |
 | (compatibility fix) | client | Punchy! and Sensible Stackables | 1, client (`compat.PunchyEquipMixin`) |
 | (compatibility fix) | both | Streams Reflowing and Spelunkery | 1 (`compat.IceThawMixin`) |
 | (compatibility fix) | both | Lithostitched (used by Regions Unexplored) | 1 (`compat.InStructureMixin`) |
@@ -480,6 +481,17 @@ Server, needs Passable Foliage; switch `feuillage.enabled`. Passable Foliage let
 **Checked** on the bench on 2026-11-22: a player jumping 20 blocks onto stone lost 16 points, into a canopy 8; a husk 16 and 9; a chicken nothing; a bat nothing.
 
 The `debris` module of 0.61.0 (ground rocks, fallen wood and pine cones as blocks, [0048](../decisions/0048-ground-debris.md)) was removed in 0.67.0 with its blocks, models and world generation.
+
+## `fiches` module
+
+Client, no required mod and no switch: it goes with the textures of `scripts/fiches/fiches.py` ([0057](../decisions/0057-station-windows-as-sheets.md)), and without them (`assets/fallow/fiches.json` missing) it does nothing. The mods' station windows are a sheet of the books' paper laid on the inventory's wooden case.
+
+- **`Fiches`** reads `assets/fallow/fiches.json` at each resource reload (`FichesModule`, a client reload listener): for each screen class (exact name), where the case goes in the window (`x`, `y`), its chest rows (`rows`, Quark's crate), whether the window is a sheet (`fiche`) and whether its title is written (`title`, false for Supplementaries' notice board, whose name runs over the board, and Fish 'N' Ships' ship, whose name sits grey on its stone).
+- **The case** (`ContainerScreenFicheMixin`, in `AbstractContainerScreen.renderBackground` before `renderBg`): the top strip (17 high, plus 18 a row) and the inventory (96 high, from v 126) of `minecraft:textures/gui/container/generic_54.png`, as vanilla's chest window joins them, so the active resource pack draws it as its chests. The first inventory row sits 31 under the case's top.
+- **Titles and texts** (`ContainerScreenFicheMixin` around `renderLabels` and over the whole `render`, `GuiGraphicsEncreMixin`): in a sheet the player's « Inventaire » is not written, and a title not written is skipped the same way (by identity of the component). While a sheet is drawn, the dark greys of its texts (vanilla's title grey 0x404040, what a mod writes on its background, from 0x30 to 0x50) become the books' ink (0x3B2A1A) and the mid greys (0x80 to 0xB0: a missing count, a hint) the soft ink (0x8A6B45). The white of item counts stays; tooltips are drawn after the window.
+- **Vanilla's buttons and text fields** (`WidgetFicheMixin` around `AbstractButton.renderWidget` and `EditBox.renderWidget`, when the widget's centre lies in a sheet window: EMI's search field at the foot of the screen stays as it is): their sprites `widget/button*` and `widget/text_field*` become `fallow:fiche/*` (cards and wells of the paper, written by the script), their white and light grey letters the ink, mid greys (a button off, a hint) the soft ink, without shadow, and a text field's cursor the ink. `ImageButton`, `Checkbox` and the mods' own widgets, which draw themselves, are left alone.
+
+**Checked** on the bench client on 2026-11-23 with Spatial GUI, without Forager: Overgeared's alloy, magma alloy and casting furnaces, fletching and drafting tables; Cold Sweat's sewing table, boiler and icebox; Farmer's Delight's cooking pot; Quark's trough and crate; Supplementaries' notice board, present and cannon; Exposure's lightroom; Fish 'N' Ships' ship. Knapping, Envelope's windows, the chalk box and Hybrid Aquatic's argonaut checked from their textures with the case laid as the module lays it.
 
 ## `hotes` module
 
