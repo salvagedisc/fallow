@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "fallow:block/signe_des_hotes"
+    },
+    "facing=east": {
+      "model": "fallow:block/signe_des_hotes",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "fallow:block/signe_des_hotes",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "fallow:block/signe_des_hotes",
+      "y": 270
+    }
+  }
+}

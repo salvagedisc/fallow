@@ -55,6 +55,14 @@ public final class Clearings {
         return biome.is(LOOK) || biome.is(LOOK_WARM) || biome.is(LOOK_COLD);
     }
 
+    /** Les clairières ouvertes du monde (vide hors de l'Overworld) : pour les modules qui s'y rattachent, comme les Hôtes. */
+    public static List<Clearing> all(ServerLevel level) {
+        if (level.dimension() != Level.OVERWORLD) {
+            return List.of();
+        }
+        return ClearingSources.get(level).index().all();
+    }
+
     /** Ouvre une clairière de rayon {@code radius} autour de {@code center} et l'annonce aux joueurs. */
     public static void open(ServerLevel level, BlockPos center, int radius, @Nullable ServerPlayer player) {
         if (level.dimension() != Level.OVERWORLD) {

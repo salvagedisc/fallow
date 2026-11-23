@@ -1,5 +1,5 @@
 {
- "note": "Masque des Sables : plaque de grès rayée de mousse, et sur le front une crête de trois grandes feuilles en éventail, comme les plumes du Therimoss. Unités : texels, repère de la tête (y vers le bas, -z devant). « porte_seulement » : pièce du masque porté, absente de l'objet et de l'icône.",
+ "note": "Masque des Sables : visage de bois blond, trois feuilles de jungle inégales qui retombent de côté. Unités : texels, repère de la tête (y vers le bas, -z devant). « porte_seulement » : pièce du masque porté, absente de l'objet et de l'icône.",
  "pieces": [
   {
    "nom": "plaque",
@@ -70,67 +70,71 @@
    ],
    "boite": [
     -1,
-    -4,
+    0,
     0,
     2,
-    4,
+    6,
     0
    ],
    "pivot": [
-    -1.6,
-    -8.0,
-    -5.4
-   ],
-   "rotation": [
-    0,
-    0,
-    -0.3927
-   ]
-  },
-  {
-   "nom": "feuille_m",
-   "uv": [
-    0,
-    36
-   ],
-   "boite": [
-    -1,
-    -4,
-    0,
-    2,
-    4,
-    0
-   ],
-   "pivot": [
-    0,
-    -8.0,
-    -5.5
-   ]
-  },
-  {
-   "nom": "feuille_d",
-   "uv": [
-    0,
-    36
-   ],
-   "boite": [
-    -1,
-    -4,
-    0,
-    2,
-    4,
-    0
-   ],
-   "miroir": true,
-   "pivot": [
-    1.6,
-    -8.0,
-    -5.4
+    -3.3,
+    -9.5,
+    -4.0
    ],
    "rotation": [
     0,
     0,
     0.3927
+   ]
+  },
+  {
+   "nom": "feuille_m",
+   "uv": [
+    4,
+    36
+   ],
+   "boite": [
+    -1,
+    -3,
+    0,
+    2,
+    3,
+    0
+   ],
+   "pivot": [
+    0.8,
+    -8.5,
+    -5.5
+   ],
+   "rotation": [
+    0,
+    0,
+    0.3927
+   ]
+  },
+  {
+   "nom": "feuille_d",
+   "uv": [
+    8,
+    36
+   ],
+   "boite": [
+    -1,
+    0,
+    0,
+    2,
+    4,
+    0
+   ],
+   "pivot": [
+    3.4,
+    -9.5,
+    -4.0
+   ],
+   "rotation": [
+    0,
+    0,
+    -0.3927
    ]
   },
   {

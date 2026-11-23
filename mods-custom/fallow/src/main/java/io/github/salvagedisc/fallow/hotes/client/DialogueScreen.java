@@ -1,10 +1,23 @@
 package io.github.salvagedisc.fallow.hotes.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexSorting;
+import net.minecraft.client.renderer.GameRenderer;
+import org.joml.Matrix4f;
+import org.lwjgl.opengl.GL11;
 import io.github.salvagedisc.fallow.Fallow;
 import io.github.salvagedisc.fallow.hotes.Hote;
 import io.github.salvagedisc.fallow.hotes.Peuple;
+import io.github.salvagedisc.fallow.hotes.visite.Demande;
+import io.github.salvagedisc.fallow.hotes.visite.Echanges;
+import net.neoforged.neoforge.network.PacketDistributor;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;
@@ -21,15 +34,15 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 /**
- * Dialogue avec un Hôte (pilote), à la façon des PNJ de Legendary Edition mais dessiné à nous : un panneau sombre en
- * bas de l'écran, l'interface du jeu masquée, l'Hôte vivant dans un cadre peint du peuple, la réplique qui s'écrit lettre par
- * lettre avec un murmure, des réponses à icône qu'on choisit au clavier ou à la souris. La vue se tourne doucement vers
+ * Dialogue avec un Hôte, à la façon des PNJ de Legendary Edition mais dans la manière des livres du pack : une feuille de
+ * leur papier en bas de l'écran, écrite de leurs encres, l'interface du jeu masquée, l'Hôte vivant dans une gravure de son
+ * milieu, la réplique qui s'écrit lettre par lettre avec un murmure, des réponses à pictogramme d'encre qu'on choisit au
+ * clavier ou à la souris. La vue se tourne doucement vers
  * l'Hôte à l'ouverture. Rien n'est donné ni retiré : les réponses ne font que mener d'une réplique à l'autre.
  */
 public class DialogueScreen extends Screen {
@@ -37,8 +50,8 @@ public class DialogueScreen extends Screen {
     private static final int PORTRAIT = 50;
     /** Bord du cadre peint ; l'intérieur fait 40 x 40. */
     private static final int CADRE = 5;
-    /** Taille de l'Hôte dans le portrait, en pixels d'interface par bloc : le buste tient dans le cadre avec 4 pixels de marge. */
-    private static final float ECHELLE = 26.0F;
+    /** Taille de l'Hôte dans le portrait, en pixels d'interface par bloc : deux pixels par texel, le buste et le masque. */
+    private static final float ECHELLE = 32.0F;
     /** Le buste de trois quarts, le visage tourné vers la réplique. */
     private static final float TROIS_QUARTS = 25.0F;
     private static final float TRAIT_R = 0x21 / 255.0F;
@@ -47,29 +60,53 @@ public class DialogueScreen extends Screen {
     private static final int ECART = 8;
     private static final int MARGE = 10;
     private static final int LIGNE = 11;
-    private static final int LIGNE_REPONSE = 14;
     /** Une réponse qui montre un objet : l'objet à sa taille réelle (16 px), jamais réduit, pour garder ses pixels nets. */
     private static final int LIGNE_OBJET = 17;
+    /** La place réservée : quatre lignes de réplique et quatre réponses. */
+    private static final int LIGNES = 4;
+    private static final int REPONSES = 4;
     private static final float LETTRES_PAR_SECONDE = 38.0F;
     /** Le regard se tourne vers l'Hôte en 150 ms, comme s'ouvrent les autres fenêtres du pack (docs/plan/interactions.md). */
     private static final long REGARD_MS = 150;
 
-    private static final int FOND = 0xD0101513;
-    private static final int BORD = 0x50C9D3C4;
-    private static final int NOM = 0xFFF2EEE4;
-    private static final int TEXTE = 0xFFE0DDD4;
-    private static final int REPONSE = 0xFFA9B3A6;
-    private static final int CHOISIE = 0xFFF0CF78;
+    /**
+     * Le feuillet : une feuille du papier des livres (scripts/hotes/feuillet.py), son ombre sur le monde comprise. Elle se
+     * pose un pixel au-dessus et à gauche du panneau, trois en dessous et à droite.
+     */
+    private static final ResourceLocation FEUILLET = ResourceLocation.fromNamespaceAndPath(Fallow.MOD_ID, "hote/feuillet");
+    /** Les encres des livres : brun foncé pour ce qui est écrit, brun doux, brun pâle ; le rouge de rubrique. Jamais de noir. */
+    private static final int ENCRE = 0xFF3B2A1A;
+    private static final int ENCRE_DOUCE = 0xFF8A6B45;
+    private static final int ENCRE_PALE = 0xFFB9A27C;
+    private static final int RUBRIQUE = 0xFFA3322A;
+    /** La réponse choisie : le papier un ton plus foncé, comme une ligne qu'on suit du doigt. */
+    private static final int SOULIGNE = 0x80E2CFA2;
+    /** L'objet d'une réponse fermée s'efface sous un voile du papier. */
+    private static final int VOILE = 0xA8F6EDD4;
+    private static final int NOM = ENCRE;
+    private static final int TEXTE = ENCRE;
+    private static final int REPONSE = ENCRE_DOUCE;
+    private static final int CHOISIE = ENCRE;
+    /** Une réponse qu'on ne peut pas prendre : ce qui manque, ce qui est déjà posé. */
+    private static final int FERMEE = 0xFFA89070;
 
-    /** Icônes de l'atlas, 11 px de côté. */
-    private enum Icone { CADEAU, QUESTION, PARTIR, RETOUR }
+    /** Les icônes des réponses, dans l'ordre de l'atlas (11 px de côté) : le baluchon, la
+     * question, partir, revenir, déjà demandée, le linge vide (ne rien laisser). */
+    private enum Icone { CADEAU, QUESTION, PARTIR, RETOUR, LUE, RIEN }
 
-    private record Reponse(String cle, Icone icone, ItemStack objet, Runnable action) {
+    /** Une réponse ; {@code ouverte} faux : grisée (il manque ce qu'il faut, ou c'est déjà fait). */
+    private record Reponse(Component texte, Icone icone, ItemStack objet, boolean ouverte, Runnable action) {
+        Reponse(String cle, Icone icone, Runnable action) {
+            this(Component.translatable(cle), icone, ItemStack.EMPTY, true, action);
+        }
     }
 
     private final Hote hote;
     private final RandomSource hasard = RandomSource.create();
-    private final List<ItemStack> souhaits;
+    private Echanges.Echange echange;
+    /** Les questions déjà posées : leur réponse reste marquée, comme une ligne déjà lue. */
+    private final java.util.Set<String> posees = new java.util.HashSet<>();
+    private boolean refuse;
     private String replique;
     private List<Reponse> reponses = List.of();
     private int choisie;
@@ -87,29 +124,20 @@ public class DialogueScreen extends Screen {
     private int panneauH;
     private int reponsesY;
 
-    public DialogueScreen(Hote hote) {
+    public DialogueScreen(Hote hote, Echanges.Echange echange) {
         super(Component.translatable("entity.fallow.hote"));
         this.hote = hote;
-        this.souhaits = souhaits(hote.peuple());
+        this.echange = echange;
         accueil();
     }
 
-    /** Ce que chaque peuple aime qu'on lui laisse (pilote : trois objets fixes par peuple). */
-    private static List<ItemStack> souhaits(Peuple peuple) {
-        return switch (peuple) {
-            // Les Discrets : des baies qui éclairent, du miel, de quoi faire repousser ce qu'on a mangé.
-            case ECORCE -> List.of(new ItemStack(Items.GLOW_BERRIES), new ItemStack(Items.HONEY_BOTTLE), new ItemStack(Items.BONE_MEAL));
-            // Les Attiseurs : ce qui brûle longtemps, ce qui garde la chaleur, ce qui nourrit celui qui veille.
-            case BRAISE -> List.of(new ItemStack(Items.CHARCOAL), new ItemStack(Items.MAGMA_BLOCK), new ItemStack(Items.COOKED_MUTTON));
-            // Les Chantres : ce qui tinte, ce qui fleurit en hauteur, ce qui aide à planer.
-            case GIVRE -> List.of(new ItemStack(Items.AMETHYST_SHARD), new ItemStack(Items.CHORUS_FRUIT), new ItemStack(Items.FEATHER));
-            // Les Souffleurs : ce qui nage, ce qui flotte, ce qui éclaire sous l'eau.
-            case FONDS -> List.of(new ItemStack(Items.COD), new ItemStack(Items.KELP), new ItemStack(Items.SEA_PICKLE));
-            // Les Guetteurs : un don qui se compte en tas (melon, bambou, cacao).
-            case SABLES -> List.of(new ItemStack(Items.MELON_SLICE), new ItemStack(Items.BAMBOO), new ItemStack(Items.COCOA_BEANS));
-            // Les Taiseux : ce qui étouffe les pas, ce qui garde un écho, ce qui éclaire sans bruit.
-            case SILENCE -> List.of(new ItemStack(Items.GRAY_WOOL), new ItemStack(Items.ECHO_SHARD), new ItemStack(Items.GRAY_CANDLE));
-        };
+    public Hote hote() {
+        return hote;
+    }
+
+    /** Le serveur a répondu (un don posé, un refus entendu) : les souhaits remplis se mettent à jour. */
+    public void maj(Echanges.Echange echange) {
+        this.echange = echange;
     }
 
     /** Les particules qui flottent dans le portrait : spores, poussière de redstone, éclats de prismarite, bulles, pollen, âmes du sculk. */
@@ -126,17 +154,18 @@ public class DialogueScreen extends Screen {
 
     /** La couleur du titre de l'émissaire, prise dans l'armure de sa bête et assez claire pour le panneau sombre. */
     private static int titre(Peuple peuple) {
+        // L'encre du Peuple sur le papier : assez sombre pour se lire, la couleur de son milieu.
         return switch (peuple) {
-            case ECORCE -> 0xFF9CBF6E;
-            case BRAISE -> 0xFFE8735A;
-            case GIVRE -> 0xFFD58BE0;
-            case FONDS -> 0xFF7FC4A8;
-            case SABLES -> 0xFFD9C36A;
-            case SILENCE -> 0xFF5FCFD3;
+            case ECORCE -> 0xFF4E6E2E;
+            case BRAISE -> 0xFFA3322A;
+            case GIVRE -> 0xFF6A4C96;
+            case FONDS -> 0xFF22686E;
+            case SABLES -> 0xFF86641E;
+            case SILENCE -> 0xFF2C5A66;
         };
     }
 
-    // --- Les répliques et leurs réponses (pilote : écrites ici ; à terme lues en JSON par peuple). ---
+    // --- Les répliques et leurs réponses ---
 
     private String cle(String suffixe) {
         return "screen.fallow.hote." + hote.peuple().id() + "." + suffixe;
@@ -163,30 +192,89 @@ public class DialogueScreen extends Screen {
         murmures = 0;
     }
 
+    private boolean resteASouhaiter() {
+        for (int i = 0; i < echange.demandes().size(); i++) {
+            if (!echange.donne(i)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void accueil() {
-        dire(cle("accueil"), List.of(
-                new Reponse(rep("donner"), Icone.CADEAU, ItemStack.EMPTY, this::don),
-                new Reponse(rep("demander"), Icone.QUESTION, ItemStack.EMPTY, () -> demande(cle("demande"))),
-                new Reponse(rep("refuser"), Icone.PARTIR, ItemStack.EMPTY,
-                        () -> dire(cle("refus"), List.of(new Reponse(rep("partir"), Icone.PARTIR, ItemStack.EMPTY, this::onClose))))));
+        accueil(cle("accueil"));
+    }
+
+    private void accueil(String cleReplique) {
+        List<Reponse> suite = new ArrayList<>();
+        if (echange.enVisite() && resteASouhaiter()) {
+            suite.add(new Reponse(rep("donner"), Icone.CADEAU, this::don));
+        }
+        suite.add(new Reponse(rep("demander"), Icone.QUESTION, () -> demande(cle("demande"))));
+        if (echange.enVisite() && echange.refusPossible() && !refuse && echange.donnes() == 0) {
+            suite.add(new Reponse(rep("refuser"), Icone.RIEN, this::refuser));
+        }
+        suite.add(new Reponse(rep("partir"), Icone.PARTIR, this::onClose));
+        dire(cleReplique, suite);
     }
 
     private void don() {
         List<Reponse> suite = new ArrayList<>();
-        for (ItemStack souhait : souhaits) {
-            suite.add(new Reponse(souhait.getDescriptionId(), null, souhait,
-                    () -> dire(cle("merci"), List.of(new Reponse(rep("partir"), Icone.PARTIR, ItemStack.EMPTY, this::onClose)))));
+        var player = Minecraft.getInstance().player;
+        for (int i = 0; i < echange.demandes().size(); i++) {
+            Demande demande = echange.demandes().get(i);
+            ItemStack pile = demande.pile();
+            // Un souhait large (toute laine, toute viande cuite) se lit par le nom du tag, pas par celui de son icône.
+            Component nom = demande.tag().<Component>map(t -> Component.translatableWithFallback(
+                    "tag.item." + t.location().getNamespace() + "." + t.location().getPath().replace('/', '.'),
+                    pile.getHoverName().getString())).orElse(pile.getHoverName());
+            // Le nombre s'écrit à l'encre après le nom (« Charbon ×6 ») : le chiffre blanc du jeu ne se lit pas sur le papier.
+            if (demande.nombre() > 1) {
+                nom = Component.translatable(rep("nombre"), nom, demande.nombre());
+            }
+            int index = i;
+            if (echange.donne(i)) {
+                suite.add(new Reponse(Component.translatable(rep("pose"), nom), null, pile, false, () -> { }));
+            } else if (player != null && Echanges.compte(player, demande) >= demande.nombre()) {
+                suite.add(new Reponse(nom, null, pile, true, () -> donner(index)));
+            } else {
+                suite.add(new Reponse(Component.translatable(rep("manque"), nom), null, pile, false, () -> { }));
+            }
         }
-        suite.add(new Reponse(rep("retour"), Icone.RETOUR, ItemStack.EMPTY, this::accueil));
+        suite.add(new Reponse(rep("retour"), Icone.RETOUR, () -> accueil(cle("encore"))));
         dire(cle("don"), suite);
+    }
+
+    private void donner(int index) {
+        PacketDistributor.sendToServer(new Echanges.Donner(hote.getId(), index));
+        // Le serveur confirme et corrige au besoin ; la réponse de l'émissaire, elle, vient tout de suite.
+        echange = new Echanges.Echange(echange.entite(), echange.demandes(), echange.donnes() | (1 << index),
+                echange.refusPossible(), echange.enVisite(), false);
+        List<Reponse> suite = new ArrayList<>();
+        if (resteASouhaiter()) {
+            suite.add(new Reponse(rep("donner_encore"), Icone.CADEAU, this::don));
+        }
+        suite.add(new Reponse(rep("partir"), Icone.PARTIR, this::onClose));
+        dire(cle(resteASouhaiter() ? "merci" : "comble"), suite);
+    }
+
+    private void refuser() {
+        PacketDistributor.sendToServer(new Echanges.Refuser(hote.getId()));
+        refuse = true;
+        dire(cle("refus"), List.of(new Reponse(rep("partir"), Icone.PARTIR, this::onClose)));
     }
 
     private void demande(String cleReplique) {
         List<Reponse> suite = new ArrayList<>();
         for (String sujet : new String[] {"bete", "saison", "lieu"}) {
-            suite.add(new Reponse(rep(sujet), Icone.QUESTION, ItemStack.EMPTY, () -> demande(cle("question." + sujet))));
+            Component texte = Component.translatable(rep(sujet));
+            boolean posee = posees.contains(sujet);
+            suite.add(new Reponse(texte, posee ? Icone.LUE : Icone.QUESTION, ItemStack.EMPTY, true, () -> {
+                posees.add(sujet);
+                demande(cle("question." + sujet));
+            }));
         }
-        suite.add(new Reponse(rep("retour"), Icone.RETOUR, ItemStack.EMPTY, this::accueil));
+        suite.add(new Reponse(rep("retour"), Icone.RETOUR, () -> accueil(cle("encore"))));
         dire(cleReplique, suite);
     }
 
@@ -210,6 +298,11 @@ public class DialogueScreen extends Screen {
     @Override
     public void removed() {
         Minecraft.getInstance().options.hideGui = cachait;
+        // Le tampon du portrait ne sert qu'à cette fenêtre : il est rendu à la carte graphique en la fermant.
+        if (tampon != null) {
+            tampon.destroyBuffers();
+            tampon = null;
+        }
         super.removed();
     }
 
@@ -239,7 +332,19 @@ public class DialogueScreen extends Screen {
 
     // --- Rendu ---
 
+    /** La réplique coupée en lignes, sans laisser un mot seul sur la dernière : on resserre un peu la colonne s'il le faut. */
     private List<String> lignes(int largeur) {
+        List<String> out = decoupe(largeur);
+        for (int essai = 1; essai <= 6 && out.size() > 1 && !out.get(out.size() - 1).trim().contains(" "); essai++) {
+            List<String> serre = decoupe(largeur - essai * 10);
+            if (serre.size() == out.size() && serre.get(serre.size() - 1).trim().contains(" ")) {
+                return serre;
+            }
+        }
+        return out;
+    }
+
+    private List<String> decoupe(int largeur) {
         List<String> out = new ArrayList<>();
         for (FormattedText ligne : font.getSplitter().splitLines(replique, largeur, Style.EMPTY)) {
             out.add(ligne.getString());
@@ -266,8 +371,9 @@ public class DialogueScreen extends Screen {
      */
     private void portrait(GuiGraphics graphics, int px, int py) {
         String peuple = hote.peuple().id();
+        // Seule la peinture (l'intérieur) : autour, c'est le papier du feuillet, où le cadre est imprimé.
         graphics.blit(ResourceLocation.fromNamespaceAndPath(Fallow.MOD_ID, "textures/gui/hote/portrait_" + peuple + ".png"),
-                px, py, 0, 0, PORTRAIT, PORTRAIT, PORTRAIT, PORTRAIT);
+                px + CADRE, py + CADRE, CADRE, CADRE, PORTRAIT - 2 * CADRE, PORTRAIT - 2 * CADRE, PORTRAIT, PORTRAIT);
         int ix = px + CADRE;
         int iy = py + CADRE;
         int cote = PORTRAIT - 2 * CADRE;
@@ -280,7 +386,42 @@ public class DialogueScreen extends Screen {
             graphics.fill(gx, gy, gx + 1, gy + 1, (Math.max(0, alpha) << 24) | particule(hote.peuple()));
         }
 
-        graphics.enableScissor(ix, iy, ix + cote, iy + cote);
+        hoteSurLaGrille(graphics, ix, iy, cote);
+
+        graphics.pose().pushPose();
+        graphics.pose().translate(0.0F, 0.0F, 200.0F);
+        RenderSystem.enableBlend();
+        graphics.blit(ResourceLocation.fromNamespaceAndPath(Fallow.MOD_ID, "textures/gui/hote/portrait_cadre.png"),
+                px, py, 0, 0, PORTRAIT, PORTRAIT, PORTRAIT, PORTRAIT);
+        RenderSystem.disableBlend();
+        graphics.pose().popPose();
+    }
+
+    /** Le tampon où l'Hôte est rendu à un pixel par pixel d'interface, puis agrandi sans lissage. */
+    private static TextureTarget tampon;
+
+    /**
+     * L'Hôte, rendu dans un petit tampon de {@code cote} pixels (un par pixel d'interface) puis posé agrandi au plus proche :
+     * ses pixels tombent sur la grille de l'interface, comme ceux du cadre et des icônes, au lieu d'être plus fins qu'eux.
+     * À deux pixels par texel, le masque et le buste se lisent comme une image peinte, de trois quarts.
+     */
+    private void hoteSurLaGrille(GuiGraphics graphics, int ix, int iy, int cote) {
+        Minecraft mc = Minecraft.getInstance();
+        graphics.flush();
+        if (tampon == null || tampon.width != cote) {
+            if (tampon != null) {
+                tampon.destroyBuffers();
+            }
+            tampon = new TextureTarget(cote, cote, true, Minecraft.ON_OSX);
+            tampon.setFilterMode(GL11.GL_NEAREST);
+        }
+        tampon.setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
+        tampon.clear(Minecraft.ON_OSX);
+        tampon.bindWrite(true);
+        Matrix4f projection = new Matrix4f(RenderSystem.getProjectionMatrix());
+        VertexSorting tri = RenderSystem.getVertexSorting();
+        RenderSystem.setProjectionMatrix(new Matrix4f().setOrtho(0.0F, cote, cote, 0.0F, 1000.0F, 21000.0F), VertexSorting.ORTHOGRAPHIC_Z);
+
         float corps = hote.yBodyRot;
         float corpsAvant = hote.yBodyRotO;
         float lacet = hote.getYRot();
@@ -298,24 +439,24 @@ public class DialogueScreen extends Screen {
         hote.xRotO = 0.0F;
         hote.yHeadRot = face;
         hote.yHeadRotO = face;
-        // Le haut des créneaux du masque (2,05 blocs) à 7 pixels du bord : le bas du cadre coupe le torse au-dessus de sa
-        // jointure avec les jambes, qui s'ouvre quand Fresh Animations le fait respirer.
-        float piedsY = iy + 7.0F + 2.05F * ECHELLE;
-        // Le masque avance vers la droite à trois quarts : un demi-pixel de décalage centre la silhouette.
-        float centreX = ix + cote / 2.0F + 0.5F;
-        // Le trait sombre autour de la silhouette, comme sur les portraits peints : quatre copies teintées, décalées d'un
-        // pixel et poussées derrière, puis l'Hôte lui-même par-dessus.
+        GuiGraphics dedans = new GuiGraphics(mc, mc.renderBuffers().bufferSource());
+        // Les pieds sur un pixel entier : les rangées de texels tombent juste. Le haut des créneaux du masque à trois
+        // pixels du bord, le bas du cadre coupe le torse au-dessus de la ceinture.
+        float piedsY = Math.round(3.0F + 2.05F * ECHELLE);
+        float centreX = cote / 2.0F;
+        // Le trait sombre autour de la silhouette : quatre copies teintées, décalées d'un pixel et poussées derrière.
         RenderSystem.setShaderColor(TRAIT_R, TRAIT_V, TRAIT_B, 1.0F);
         for (int[] d : new int[][] {{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
-            graphics.pose().pushPose();
-            graphics.pose().translate(0.0F, 0.0F, -40.0F);
-            InventoryScreen.renderEntityInInventory(graphics, centreX + d[0], piedsY + d[1], ECHELLE, new Vector3f(),
+            dedans.pose().pushPose();
+            dedans.pose().translate(0.0F, 0.0F, -40.0F);
+            InventoryScreen.renderEntityInInventory(dedans, centreX + d[0], piedsY + d[1], ECHELLE, new Vector3f(),
                     new Quaternionf().rotateZ((float) Math.PI), null, hote);
-            graphics.pose().popPose();
+            dedans.pose().popPose();
         }
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        InventoryScreen.renderEntityInInventory(graphics, centreX, piedsY, ECHELLE, new Vector3f(),
+        InventoryScreen.renderEntityInInventory(dedans, centreX, piedsY, ECHELLE, new Vector3f(),
                 new Quaternionf().rotateZ((float) Math.PI), null, hote);
+        dedans.flush();
         hote.yBodyRot = corps;
         hote.yBodyRotO = corpsAvant;
         hote.setYRot(lacet);
@@ -324,13 +465,23 @@ public class DialogueScreen extends Screen {
         hote.xRotO = tangageAvant;
         hote.yHeadRot = tete;
         hote.yHeadRotO = teteAvant;
-        graphics.disableScissor();
 
-        graphics.pose().pushPose();
-        graphics.pose().translate(0.0F, 0.0F, 200.0F);
-        graphics.blit(ResourceLocation.fromNamespaceAndPath(Fallow.MOD_ID, "textures/gui/hote/portrait_cadre.png"),
-                px, py, 0, 0, PORTRAIT, PORTRAIT, PORTRAIT, PORTRAIT);
-        graphics.pose().popPose();
+        RenderSystem.setProjectionMatrix(projection, tri);
+        mc.getMainRenderTarget().bindWrite(true);
+
+        // Le tampon posé dans le portrait (sa première rangée est en bas : les coordonnées de texture se retournent).
+        RenderSystem.setShaderTexture(0, tampon.getColorTextureId());
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        Matrix4f m = graphics.pose().last().pose();
+        BufferBuilder quad = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        quad.addVertex(m, ix, iy, 0.0F).setUv(0.0F, 1.0F);
+        quad.addVertex(m, ix, iy + cote, 0.0F).setUv(0.0F, 0.0F);
+        quad.addVertex(m, ix + cote, iy + cote, 0.0F).setUv(1.0F, 0.0F);
+        quad.addVertex(m, ix + cote, iy, 0.0F).setUv(1.0F, 1.0F);
+        BufferUploader.drawWithShader(quad.buildOrThrow());
+        RenderSystem.disableBlend();
     }
 
     @Override
@@ -345,13 +496,16 @@ public class DialogueScreen extends Screen {
         panneauL = Math.min(360, width - 2 * 8);
         int largeurTexte = panneauL - 2 * MARGE - PORTRAIT - ECART;
         List<String> lignes = lignes(largeurTexte);
-        int hauteurTexte = LIGNE + 6 + lignes.size() * LIGNE + 8 + reponses.size() * ligneReponse() - 2;
+        // Une hauteur fixe (quatre lignes de réplique, quatre réponses) : le panneau ne saute pas d'une réplique à l'autre.
+        int hauteurTexte = LIGNE + 6 + Math.max(LIGNES, lignes.size()) * LIGNE + 8 + Math.max(REPONSES, reponses.size()) * ligneReponse() - 2;
         panneauH = MARGE + Math.max(hauteurTexte, PORTRAIT) + MARGE;
         panneauX = (width - panneauL) / 2;
         panneauY = height - panneauH - 10;
 
-        // Panneau sans bordure ; le portrait, avec son cadre, en haut à gauche dans le panneau.
-        graphics.fill(panneauX, panneauY, panneauX + panneauL, panneauY + panneauH, FOND);
+        // Le panneau et son liseré ; le portrait, avec son cadre, en haut à gauche dans le panneau.
+        RenderSystem.enableBlend();
+        graphics.blitSprite(FEUILLET, panneauX - 1, panneauY - 1, panneauL + 4, panneauH + 4);
+        RenderSystem.disableBlend();
         portrait(graphics, panneauX + MARGE, panneauY + MARGE);
 
         // À droite du portrait : nom du peuple, titre, réplique, réponses.
@@ -360,18 +514,18 @@ public class DialogueScreen extends Screen {
         // L'émissaire attitré du Peuple, par son nom, un tiret, puis son Peuple : « Nom – Peuple ».
         Component nom = Component.translatable(cle("nom"));
         String tiret = " – ";
-        graphics.drawString(font, nom, x, y, NOM, true);
-        graphics.drawString(font, tiret, x + font.width(nom), y, REPONSE, true);
+        graphics.drawString(font, nom, x, y, NOM, false);
+        graphics.drawString(font, tiret, x + font.width(nom), y, REPONSE, false);
         graphics.drawString(font, Component.translatable(cle("titre")), x + font.width(nom) + font.width(tiret), y,
-                titre(hote.peuple()), true);
+                titre(hote.peuple()), false);
         y += LIGNE + 2;
-        graphics.fill(x, y, panneauX + panneauL - MARGE, y + 1, BORD);
+        filet(graphics, x, panneauX + panneauL - MARGE, y);
         y += 4;
 
         int reste = lettresVisibles();
         for (String ligne : lignes) {
             String part = ligne.substring(0, Math.max(0, Math.min(ligne.length(), reste)));
-            graphics.drawString(font, part, x, y, TEXTE, true);
+            graphics.drawString(font, part, x, y, TEXTE, false);
             reste -= ligne.length() + 1;
             y += LIGNE;
         }
@@ -389,38 +543,60 @@ public class DialogueScreen extends Screen {
                 Reponse r = reponses.get(i);
                 boolean active = i == choisie;
                 if (active) {
-                    // La réponse choisie : une bande claire et, à sa gauche, un trait de la couleur du Peuple.
-                    graphics.fill(x - 3, ry - 2, panneauX + panneauL - MARGE + 3, ry + ligne - 3, 0x22F0CF78);
-                    graphics.fill(x - 5, ry - 2, x - 4, ry + ligne - 3, titre(hote.peuple()));
+                    // La réponse choisie : le papier un ton plus foncé, et dans la marge le losange rouge des livres.
+                    graphics.fill(x - 3, ry - 2, panneauX + panneauL - MARGE + 3, ry + ligne - 3, SOULIGNE);
+                    losange(graphics, x - 8, ry - 2 + (ligne - 1) / 2, r.ouverte() ? RUBRIQUE : ENCRE_PALE);
                 }
                 if (r.objet().isEmpty()) {
-                    // Les autres icônes restent en retrait, l'icône choisie à pleine lumière.
-                    float lumiere = active ? 1.0F : 0.62F;
-                    RenderSystem.setShaderColor(lumiere, lumiere, lumiere, 1.0F);
-                    icone(graphics, r.icone(), x, ry - 1);
+                    // Les autres icônes restent en retrait, comme une encre plus légère ; l'icône choisie à pleine encre.
+                    RenderSystem.enableBlend();
+                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, active ? 1.0F : 0.6F);
+                    icone(graphics, r.icone(), x + 1, ry + 1);
                     RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+                    RenderSystem.disableBlend();
                 } else {
                     graphics.renderItem(r.objet(), x - 2, ry - 2);
+                    if (!r.ouverte()) {
+                        // L'objet d'une réponse fermée s'éteint avec son texte.
+                        graphics.pose().pushPose();
+                        graphics.pose().translate(0.0F, 0.0F, 300.0F);
+                        graphics.fill(x - 2, ry - 2, x + 14, ry + 14, VOILE);
+                        graphics.pose().popPose();
+                    }
                 }
                 // Le texte centré dans la bande de la réponse, quelle que soit sa hauteur.
                 int texteY = ry - 2 + (ligne - 1 - 7) / 2;
-                graphics.drawString(font, Component.translatable(r.cle()), x + 16, texteY, active ? CHOISIE : REPONSE, true);
+                int couleur = !r.ouverte() ? FERMEE : active ? CHOISIE : REPONSE;
+                graphics.drawString(font, r.texte(), x + 19, texteY, couleur, false);
             }
         }
     }
 
+    /** Toutes les réponses ont la hauteur d'un objet (16 px et un d'écart), qu'elles en montrent un ou une icône. */
     private int ligneReponse() {
-        for (Reponse r : reponses) {
-            if (!r.objet().isEmpty()) {
-                return LIGNE_OBJET;
-            }
-        }
-        return LIGNE_REPONSE;
+        return LIGNE_OBJET;
+    }
+
+    /** Le filet sous le nom, comme sous le nom d'une recette : un trait d'encre pâle qui s'efface aux bouts, un losange rouge au milieu. */
+    private static void filet(GuiGraphics graphics, int x0, int x1, int y) {
+        int milieu = (x0 + x1) / 2;
+        graphics.fill(x0 + 3, y, milieu - 4, y + 1, ENCRE_PALE);
+        graphics.fill(milieu + 5, y, x1 - 3, y + 1, ENCRE_PALE);
+        graphics.fill(x0, y, x0 + 3, y + 1, (ENCRE_PALE & 0xFFFFFF) | 0x60000000);
+        graphics.fill(x1 - 3, y, x1, y + 1, (ENCRE_PALE & 0xFFFFFF) | 0x60000000);
+        losange(graphics, milieu, y, RUBRIQUE);
+    }
+
+    /** Un petit losange de 5 px centré en ({@code cx}, {@code cy}). */
+    private static void losange(GuiGraphics graphics, int cx, int cy, int couleur) {
+        graphics.fill(cx, cy - 2, cx + 1, cy + 3, couleur);
+        graphics.fill(cx - 1, cy - 1, cx + 2, cy + 2, couleur);
+        graphics.fill(cx - 2, cy, cx + 3, cy + 1, couleur);
     }
 
     private static void icone(GuiGraphics graphics, Icone icone, int x, int y) {
         if (icone != null) {
-            graphics.blit(ICONES, x, y, icone.ordinal() * 11, 0, 11, 11, 44, 11);
+            graphics.blit(ICONES, x, y, icone.ordinal() * 11, 0, 11, 11, Icone.values().length * 11, 11);
         }
     }
 
@@ -445,16 +621,29 @@ public class DialogueScreen extends Screen {
             return;
         }
         if (choisie >= 0 && choisie < reponses.size()) {
+            Reponse r = reponses.get(choisie);
+            if (!r.ouverte()) {
+                Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.WOODEN_BUTTON_CLICK_OFF, 0.7F, 0.3F));
+                return;
+            }
             Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK.value(), 1.2F, 0.25F));
-            reponses.get(choisie).action().run();
+            r.action().run();
         }
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0 && mouseX >= panneauX && mouseX < panneauX + panneauL && mouseY >= panneauY && mouseY < panneauY + panneauH) {
-            if (!ecrit() || mouseY >= reponsesY - 2) {
+            if (!ecrit()) {
                 confirmer();
+            } else {
+                // La réponse sous la souris au moment du clic, pas celle de la dernière image : un clic rapide après
+                // un geste de la souris ne doit pas choisir la réponse d'avant.
+                int i = (int) Math.floor((mouseY - reponsesY + 2) / ligneReponse());
+                if (mouseY >= reponsesY - 2 && i >= 0 && i < reponses.size()) {
+                    choisie = i;
+                    confirmer();
+                }
             }
             return true;
         }

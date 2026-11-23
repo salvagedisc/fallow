@@ -483,9 +483,9 @@ The `debris` module of 0.61.0 (ground rocks, fallen wood and pine cones as block
 
 ## `hotes` module
 
-Client and server, no required mod (the emissaries wear Archie's Dinosaurs' armour when it is there). The six masked peoples and their emissaries, a pilot ([hotes](hotes.md)): the `fallow:hote` entity, one mask helmet per people, the dialogue window with its portrait, the worn masks and regalia drawn from `assets/fallow/hotes/`. Emissaries come only through `/fallow hotes appeler <peuple>` (operators).
+Client and server, no required mod (the emissaries wear Archie's Dinosaurs' armour when it is there). The six masked peoples and their emissaries, a pilot ([hotes](hotes.md)): the `fallow:hote` entity, one mask helmet per people, the dialogue window with its portrait, the worn masks and regalia drawn from `assets/fallow/hotes/`. Since 0.104.0 the peoples visit on their own (`visite` package): the bonds per clearing and per people (`Liens`, `data/fallow_hotes.dat`), the scheduler run every 100 ticks in the overworld (`Visites`), the sign post and offering mat blocks (`fallow:signe_des_hotes`, `fallow:natte_d_offrande`, no item, no loot), the wish and counter-gift files `data/*/hotes/<peuple>.json` (reload listener `Demandes`), the exchange payloads (`Echanges`: the server opens the window with the wishes, the client gives or declines, the server checks reach, phase, count and mat). Config `[hotes]` in `fallow-common.toml`. Bench commands: `/fallow hotes appeler|visite <peuple>`, `/fallow hotes aube`, `/fallow hotes lien`.
 
-**Checked** on the bench client on 2026-11-21: see [hotes](hotes.md).
+**Checked** on the bench client on 2026-11-21 (the pilot) and 2026-11-23 (the visit loop): see [hotes](hotes.md).
 
 ## `eveil` module
 

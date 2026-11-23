@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:dark_forest",
+    "minecraft:deep_dark",
+    "minecraft:mangrove_swamp",
+    "minecraft:swamp",
+    {
+      "id": "#c:is_swamp",
+      "required": false
+    },
+    {
+      "id": "#c:is_spooky",
+      "required": false
+    },
+    {
+      "id": "#c:is_dead",
+      "required": false
+    }
+  ]
+}

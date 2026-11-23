@@ -1,5 +1,5 @@
 {
- "note": "Masque de la Braise : crâne de corne claire peint d'une bande rouge, deux cornes au front, une sur le nez, devant une collerette d'obsidienne à quatre pointes. Unités : texels, repère de la tête (y vers le bas, -z devant). « porte_seulement » : pièce du masque porté, absente de l'objet et de l'icône.",
+ "note": "Masque de la Braise : crâne de corne claire fendu de fissures de lave, deux cornes au front, devant une collerette d'obsidienne à quatre pointes. Unités : texels, repère de la tête (y vers le bas, -z devant). « porte_seulement » : pièce du masque porté, absente de l'objet et de l'icône.",
  "pieces": [
   {
    "nom": "collerette",
@@ -95,31 +95,6 @@
     0,
     0,
     -0.3927
-   ]
-  },
-  {
-   "nom": "corne_nez",
-   "uv": [
-    34,
-    36
-   ],
-   "boite": [
-    -0.5,
-    -2,
-    -0.5,
-    1,
-    2,
-    1
-   ],
-   "pivot": [
-    0,
-    -2.5,
-    -6.6
-   ],
-   "rotation": [
-    0.3927,
-    0,
-    0
    ]
   },
   {

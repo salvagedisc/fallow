@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,roulee=false": {
+      "model": "fallow:block/natte_d_offrande"
+    },
+    "facing=north,roulee=true": {
+      "model": "fallow:block/natte_roulee"
+    },
+    "facing=east,roulee=false": {
+      "model": "fallow:block/natte_d_offrande",
+      "y": 90
+    },
+    "facing=east,roulee=true": {
+      "model": "fallow:block/natte_roulee",
+      "y": 90
+    },
+    "facing=south,roulee=false": {
+      "model": "fallow:block/natte_d_offrande",
+      "y": 180
+    },
+    "facing=south,roulee=true": {
+      "model": "fallow:block/natte_roulee",
+      "y": 180
+    },
+    "facing=west,roulee=false": {
+      "model": "fallow:block/natte_d_offrande",
+      "y": 270
+    },
+    "facing=west,roulee=true": {
+      "model": "fallow:block/natte_roulee",
+      "y": 270
+    }
+  }
+}

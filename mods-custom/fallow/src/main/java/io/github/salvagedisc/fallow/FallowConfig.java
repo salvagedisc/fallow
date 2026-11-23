@@ -70,6 +70,10 @@ public final class FallowConfig {
     private static final ModConfigSpec.DoubleValue REPOS_BASE_MINUTES;
     private static final ModConfigSpec.DoubleValue REPOS_MINUTES_PER_COMFORT;
     private static final ModConfigSpec.BooleanValue TANNERIE_ENABLED;
+    private static final ModConfigSpec.BooleanValue HOTES_VISITES;
+    private static final ModConfigSpec.IntValue HOTES_INTERVALLE;
+    private static final ModConfigSpec.IntValue HOTES_PREMIERE;
+    private static final ModConfigSpec.IntValue HOTES_REFUS;
     private static final ModConfigSpec.IntValue TANNERIE_STROKES;
     private static final ModConfigSpec.DoubleValue TANNERIE_TANNING_MINUTES;
     private static final ModConfigSpec.IntValue TANNERIE_DRYING_POINTS;
@@ -494,6 +498,24 @@ public final class FallowConfig {
                         "soif ordinaire. 0 : le sable n'assoiffe pas.")
                 .defineInRange("sandThirst", 0.15, 0.0, 4.0);
         common.pop();
+        common.comment("Module hotes : les six peuples masqués. Un signe au bord d'une clairière annonce une visite pour le",
+                "lendemain soir ; l'émissaire attend à la lisière avec une natte d'offrande jusqu'à l'aube, et répond aux dons",
+                "par un contre-don. Le lien avec chaque peuple se tient par clairière.").push("hotes");
+        HOTES_VISITES = common
+                .comment("Vrai : les peuples viennent d'eux-mêmes aux clairières habitées. Faux : seulement par commande.")
+                .define("visites", true);
+        HOTES_INTERVALLE = common
+                .comment("Jours de jeu entre deux visites d'un même peuple à une clairière, pour un peuple encore inconnu. Un jour de",
+                        "moins à chaque palier du lien et pendant la saison du peuple (jamais moins de deux).")
+                .defineInRange("intervalle", 5, 2, 30);
+        HOTES_PREMIERE = common
+                .comment("Jours passés dans une clairière avant le premier signe d'un peuple.")
+                .defineInRange("premiereVisite", 2, 0, 30);
+        HOTES_REFUS = common
+                .comment("Jours entre deux refus polis (« Ne rien laisser ») sans vexer le peuple : environ une saison d'Ecliptic.")
+                .defineInRange("refusPoli", 24, 1, 120);
+        common.pop();
+
         COMMON_SPEC = common.build();
     }
 
@@ -706,6 +728,22 @@ public final class FallowConfig {
 
     public static double reposMinutesPerComfort() {
         return read(COMMON_SPEC, REPOS_MINUTES_PER_COMFORT);
+    }
+
+    public static boolean hotesVisites() {
+        return read(COMMON_SPEC, HOTES_VISITES);
+    }
+
+    public static int hotesIntervalle() {
+        return read(COMMON_SPEC, HOTES_INTERVALLE);
+    }
+
+    public static int hotesPremiereVisite() {
+        return read(COMMON_SPEC, HOTES_PREMIERE);
+    }
+
+    public static int hotesRefusPoli() {
+        return read(COMMON_SPEC, HOTES_REFUS);
     }
 
     public static boolean tannerieEnabled() {

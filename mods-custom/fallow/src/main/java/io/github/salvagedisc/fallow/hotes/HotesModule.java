@@ -3,6 +3,13 @@ package io.github.salvagedisc.fallow.hotes;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import io.github.salvagedisc.fallow.Fallow;
+import io.github.salvagedisc.fallow.hotes.visite.Demandes;
+import io.github.salvagedisc.fallow.hotes.visite.Echanges;
+import io.github.salvagedisc.fallow.hotes.visite.NatteBlock;
+import io.github.salvagedisc.fallow.hotes.visite.NatteBlockEntity;
+import io.github.salvagedisc.fallow.hotes.visite.SigneBlock;
+import io.github.salvagedisc.fallow.hotes.visite.SigneBlockEntity;
+import io.github.salvagedisc.fallow.hotes.visite.Visites;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
@@ -45,6 +52,28 @@ public final class HotesModule {
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(Registries.ENTITY_TYPE, Fallow.MOD_ID);
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Fallow.MOD_ID);
     public static final DeferredRegister<ArmorMaterial> ARMOR_MATERIALS = DeferredRegister.create(Registries.ARMOR_MATERIAL, Fallow.MOD_ID);
+    public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Fallow.MOD_ID);
+    public static final DeferredRegister<net.minecraft.world.level.block.entity.BlockEntityType<?>> BLOCK_ENTITIES =
+            DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, Fallow.MOD_ID);
+
+    /** La natte d'offrande : posée par l'émissaire, ni fabriquée ni ramassée (pas d'objet). */
+    public static final net.neoforged.neoforge.registries.DeferredBlock<NatteBlock> NATTE = BLOCKS.register("natte_d_offrande",
+            () -> new NatteBlock(net.minecraft.world.level.block.state.BlockBehaviour.Properties.of()
+                    .mapColor(net.minecraft.world.level.material.MapColor.WOOD).strength(0.4F, 3600000.0F)
+                    .sound(net.minecraft.world.level.block.SoundType.WOOL).noOcclusion().noLootTable()
+                    .pushReaction(net.minecraft.world.level.material.PushReaction.BLOCK)));
+    /** Le signe de la veille : un piquet, le masque du peuple qui viendra pendu en haut. */
+    public static final net.neoforged.neoforge.registries.DeferredBlock<SigneBlock> SIGNE = BLOCKS.register("signe_des_hotes",
+            () -> new SigneBlock(net.minecraft.world.level.block.state.BlockBehaviour.Properties.of()
+                    .mapColor(net.minecraft.world.level.material.MapColor.WOOD).strength(1.0F, 3600000.0F)
+                    .sound(net.minecraft.world.level.block.SoundType.WOOD).noOcclusion().noLootTable()
+                    .pushReaction(net.minecraft.world.level.material.PushReaction.BLOCK)));
+    @SuppressWarnings("DataFlowIssue") // le type de données est facultatif (null), comme partout en 1.21.1
+    public static final DeferredHolder<net.minecraft.world.level.block.entity.BlockEntityType<?>, net.minecraft.world.level.block.entity.BlockEntityType<NatteBlockEntity>> NATTE_BE =
+            BLOCK_ENTITIES.register("natte_d_offrande", () -> net.minecraft.world.level.block.entity.BlockEntityType.Builder.of(NatteBlockEntity::new, NATTE.get()).build(null));
+    @SuppressWarnings("DataFlowIssue")
+    public static final DeferredHolder<net.minecraft.world.level.block.entity.BlockEntityType<?>, net.minecraft.world.level.block.entity.BlockEntityType<SigneBlockEntity>> SIGNE_BE =
+            BLOCK_ENTITIES.register("signe_des_hotes", () -> net.minecraft.world.level.block.entity.BlockEntityType.Builder.of(SigneBlockEntity::new, SIGNE.get()).build(null));
 
     /** Chaque masque se porte comme un casque : protection d'un casque de cuir, réparé avec du bois. */
     public static final Map<Peuple, DeferredHolder<ArmorMaterial, ArmorMaterial>> MATERIAUX = new EnumMap<>(Peuple.class);
@@ -83,6 +112,15 @@ public final class HotesModule {
         ENTITY_TYPES.register(modBus);
         ITEMS.register(modBus);
         ARMOR_MATERIALS.register(modBus);
+        BLOCKS.register(modBus);
+        BLOCK_ENTITIES.register(modBus);
+        modBus.addListener(net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent.class, Echanges::register);
+        NeoForge.EVENT_BUS.addListener(net.neoforged.neoforge.event.AddReloadListenerEvent.class, e -> e.addListener(new Demandes()));
+        NeoForge.EVENT_BUS.addListener(net.neoforged.neoforge.event.tick.LevelTickEvent.Post.class, event -> {
+            if (event.getLevel() instanceof ServerLevel level && level.dimension() == net.minecraft.world.level.Level.OVERWORLD) {
+                Visites.tick(level);
+            }
+        });
         modBus.addListener(BuildCreativeModeTabContentsEvent.class, event -> {
             if (event.getTabKey() == CreativeModeTabs.COMBAT) {
                 MASQUES.values().forEach(event::accept);
@@ -104,7 +142,49 @@ public final class HotesModule {
                                 .then(Commands.argument("peuple", StringArgumentType.word())
                                         .suggests((context, builder) -> SharedSuggestionProvider.suggest(
                                                 Arrays.stream(Peuple.values()).map(Peuple::id), builder))
-                                        .executes(HotesModule::appeler)))));
+                                        .executes(HotesModule::appeler)))
+                        .then(Commands.literal("visite")
+                                .then(Commands.argument("peuple", StringArgumentType.word())
+                                        .suggests((context, builder) -> SharedSuggestionProvider.suggest(
+                                                Arrays.stream(Peuple.values()).map(Peuple::id), builder))
+                                        .executes(HotesModule::visite)))
+                        .then(Commands.literal("aube").executes(HotesModule::aube))
+                        .then(Commands.literal("lien").executes(HotesModule::lien))));
+    }
+
+    /** {@code /fallow hotes visite <peuple>} : l'émissaire et sa natte au bord de la clairière, tout de suite. */
+    private static int visite(CommandContext<CommandSourceStack> context) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        ServerPlayer player = context.getSource().getPlayerOrException();
+        Peuple peuple = Peuple.parse(StringArgumentType.getString(context, "peuple")).orElse(null);
+        if (peuple == null) {
+            context.getSource().sendFailure(Component.translatable("commands.fallow.hotes.inconnu"));
+            return 0;
+        }
+        if (!Visites.visiteImmediate(player, peuple)) {
+            context.getSource().sendFailure(Component.translatable("commands.fallow.hotes.sans_clairiere"));
+            return 0;
+        }
+        return 1;
+    }
+
+    /** {@code /fallow hotes aube} : l'aube tout de suite pour la visite de la clairière. */
+    private static int aube(CommandContext<CommandSourceStack> context) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        if (!Visites.aubeImmediate(context.getSource().getPlayerOrException())) {
+            context.getSource().sendFailure(Component.translatable("commands.fallow.hotes.sans_visite"));
+            return 0;
+        }
+        return 1;
+    }
+
+    /** {@code /fallow hotes lien} : ce que les peuples retiennent de la clairière (pour le banc). */
+    private static int lien(CommandContext<CommandSourceStack> context) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        var lignes = Visites.etat(context.getSource().getPlayerOrException());
+        if (lignes.isEmpty()) {
+            context.getSource().sendFailure(Component.translatable("commands.fallow.hotes.sans_clairiere"));
+            return 0;
+        }
+        lignes.forEach(l -> context.getSource().sendSuccess(() -> l, false));
+        return lignes.size();
     }
 
     private static int appeler(CommandContext<CommandSourceStack> context) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
@@ -117,11 +197,11 @@ public final class HotesModule {
         ServerLevel level = player.serverLevel();
         Vec3 dir = Vec3.directionFromRotation(0.0F, player.getYRot());
         Vec3 pos = player.position().add(dir.scale(14.0));
-        int y = sol(level, (int) Math.floor(pos.x), player.getBlockY(), (int) Math.floor(pos.z));
+        int y = sol(level, (int) Math.floor(pos.x), player.getBlockY(), (int) Math.floor(pos.z), 8);
         if (y == Integer.MIN_VALUE) {
             // Rien où se tenir devant (une falaise, la lave, le vide) : il vient à côté de vous, sinon là où vous êtes.
             Vec3 cote = player.position().add(dir.scale(2.0));
-            int pres = sol(level, (int) Math.floor(cote.x), player.getBlockY(), (int) Math.floor(cote.z));
+            int pres = sol(level, (int) Math.floor(cote.x), player.getBlockY(), (int) Math.floor(cote.z), 8);
             pos = pres == Integer.MIN_VALUE ? player.position() : cote;
             y = pres == Integer.MIN_VALUE ? player.getBlockY() : pres;
         }
@@ -143,11 +223,11 @@ public final class HotesModule {
 
     /**
      * Le sol où l'Hôte se tient, à hauteur du joueur : dans une grotte ou sous le toit du Nether, pas à la surface. Le
-     * premier sol libre (deux blocs d'air au-dessus) à huit blocs près ; à défaut, aucun ({@code Integer.MIN_VALUE}).
+     * premier sol libre (deux blocs d'air au-dessus) à {@code portee} blocs près ; à défaut, aucun ({@code Integer.MIN_VALUE}).
      */
-    private static int sol(ServerLevel level, int x, int pres, int z) {
+    public static int sol(ServerLevel level, int x, int pres, int z, int portee) {
         net.minecraft.core.BlockPos.MutableBlockPos curseur = new net.minecraft.core.BlockPos.MutableBlockPos();
-        for (int d = 0; d <= 8; d++) {
+        for (int d = 0; d <= portee; d++) {
             for (int y : d == 0 ? new int[] {pres} : new int[] {pres + d, pres - d}) {
                 curseur.set(x, y - 1, z);
                 if (level.getBlockState(curseur).isFaceSturdy(level, curseur, net.minecraft.core.Direction.UP)

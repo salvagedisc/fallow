@@ -1,0 +1,112 @@
+{
+  "demandes": {
+    "toujours": [
+      {
+        "tag": "minecraft:wool",
+        "icone": "minecraft:gray_wool",
+        "nombre": 3
+      },
+      {
+        "tag": "minecraft:candles",
+        "icone": "minecraft:gray_candle",
+        "nombre": 1
+      },
+      {
+        "item": "minecraft:brown_mushroom",
+        "nombre": 3
+      },
+      {
+        "item": "minecraft:string",
+        "nombre": 4
+      }
+    ]
+  },
+  "contre_dons": {
+    "inconnus": [
+      {
+        "item": "minecraft:candle",
+        "min": 1,
+        "max": 2,
+        "poids": 2
+      },
+      {
+        "item": "minecraft:gray_wool",
+        "min": 2,
+        "max": 4,
+        "poids": 2
+      },
+      {
+        "item": "minecraft:sculk_vein",
+        "min": 4,
+        "max": 8,
+        "poids": 1
+      },
+      {
+        "item": "minecraft:gray_dye",
+        "min": 2,
+        "max": 3,
+        "poids": 1
+      }
+    ],
+    "voisins": [
+      {
+        "item": "minecraft:sculk",
+        "min": 2,
+        "max": 4,
+        "poids": 2
+      },
+      {
+        "item": "minecraft:echo_shard",
+        "min": 1,
+        "max": 1,
+        "poids": 1
+      },
+      {
+        "item": "minecraft:candle",
+        "min": 2,
+        "max": 3,
+        "poids": 2
+      }
+    ],
+    "proches": [
+      {
+        "item": "minecraft:echo_shard",
+        "min": 1,
+        "max": 2,
+        "poids": 2
+      },
+      {
+        "item": "minecraft:sculk_sensor",
+        "min": 1,
+        "max": 1,
+        "poids": 1
+      },
+      {
+        "item": "minecraft:emerald",
+        "min": 2,
+        "max": 3,
+        "poids": 1
+      }
+    ],
+    "familiers": [
+      {
+        "item": "minecraft:echo_shard",
+        "min": 2,
+        "max": 3,
+        "poids": 2
+      },
+      {
+        "item": "minecraft:recovery_compass",
+        "min": 1,
+        "max": 1,
+        "poids": 1
+      },
+      {
+        "item": "minecraft:disc_fragment_5",
+        "min": 1,
+        "max": 3,
+        "poids": 1
+      }
+    ]
+  }
+}

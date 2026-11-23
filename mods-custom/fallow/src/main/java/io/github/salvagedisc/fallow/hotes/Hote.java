@@ -42,6 +42,10 @@ public class Hote extends PathfinderMob {
     /** Distance à laquelle l'Hôte s'arrête devant le joueur. */
     static final double DISTANCE_D_ARRET = 4.0;
 
+    /** En visite : la place au bord de la clairière qu'il ne quitte pas (il ne franchit jamais la lisière). */
+    @org.jetbrains.annotations.Nullable
+    private net.minecraft.core.BlockPos ancre;
+
     public Hote(EntityType<? extends Hote> type, Level level) {
         super(type, level);
         setPersistenceRequired();
@@ -66,9 +70,35 @@ public class Hote extends PathfinderMob {
     @Override
     protected void registerGoals() {
         goalSelector.addGoal(0, new FloatGoal(this));
+        goalSelector.addGoal(1, new ResterGoal(this));
         goalSelector.addGoal(1, new SAvancerGoal(this));
         goalSelector.addGoal(2, new LookAtPlayerGoal(this, Player.class, 16.0F, 1.0F));
         goalSelector.addGoal(3, new RandomLookAroundGoal(this));
+    }
+
+    /** L'Hôte vient en visite : il se tient à cette place, au bord, et ne s'avance pas vers les joueurs. */
+    public void ancrer(net.minecraft.core.BlockPos place) {
+        ancre = place.immutable();
+    }
+
+    public boolean enVisite() {
+        return ancre != null;
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        // Une visite finie ou annulée pendant que l'Hôte était hors de portée : il n'a plus rien à faire là.
+        if (ancre != null && tickCount % 40 == 0 && level() instanceof ServerLevel server
+                && !io.github.salvagedisc.fallow.hotes.visite.Visites.enVisite(server, this)) {
+            server.sendParticles(ParticleTypes.CLOUD, getX(), getY() + 1.0, getZ(), 30, 0.3, 0.9, 0.3, 0.01);
+            discard();
+        }
+    }
+
+    @Override
+    public boolean isPushable() {
+        return ancre == null && super.isPushable();
     }
 
     public Peuple peuple() {
@@ -110,6 +140,9 @@ public class Hote extends PathfinderMob {
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putString("peuple", entityData.get(PEUPLE));
+        if (ancre != null) {
+            tag.putLong("ancre", ancre.asLong());
+        }
     }
 
     @Override
@@ -118,6 +151,7 @@ public class Hote extends PathfinderMob {
         if (tag.contains("peuple")) {
             entityData.set(PEUPLE, peuple(tag.getString("peuple")));
         }
+        ancre = tag.contains("ancre") ? net.minecraft.core.BlockPos.of(tag.getLong("ancre")) : null;
         // Un /summon avec données ne passe pas par finalizeSpawn, et un Hôte d'avant le masque obligatoire arrive tête
         // nue : il retrouve son masque (et sa tenue) au chargement.
         if (getItemBySlot(EquipmentSlot.HEAD).isEmpty()) {
@@ -147,7 +181,18 @@ public class Hote extends PathfinderMob {
         if (source.getEntity() == null && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
             return false;
         }
+        // En visite, seul un joueur qui le frappe le fait partir (et le lien en souffre) : un zombie, une flèche de
+        // squelette ou un loup ne doivent pas faire disparaître l'émissaire, ni faire payer au joueur un oubli qu'il n'a pas fait.
+        if (ancre != null && !(source.getEntity() instanceof Player) && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
+            return false;
+        }
         if (level() instanceof ServerLevel server) {
+            if (ancre != null && source.getEntity() instanceof Player) {
+                io.github.salvagedisc.fallow.hotes.visite.Visites.frappe(server, this);
+            } else if (ancre != null) {
+                // /kill, le vide : la visite s'arrête sans que personne n'en soit tenu pour responsable.
+                io.github.salvagedisc.fallow.hotes.visite.Visites.interrompt(server, this);
+            }
             server.sendParticles(ParticleTypes.CLOUD, getX(), getY() + 1.0, getZ(), 40, 0.35, 0.9, 0.35, 0.01);
             level().playSound(null, blockPosition(), SoundEvents.SOUL_ESCAPE.value(), SoundSource.NEUTRAL, 1.0F, 0.6F);
             discard();
@@ -161,10 +206,35 @@ public class Hote extends PathfinderMob {
             return InteractionResult.PASS;
         }
         getNavigation().stop();
-        if (level().isClientSide) {
-            io.github.salvagedisc.fallow.hotes.client.HotesClient.ouvrirEchange(this);
+        if (player instanceof net.minecraft.server.level.ServerPlayer serveur) {
+            io.github.salvagedisc.fallow.hotes.visite.Echanges.envoyer(serveur, this, true);
         }
         return InteractionResult.sidedSuccess(level().isClientSide);
+    }
+
+    /** En visite, il reste à sa place au bord : s'il en a été poussé, il y revient. */
+    static final class ResterGoal extends Goal {
+        private final Hote hote;
+
+        ResterGoal(Hote hote) {
+            this.hote = hote;
+            setFlags(EnumSet.of(Flag.MOVE));
+        }
+
+        @Override
+        public boolean canUse() {
+            return hote.ancre != null && hote.ancre.distToCenterSqr(hote.position()) > 1.5 * 1.5;
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            return hote.ancre != null && !hote.getNavigation().isDone();
+        }
+
+        @Override
+        public void start() {
+            hote.getNavigation().moveTo(hote.ancre.getX() + 0.5, hote.ancre.getY(), hote.ancre.getZ() + 0.5, 0.5);
+        }
     }
 
     /** S'avance au pas vers le joueur le plus proche, jusqu'à quelques blocs de lui. */
@@ -179,6 +249,9 @@ public class Hote extends PathfinderMob {
 
         @Override
         public boolean canUse() {
+            if (hote.ancre != null) {
+                return false;
+            }
             cible = hote.level().getNearestPlayer(hote, 24.0);
             return cible != null && !cible.isSpectator() && hote.distanceTo(cible) > DISTANCE_D_ARRET + 0.5;
         }

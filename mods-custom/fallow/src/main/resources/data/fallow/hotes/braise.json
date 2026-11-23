@@ -1,0 +1,151 @@
+{
+  "demandes": {
+    "toujours": [
+      {
+        "item": "minecraft:charcoal",
+        "nombre": 6
+      },
+      {
+        "item": "minecraft:coal",
+        "nombre": 6
+      },
+      {
+        "tag": "c:foods/cooked_meat",
+        "icone": "minecraft:cooked_mutton",
+        "nombre": 3
+      },
+      {
+        "item": "minecraft:magma_block",
+        "nombre": 1
+      }
+    ],
+    "printemps": [
+      {
+        "item": "minecraft:flint",
+        "nombre": 4
+      }
+    ],
+    "ete": [
+      {
+        "item": "minecraft:dried_kelp_block",
+        "nombre": 2
+      }
+    ],
+    "automne": [
+      {
+        "tag": "minecraft:logs_that_burn",
+        "icone": "minecraft:oak_log",
+        "nombre": 8
+      },
+      {
+        "item": "minecraft:flint",
+        "nombre": 4
+      }
+    ],
+    "hiver": [
+      {
+        "item": "minecraft:campfire",
+        "nombre": 1
+      },
+      {
+        "tag": "minecraft:wool",
+        "icone": "minecraft:white_wool",
+        "nombre": 3
+      }
+    ]
+  },
+  "contre_dons": {
+    "inconnus": [
+      {
+        "item": "minecraft:iron_nugget",
+        "min": 6,
+        "max": 10,
+        "poids": 3
+      },
+      {
+        "item": "minecraft:torch",
+        "min": 4,
+        "max": 8,
+        "poids": 2
+      },
+      {
+        "item": "minecraft:flint",
+        "min": 2,
+        "max": 4,
+        "poids": 2
+      },
+      {
+        "item": "minecraft:basalt",
+        "min": 4,
+        "max": 6,
+        "poids": 1
+      }
+    ],
+    "voisins": [
+      {
+        "item": "minecraft:raw_iron",
+        "min": 2,
+        "max": 4,
+        "poids": 3
+      },
+      {
+        "item": "minecraft:magma_cream",
+        "min": 1,
+        "max": 2,
+        "poids": 2
+      },
+      {
+        "item": "minecraft:fire_charge",
+        "min": 2,
+        "max": 3,
+        "poids": 2
+      },
+      {
+        "item": "minecraft:blackstone",
+        "min": 6,
+        "max": 10,
+        "poids": 1
+      }
+    ],
+    "proches": [
+      {
+        "item": "minecraft:iron_ingot",
+        "min": 3,
+        "max": 5,
+        "poids": 3
+      },
+      {
+        "item": "minecraft:obsidian",
+        "min": 1,
+        "max": 2,
+        "poids": 2
+      },
+      {
+        "item": "minecraft:gold_ingot",
+        "min": 1,
+        "max": 3,
+        "poids": 2
+      }
+    ],
+    "familiers": [
+      {
+        "item": "minecraft:diamond",
+        "min": 1,
+        "max": 1,
+        "poids": 2
+      },
+      {
+        "item": "minecraft:iron_block",
+        "min": 1,
+        "max": 1,
+        "poids": 1
+      },
+      {
+        "item": "minecraft:gilded_blackstone",
+        "min": 1,
+        "max": 1,
+        "poids": 1
+      }
+    ]
+  }
+}

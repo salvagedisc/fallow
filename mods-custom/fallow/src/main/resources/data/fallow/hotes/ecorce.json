@@ -1,0 +1,176 @@
+{
+  "demandes": {
+    "toujours": [
+      {
+        "item": "minecraft:glow_berries",
+        "nombre": 6
+      },
+      {
+        "item": "minecraft:honey_bottle",
+        "nombre": 1
+      },
+      {
+        "item": "minecraft:bone_meal",
+        "nombre": 8
+      },
+      {
+        "item": "minecraft:moss_block",
+        "nombre": 4
+      }
+    ],
+    "printemps": [
+      {
+        "item": "minecraft:sweet_berries",
+        "nombre": 8
+      },
+      {
+        "item": "minecraft:wheat_seeds",
+        "nombre": 12
+      },
+      {
+        "item": "minecraft:azalea",
+        "nombre": 1
+      }
+    ],
+    "ete": [
+      {
+        "item": "minecraft:honeycomb",
+        "nombre": 2
+      },
+      {
+        "item": "minecraft:glow_berries",
+        "nombre": 10
+      }
+    ],
+    "automne": [
+      {
+        "item": "minecraft:brown_mushroom",
+        "nombre": 4
+      },
+      {
+        "item": "minecraft:red_mushroom",
+        "nombre": 4
+      },
+      {
+        "item": "minecraft:apple",
+        "nombre": 3
+      }
+    ],
+    "hiver": [
+      {
+        "item": "minecraft:bread",
+        "nombre": 3
+      },
+      {
+        "item": "minecraft:mushroom_stew",
+        "nombre": 1
+      }
+    ]
+  },
+  "contre_dons": {
+    "inconnus": [
+      {
+        "item": "minecraft:moss_block",
+        "min": 2,
+        "max": 4,
+        "poids": 3
+      },
+      {
+        "item": "minecraft:glow_berries",
+        "min": 3,
+        "max": 6,
+        "poids": 3
+      },
+      {
+        "item": "minecraft:azalea",
+        "min": 1,
+        "max": 1,
+        "poids": 2
+      },
+      {
+        "item": "minecraft:small_dripleaf",
+        "min": 1,
+        "max": 2,
+        "poids": 2
+      },
+      {
+        "item": "minecraft:glow_lichen",
+        "min": 4,
+        "max": 8,
+        "poids": 2
+      }
+    ],
+    "voisins": [
+      {
+        "item": "minecraft:flowering_azalea",
+        "min": 1,
+        "max": 2,
+        "poids": 3
+      },
+      {
+        "item": "minecraft:big_dripleaf",
+        "min": 2,
+        "max": 3,
+        "poids": 3
+      },
+      {
+        "item": "minecraft:moss_carpet",
+        "min": 6,
+        "max": 10,
+        "poids": 2
+      },
+      {
+        "item": "minecraft:honeycomb",
+        "min": 2,
+        "max": 3,
+        "poids": 2
+      }
+    ],
+    "proches": [
+      {
+        "item": "minecraft:spore_blossom",
+        "min": 1,
+        "max": 1,
+        "poids": 2
+      },
+      {
+        "item": "minecraft:flowering_azalea",
+        "min": 2,
+        "max": 2,
+        "poids": 2
+      },
+      {
+        "item": "minecraft:emerald",
+        "min": 1,
+        "max": 3,
+        "poids": 2
+      },
+      {
+        "item": "minecraft:golden_carrot",
+        "min": 2,
+        "max": 4,
+        "poids": 2
+      }
+    ],
+    "familiers": [
+      {
+        "item": "minecraft:spore_blossom",
+        "min": 1,
+        "max": 2,
+        "poids": 3
+      },
+      {
+        "item": "minecraft:golden_apple",
+        "min": 1,
+        "max": 1,
+        "poids": 1
+      },
+      {
+        "item": "minecraft:emerald",
+        "min": 3,
+        "max": 5,
+        "poids": 2
+      }
+    ]
+  }
+}
