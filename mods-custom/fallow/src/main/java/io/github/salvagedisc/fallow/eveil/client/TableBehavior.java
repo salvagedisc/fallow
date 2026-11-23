@@ -83,7 +83,7 @@ final class TableBehavior implements StationBehavior {
      * peint ({@link #peindre}) ; de haut en bas, ce qui s'écrit reste entre {@link #HAUT_ECRIT} et le pied.
      */
     private static final float DEDANS = 1.0F;
-    private static final float DEHORS = 16.0F;
+    private static final float DEHORS = 12.0F;
     private static float bordG = DEHORS;
     private static float bordD = LARGE - DEDANS;
     private static final float HAUT_ECRIT = 7.0F;
@@ -102,8 +102,8 @@ final class TableBehavior implements StationBehavior {
     /** La fourche : la tige dans la marge, les cartouches à sa droite, leur texte, leur intérieur et ce qui les sépare. */
     private static final float TIGE = 3.0F;
     private static final float CARTOUCHE = 8.0F;
-    /** La place laissée sous les cartouches pour la racine de la fourche, au-dessus de la phrase du pied. */
-    private static final float RACINE = 6.0F;
+    /** L'air laissé sous les cartouches, au-dessus de la phrase du pied (la racine de la fourche finit au bas du dernier). */
+    private static final float RACINE = 2.0F;
     /** Le temps entre deux reflets sur un filet d'or, secondes. */
     private static final float REFLET = 5.0F;
     private static final float CARTOUCHE_DEDANS = 3.0F;
@@ -1297,7 +1297,7 @@ final class TableBehavior implements StationBehavior {
         boolean sec = manque != null;
         Component piedTexte = sec ? manque : Component.translatable("eveil.fallow.livre.choisir");
         float bas = PIED + PETITE_LIGNE - lignesDuPied(piedTexte) * PETITE_LIGNE - 2.0F;
-        // Sous les cartouches, la place de la racine de la fourche : elle ne touche jamais la phrase du pied.
+        // Sous les cartouches, un peu d'air au-dessus de la phrase du pied.
         float fond = bas - RACINE;
         int n = Math.min(2, liste.size());
         // Chaque voie est d'abord mesurée sur ses mots lus : son cartouche la couvre toute, et rien ne bouge pendant qu'on la déchiffre.
@@ -1343,7 +1343,7 @@ final class TableBehavior implements StationBehavior {
             noeuds[i] = haut + hauteur / 2.0F;
             haut += hauteur + ENTRE_VOIES;
         }
-        fourche(canvas, noeuds, haut - ENTRE_VOIES + 2.0F, lue, contenu.revele());
+        fourche(canvas, noeuds, haut - ENTRE_VOIES - 5.0F, lue, contenu.revele());
         pied(canvas, piedTexte, sec ? ROUGE : SEPIA);
     }
 
@@ -1384,7 +1384,7 @@ final class TableBehavior implements StationBehavior {
         cartouche(canvas, cartoucheX(), y, cartoucheLarge(), hauteur, vive, tenu);
         ecrireLignes(canvas, force, y + CARTOUCHE_DEDANS, vive, courante && ok ? 0.16F + 0.12F * Mth.sin(horloge * 2.2F) : 0.0F,
                 0xFF000000 | eclat.couleur(), lettres);
-        fourche(canvas, new float[] {y + hauteur / 2.0F}, y + hauteur + 4.0F, vive ? 0 : -1, contenu.revele());
+        fourche(canvas, new float[] {y + hauteur / 2.0F}, y + hauteur - 5.0F, vive ? 0 : -1, contenu.revele());
         y += hauteur + 5.0F;
         paragraphe(canvas, Component.translatable("eveil.fallow.livre.eclat.place"), bordG, y, PETIT, PALE, 3);
         Component manque = station == null ? null : manque(station, contenu);
