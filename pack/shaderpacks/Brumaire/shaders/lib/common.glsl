@@ -93,7 +93,10 @@ void initEnv() {
     }
     moon = mix(moon, luma(moon) * gLunar, gLunarK);
 #endif
-    gLightColor = (e > 0.0 ? sun : moon) * fade * (1.0 - 0.85 * rainStrength);
+    // L'astre qui éclaire est celui de la carte d'ombre (gLightDir) : sa couleur suit le même choix, sans quoi, dans les
+    // instants où le jeu a déjà passé l'ombre à la lune et où le soleil n'a pas fini de se coucher, la lumière venue de
+    // la lune avait la couleur du soleil.
+    gLightColor = (dot(gLightDir, gSunDir) > 0.0 ? sun : moon) * fade * (1.0 - 0.85 * rainStrength);
     // Lumière du ciel : sa moyenne, un peu désaturée (le ciel n'est jamais d'un seul bleu), plus le soleil renvoyé
     // par le sol et une lueur nocturne qui ne laisse jamais le noir complet.
     vec3 sky = skyRow(0);
