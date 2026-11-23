@@ -4631,11 +4631,11 @@ hash = "733afa76798b27aaa427450b596fccba3d15f1380e66bbeae34e001a07a85c92"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lang/en_US.lang"
-hash = "cd663e366bfe5d3941a93d5b5a729e1eae955d5c2a40023cfa44bd01ae72a1f4"
+hash = "c3c4bcd845b4f6f5eea25387f436b383eddb764bed734bd4d0f6b2ec5daeb76b"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lang/fr_FR.lang"
-hash = "931b48690ade6156a163c4c9e364918f9276cef91d7aca5dfa061b0385939b4b"
+hash = "72825a4086dc47c274865b841cdda0eb3e679ccd3a79480e02c05ae16e5f1365"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/alpenglow.glsl"
@@ -4691,7 +4691,7 @@ hash = "aa5d6e99a19c200844e46f669b4d36e072a1e318b49d2689760e161d8f909bbc"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/fogmarch.glsl"
-hash = "5d6d1dc8d3ba21ea866a496b50144256c0f95035e6e39eaa3092f39cf549eaa9"
+hash = "fb535807b9dd3a69f6c55fdf8a34d2dd4ea4a73835da357fb741c8c6e20d84bd"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/glass.glsl"
@@ -4719,7 +4719,7 @@ hash = "39b392b569f8f8d803db8985de51b56dbfd4b093cd489995dcc09200224efa3c"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/mist.glsl"
-hash = "32e364902ac7aa3d5cbe10d33874f5e849030eb82cc6bed74ab7e660573c2479"
+hash = "52623956b75fe6507747b270ec593daaf16380bda1706e34206290ef2a70c958"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/motes.glsl"
@@ -4755,7 +4755,7 @@ hash = "8c71024243e4647f63e8a4884b5051c105652af8527d85ef2eb4de480d248fc0"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/settings.glsl"
-hash = "587262041abbb10ee9a2f0673d615908d260171d4590d1c92e86ed2372896e1e"
+hash = "cc1ea51b84eb22affa5163e4041145b2b45f1bde18579be23beddc4a0283deed"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/shadow.glsl"
@@ -4987,7 +4987,7 @@ hash = "1c49e581af7aeae2b37e31144ad5e9788cf3a81ca311a77eafe81887387b9859"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/shaders.properties"
-hash = "367f69c0bf42368f1a8769053057cb9adc8242478fa7d33a2fdba9b2f95c50bb"
+hash = "bd4789278778dfe4b0988e40504df4190394a6b1367f1672a25d1fd939b650eb"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/shadow.fsh"

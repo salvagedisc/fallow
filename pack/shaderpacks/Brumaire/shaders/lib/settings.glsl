@@ -3,6 +3,7 @@
 // Brume
 #define MIST_DENSITY 1.0 // [0.5 0.75 1.0 1.25 1.5 2.0]
 #define MIST_HEIGHT 16.0 // [12.0 16.0 24.0 32.0 48.0]
+#define MIST_DAY_LEVEL 72.0 // [64.0 72.0 80.0 96.0 999.0]
 #define MIST_LIFT 0.7 // [0.0 0.3 0.5 0.7 0.85 1.0]
 #define MIST_RING 1.0 // [0.0 0.5 1.0 1.5 2.0]
 #define MIST_RING_MAX 512.0 // [256.0 384.0 512.0 768.0 1024.0]

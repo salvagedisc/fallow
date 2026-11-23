@@ -43,7 +43,8 @@ float fogMarch(vec3 dir, float reach, float sunAmount, out vec3 light) {
     float mu = dot(dir, gLightDir);
     float phaseMist = 0.75 * mistPhase(mu, 0.5) + 0.25 * mistPhase(mu, -0.3);
     float phaseAir = 0.7 * mistPhase(mu, 0.75) + 0.3 * mistPhase(mu, 0.2);
-    vec3 body = mix(gAmbient, vec3(luma(gAmbient)), 0.75) * vec3(1.03, 1.0, 0.95) * 0.95 * mistTint() * mix(0.45, 1.0, gDay) * mix(1.0, 0.5, gDusk);
+    vec3 body = mix(gAmbient, vec3(luma(gAmbient)), 0.75) * vec3(1.03, 1.0, 0.95) * 0.95 * mistTint() * mix(0.45, 1.0, gDay) * mix(1.0, 0.5, gDusk)
+        * mix(vec3(1.0), vec3(0.97, 1.0, 1.04), gDay * (1.0 - gDusk));
     // Vers l'astre bas, la brume s'allume sans noyer le paysage : on doit encore lire les reliefs à contre-jour.
     vec3 beam = gLightColor * (0.03 + 0.22 * phaseMist * SHAFT_STRENGTH) * sunAmount * mix(1.0, 0.3, gDusk);
 #if FOG_OPTICS > 0
@@ -64,6 +65,7 @@ float fogMarch(vec3 dir, float reach, float sunAmount, out vec3 light) {
     vec2 wind = brumaireLink > 0.5 && dot(brumaireWind.xy, brumaireWind.xy) > 0.01 ? normalize(brumaireWind.xy) * (0.6 + 1.2 * brumaireWind.z) : vec2(0.8, 0.35);
     vec3 drift = vec3(wind.x, 0.0, wind.y) * frameTimeCounter * 0.9;
     float noise = dither(gl_FragCoord.xy);
+    float dayOpen = smoothstep(0.0, 0.3, gSunDir.y) * smoothstep(0.86, 0.99, float(eyeBrightnessSmooth.y) / 240.0);
     float prev = 0.0;
     for (int i = 0; i < FOG_STEPS; i++) {
         float next = reach * sq(float(i + 1) / float(FOG_STEPS));
@@ -75,6 +77,8 @@ float fogMarch(vec3 dir, float reach, float sunAmount, out vec3 light) {
         // Sous le pied de la nappe, au creux d'une vallée vue d'en haut, elle s'épaissit au plus de 2,2 fois, comme la
         // nappe lointaine (lib/mist.glsl) : pas un mur laiteux sur un lac en contrebas.
         float d = dens0 * min(exp(clamp((base - w.y) / h, -30.0, 3.0)), 2.2);
+        // De jour, à découvert, l'air tout proche reste clair : le voile commence à une trentaine de blocs.
+        d *= mix(1.0, smoothstep(0.0, 32.0, t), dayOpen);
 #if FOG_BILLOWS > 0
         if (d > 1e-5) {
             float n1 = cloudNoise((w - drift) * 0.018 + vec3(0.0, frameTimeCounter * 0.0012, 0.0)).r;

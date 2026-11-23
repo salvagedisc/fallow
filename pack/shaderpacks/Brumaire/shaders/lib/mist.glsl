@@ -16,7 +16,11 @@ float mistLayer(float y0, float dy, float t0, float t1, float h, float base) {
 
 float mistAnchor() {
     // Altitude du pied de la nappe : le sol autour du joueur, sinon un peu sous la caméra.
-    return brumaireLink > 0.5 ? brumaireMist.y : cameraPosition.y - 3.0;
+    float a = brumaireLink > 0.5 ? brumaireMist.y : cameraPosition.y - 3.0;
+    // Le jour, la nappe redescend au fond des vallées (MIST_DAY_LEVEL) : vu d'une colline, les pentes et les cimes
+    // restent nettes et la brume dort en bas, comme dans Recrafted, au lieu d'un voile pâle sur tout le paysage. À
+    // l'aube, au soir et la nuit, elle remonte au pied du joueur.
+    return mix(a, min(a, MIST_DAY_LEVEL), smoothstep(0.0, 0.3, gSunDir.y));
 }
 
 float mistNearDensity() {
@@ -119,6 +123,8 @@ float mistPhase(float mu, float g) {
 vec3 mistColor(vec3 dir, float sun) {
     vec3 body = mix(gAmbient, vec3(luma(gAmbient)), 0.75) * vec3(1.03, 1.0, 0.95) * 0.95;
     body *= mistTint();
+    // Le jour, un voile à peine bleuté, comme l'air lointain de Recrafted, et non le gris chaud d'une poussière.
+    body *= mix(vec3(1.0), vec3(0.97, 1.0, 1.04), gDay * (1.0 - gDusk));
     // La nuit, la brume ne reçoit que la lune et le ciel noir : elle reste sombre, un voile et pas un mur gris qui
     // éclaircirait tout le paysage.
     body *= mix(0.45, 1.0, gDay);
