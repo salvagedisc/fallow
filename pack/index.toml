@@ -4909,7 +4909,7 @@ hash = "20632f40a300f244c8b82f3d779804b6c76a8de097fe01d070000d94aa5f51df"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/program/grade.fsh"
-hash = "bd665f369debd43514dfd8928929b29b5e5279c6ceb368b4a166167d5f29b570"
+hash = "760fee542a6f0b771bdc88dd6cb14c9805bb04479058257c2a3f21e1f6517c30"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/program/lens.csh"

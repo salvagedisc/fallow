@@ -443,6 +443,15 @@ void main() {
     float lift = mix(0.0006, 0.005, smoothstep(-0.18, 0.12, sunUp) * smoothstep(0.05, 0.40, float(eyeBrightnessSmooth.y) / 240.0));
     color = color * (1.0 - 2.5 * lift) + lift;
     color = pow(max(color, 0.0), vec3(1.0 / 2.2));
+    {
+        // De jour, au grand air, les clairs s'ouvrent : la brume au loin et le ciel montent vers le blanc d'un été voilé
+        // (Recrafted : les trois quarts clairs de l'image vers 175-225 sur 255, ici 155-190). Les ombres n'y sont pour
+        // rien : un sous-bois perdait un quart de sa clarté quand la courbe agissait aussi sur elles.
+        float dayK = smoothstep(-0.05, 0.20, sunUp) * smoothstep(0.30, 0.70, float(eyeBrightnessSmooth.y) / 240.0);
+        vec3 c = clamp(color, 0.0, 1.0);
+        vec3 hi = 1.0 - 0.48 * pow((1.0 - c) / 0.48, vec3(1.0 + 0.25 * dayK));
+        color = mix(color, hi, step(0.52, c));
+    }
 #if NIGHT_GRAIN > 0
     // Le grain de la nuit : dans le noir, l'œil ne voit plus net et l'image fourmille d'un grain fin, sans couleur, qui
     // change à chaque image. Il suit la clarté : rien sur ce qui est éclairé, un peu dans la pénombre, plus dans le noir.
