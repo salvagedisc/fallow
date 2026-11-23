@@ -270,6 +270,16 @@ void main() {
         color = vec4(grassRiser(vPos + cameraPosition, normal).rgb * vTint.rgb, 1.0);
 #endif
 #endif
+#if defined PROGRAM_TERRAIN && GRASS_SMOOTH > 0
+    // Le dessus d'un bloc d'herbe : ses taches claires et sombres se rapprochent de la teinte moyenne du bloc (le
+    // dernier niveau de mipmap, un seul texel), pour un pré plus lisse, peint plutôt que piqueté. La texture reste.
+    // Les flancs qui portent la texture du dessus (Fast Better Grass) suivent : leur texture est pleine, sans trou,
+    // alors que la bordure du jeu, à moitié transparente, garde ses pixels.
+    if (vSurf == 22 && min(vTint.r, min(vTint.g, vTint.b)) < 0.97) {
+        vec4 mean = textureLod(gtexture, vUv, 4.0);
+        if (normal.y > 0.5 || mean.a > 0.95) color.rgb = mix(color.rgb, mean.rgb * vTint.rgb, 0.25 * float(GRASS_SMOOTH));
+    }
+#endif
 #ifndef PROGRAM_CLRWL
     if (color.a < alphaTestRef) discard;
 #endif

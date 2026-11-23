@@ -185,6 +185,7 @@
 #define FAR_CANOPY 1 // [0 1]
 #define GRASS_OVERHANG 1 // [0 1]
 #define GRASS_SLOPES 1 // [0 1]
+#define GRASS_SMOOTH 2 // [0 1 2 3 4]
 // Au loin (passé 44 à 60 blocs), les flancs d'herbe se couvrent d'herbe, comme les collines de Distant Horizons.
 #define GRASS_FAR_SIDES 1 // [0 1]
 // La matière de la neige posée : plaques, congères, rides du vent, éclats qui suivent le regard (lib/snow.glsl).

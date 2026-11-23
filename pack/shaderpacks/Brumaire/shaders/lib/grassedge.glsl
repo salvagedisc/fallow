@@ -57,6 +57,9 @@ vec4 grassRiser(vec3 world, vec3 normal) {
     vec2 px = floor(vec2(fract(across), fract(world.y)) * 16.0);
     float g = grassEdgeHash(cell * 1.3 + normal * 5.0 + vec3(px, 0.0));
     float grey = g < 0.2 ? 0.47 : (g < 0.45 ? 0.54 : (g < 0.7 ? 0.58 : (g < 0.9 ? 0.63 : 0.70)));
+#if GRASS_SMOOTH > 0
+    grey = mix(grey, 0.58, 0.25 * float(GRASS_SMOOTH)); // les prés lisses (solid.fsh) valent aussi pour ces marches
+#endif
     return vec4(vec3(grey), 1.0);
 }
 
