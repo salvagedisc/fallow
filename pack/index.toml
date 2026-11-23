@@ -4819,7 +4819,7 @@ hash = "219a5a66f4fe4fa85c39ed1ed1aaf930a862e8c7d3e4a83032202fc460d09d40"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/watershade.glsl"
-hash = "6ea2adb92409a4bda693297faf817421c4f77f21f459789f040184c5b4025326"
+hash = "983c6f71f10233a28d1d5e492846896449e65c5f7f003b76b3c03d440fa9b3ab"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/waves.glsl"
