@@ -82,6 +82,14 @@ in vec2 vSpriteHalf;
 layout(location = 0) out vec4 outColor;
 layout(location = 1) out vec4 outSurface;
 layout(location = 2) out vec4 outAlbedo;
+#elif defined PROGRAM_PARTICLES
+// Une particule efface la surface de derrière dans la couche 1 : l'occlusion d'écran et l'ombre de contact (deferred1)
+// relisaient sinon, au pixel d'une feuille qui tombe, la normale du sol derrière elle à la profondeur de la feuille, et
+// la noircissaient presque toute.
+/* RENDERTARGETS: 0,1 */
+layout(location = 0) out vec4 outColor;
+layout(location = 1) out vec4 outSurface;
+#define CLEAR_SURFACE
 #else
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 outColor;
@@ -119,6 +127,9 @@ vec4 ice(vec3 albedo, float alpha, vec3 normal, vec2 lm, float ao) {
 
 void main() {
     initEnv();
+#ifdef CLEAR_SURFACE
+    outSurface = vec4(0.0);
+#endif
     // Les particules n'ont souvent pas de normale (le format du jeu n'en porte pas) : une normale nulle donnerait un
     // point noir à l'écran. Elles regardent alors l'œil.
     vec3 normal = dot(vNormal, vNormal) > 1e-4 ? normalize(vNormal) : -normalize(vPos);
@@ -134,6 +145,15 @@ void main() {
     // Certaines particules de mods (les feuilles qui tombent) arrivent sans lumière du jeu : noires même en plein jour.
     // Elles volent près de l'œil, elles prennent au moins la lumière qu'il reçoit.
     lm = max(lm, vec2(eyeBrightnessSmooth) / 240.0 * 0.9);
+    {
+        // Une feuille de Particular porte la lumière du jeu cuite dans sa couleur : la nuit, c'est celle des torches et
+        // des feux autour d'elle. Sans quoi la feuille qui passe près d'un feu ne prend que la lumière de l'œil, loin de
+        // lui, et reste une croix noire devant la flamme.
+        vec3 t = vTint.rgb;
+        float tp = max(t.r, max(t.g, t.b));
+        if (t.g >= tp - 1e-4 && t.g > t.b * 1.08 + 0.002 && tp < 0.7)
+            lm.x = max(lm.x, clamp((tp / 0.7 - 0.12) / 0.88, 0.0, 1.0) * (1.0 - gDay));
+    }
 #endif
     float ao = 1.0;
 
@@ -220,7 +240,8 @@ void main() {
     // sombre retrouve sa clarté de feuille ; la lumière vient ensuite du pack, comme pour tout le reste.
     vec3 tint = vTint.rgb;
     float top = max(tint.r, max(tint.g, tint.b));
-    if (tint.g >= top - 1e-4 && tint.g > tint.b + 0.01 && top < 0.7) tint *= 0.7 / max(top, 0.02);
+    // Le test est relatif : la nuit, la teinte cuite tombe à quelques 255es et un écart absolu ne la reconnaissait plus.
+    if (tint.g >= top - 1e-4 && tint.g > tint.b * 1.08 + 0.002 && top < 0.7) tint *= 0.7 / max(top, 0.006);
     vec4 color = texture(gtexture, vUv) * vec4(tint, vTint.a);
 #else
     vec4 color = texture(gtexture, vUv) * vTint;
