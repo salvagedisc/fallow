@@ -281,6 +281,11 @@ void main() {
     cloudLight = mix(horizon * (1.0 - cloudPass), cloudLight, fade);
     // Sous la pluie, des nuages gris.
     cloudLight = mix(cloudLight, vec3(luma(cloudLight)) * vec3(1.05, 0.98, 0.86) * 0.85, rainStrength * 0.6);
+    // La nuit, les nuages sont des ombres : des bancs gris ardoise devant la lueur du ciel et de la lune, pas des
+    // masses plus claires que lui (Recrafted : nuages vers 70 sur 255 devant un ciel à 115). Leur liseré vers la lune
+    // reste, à la même proportion.
+    float nightC = 1.0 - smoothstep(-0.14, 0.0, gSunDir.y);
+    cloudLight = mix(cloudLight, vec3(luma(cloudLight)) * vec3(0.92, 0.97, 1.04), 0.5 * nightC) * mix(1.0, 0.45, nightC);
 #if CLOUD_IRIDESCENCE > 0
     // Les franges minces d'un cumulus près de l'astre s'irisent aussi, moins qu'une nappe fine.
     if (cloudPass < 0.98) {
