@@ -11,12 +11,11 @@ import io.github.salvagedisc.fallow.Fallow;
 
 /**
  * The furniture of a recipe book's pages, drawn on the page in its own units (x across from its left edge, y down from its head):
- * the tabs over the head of the left page, their pictograms and the red head of one with something new, the search slip, the wells
- * the recipes sit in, the frame round a picked one, the second rim of a place of variants, the card a group of recipes opens on,
- * the magnifier, the mark of a new recipe, the rule under a recipe's name. All come from one texture,
- * {@code livre_elements.png} (the gutter's shade with them), one texel to a unit, drawn by {@code scripts/books/papers.py}; the tabs, the slip and the card are
- * drawn in nine pieces so they take any size. Used by the pack's own books and, through {@code mixin.livres.HovRecipeSheetMixin},
- * by Hands-On Vanilla's.
+ * the wells the recipes sit in, the second rim of a place of variants, the card a group of recipes opens on, the mark of a new
+ * recipe, the rule under a recipe's name and the gutter's shade. All come from one texture, {@code livre_elements.png}, one texel
+ * to a unit, drawn by {@code scripts/books/papers.py}; the card is drawn in nine pieces so it takes any size. The tabs, their
+ * icons, the search slip, the magnifier and the frame of a picked well are Hands-On Vanilla's own drawing. Used by the pack's own
+ * books and, through {@code mixin.livres.HovRecipeSheetMixin}, by Hands-On Vanilla's.
  */
 public final class PageParts {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Fallow.MOD_ID, "textures/entity/livre_elements.png");
@@ -26,24 +25,7 @@ public final class PageParts {
     /** Texels of the texture to a unit of the page: one, the scale of the paper, the icons and the letters. */
     private static final float DENSITY = 1.0F;
 
-    /** A tab behind the page, under the cursor, or open (the page's paper, meeting the page). */
-    public enum Tab {
-        REST, LIT, OPEN
-    }
-
     private PageParts() {
-    }
-
-    /** A tab from {@code top} down to {@code bottom}, {@code x} to {@code x + wide}. */
-    public static void tab(PoseStack poseStack, MultiBufferSource buffers, int light, float x, float top, float wide, float bottom,
-            float lift, Tab state) {
-        nine(poseStack, buffers, light, x, top, wide, bottom - top, lift, 16 * state.ordinal(), 0, 16, 16, 3);
-    }
-
-    /** The search slip, a field from {@code top} down to {@code bottom}. */
-    public static void slip(PoseStack poseStack, MultiBufferSource buffers, int light, float x, float top, float wide, float bottom,
-            float lift, boolean lit) {
-        nine(poseStack, buffers, light, x, top, wide, bottom - top, lift, lit ? 64 : 48, 0, 16, 16, 3);
     }
 
     /**
@@ -56,14 +38,6 @@ public final class PageParts {
     }
 
     /**
-     * The frame of a picked well {@code size} units square at ({@code x}, {@code y}), drawn on the well's own rim: a line of dark
-     * ink, a line of light inside it and the corners of a second line of ink, so it never reaches the wells beside it.
-     */
-    public static void frame(PoseStack poseStack, MultiBufferSource buffers, int light, float x, float y, float size, float lift) {
-        sprite(poseStack, buffers, light, x, y, size, size, lift, 34, 16, 17, 17);
-    }
-
-    /**
      * The mark of a well holding several variants, on the well {@code size} units square at ({@code x}, {@code y}): a second rim
      * a unit inside its right and bottom sides, as cards stacked under it, never reaching the wells beside it.
      */
@@ -71,40 +45,10 @@ public final class PageParts {
         sprite(poseStack, buffers, light, x, y, size, size, lift, 52, 16, 17, 17);
     }
 
-    /** What a tab shows, drawn in the books' inks: never an item's own picture, so that every tab belongs to the book. */
-    public enum Glyph {
-        ALL, RECENT, BUILDING, REDSTONE, EQUIPMENT, MISC, FILTER, BANNER, TOOLS, ARMOUR, INGOT
-    }
-
-    /** A pictogram, 9 units square from ({@code x}, {@code y}). */
-    public static void glyph(PoseStack poseStack, MultiBufferSource buffers, int light, Glyph glyph, float x, float y, float lift) {
-        sprite(poseStack, buffers, light, x, y, GLYPH, GLYPH, lift, glyph.ordinal() * 9, 88, 9, 9);
-    }
-
-    /** A pictogram's size, units. */
-    public static final float GLYPH = 9.0F;
-
-    /**
-     * The head of a tab with something new behind it, in the rubric red: its top line and the unit under it, across its width,
-     * stopping where what the tab shows begins.
-     */
-    public static void cap(PoseStack poseStack, MultiBufferSource buffers, int light, float x, float top, float wide, float lift) {
-        VertexConsumer consumer = buffers.getBuffer(RenderType.text(TEXTURE));
-        Matrix4f matrix = poseStack.last().pose();
-        quad(consumer, matrix, light, x, top, x + 2.0F, top + 2.0F, lift, 80, 0, 82, 2);
-        quad(consumer, matrix, light, x + 2.0F, top, x + wide - 2.0F, top + 2.0F, lift, 82, 0, 94, 2);
-        quad(consumer, matrix, light, x + wide - 2.0F, top, x + wide, top + 2.0F, lift, 94, 0, 96, 2);
-    }
-
     /** The card a group of recipes opens on. */
     public static void card(PoseStack poseStack, MultiBufferSource buffers, int light, float x, float y, float wide, float high,
             float lift) {
         nine(poseStack, buffers, light, x, y, wide, high, lift, 0, 36, 16, 16, 4);
-    }
-
-    /** The magnifier, 7 units square from ({@code x}, {@code y}), as the books' own was. */
-    public static void magnifier(PoseStack poseStack, MultiBufferSource buffers, int light, float x, float y, float lift) {
-        sprite(poseStack, buffers, light, x - 0.5F, y - 0.5F, 8.0F, 8.0F, lift, 16, 36, 8, 8);
     }
 
     /** The mark of a new recipe, 4 units square centred on ({@code x}, {@code y}). */

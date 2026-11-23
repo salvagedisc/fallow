@@ -407,148 +407,17 @@ def dog_ear(path, size=14):
     Image.fromarray(out, "RGBA").save(path)
 
 
-# The tabs' pictograms, 9 x 9 texels, in the order PageParts.Glyph lists them: drawn in the books' inks (# ink, o soft ink,
-# r rubric, g gilt), never an item's own picture, so every tab belongs to the book.
-TAB_GLYPH_ORDER = ("all", "recent", "building", "redstone", "equipment", "misc", "filter", "banner", "tools", "armour", "ingot")
-GLYPHS = {
- "tools": [  # a pickaxe
-  "..#####..",
-  ".#ooooo#.",
-  "#o..g..o#",
-  "#...g...#",
-  "....g....",
-  "....g....",
-  "....g....",
-  "....g....",
-  "....g....",
- ],
- "armour": [  # a breastplate
-  ".........",
-  ".##...##.",
-  "#o#####o#",
-  "#ooooooo#",
-  ".#ooooo#.",
-  ".#ooooo#.",
-  ".#ooooo#.",
-  ".#######.",
-  ".........",
- ],
- "ingot": [  # an ingot
-  ".........",
-  ".........",
-  "..#####..",
-  ".#ggggg#.",
-  "#ggggggg#",
-  "#########",
-  ".........",
-  ".........",
-  ".........",
- ],
- "all": [   # a compass rose: four points, the north one red
-  ".........",
-  "..#####..",
-  ".#..r..#.",
-  ".#.rrr.#.",
-  ".#..#..#.",
-  ".#.ooo.#.",
-  ".#..o..#.",
-  "..#####..",
-  ".........",
- ],
- "recent": [  # an hourglass, sand running
-  ".#######.",
-  "..#...#..",
-  "..#ggg#..",
-  "...#g#...",
-  "....#....",
-  "...#g#...",
-  "..#.g.#..",
-  "..#ggg#..",
-  ".#######.",
- ],
- "building": [  # a wall of bricks
-  ".........",
-  "#########",
-  "#rrr#rrr#",
-  "#########",
-  "#r#rrr#r#",
-  "#########",
-  "#rrr#rrr#",
-  "#########",
-  ".........",
- ],
- "redstone": [  # a torch, its flame red
-  "....r....",
-  "...rrr...",
-  "...rgr...",
-  "....r....",
-  "...###...",
-  "....#....",
-  "....#....",
-  "....#....",
-  "...###...",
- ],
- "equipment": [  # a sword, point up
-  ".........",
-  "......##.",
-  ".....#o#.",
-  "....#o#..",
-  ".#.#o#...",
-  "..#o#....",
-  "..##.....",
-  ".g..#....",
-  "g........",
- ],
- "misc": [  # a stoppered flask
-  "...ooo...",
-  "...#o#...",
-  "...#.#...",
-  "..#...#..",
-  ".#.....#.",
-  ".#rrrrr#.",
-  ".#rrrrr#.",
-  "..#####..",
-  ".........",
- ],
- "filter": [  # the crafting grid, three by three
-  ".........",
-  ".#######.",
-  ".#o#o#o#.",
-  ".#######.",
-  ".#o#o#o#.",
-  ".#######.",
-  ".#o#o#o#.",
-  ".#######.",
-  ".........",
- ],
- "banner": [  # a banner on its pole
-  "#########",
-  ".#rrrrr#.",
-  ".#rrrrr#.",
-  ".#rrgrr#.",
-  ".#rgrgr#.",
-  ".#rrgrr#.",
-  ".#rrrrr#.",
-  ".#r#.#r#.",
-  ".##...##.",
- ],
-}
-
 
 def elements(path):
     """The furniture of a recipe book's pages, one texel to a unit of the page (the scale of the paper, the icons and the
     letters), in one 128 x 128 texture (Fallow's livres/client/PageParts reads the same places):
-      tabs, 16 x 16 at (0, 0), (16, 0), (32, 0): behind the page, under the cursor, open; nine pieces, 3 texels a side;
-      the search slip, 16 x 16 at (48, 0) and lit at (64, 0), nine pieces of 3;
       wells, 17 x 17 at (0, 16) (a recipe out of reach, or a thing not at hand) and ready at (17, 16);
-      the frame of a picked well, 17 x 17 at (34, 16), on the well's own rim;
       the mark of a well holding variants, 17 x 17 at (52, 16), a second rim inside it;
       the card a group of recipes opens on, 16 x 16 at (0, 36), its shadow in its last row and column, nine pieces of 4;
-      the magnifier, 8 x 8 at (16, 36); the mark of a new recipe, 4 x 4 at (24, 36);
+      the mark of a new recipe, 4 x 4 at (24, 36);
       the gutter's shade, 16 x 8 at (48, 52), the fold on its left;
-      the rule under a name, 31 x 5 at (0, 76);
-      the red head of a tab with something new, 16 x 2 at (80, 0);
-      the tabs' pictograms, 9 x 9 from (0, 88) in the order of TAB_GLYPH_ORDER.
+      the rule under a name, 31 x 5 at (0, 76).
+    The tabs, their icons, the search slip, the magnifier and the frame of a picked well are Hands-On Vanilla's own drawing.
     One palette for every book: brown inks (never black), paper and its shades, the rubric red for what is new. Lines are a texel,
     corners notched by a texel, wells pressed into the paper (darker rim above and left, lit below and right), nothing green."""
     img = np.zeros((128, 128, 4), np.float32)
@@ -573,17 +442,6 @@ def elements(path):
                 else:
                     put(x0 + x, y0 + y, fill, fill_a)
 
-    # Tabs: behind the page a darker paper, under the cursor the page's paper, open the page's paper with no line at its foot.
-    box(0, 0, 16, 16, (226, 208, 170), INK_SOFT, light=(236, 222, 190))
-    box(16, 0, 16, 16, PAPER_RGB, INK_SOFT, light=RIM_LIGHT)
-    box(32, 0, 16, 16, PAPER_RGB, INK_SOFT, open_foot=True, light=RIM_LIGHT)
-    for x in range(1, 15):
-        # Where the tabs behind go in under the page: its shadow on them.
-        put(x, 15, (184, 158, 112))
-        put(16 + x, 15, (200, 176, 130))
-    # The search slip: a field of the lightest paper in a texel of ink, the top a shade in.
-    box(48, 0, 16, 16, RIM_LIGHT, INK_SOFT, light=PAPER_SHADE)
-    box(64, 0, 16, 16, RIM_LIGHT, SELECT, light=PAPER_SHADE)
     # Wells, 17 square. Out of reach: a faint rim only, the paper bare. Ready: pressed in, a shade darker, rim dark above and
     # left, lit below and right.
     for y in range(17):
@@ -607,21 +465,6 @@ def elements(path):
             else:
                 c = PAPER_SHADE
             put(17 + x, 16 + y, c, 1.0)
-    # The frame of a picked well, on the well itself (17 square, its rim): a texel of dark ink with the corners notched, a
-    # texel of light inside it and the corners of a second line of ink a texel further in, so the pick is framed without
-    # touching the wells beside it.
-    for y in range(17):
-        for x in range(17):
-            edge = x in (0, 16) or y in (0, 16)
-            inner = x in (1, 15) or y in (1, 15)
-            if x in (0, 16) and y in (0, 16):
-                continue
-            if edge:
-                put(34 + x, 16 + y, SELECT)
-            elif inner and not (x in (1, 15) and y in (1, 15)):
-                put(34 + x, 16 + y, RIM_LIGHT, 0.9)
-            elif (x in (2, 14) and y in (2, 3, 13, 14)) or (y in (2, 14) and x in (2, 3, 13, 14)):
-                put(34 + x, 16 + y, SELECT, 0.75)
     # A well holding several variants: a second rim a texel inside its right and bottom sides, as the edges of cards stacked
     # under it, 17 x 17 at (52, 16); it keeps inside the well, clear of the wells beside it.
     for i in range(3, 16):
@@ -635,42 +478,10 @@ def elements(path):
                 continue
             put(1 + x, 36 + 1 + y, (90, 60, 30), 0.4)
     box(0, 36, 15, 15, RIM_LIGHT, INK_SOFT)
-    # The magnifier: a ring of ink round a pale glass with a glint, and its handle.
-    glass = ["..###...",
-             ".#oo.#..",
-             "#o...#..",
-             "#....#..",
-             ".####...",
-             ".....#..",
-             "......#.",
-             ".......#"]
-    for y, rowtxt in enumerate(glass):
-        for x, ch in enumerate(rowtxt):
-            if ch == "#":
-                put(16 + x, 36 + y, INK)
-            elif ch == "o":
-                put(16 + x, 36 + y, (255, 255, 255), 0.9)
-            elif ch == "." and 1 <= x <= 4 and 1 <= y <= 3:
-                put(16 + x, 36 + y, RIM_LIGHT, 0.7)
     # The mark of a new recipe: a lozenge of the rubric red, 4 texels.
     for x, y in ((1, 0), (2, 0), (0, 1), (1, 1), (2, 1), (3, 1), (0, 2), (1, 2), (2, 2), (3, 2), (1, 3), (2, 3)):
         put(24 + x, 36 + y, ACCENT)
     put(24 + 1, 36 + 1, (214, 110, 92))
-    # What is new on a tab: its head drawn in the rubric red, 16 x 2 at (80, 0), the corners notched as the tab's are; it
-    # stops where the tab's pictogram begins.
-    for x in range(16):
-        for y in range(2):
-            if y == 0 and x in (0, 15):
-                continue
-            c = (126, 34, 28) if y == 0 or x in (0, 15) else ACCENT
-            put(80 + x, y, c)
-    # The tabs' pictograms, a row of 9 x 9 at v 88.
-    colours = {"#": INK, "o": INK_SOFT, "r": ACCENT, "g": (190, 146, 66)}
-    for i, name in enumerate(TAB_GLYPH_ORDER):
-        for y, rowtxt in enumerate(GLYPHS[name]):
-            for x, ch in enumerate(rowtxt):
-                if ch in colours:
-                    put(i * 9 + x, 88 + y, colours[ch])
     # The gutter: where the page goes down into the fold, a fine line of shade and a soft shadow fading out from it.
     # Texels under 0.1 opaque are thrown away: the faint tail keeps 0.12 and fades by its colour, towards the paper.
     paper = np.array(PAPER_RGB, np.float32)

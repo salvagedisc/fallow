@@ -26,7 +26,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix3f;
@@ -43,7 +42,6 @@ import com.pockyl.diegesis.api.scene.Transform;
 import io.github.salvagedisc.fallow.postes.BookMath;
 import io.github.salvagedisc.fallow.Fallow;
 import io.github.salvagedisc.fallow.livres.client.DogEar;
-import io.github.salvagedisc.fallow.livres.client.HovRecipeBooks;
 import io.github.salvagedisc.fallow.livres.client.PageParts;
 import io.github.salvagedisc.fallow.livres.client.RecipeSheets;
 
@@ -154,9 +152,15 @@ final class RecipeBook implements NodePainter {
     private static final float TAB_WIDE = 13.0F;
     private static final float TAB_PITCH = 14.0F;
     private static final float TAB_HIGH = 14.0F;
-    private static final float TAB_DROP = 2.0F;
-    /** How far under a tab's head what it shows begins: its line and a unit of paper. */
+    private static final float TAB_DROP = 3.0F;
+    /** How far under a tab's head its icon begins. */
     private static final float TAB_HEAD = 2.0F;
+    /** Hands-On Vanilla's tab and slip papers (under the cursor, behind the page), their line, and the frame of a picked well. */
+    private static final int TAB_LIT = 0xFFEDE4D0;
+    private static final int TAB_REST_PAPER = 0xFFD6CAAC;
+    private static final int TAB_LINE = 0x905A3C18;
+    private static final int SLIP_LIT = 0xFFF6F0E2;
+    private static final int PICKED = 0xFF8A5A2B;
     private static final float TAB_ICON = 11.0F;
     /** More than five tabs are narrower, so that all of them stand side by side without covering each other. */
     private static final int TABS_FULL = 5;
@@ -2345,11 +2349,11 @@ final class RecipeBook implements NodePainter {
                 float since = time - switchNodFrom;
                 float nod = since >= 0.0F && since < NOD_TIME ? Math.abs(Mth.sin(since / NOD_TIME * Mth.TWO_PI)) * NOD_HEIGHT : 0.0F;
                 canvas.tab(FILTER_X, TAB_WIDE, TAB_ICON, source.filtering(), overFilter,
-                        source.filterIcon(), nod, source.filtering(), false, PageParts.Glyph.FILTER);
+                        source.filterIcon(), nod, source.filtering(), false);
             }
             if (resting) {
                 canvas.tab(SEARCH_X, TAB_WIDE, TAB_ICON, searching(), overSearch, ItemStack.EMPTY, 0.0F, false, false);
-                canvas.magnifier(SEARCH_X + (TAB_WIDE - 7.0F) / 2.0F, -tabHigh(searching()) + TAB_HEAD + 1.0F);
+                canvas.magnifier(SEARCH_X + (TAB_WIDE - 7.0F) / 2.0F, -tabHigh(searching()) + 3.0F);
             }
             Entry shown = rightShown();
             if (shown != null) {
@@ -2377,14 +2381,13 @@ final class RecipeBook implements NodePainter {
         Font font = Minecraft.getInstance().font;
         float wide = UNITS_WIDE - TAB_MARGIN - TABS_X;
         canvas.slip(TABS_X, wide, SLIP_HIGH, overSlip && !typing);
-        // The magnifier a unit clear of the slip's edge and of the words; the words a unit above its lower line, clear of a "p".
-        canvas.magnifier(TABS_X + 2.5F, -SLIP_HIGH + 2.0F);
+        canvas.magnifier(TABS_X + 2.0F, -SLIP_HIGH + 2.0F);
         float room = wide - SLIP_TEXT_X - 3.0F;
         String shown = query;
         while (!shown.isEmpty() && font.width(shown) > room) {
             shown = shown.substring(1);
         }
-        float textY = -SLIP_HIGH + 1.0F;
+        float textY = -SLIP_HIGH + 2.0F;
         canvas.text(shown, TABS_X + SLIP_TEXT_X, textY);
         if (typing && (time - typingFrom) % (CARET_BLINK * 2.0F) < CARET_BLINK) {
             canvas.rect(TABS_X + SLIP_TEXT_X + font.width(shown), textY - 1.0F, 1.0F, 9.0F, COVER_LIFT, INK);
@@ -2500,12 +2503,7 @@ final class RecipeBook implements NodePainter {
             float wide = foot.isEmpty() ? noteWide : (foot.size() - 1) * FOOT_PITCH + FOOT_SIZE + noteWide;
             float x = middle - wide / 2.0F;
             for (ItemStack small : foot) {
-                if (small.is(Items.CLOCK)) {
-                    // A time: the books' hourglass, drawn in their inks, never the clock's own picture.
-                    canvas.glyph(PageParts.Glyph.RECENT, x + (FOOT_SIZE - PageParts.GLYPH) / 2.0F, bottom + (FOOT_SIZE - PageParts.GLYPH) / 2.0F);
-                } else {
-                    canvas.item(small, x, bottom, FOOT_SIZE);
-                }
+                canvas.item(small, x, bottom, FOOT_SIZE);
                 x += FOOT_PITCH;
             }
             if (note != null) {
@@ -2539,45 +2537,52 @@ final class RecipeBook implements NodePainter {
         }
 
         /**
-         * A paper tab standing over the page's top edge, as vanilla's recipe book has them: the chosen one taller and in the page's own
-         * paper, the others a shade darker, each with its kind's icon ({@link PageParts#tab}). All stop at the page's edge: nothing of
-         * them lies on the page.
+         * A paper tab standing over the page's top edge, drawn as Hands-On Vanilla's: the chosen one taller, in the page's own paper
+         * and reaching a unit onto the page, the others a shade darker, under a fine line; its kind's icon as Hands-On Vanilla
+         * draws it, faded on a tab behind the page; the filter, when on, washed with the green of what can be made.
          */
         void tab(float x, float wide, float iconSize, boolean chosen, boolean lit, ItemStack icon, float nod, boolean washed,
                 boolean marked) {
-            tab(x, wide, iconSize, chosen, lit, icon, nod, washed, marked, HovRecipeBooks.glyph(icon));
-        }
-
-        /** A tab showing {@code glyph} (null: its icon, small, inside it). */
-        void tab(float x, float wide, float iconSize, boolean chosen, boolean lit, ItemStack icon, float nod, boolean washed,
-                boolean marked, PageParts.Glyph glyph) {
             float high = tabHigh(chosen);
-            // The filter, when on, is drawn as the open tab (the page's paper): no colour of its own.
-            PageParts.tab(poseStack, buffers, shade, x, -high - nod, wide, 0.0F, chosen ? 0.25F : 0.05F,
-                    chosen || washed ? PageParts.Tab.OPEN : lit ? PageParts.Tab.LIT : PageParts.Tab.REST);
+            float bottom = chosen ? 1.0F : 0.0F;
+            float u0 = 0.0625F;
+            quad(buffers.getBuffer(RenderType.text(PAPER)), x, -high, x + wide, bottom, chosen ? 0.05F : 0.0F,
+                    chosen ? 0xFFFFFFFF : lit ? TAB_LIT : TAB_REST_PAPER, u0, u0 + wide / PAPER_SIZE, u0, u0 + (bottom + high) / PAPER_SIZE);
+            if (washed) {
+                rect(x + 1.0F, -high + 1.0F, wide - 2.0F, high - 1.0F + bottom, 0.08F, 0x603D7845);
+            }
+            rect(x + 1.0F, -high, wide - 2.0F, 1.0F, 0.1F, TAB_LINE);
+            rect(x, -high + 1.0F, 1.0F, high - 1.0F, 0.1F, TAB_LINE);
+            rect(x + wide - 1.0F, -high + 1.0F, 1.0F, high - 1.0F, 0.1F, TAB_LINE);
+            if (!icon.isEmpty()) {
+                item(icon, x + (wide - iconSize) / 2.0F, -high + TAB_HEAD - nod, iconSize, !chosen && !lit && !washed);
+            }
             if (marked) {
-                // Recipes the player has not seen are in it: its head in the rubric red, clear of what it shows.
-                PageParts.cap(poseStack, buffers, shade, x, -high - nod, wide, chosen ? 0.3F : 0.1F);
-            }
-            // What it shows sits two units under its head, in the middle of its width: a pictogram of the book's inks for the
-            // switch and the kinds the books know, else the item, as small, inside it.
-            float top = -high - nod + TAB_HEAD;
-            if (glyph != null) {
-                PageParts.glyph(poseStack, buffers, shade, glyph, x + (wide - PageParts.GLYPH) / 2.0F, top, chosen ? 0.35F : 0.15F);
-            } else if (!icon.isEmpty()) {
-                float size = Math.min(iconSize, PageParts.GLYPH);
-                item(icon, x + (wide - size) / 2.0F, top + (PageParts.GLYPH - size) / 2.0F, size, false);
+                // Recipes the player has not seen are in it.
+                mark(x + wide - 2.5F, -high - nod + 2.5F);
             }
         }
 
-        /** The search's slip: a field of cream in a fine line standing over the page's top edge ({@link PageParts#slip}). */
+        /** The search's slip, as Hands-On Vanilla draws it: the page's paper under a fine line, standing over the page's top edge. */
         void slip(float x, float wide, float high, boolean lit) {
-            PageParts.slip(poseStack, buffers, shade, x, -high, wide, 0.0F, 0.25F, lit);
+            float u0 = 0.0625F;
+            // Its paper read from a narrower band of the texture: at its full width it reached the page's edge, a line across it.
+            quad(buffers.getBuffer(RenderType.text(PAPER)), x, -high, x + wide, 1.0F, 0.05F, lit ? SLIP_LIT : 0xFFFFFFFF, u0,
+                    u0 + wide / (PAPER_SIZE * 1.25F), u0, u0 + (high + 1.0F) / PAPER_SIZE);
+            rect(x + 1.0F, -high, wide - 2.0F, 1.0F, 0.1F, TAB_LINE);
+            rect(x, -high + 1.0F, 1.0F, high - 1.0F, 0.1F, TAB_LINE);
+            rect(x + wide - 1.0F, -high + 1.0F, 1.0F, high - 1.0F, 0.1F, TAB_LINE);
         }
 
-        /** A magnifying glass, 7 units square: a ring round a pale glass and its handle going down to the right. */
+        /** Hands-On Vanilla's magnifying glass, 7 units square: a ring and its handle going down to the right. */
         void magnifier(float x, float y) {
-            PageParts.magnifier(poseStack, buffers, shade, x, y, COVER_LIFT);
+            rect(x + 1.0F, y, 3.0F, 1.0F, COVER_LIFT, INK);
+            rect(x + 1.0F, y + 4.0F, 3.0F, 1.0F, COVER_LIFT, INK);
+            rect(x, y + 1.0F, 1.0F, 3.0F, COVER_LIFT, INK);
+            rect(x + 4.0F, y + 1.0F, 1.0F, 3.0F, COVER_LIFT, INK);
+            rect(x + 4.0F, y + 4.0F, 1.0F, 1.0F, COVER_LIFT, INK);
+            rect(x + 5.0F, y + 5.0F, 2.0F, 1.0F, COVER_LIFT, INK);
+            rect(x + 6.0F, y + 6.0F, 1.0F, 1.0F, COVER_LIFT, INK);
         }
 
         /** A well a recipe or an ingredient sits in: pressed into the paper when it can be made (or is at hand), a faint rim if not. */
@@ -2614,13 +2619,12 @@ final class RecipeBook implements NodePainter {
                     u + RIBBON_WIDTH / PAPER_SIZE, 0.0F, RIBBON_HEIGHT / PAPER_SIZE);
         }
 
+        /** The frame of a picked well, as Hands-On Vanilla draws it: a line of warm brown on the well's own edge. */
         void frame(float x, float y, float size) {
-            PageParts.frame(poseStack, buffers, shade, x, y, size, COVER_LIFT);
-        }
-
-        /** One of the books' pictograms, 9 units square from ({@code x}, {@code y}). */
-        void glyph(PageParts.Glyph glyph, float x, float y) {
-            PageParts.glyph(poseStack, buffers, shade, glyph, x, y, WELL_LIFT);
+            rect(x, y, size, 1.0F, COVER_LIFT, PICKED);
+            rect(x, y + size - 1.0F, size, 1.0F, COVER_LIFT, PICKED);
+            rect(x, y, 1.0F, size, COVER_LIFT, PICKED);
+            rect(x + size - 1.0F, y, 1.0F, size, COVER_LIFT, PICKED);
         }
 
         private void quad(VertexConsumer consumer, float x0, float y0, float x1, float y1, float lift, int argb, float u0, float u1, float v0, float v1) {
