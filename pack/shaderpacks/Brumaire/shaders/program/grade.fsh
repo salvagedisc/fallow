@@ -352,8 +352,9 @@ void main() {
     float sunUp = normalize(mat3(gbufferModelViewInverse) * sunPosition).y;
     // Peu, la nuit : une nuit de Recrafted reste noire (sol vers 20 sur 255), seuls la lune et les feux éclairent.
     float adapt = mix(1.1, 1.0, smoothstep(-0.18, 0.12, sunUp));
-    // De jour, un peu moins ouvert : l'image de Recrafted reste vers le milieu (médiane vers 0,5), pas délavée.
-    float exposure = 0.62 * EXPOSURE * adapt * mix(1.0, 0.85, smoothstep(0.0, 0.25, sunUp));
+    // De jour, moins ouvert : l'image de Recrafted reste vers le milieu (médiane vers 0,5), pas délavée, l'herbe au
+    // soleil vers 0,35-0,40.
+    float exposure = 0.62 * EXPOSURE * adapt * mix(1.0, 0.75, smoothstep(0.0, 0.25, sunUp));
 #if EXPOSURE_AUTO > 0
     // Et à ce qu'il regarde : une scène sombre s'ouvre, une scène éblouissante se ferme, à moitié seulement, comme un
     // œil et pas comme une caméra de surveillance, et en prenant son temps (lens.csh).
