@@ -47,7 +47,7 @@ float fogMarch(vec3 dir, float reach, float sunAmount, out vec3 light) {
         * mix(vec3(1.0), vec3(0.97, 1.0, 1.04), gDay * (1.0 - gDusk));
     body = mix(body, vec3(luma(body)) * vec3(1.06, 0.99, 0.88), 0.7 * rainStrength);
     // Vers l'astre bas, la brume s'allume sans noyer le paysage : on doit encore lire les reliefs à contre-jour.
-    vec3 beam = mix(gLightColor, vec3(luma(gLightColor)) * vec3(1.0, 0.93, 0.78), 0.6 * gDusk) * (0.03 + 0.22 * phaseMist * SHAFT_STRENGTH) * sunAmount * mix(1.0, 0.3, gDusk);
+    vec3 beam = mix(gLightColor, vec3(luma(gLightColor)) * vec3(1.0, 0.93, 0.78), 0.2 * gDusk) * (0.03 + 0.22 * phaseMist * SHAFT_STRENGTH) * sunAmount * mix(1.0, 0.075, gDusk);
 #if FOG_OPTICS > 0
     beam += gLightColor * fogOptics(dir) * sunAmount;
 #endif

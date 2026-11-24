@@ -353,6 +353,8 @@ vec4 water(vec3 biome, vec3 normal, vec2 lm) {
     // De jour, le ciel que renvoie l'eau perd son bleu pour un gris à peine vert : un lac se lit vert-de-gris, comme
     // l'eau de Recrafted, et non comme un miroir du ciel bleu. Le paysage reflété garde ses couleurs.
     mirror = mix(mirror, vec3(luma(mirror)) * vec3(0.96, 1.0, 0.92), 0.8 * gDay);
+    // Et il en renvoie moins : un lac vu de loin reste d'un gris-vert sombre, pas d'un blanc de ciel.
+    mirror *= mix(1.0, 0.7, gDay);
     float dist;
     vec4 hit = screenReflection(view, mat3(gbufferModelView) * r, jitter, 1.0, WATER_REFLECTIONS, dist);
 #if VOXEL_REFLECTIONS > 0

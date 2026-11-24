@@ -347,11 +347,10 @@ void main() {
         }
     }
 #endif
-    // L'œil s'habitue : la nuit et sous terre, l'image s'éclaircit un peu.
+    // L'œil s'habitue : la nuit, l'image s'éclaircit un peu. Sous terre, non : une grotte de Recrafted reste noire.
     float sunUp = normalize(mat3(gbufferModelViewInverse) * sunPosition).y;
     // Peu, la nuit : une nuit de Recrafted reste noire (sol vers 20 sur 255), seuls la lune et les feux éclairent.
     float adapt = mix(1.1, 1.0, smoothstep(-0.18, 0.12, sunUp));
-    adapt *= mix(1.5, 1.0, smoothstep(0.0, 0.5, float(eyeBrightnessSmooth.y) / 240.0));
     float exposure = 0.62 * EXPOSURE * adapt;
 #if EXPOSURE_AUTO > 0
     // Et à ce qu'il regarde : une scène sombre s'ouvre, une scène éblouissante se ferme, à moitié seulement, comme un
@@ -361,7 +360,8 @@ void main() {
     // autour de la lanterne, comme chez Recrafted. Une maison de jour, à demi ouverte sur le ciel, l'ouvre un peu.
     float skySeen = float(eyeBrightnessSmooth.y) / 240.0;
     float openMax = mix(1.0, 1.25, smoothstep(-0.18, 0.12, sunUp) * smoothstep(0.05, 0.40, skySeen));
-    exposure *= clamp(pow(0.10 / seen, 0.3 * EXPOSURE_AUTO_AMOUNT), 0.75, openMax);
+    // La nuit, il ne se ferme pas non plus devant un ciel clair : le sol reste sombre sous lui.
+    exposure *= clamp(pow(0.10 / seen, 0.3 * EXPOSURE_AUTO_AMOUNT), mix(1.0, 0.75, smoothstep(-0.18, 0.12, sunUp)), openMax);
 #endif
 #if RAIN_GLOOM > 0
     // Sous la pluie, l'œil ne rouvre pas tout : un jour gris reste un jour sombre, d'un gris un peu chaud, celui des
@@ -396,9 +396,10 @@ void main() {
     float grainDark = 1.0 - smoothstep(0.003, 0.06, dot(color, LUMA));
 #endif
 #if PURKINJE > 0
-    // Dans le noir, l'œil voit avec ses bâtonnets : les couleurs s'éteignent et l'image tire vers le bleu.
+    // Dans le noir, l'œil voit avec ses bâtonnets : les couleurs s'éteignent, presque sans bleu (les nuits de Recrafted
+    // sont grises, pas bleues).
     float dark = 1.0 - smoothstep(0.004, 0.05, dot(color, LUMA));
-    vec3 rod = vec3(0.62, 0.74, 1.0) * dot(color, vec3(0.08, 0.58, 0.34));
+    vec3 rod = vec3(0.97, 0.99, 1.0) * dot(color, vec3(0.08, 0.58, 0.34));
     color = mix(color, rod, dark * 0.55);
 #endif
 #if VIGNETTE > 0

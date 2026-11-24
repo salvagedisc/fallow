@@ -73,8 +73,8 @@ void initEnv() {
     // au ras de l'horizon) et de la lune (selon sa phase), tirée vers le bleu comme l'œil la voit la nuit.
     // Un soleil un peu chaud même à midi : la lumière d'un après-midi, pas celle d'un projecteur.
     vec3 sun = skyRow(1) / vec3(0.97, 0.89, 0.78) * 3.4 * vec3(1.0, 0.97, 0.90);
-    // À peine bleutée : chez Recrafted la lune verse une lumière presque neutre, le sol reste olive sombre.
-    vec3 moon = luma(skyRow(2)) * vec3(0.44, 0.50, 0.62) * 0.25;
+    // Neutre, un rien chaude : chez Recrafted la lune verse une lumière grise, le sol reste olive sombre.
+    vec3 moon = luma(skyRow(2)) * vec3(0.51, 0.50, 0.47) * 0.15;
 #if LUNAR_EVENTS > 0
     // Les lunes d'Enhanced Celestials (de sang, bleue, des moissons) : le jeu teinte la texture de la lune, que
     // gbuffers_skytextured.vsh range dans la table du ciel. Sa couleur gagne la nuit : la lune et son halo, la
@@ -104,7 +104,8 @@ void initEnv() {
     // Au couchant, le ciel encore clair n'éclaire plus guère le sol : le paysage à contre-jour reste sombre sous un
     // ciel lumineux, comme chez Recrafted.
     amb *= mix(1.0, 0.72, gDusk);
-    amb += vec3(0.012, 0.016, 0.026);
+    // La lueur nocturne, grise et faible : les nuits de Recrafted ne sont pas bleues.
+    amb += vec3(0.007, 0.0075, 0.008);
     amb = mix(amb, vec3(luma(amb)) * gLunar, 0.7 * gLunarK);
     // Sous la pluie, la lumière du ciel tire vers le même gris beige, sans éteindre la couleur de l'herbe mouillée.
     gAmbient = mix(amb, vec3(luma(amb)) * vec3(1.0, 0.95, 0.86) * 0.80, rainStrength * 0.45);
@@ -127,6 +128,8 @@ vec3 skyAt(vec3 d) {
     c *= mix(1.0, 3.0, night);
     c += night * vec3(0.0035, 0.0036, 0.0030) * exp(-max(d.y, 0.0) * 7.0);
     c = mix(c, vec3(luma(c)) * gLunar * 1.1, 0.6 * gLunarK);
+    // Au couchant, le ciel autour du soleil moins blanc : le carré du soleil s'y détache.
+    c *= 1.0 - 0.5 * gDusk * pow(max(dot(d, gSunDir), 0.0), 6.0);
     // Un ciel d'été voilé, pâle, presque blanc vers l'horizon : jamais d'un bleu profond (celui d'une carte postale).
     // Au couchant, le ciel reprend ses couleurs : une bande pêche et rose au-dessus d'un horizon clair.
     c = mix(c, vec3(luma(c)) * vec3(0.95, 0.99, 1.05), (0.70 + 0.25 * (1.0 - smoothstep(0.0, 0.45, d.y))) * gDay * (1.0 - 0.75 * gDusk));
@@ -163,7 +166,7 @@ vec3 sunDisc(vec3 d) {
     // Le cœur reste blanc même au ras de l'horizon (une lumière trop vive pour garder sa couleur) ; le cadre prend
     // le jaune ou l'orangé que l'air laisse passer. Sans cela, un soleil bas très saturé sortait plus terne que son halo.
     vec3 t = skyRow(1);
-    vec3 rim = t * vec3(1.0, 0.86, 0.42) * 0.5;
+    vec3 rim = max(luma(t), 0.6) * vec3(1.0, 0.86, 0.50) * 2.4 * smoothstep(-0.03, 0.04, gSunDir.y);
     // Un blanc franc qui ne dépend pas de la couleur du soir, sinon le carré se vidait au couchant (cadre seul visible).
     vec3 white = max(luma(t), 0.6) * vec3(1.0, 0.98, 0.92) * 3.0 * smoothstep(-0.03, 0.04, gSunDir.y);
     return mix(rim, white, core) * (SUN_POWER * 1.8) * disc * (1.0 - rainStrength);

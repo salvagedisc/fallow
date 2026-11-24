@@ -35,7 +35,8 @@ float mistNearDensity() {
     // (Recrafted). Le paysage à découvert garde sa nappe légère, sans quoi une vallée vue d'en haut se noie.
     float eye = float(eyeBrightnessSmooth.y) / 240.0;
     float under = (1.0 - smoothstep(0.86, 0.99, eye)) * smoothstep(0.25, 0.45, eye) * smoothstep(0.0, 0.3, gSunDir.y);
-    return 0.010 * MIST_DENSITY * hour * biome * (1.0 + 3.0 * rainStrength) * open * (1.0 + 1.5 * under);
+    // Au couchant, une nappe moitié moins épaisse : le paysage reste sombre et coloré, pas noyé dans un voile laiteux.
+    return 0.010 * mix(1.0, 0.5, gDusk) * MIST_DENSITY * hour * biome * (1.0 + 3.0 * rainStrength) * open * (1.0 + 1.5 * under);
 }
 
 /** Brume retirée par une clairière : un cylindre vertical, au bord adouci par deux rayons. */
@@ -137,6 +138,6 @@ vec3 mistColor(vec3 dir, float sun) {
     // couchant ce halo est paille pâle, pas orange : le paysage reste vert sous un ciel coloré (Recrafted).
     float mu = dot(dir, gLightDir);
     float phase = 0.75 * mistPhase(mu, 0.5) + 0.25 * mistPhase(mu, -0.3);
-    vec3 beam = mix(gLightColor, vec3(luma(gLightColor)) * vec3(1.0, 0.93, 0.78), 0.6 * gDusk) * (0.03 + 0.18 * phase * SHAFT_STRENGTH) * mix(1.0, 0.3, gDusk);
+    vec3 beam = mix(gLightColor, vec3(luma(gLightColor)) * vec3(1.0, 0.93, 0.78), 0.2 * gDusk) * (0.03 + 0.18 * phase * SHAFT_STRENGTH) * mix(1.0, 0.075, gDusk);
     return body + beam * sun;
 }

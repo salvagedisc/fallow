@@ -58,7 +58,7 @@
 #define MOON_UPRIGHT 1 // [0 1]
 #define MOON_SIZE 1.4 // [1.0 1.2 1.4 1.6 1.8 2.0]
 #define SUN_SQUARE 1 // [0 1]
-#define SUN_SIZE 1.0 // [0.6 0.8 1.0 1.2 1.5]
+#define SUN_SIZE 2.2 // [1.0 1.5 2.0 2.2 2.5 3.0]
 
 // Lumière
 #define SHADOW_FILTER 8 // [1 4 6 8 12 16]
@@ -111,7 +111,7 @@
 // jusqu'à la distance du feuillage touffu.
 #define GRASS_TUFTS 1 // [0 1]
 #define WATER_WAVES 1.5 // [0.0 0.5 1.0 1.5]
-#define WATER_MURK 2.0 // [0.5 0.75 1.0 1.5 2.0 3.0]
+#define WATER_MURK 3.0 // [0.5 0.75 1.0 1.5 2.0 3.0]
 #define WATER_PIXELS 1 // [0 1]
 #define WATER_CAUSTICS 2 // [0 1 2]
 #define WATER_REFLECTIONS 20 // [0 12 20 32]
@@ -137,7 +137,7 @@
 #define LUNAR_EVENTS_STRENGTH 1.0 // [0.5 0.75 1.0]
 #define PLANKTON 1 // [0 1]
 #define PLANKTON_STRENGTH 0.10 // [0.04 0.06 0.10 0.15 0.25]
-#define WATER_FALLS 1 // [0 1]
+#define WATER_FALLS 0 // [0 1]
 #define SHORE_SPRAY 1 // [0 1]
 #define SPRAY_RAINBOW 1 // [0 1]
 #define SHORE_WET 1 // [0 1]
