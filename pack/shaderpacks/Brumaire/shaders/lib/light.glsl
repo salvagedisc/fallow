@@ -183,11 +183,12 @@ vec3 shade(vec3 albedo, vec3 normal, vec2 lm, float ao, vec3 pos, float leaf, ve
     // 0,2-0,25 comme chez Recrafted (0,13 avant).
 #if COLORED_LIGHT > 0
     // Les lumières plus faibles que la flamme (âmes : niveau 10, redstone : 7) ont la même flaque autour d'elles, en plus
-    // petit : leur niveau est lu par rapport au leur, sans quoi la forte pente ci-dessous les éteint presque.
+    // petit : leur niveau est lu par rapport au leur, sans quoi la forte pente ci-dessous les éteint presque. Un peu
+    // plus de moitié moins fortes qu'une flamme : une lanterne d'âme ne doit pas baigner une grotte de cyan.
     float weak = 1.0;
     if (distance(tint, lightTint(1)) < 0.2) weak = 10.0 / 15.0;
     else if (distance(tint, lightTint(7)) < 0.2) weak = 7.0 / 15.0;
-    blockLm = min(blockLm / weak, 1.0) * mix(1.0, 0.85, step(weak, 0.99));
+    blockLm = min(blockLm / weak, 1.0) * mix(1.0, 0.55, step(weak, 0.99));
 #endif
     float bl2 = blockLm * blockLm;
     float glow = bl2 * (0.42 + 3.9 * bl2 * bl2);
