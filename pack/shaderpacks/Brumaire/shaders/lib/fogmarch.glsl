@@ -52,8 +52,8 @@ float fogMarch(vec3 dir, float reach, float sunAmount, out vec3 light) {
     beam += gLightColor * fogOptics(dir) * sunAmount;
 #endif
     // Le jour, l'air seul ne renvoie que peu de soleil : face à l'astre bas, il ne doit pas noyer le paysage dans un voile
-    // laiteux. La lune, faible, garde ses rayons.
-    float airGlow = (mix(0.0045, 0.0016 * mix(1.0, 0.5, gDusk), smoothstep(-0.14, 0.0, gSunDir.y)) * SHAFT_STRENGTH) * mix(0.8, 1.6, airHumid) * smoothstep(0.2, 0.7, float(eyeBrightnessSmooth.y) / 240.0);
+    // laiteux. La lune, faible, garde ses rayons. Au couchant, presque rien : c'était la bande crème sous le soleil.
+    float airGlow = (mix(0.0045, 0.0016 * mix(1.0, 0.1, gDusk), smoothstep(-0.14, 0.0, gSunDir.y)) * SHAFT_STRENGTH) * mix(0.8, 1.6, airHumid) * smoothstep(0.2, 0.7, float(eyeBrightnessSmooth.y) / 240.0);
 #if MOON_SHAFTS > 0
     // La nuit, l'œil fait à l'ombre voit les rayons de lune dans la brume bien plus nettement que la lumière qu'elle
     // verse au sol ne le laisse croire : les faisceaux sont renforcés, la lumière des surfaces ne change pas.

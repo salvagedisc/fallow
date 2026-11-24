@@ -5009,7 +5009,7 @@ hash = "aa5d6e99a19c200844e46f669b4d36e072a1e318b49d2689760e161d8f909bbc"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/fogmarch.glsl"
-hash = "b8df00e27f35728ffd98cec402ed6e4544d6e21094b83654ebc00293b43222ea"
+hash = "13bb141fe1567cf657fa7aa4e3fbf4daf97fdab02cd94c3621834b0dec7b0c3c"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/glass.glsl"
@@ -5217,7 +5217,7 @@ hash = "20632f40a300f244c8b82f3d779804b6c76a8de097fe01d070000d94aa5f51df"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/program/grade.fsh"
-hash = "4c16495140c6ec4ba5c547fa2bdc4c333c5e53a4a895f74349f95510b7130363"
+hash = "8c50fac1be1aa3f9bb4f858f929a35bd62aea0d965e28b67de07f958f52840d1"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/program/lens.csh"

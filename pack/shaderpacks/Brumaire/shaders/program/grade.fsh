@@ -404,6 +404,12 @@ void main() {
     vec3 rod = vec3(0.97, 0.99, 1.0) * dot(color, vec3(0.08, 0.58, 0.34));
     color = mix(color, rod, dark * 0.2);
 #endif
+    {
+        // La nuit, les noirs tirent vers un brun chaud, comme ceux de Recrafted, et non vers un gris neutre.
+        float nightK = 1.0 - smoothstep(-0.18, 0.05, sunUp);
+        float deep = 1.0 - smoothstep(0.004, 0.05, dot(color, LUMA));
+        color *= mix(vec3(1.0), vec3(1.0, 0.86, 0.72), nightK * deep);
+    }
 #if VIGNETTE > 0
     // L'objectif assombrit un peu les coins.
     vec2 q = (vUv - 0.5) * vec2(viewWidth / viewHeight, 1.0);
