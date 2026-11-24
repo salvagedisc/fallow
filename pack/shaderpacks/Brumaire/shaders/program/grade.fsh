@@ -181,7 +181,8 @@ vec3 sunGlare() {
     vec2 d = (vUv - sun) * aspect;
     float r = length(d);
     // Les rais : six branches fines et quelques plus faibles, qui tournent à peine quand on bouge la tête.
-    vec3 glare = src * (exp(-r * 30.0) * 0.20 + exp(-r * 4.0) * 0.012);
+    // La traîne large reste faible : le grand soleil carré la nourrit fort, elle voilait toute la vallée au couchant.
+    vec3 glare = src * (exp(-r * 30.0) * 0.20 + exp(-r * 4.0) * 0.004);
 #if SUN_GLARE > 1
     float a = atan(d.y, d.x) + 0.15;
     float rays = pow(abs(cos(a * 3.0)), 140.0) + 0.35 * pow(abs(cos(a * 7.0 + 0.6)), 180.0);

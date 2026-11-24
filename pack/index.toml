@@ -5208,7 +5208,7 @@ hash = "20632f40a300f244c8b82f3d779804b6c76a8de097fe01d070000d94aa5f51df"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/program/grade.fsh"
-hash = "7ccc25ab4cc4e41bc01468f6b6fd091e5bb674c5125bcd1b4cd8ec44c2033d95"
+hash = "0fd36fa5d27851633bb74e5e32b2b7791c27ea06cfaf9f3e5c8dcef5fc2d9112"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/program/lens.csh"
