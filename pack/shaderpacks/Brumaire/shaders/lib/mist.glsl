@@ -141,5 +141,7 @@ vec3 mistColor(vec3 dir, float sun) {
     float mu = dot(dir, gLightDir);
     float phase = 0.75 * mistPhase(mu, 0.5) + 0.25 * mistPhase(mu, -0.3);
     vec3 beam = mix(gLightColor, vec3(luma(gLightColor)) * vec3(1.0, 0.93, 0.78), 0.2 * gDusk) * (0.03 + 0.18 * phase * SHAFT_STRENGTH) * mix(1.0, 0.075, gDusk);
+    // La nuit, la lune éclaire la brume deux fois plus : les vallées gardent un voile pâle sous elle (Recrafted).
+    beam *= mix(2.0, 1.0, gDay);
     return body + beam * sun;
 }

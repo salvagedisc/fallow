@@ -361,6 +361,8 @@ vec4 water(vec3 biome, vec3 normal, vec2 lm) {
     mirror = mix(mirror, vec3(luma(mirror)) * vec3(0.96, 1.0, 0.92), 0.8 * gDay);
     // Et il en renvoie moins : un lac vu de loin reste d'un gris-vert sombre, pas d'un blanc de ciel.
     mirror *= mix(1.0, 0.5, gDay);
+    // La nuit, au contraire, le ciel renvoyé compte triple : sans lui un lac se perd dans le noir du terrain.
+    mirror *= mix(3.0, 1.0, gDay);
     float dist;
     vec4 hit = screenReflection(view, mat3(gbufferModelView) * r, jitter, 1.0, WATER_REFLECTIONS, dist);
 #if VOXEL_REFLECTIONS > 0
