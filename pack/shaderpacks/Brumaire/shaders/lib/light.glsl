@@ -165,13 +165,13 @@ vec3 shade(vec3 albedo, vec3 normal, vec2 lm, float ao, vec3 pos, float leaf, ve
         float covered = sky * (1.0 - open);
         vec3 filtered = vec3(luma(hemisphereLight(normal, 1.0))) * 0.30
             + gLightColor * max(gLightDir.y, 0.0) * 0.035;
-        light += filtered * vec3(1.10, 1.0, 0.50) * covered * occl * (1.0 + 0.6 * gDay * (1.0 - gDusk));
+        light += filtered * vec3(1.10, 1.0, 0.50) * covered * occl * (1.0 + 1.2 * gDay * (1.0 - gDusk));
         sky *= open;
     }
 #endif
     // De jour, l'ombre reçoit franchement le ciel : sous un arbre ou un couvert, elle reste claire et douce (Recrafted :
     // sous-bois vers 78 sur 255, ici 51 avant). Sur les surfaces seulement : la brume garde sa lumière.
-    light += hemisphereLight(normal, sky) * occl * (1.0 + 0.6 * gDay * (1.0 - gDusk));
+    light += hemisphereLight(normal, sky) * occl * (1.0 + 1.2 * gDay * (1.0 - gDusk));
     // La lumière des blocs prend la couleur de ce qui éclaire autour (lib/voxel.glsl) : orangée pour une flamme,
     // bleue pour une âme, rouge pour la lave…
     float blockLm = lm.x;
@@ -213,7 +213,8 @@ vec3 shade(vec3 albedo, vec3 normal, vec2 lm, float ao, vec3 pos, float leaf, ve
     light += tint * glow * mix(occl, 1.0, blockLm * blockLm);
     gBlockReach = tint * glow;
     // Le plancher de lumière : un rien sous terre, pour que le noir d'une grotte reste noir.
-    light += vec3(0.016, 0.018, 0.022) * mix(0.45, 1.0, smoothstep(0.0, 0.3, lm.y)) * occl;
+    // Gris neutre et non bleuté : le voile bleu-gris des grottes venait de là.
+    light += vec3(0.017) * mix(0.3, 1.0, smoothstep(0.0, 0.3, lm.y)) * occl;
     light += vec3(0.30, 0.32, 0.34) * nightVision;
     light *= 1.0 - 0.7 * darknessFactor;
     // Part de la lumière qui vient du ciel et des blocs : c'est elle que l'occlusion d'écran assombrit.

@@ -57,6 +57,8 @@
 #define EARTHSHINE 1 // [0 1]
 #define MOON_UPRIGHT 1 // [0 1]
 #define MOON_SIZE 1.4 // [1.0 1.2 1.4 1.6 1.8 2.0]
+#define SUN_SQUARE 1 // [0 1]
+#define SUN_SIZE 1.0 // [0.6 0.8 1.0 1.2 1.5]
 
 // Lumière
 #define SHADOW_FILTER 8 // [1 4 6 8 12 16]

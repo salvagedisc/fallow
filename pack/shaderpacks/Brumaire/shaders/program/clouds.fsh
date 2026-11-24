@@ -281,6 +281,8 @@ void main() {
     cloudLight = mix(horizon * (1.0 - cloudPass), cloudLight, fade);
     // Sous la pluie, des nuages gris.
     cloudLight = mix(cloudLight, vec3(luma(cloudLight)) * vec3(1.05, 0.98, 0.86) * 0.85, rainStrength * 0.6);
+    // Au couchant, des nuages crème et pastel plutôt que pêche vif (Recrafted).
+    cloudLight = mix(cloudLight, vec3(luma(cloudLight)) * vec3(1.06, 0.97, 0.80), 0.5 * gDusk);
     // La nuit, les nuages sont des ombres : des bancs gris ardoise devant la lueur du ciel et de la lune, pas des
     // masses plus claires que lui (Recrafted : nuages vers 70 sur 255 devant un ciel à 115). Leur liseré vers la lune
     // reste, à la même proportion.

@@ -122,10 +122,16 @@ vec3 skyAt(vec3 d) {
     c = mix(c, vec3(luma(c)) * vec3(0.78, 0.88, 1.08), night * 0.3);
     // Puis la plus grande part de ce bleu repart : le ciel de nuit de Recrafted est un gris presque neutre.
     c = mix(c, vec3(luma(c)) * vec3(0.96, 1.0, 1.02), 0.6 * night);
+    // Un ciel de nuit trois fois plus clair que le terrain, avec une bande pâle au ras de l'horizon : les crêtes se
+    // découpent en noir dessus, comme dans Recrafted, au lieu de se fondre dans un ciel aussi sombre qu'elles.
+    c *= mix(1.0, 3.0, night);
+    c += night * vec3(0.0035, 0.0036, 0.0030) * exp(-max(d.y, 0.0) * 7.0);
     c = mix(c, vec3(luma(c)) * gLunar * 1.1, 0.6 * gLunarK);
     // Un ciel d'été voilé, pâle, presque blanc vers l'horizon : jamais d'un bleu profond (celui d'une carte postale).
     // Au couchant, le ciel reprend ses couleurs : une bande pêche et rose au-dessus d'un horizon clair.
-    c = mix(c, vec3(luma(c)) * vec3(0.95, 0.99, 1.05), (0.52 + 0.25 * (1.0 - smoothstep(0.0, 0.45, d.y))) * gDay * (1.0 - 0.75 * gDusk));
+    c = mix(c, vec3(luma(c)) * vec3(0.95, 0.99, 1.05), (0.70 + 0.25 * (1.0 - smoothstep(0.0, 0.45, d.y))) * gDay * (1.0 - 0.75 * gDusk));
+    // Et plus clair en hauteur : le ciel de jour de Recrafted, voilé, approche le blanc.
+    c *= mix(1.0, 1.15, gDay * (1.0 - gDusk) * smoothstep(0.05, 0.6, d.y));
     // Au couchant, le haut du ciel pâlit lui aussi : un bleu lavande et laiteux au-dessus de la bande pêche, pas un
     // bleu franc (Recrafted : saturation vers 0,10 au zénith, ici 0,22-0,26 avant).
     c = mix(c, vec3(luma(c)) * vec3(1.0, 0.98, 1.02), 0.55 * gDusk * smoothstep(0.08, 0.40, d.y));
@@ -134,13 +140,40 @@ vec3 skyAt(vec3 d) {
     return c + vec3(0.55, 0.60, 0.80) * gFlash * (0.6 + 0.4 * max(d.y, 0.0));
 }
 
-/** Le disque du soleil, à ajouter au ciel : rond, plus sombre au bord, de la couleur que l'air lui laisse. */
+/** Le disque du soleil, à ajouter au ciel, de la couleur que l'air lui laisse : carré (SUN_SQUARE) ou rond. */
 vec3 sunDisc(vec3 d) {
+#if SUN_SQUARE > 0
+    // Le soleil du jeu, carré comme la lune et comme celui de Recrafted : un cœur blanc éblouissant dans un cadre jaune
+    // plus terne, les bords droits à l'écran.
+    if (dot(d, gSunDir) <= 0.0) return vec3(0.0);
+    // Les bords suivent la course du soleil, comme le carré du jeu : un côté parallèle à l'axe autour duquel il tourne
+    // (l'axe nord-sud penché de sunPathRotation), l'autre le long de sa course.
+    float tilt = radians(sunPathRotation);
+    vec3 axisA = vec3(0.0, sin(tilt), cos(tilt));
+    vec3 axisB = vec3(0.0, -sin(tilt), cos(tilt));
+    vec3 side = abs(dot(axisA, gSunDir)) < abs(dot(axisB, gSunDir)) ? axisA : axisB;
+    side = normalize(side - gSunDir * dot(side, gSunDir));
+    vec3 up = cross(side, gSunDir);
+    vec3 off = d - gSunDir * dot(d, gSunDir);
+    float m = max(abs(dot(off, side)), abs(dot(off, up)));
+    float half_ = 0.045 * SUN_SIZE;
+    float px = fwidth(m);
+    float disc = 1.0 - smoothstep(half_ - px, half_ + px, m);
+    float core = 1.0 - smoothstep(half_ * 0.86 - px, half_ * 0.86 + px, m);
+    // Le cœur reste blanc même au ras de l'horizon (une lumière trop vive pour garder sa couleur) ; le cadre prend
+    // le jaune ou l'orangé que l'air laisse passer. Sans cela, un soleil bas très saturé sortait plus terne que son halo.
+    vec3 t = skyRow(1);
+    vec3 rim = t * vec3(1.0, 0.86, 0.42) * 0.5;
+    // Un blanc franc qui ne dépend pas de la couleur du soir, sinon le carré se vidait au couchant (cadre seul visible).
+    vec3 white = max(luma(t), 0.6) * vec3(1.0, 0.98, 0.92) * 3.0 * smoothstep(-0.03, 0.04, gSunDir.y);
+    return mix(rim, white, core) * (SUN_POWER * 1.8) * disc * (1.0 - rainStrength);
+#else
     float c = dot(d, gSunDir);
     float disc = smoothstep(0.99880, 0.99915, c);
     float r = clamp(sqrt(max(1.0 - c, 0.0) / (1.0 - 0.99897)), 0.0, 1.0);
     float limb = 1.0 - 0.55 * (1.0 - sqrt(max(1.0 - r * r, 0.0)));
     return skyRow(1) * (SUN_POWER * 1.8) * disc * limb * (1.0 - rainStrength);
+#endif
 }
 
 /** Les verts tirés vers un vert olive chaud, à luminance égale. */
