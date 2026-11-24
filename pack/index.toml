@@ -1353,6 +1353,10 @@ file = "kubejs/assets/libtooltips/lang/fr_fr.json"
 hash = "a809671cb4c434639ee2dad90f24e1a4c5181970df885e1f821df4748ef71da1"
 
 [[files]]
+file = "kubejs/assets/loconautics/lang/fr_fr.json"
+hash = "85b295373a5255db2ee47f7c7ccb181c95740dc45a90309496b5beb675aff4ad"
+
+[[files]]
 file = "kubejs/assets/longwings/lang/fr_fr.json"
 hash = "7108898b444c5b9cb7cb55cdd9a63ba9bd1d2e52867f46e592d326562074aca6"
 
