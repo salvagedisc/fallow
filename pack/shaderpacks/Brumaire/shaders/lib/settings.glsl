@@ -110,7 +110,7 @@
 // Les touffes plus fournies : chaque herbe, fleur ou culture proche reçoit une copie tournée (program/bushy.gsh),
 // jusqu'à la distance du feuillage touffu.
 #define GRASS_TUFTS 1 // [0 1]
-#define WATER_WAVES 1.0 // [0.0 0.5 1.0 1.5]
+#define WATER_WAVES 1.5 // [0.0 0.5 1.0 1.5]
 #define WATER_MURK 2.0 // [0.5 0.75 1.0 1.5 2.0 3.0]
 #define WATER_PIXELS 1 // [0 1]
 #define WATER_CAUSTICS 2 // [0 1 2]
@@ -223,7 +223,7 @@
 
 // Couleurs
 #define OLIVE 1.0 // [0.0 0.2 0.4 0.6 0.8 1.0]
-#define FOLIAGE_TONE 1.0 // [0.0 0.5 1.0]
+#define FOLIAGE_TONE 0.5 // [0.0 0.5 1.0]
 #define SATURATION 1.0 // [0.7 0.8 0.9 1.0 1.1 1.2]
 #define CONTRAST 1.0 // [0.9 0.95 1.0 1.05 1.1 1.15]
 #define EXPOSURE 1.0 // [0.7 0.85 1.0 1.15 1.3]

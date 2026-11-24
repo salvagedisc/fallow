@@ -115,6 +115,7 @@ vec3 glow(float threshold) {
         c += textureLod(colortex0, vUv + step_ * vec2(-1.0, 1.0), float(level)).rgb * 0.125;
         c += textureLod(colortex0, vUv + step_ * vec2(1.0, -1.0), float(level)).rgb * 0.125;
         c += textureLod(colortex0, vUv + step_ * vec2(-1.0, -1.0), float(level)).rgb * 0.125;
+        c = max(c, 0.0);
         // Un seuil au genou doux : ce qui approche du seuil luit déjà un peu, sans marche visible.
         float l = max(c.r, max(c.g, c.b));
         float knee = 0.6;

@@ -528,5 +528,8 @@ void main() {
     }
 #endif
     if (blindness > 0.0) color *= exp(-len * 0.35 * blindness);
+    // Un seul pixel invalide (négatif ou non défini) passait dans les réductions que lit le halo (grade.fsh) et y
+    // devenait un grand carré noir près de la caméra, de la taille d'un texel de la réduction la plus large.
+    color = any(isnan(color)) || any(isinf(color)) ? vec3(0.0) : max(color, 0.0);
     outColor = vec4(color, 1.0);
 }
