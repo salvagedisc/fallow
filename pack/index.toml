@@ -5020,7 +5020,7 @@ hash = "1ebf3b83fb85ae9e256bc18ceefd4abe1a8ff2c9b2b338fdefe259c02e7505a6"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/light.glsl"
-hash = "2f24246f5dafd99bb9036af4d007d9081d54289b17e3cc0be93d6b96d6f9c1ee"
+hash = "ec8b1f3a22fb16f5f13e2e91d20a5f80ed085aabc6ee4d4c1f13a87c5cc1d6ad"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/material.glsl"
@@ -5064,7 +5064,7 @@ hash = "8c71024243e4647f63e8a4884b5051c105652af8527d85ef2eb4de480d248fc0"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/settings.glsl"
-hash = "f25cc933de15d12042ed559892769722fa8d72aff818d898146b46e26d820cd3"
+hash = "dc092b624daa3e6f2ed03b6a1b2f1a568eb3e1b775cbaa7efc8b3f1de9c4a059"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/shadow.glsl"
