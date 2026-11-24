@@ -48,7 +48,7 @@ void main() {
         float disc = smoothstep(0.03, 0.15, dot(full.rgb, vec3(0.299, 0.587, 0.114))) * full.a;
         float dark = disc * (1.0 - smoothstep(0.02, 0.12, dot(color.rgb, vec3(0.299, 0.587, 0.114)) * color.a));
         float crescent = float(min(moonPhase, 8 - moonPhase)) / 4.0;
-        vec3 ash = pow(full.rgb, vec3(2.2)) * vec3(0.50, 0.62, 0.90) * (0.025 + 0.055 * crescent) * vTint.a;
+        vec3 ash = pow(full.rgb, vec3(2.2)) * vec3(0.50, 0.62, 0.90) * (0.010 + 0.022 * crescent) * vTint.a;
         outColor.rgb += ash * dark;
         outColor.a = max(outColor.a, dark * vTint.a);
     }

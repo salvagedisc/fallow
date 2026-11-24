@@ -73,8 +73,8 @@ void initEnv() {
     // au ras de l'horizon) et de la lune (selon sa phase), tirée vers le bleu comme l'œil la voit la nuit.
     // Un soleil un peu chaud même à midi : la lumière d'un après-midi, pas celle d'un projecteur.
     vec3 sun = skyRow(1) / vec3(0.97, 0.89, 0.78) * 3.4 * vec3(1.0, 0.97, 0.90);
-    // Neutre, un rien chaude : chez Recrafted la lune verse une lumière grise, le sol reste olive sombre.
-    vec3 moon = luma(skyRow(2)) * vec3(0.51, 0.50, 0.47) * 0.15;
+    // Un gris chaud, à peine olive : chez Recrafted la lune verse une lumière grise et le sol reste olive sombre.
+    vec3 moon = luma(skyRow(2)) * vec3(0.54, 0.51, 0.38) * 0.15;
 #if LUNAR_EVENTS > 0
     // Les lunes d'Enhanced Celestials (de sang, bleue, des moissons) : le jeu teinte la texture de la lune, que
     // gbuffers_skytextured.vsh range dans la table du ciel. Sa couleur gagne la nuit : la lune et son halo, la
@@ -104,11 +104,12 @@ void initEnv() {
     // Au couchant, le ciel encore clair n'éclaire plus guère le sol : le paysage à contre-jour reste sombre sous un
     // ciel lumineux, comme chez Recrafted.
     amb *= mix(1.0, 0.72, gDusk);
-    // La lueur nocturne, grise et faible : les nuits de Recrafted ne sont pas bleues.
-    amb += vec3(0.007, 0.0075, 0.008);
+    // La lueur nocturne, faible et d'un gris chaud : les nuits de Recrafted ne sont pas bleues.
+    amb += vec3(0.0078, 0.0075, 0.006);
     amb = mix(amb, vec3(luma(amb)) * gLunar, 0.7 * gLunarK);
-    // Sous la pluie, la lumière du ciel tire vers le même gris beige, sans éteindre la couleur de l'herbe mouillée.
-    gAmbient = mix(amb, vec3(luma(amb)) * vec3(1.0, 0.95, 0.86) * 0.80, rainStrength * 0.45);
+    // Sous la pluie, la lumière du ciel tire vers le même gris beige, sans éteindre la couleur de l'herbe mouillée, et
+    // baisse : le sol reste sombre sous un ciel gris clair (Recrafted : sol vers 0,21-0,26, ciel vers 0,54).
+    gAmbient = mix(amb, vec3(luma(amb)) * vec3(1.0, 0.95, 0.86) * 0.80, rainStrength * 0.45) * mix(1.0, 0.6, rainStrength);
     // Un éclair qui frappe blanchit tout d'un coup, en vacillant, moins quand il tombe loin.
     float flicker = 0.55 + 0.45 * sin(frameTimeCounter * 47.0) * sin(frameTimeCounter * 13.0 + 1.3);
     gFlash = lightningBoltPosition.w * flicker / (1.0 + length(lightningBoltPosition.xyz) / 160.0);
@@ -129,7 +130,7 @@ vec3 skyAt(vec3 d) {
     c += night * vec3(0.0035, 0.0036, 0.0030) * exp(-max(d.y, 0.0) * 7.0);
     c = mix(c, vec3(luma(c)) * gLunar * 1.1, 0.6 * gLunarK);
     // Au couchant, le ciel autour du soleil moins blanc : le carré du soleil s'y détache.
-    c *= 1.0 - 0.5 * gDusk * pow(max(dot(d, gSunDir), 0.0), 6.0);
+    c *= 1.0 - 0.8 * gDusk * pow(max(dot(d, gSunDir), 0.0), 3.0);
     // Un ciel d'été voilé, pâle, presque blanc vers l'horizon : jamais d'un bleu profond (celui d'une carte postale).
     // Au couchant, le ciel reprend ses couleurs : une bande pêche et rose au-dessus d'un horizon clair.
     c = mix(c, vec3(luma(c)) * vec3(0.95, 0.99, 1.05), (0.70 + 0.25 * (1.0 - smoothstep(0.0, 0.45, d.y))) * gDay * (1.0 - 0.75 * gDusk));

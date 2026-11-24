@@ -283,6 +283,8 @@ void main() {
     cloudLight = mix(cloudLight, vec3(luma(cloudLight)) * vec3(1.05, 0.98, 0.86) * 0.85, rainStrength * 0.6);
     // Au couchant, des nuages crème et pastel plutôt que pêche vif (Recrafted).
     cloudLight = mix(cloudLight, vec3(luma(cloudLight)) * vec3(1.06, 0.97, 0.80), 0.5 * gDusk);
+    // Au couchant, des nuages plus sombres que le ciel qui les éclaire de dos.
+    cloudLight *= mix(1.0, 0.6, gDusk);
     // De jour, des nuages d'un blanc gris, sans crème : moins vifs vers le soleil, comme les bancs voilés de Recrafted.
     cloudLight = mix(cloudLight, vec3(luma(cloudLight)) * vec3(1.0, 0.99, 0.97), 0.6 * gDay * (1.0 - gDusk));
     cloudLight *= mix(1.0, 0.8, gDay * (1.0 - gDusk) * pow(max(dot(dir, gSunDir), 0.0), 4.0));

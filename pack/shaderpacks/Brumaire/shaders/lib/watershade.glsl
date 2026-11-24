@@ -198,7 +198,13 @@ vec4 water(vec3 biome, vec3 normal, vec2 lm) {
 
     vec2 frag = gl_FragCoord.xy / vec2(viewWidth, viewHeight);
     vec3 view = (gbufferModelView * vec4(vPos, 1.0)).xyz;
+#if TAA > 0
+    // Le bruit des pas de reflet change à chaque image : l'anticrénelage le fond, au lieu d'une trame en damier figée
+    // dans les reflets des falaises.
+    float jitter = dither(gl_FragCoord.xy + 5.588238 * float(frameCounter & 63));
+#else
     float jitter = dither(gl_FragCoord.xy);
+#endif
     vec2 noise = waterNoise(gl_FragCoord.xy);
     float straight = texelFetch(depthtex1, ivec2(gl_FragCoord.xy), 0).r;
     float through = straight >= 1.0 ? 64.0 : max(length(viewAt(frag, straight)) - length(view), 0.0);
@@ -354,7 +360,7 @@ vec4 water(vec3 biome, vec3 normal, vec2 lm) {
     // l'eau de Recrafted, et non comme un miroir du ciel bleu. Le paysage reflété garde ses couleurs.
     mirror = mix(mirror, vec3(luma(mirror)) * vec3(0.96, 1.0, 0.92), 0.8 * gDay);
     // Et il en renvoie moins : un lac vu de loin reste d'un gris-vert sombre, pas d'un blanc de ciel.
-    mirror *= mix(1.0, 0.7, gDay);
+    mirror *= mix(1.0, 0.5, gDay);
     float dist;
     vec4 hit = screenReflection(view, mat3(gbufferModelView) * r, jitter, 1.0, WATER_REFLECTIONS, dist);
 #if VOXEL_REFLECTIONS > 0

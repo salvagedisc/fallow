@@ -216,7 +216,7 @@ vec3 shade(vec3 albedo, vec3 normal, vec2 lm, float ao, vec3 pos, float leaf, ve
     gBlockReach = tint * glow;
     // Le plancher de lumière : un rien sous terre, pour que le noir d'une grotte reste noir.
     // Gris neutre et non bleuté : le voile bleu-gris des grottes venait de là.
-    light += vec3(0.017) * mix(0.3, 1.0, smoothstep(0.0, 0.3, lm.y)) * occl;
+    light += vec3(0.017) * mix(0.1, 1.0, smoothstep(0.0, 0.3, lm.y)) * occl;
     light += vec3(0.30, 0.32, 0.34) * nightVision;
     light *= 1.0 - 0.7 * darknessFactor;
     // Part de la lumière qui vient du ciel et des blocs : c'est elle que l'occlusion d'écran assombrit.
