@@ -1,7 +1,7 @@
 # 0044 — Sable and Create machines
 
 - **Date**: 2026-11-21
-- **Status**: kept (six mods added, five more on the team's word the same evening); Loconautics pending its Modrinth release.
+- **Status**: kept (six mods added, five more on the team's word the same evening); Loconautics added on 2026-11-24, once on Modrinth.
 
 ## Context
 The team asked for the mods that bring Sable, the physics library of Create Aeronautics, into Create's machines and the rest of the pack, Create: Loconautics given as an example. Sable 2.0.6, Create Aeronautics 1.3.3, Sable: Physics Compat and the two ragdoll mods were already in the pack. Research of 2026-11-21: Modrinth searched for every 1.21.1 NeoForge project naming Sable or Aeronautics (about 160), each candidate's jar opened (mod ids, dependencies, mixin targets, config classes) and its overlap with the pack checked.
@@ -22,9 +22,10 @@ The team asked for the mods that bring Sable, the physics library of Create Aero
 - Six mods join the pack, all from Modrinth: Sable Beyond 0.5.0, Plough & Roll! 1.2.0, Aeronautics Display Link Fix 1.3, Sable Fix Mod 1.1.0 (server only), Create Aeronautics: Compatibility 1.1.3, Furniture with Create and Sable compat 5.0.
 - Sable Beyond settings (`config/sable_beyond/`): the push of flowing fluids on sub-levels is off, since Streams Reflowing already carries hulls along its currents ([0011](0011-tectonic-streams-distant-horizons.md)); its buttons on the title and pause screens are off. Its entity mass, dynamic mass and basin options stay off as shipped.
 - French texts for the three mods that ship English only (`kubejs/assets/<namespace>/lang/fr_fr.json`).
+- **Create: Loconautics** 0.1.3 beta, added on 2026-11-24 when it reached Modrinth (the jar is downloaded from Modrinth, so its art, all rights reserved, is never embedded): every Create train car becomes a Sable sub-level that can collide, derail and carry ships. It needs Create 6.0, Sable 2.0.5 and Simulated 1.3 (the pack has 6.0.10, 2.0.6 and 1.3.3 inside Aeronautics) and supports Steam 'n' Rails; its 1,332 texts are translated by the pack. It replaces Create's train contraptions everywhere and calls itself fragile with other train mods: Steam 'n' Rails trains are to be checked in game first.
 
 ## Rejected or pending
-- **Create: Loconautics** (0.1.4 beta): each train car becomes a Sable sub-level that can collide and derail; it supports Steam 'n' Rails boilers. Published only on CurseForge for now (its README already links a Modrinth page that is not yet live), and its art is all rights reserved, so its jar cannot be embedded. To add as soon as it is on Modrinth.
+- **Create: Loconautics** (0.1.4 beta): each train car becomes a Sable sub-level that can collide and derail; it supports Steam 'n' Rails boilers. Was only on CurseForge on 2026-11-21; added on 2026-11-24 (see Decision).
 - **Create: Train Functionality**: CurseForge only, no source.
 - **Ferronautics**: halted, superseded by Loconautics.
 - **Sound Physics Aeronautics**: a fork that replaces Sound Physics Remastered (same mod id) and adds ship acoustics, Doppler and far propellers; it brings 924 new texts to translate and a wing windrush that overlaps Aeronautics Wind Sound. Held at first, then chosen by the team on 2026-11-21: it replaces Sound Physics Remastered, its 924 texts are translated.

@@ -55,6 +55,7 @@ Side: C = client, S = server, CS = both. Versions checked on Modrinth for NeoFor
 | Aeronautics Display Link Fix | `aeronautics-display-link-fix` | ✅ (1.3, added 2026-11-21, MIT) | CS | A display link keeps its target when its ship is assembled or set down |
 | Sable Fix Mod | `sable-fix-mod` | ✅ (1.1.0, added 2026-11-21, MIT) | S | No more duplicated items, rails, torches, redstone or crops when a ship is assembled or set down |
 | Sable Pathfinder | `sable-pathfinder` | ✅ (1.4.0, added 2026-11-21, ARR) | CS | Animals, companions and mounts find their way onto a ship, off it and between ships |
+| Create: Loconautics | `loconautics` | ✅ (0.1.3 beta, added 2026-11-24, MIT code, art all rights reserved, downloaded from Modrinth) | CS | Every Create train car becomes a Sable body that can collide, derail and carry ships; bogeys, couplers, an analog controller, a locomotive panel with gauges, turntables, hoses, train mail. Beta that reaches deep into Create, Sable and Simulated: to watch with Steam 'n' Rails ([0044](decisions/0044-sable-and-create.md)) |
 | Sable: Sure Footing | `sable-sure-footing` | ✅ (1.2.1, added 2026-11-21, MIT) | CS | A jump on a moving or turning deck lands where it started; dropped items, animals and smoke stay with the ship |
 | Create Aeronautics: Compatibility | `create-aeronautics-compatability` | ✅ (1.1.3, added 2026-11-21, MIT) | CS | Alex's Mobs creatures no longer exhaust the memory trying to path-find on a ship |
 | Furniture with Create and Sable compat | `lets-do-furniture-another-furniture-handcrafted-create-sable` | ✅ (5.0, added 2026-11-21, ARR) | CS | Handcrafted, Quark and Every Compat seats stay usable on a Create contraption or a Sable ship |
@@ -238,7 +239,6 @@ Already present: Configurable (Neruina), Architectury API, Balm, Cloth Config, C
 |---|---|
 | Exposure: Space | Removed on 2026-11-22: its finish is far below Exposure's, and its 256 objects are our real sky (the ISS, Hubble, Halley's comet), out of place over a disc world with its own moon |
 | Visual Workbench | Removed on 2026-11-21 ([0043](decisions/0043-hands-on-vanilla.md)): it only changed the vanilla crafting table, into a block of its own that Hands-On Vanilla does not open; the pack has no other crafting table. Puzzles Lib stays for Pick Up Notifier |
-| Create: Loconautics | Trains as Sable sub-levels (MIT code, art all rights reserved): only on CurseForge for now, its Modrinth page is announced; to add once it is published ([0044](decisions/0044-sable-and-create.md)) |
 | Create: Train Functionality | Buildable train carriages on Sable: only on CurseForge, no source ([0044](decisions/0044-sable-and-create.md)) |
 | Cold Sweat Sable Compat, Cold Sweat x Aeronautics | Cold Sweat supports Sable itself since 2.4.1 |
 | MassWeightCompat, Sable Weighted | Duplicate Sable: Physics Compat for the mods of the pack |
