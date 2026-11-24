@@ -78,7 +78,7 @@
 #define BLOOM
 #define AO_SAMPLES 10 // [0 6 10 16]
 #define AO_RADIUS 1.2 // [0.6 0.9 1.2 1.6 2.0]
-#define AO_STRENGTH 1.6 // [0.8 1.2 1.6 2.0 2.5]
+#define AO_STRENGTH 1.2 // [0.8 1.2 1.6 2.0 2.5]
 #define BLOOM_STRENGTH 1.0 // [0.5 0.75 1.0 1.25 1.5]
 // L'éclat du soleil dans l'œil : rais, voile et reflets de l'objectif (program/grade.fsh).
 #define SUN_GLARE 1 // [0 1 2]
