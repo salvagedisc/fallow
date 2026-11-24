@@ -26,9 +26,10 @@ vec3 waterExtinction(vec3 hue) {
  * Part de la lumière perdue qui est diffusée plutôt qu'absorbée (albédo de diffusion) : les fines particules en
  * suspension renvoient surtout la couleur de l'eau, le reste est bu. Une eau de rivière chargée, comme celle de
  * Recrafted : le fond s'efface en un ou deux blocs dans un vert-de-gris laiteux, sans turquoise sur les hauts-fonds.
+ * La moitié seulement : à 0,7 un lac vu d'une colline restait d'un gris pâle, plus clair que les berges.
  */
 vec3 waterAlbedo(vec3 hue) {
-    return mix(hue, vec3(luma(hue)), 0.35) * 0.70;
+    return mix(hue, vec3(luma(hue)), 0.35) * 0.5;
 }
 
 /** Ce que renvoie l'eau profonde vue de loin : la lumière du ciel et de l'astre diffusée dans la masse. */

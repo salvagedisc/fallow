@@ -109,7 +109,7 @@ void initEnv() {
     amb = mix(amb, vec3(luma(amb)) * gLunar, 0.7 * gLunarK);
     // Sous la pluie, la lumière du ciel tire vers le même gris beige, sans éteindre la couleur de l'herbe mouillée, et
     // baisse : le sol reste sombre sous un ciel gris clair (Recrafted : sol vers 0,21-0,26, ciel vers 0,54).
-    gAmbient = mix(amb, vec3(luma(amb)) * vec3(1.0, 0.95, 0.86) * 0.80, rainStrength * 0.45) * mix(1.0, 0.6, rainStrength);
+    gAmbient = mix(amb, vec3(luma(amb)) * vec3(1.0, 0.95, 0.86) * 0.80, rainStrength * 0.45) * mix(1.0, 0.5, rainStrength);
     // Un éclair qui frappe blanchit tout d'un coup, en vacillant, moins quand il tombe loin.
     float flicker = 0.55 + 0.45 * sin(frameTimeCounter * 47.0) * sin(frameTimeCounter * 13.0 + 1.3);
     gFlash = lightningBoltPosition.w * flicker / (1.0 + length(lightningBoltPosition.xyz) / 160.0);

@@ -4981,7 +4981,7 @@ hash = "f06bf5ea98e00cde9debd69cc488c7c4ed6ced187828e7281bce5bc856fa5379"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/common.glsl"
-hash = "f27905d9f29bac813bfdb62086f15d944cd5cf3d5e50cd68f35f881adb04ff51"
+hash = "62bcbbb44026678c3d00bcefef9ce024af5455092b09c1206d7510da60ea626b"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/cover.glsl"
@@ -5129,7 +5129,7 @@ hash = "2b74b4bd149c79d904de96d20463dbd3f2dc93ea4331dcca813a75aeadbdd9b1"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/water.glsl"
-hash = "bb054e8ba23b89ea946963cec3da1130fe1861a1d1ef4635daa82a7af0c4c04a"
+hash = "a5ff68a2acad56962861d17a0a5fdaf3cc9d64485856532ee36aa4aa8f882e4a"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/waterfoam.glsl"
