@@ -5229,7 +5229,7 @@ hash = "effac3ca4ede47835e907152fb2fbc3b4470185f798f6e7065f528085e57e29c"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/program/mist.fsh"
-hash = "51d8e961e46efedf416da2c094004a814bb1b5577481466ee03bd3aea2229085"
+hash = "2e149947f9b7e11f8b91ddc6ec606ffd06b4e51038cf0a1d3e131bfab174e255"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/program/motion.fsh"

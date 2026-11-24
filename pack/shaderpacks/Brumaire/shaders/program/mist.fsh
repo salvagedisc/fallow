@@ -297,12 +297,14 @@ void main() {
             float reach = min(len, FOG_RANGE);
             float beyond = mistNearDensity() * (1.0 - MIST_LIFT * brumaireMist.x)
                          * mistLayer(cameraPosition.y, dir.y, reach, len, MIST_HEIGHT, mistAnchor());
-            float far_ = beyond + max(depth - nearOnly, 0.0);
+            // Au couchant, la brume lointaine est moitié moins épaisse : elle ne blanchit plus tout le côté du soleil.
+            float far_ = (beyond + max(depth - nearOnly, 0.0)) * mix(1.0, 0.5, gDusk);
             float farVeil = 1.0 - exp(-far_);
             if (farVeil > 0.003) {
                 vec3 mist = mistColor(dir, 1.0);
                 float ringShare = clamp((depth - nearOnly) / max(far_, 1e-4), 0.0, 1.0);
-                mist = mix(mist, skyAt(normalize(vec3(dir.x, 0.03, dir.z))) * mistTint() * 0.9, ringShare * 0.75);
+                mist = mix(mist, skyAt(normalize(vec3(dir.x, 0.03, dir.z))) * mistTint() * 0.9, ringShare * 0.75 * mix(1.0, 0.3, gDusk));
+                // (au couchant l'anneau prend peu le ciel clair de l'horizon : voile moins laiteux vers le soleil)
                 color = mix(color, mist, farVeil);
             }
             vec4 fog = fogAt(uv);
