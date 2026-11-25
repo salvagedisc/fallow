@@ -103,7 +103,9 @@ vec3 airVeil(vec3 dir, float len, out vec3 inscat) {
     inscat = mix(sky, vec3(luma(sky)) * vec3(1.04, 1.0, 0.92), 0.45) * (1.0 - pass);
     // Au couchant, le ciel bas vers le soleil est la partie la plus claire de l'image : l'air n'en prend qu'une part,
     // sinon le paysage face à l'astre se noie dans un halo au lieu de rester une silhouette sombre.
-    inscat *= mix(1.0, 0.55, gDusk);
+    // C'est lui qui posait le voile crème sous le soleil couchant : il n'en garde que 30 %, et ambré.
+    inscat *= mix(1.0, 0.3, gDusk);
+    inscat = mix(inscat, vec3(luma(inscat)) * vec3(1.25, 0.95, 0.62), 0.7 * gDusk);
     return pass;
 }
 
