@@ -128,7 +128,7 @@ vec3 skyAt(vec3 d) {
     // découpent en noir dessus, comme dans Recrafted, au lieu de se fondre dans un ciel aussi sombre qu'elles. Vers
     // l'horizon, à peine éclairci, sur une large pente, et d'un gris chaud : chez Recrafted le bas du ciel de nuit est
     // plus sombre que le zénith, pas un mur clair et froid derrière les collines.
-    c *= mix(1.0, mix(1.2, 4.5, smoothstep(0.0, 0.7, d.y)), night);
+    c *= mix(1.0, 1.25 * mix(1.2, 4.5, smoothstep(0.0, 0.7, d.y)), night);
     c *= mix(vec3(1.0), vec3(1.15, 1.0, 0.85), night * exp(-max(d.y, 0.0) * 5.0));
     // Et tout le ciel de nuit d'un gris olive, sans le bleu qui restait au zénith : chez Recrafted, un gris à peine vert
     // et chaud (rouge/bleu 1,04, vert/bleu 1,10) ; un gris pur se lisait en noir et blanc.
@@ -162,6 +162,8 @@ vec3 skyAt(vec3 d) {
         float clear = gDusk * (1.0 - rainStrength);
         c = mix(c, vec3(luma(c)) * vec3(1.25, 0.97, 0.72), 0.8 * clear * toward * exp(-max(d.y, 0.0) * 5.0));
         c = mix(c, vec3(luma(c)) * vec3(1.84, 1.06, 0.58), 0.9 * clear * pow(toward, 3.0) * exp(-abs(d.y) * 14.0));
+        // Et tout le bas du ciel, de tous côtés, un peu ambré : loin du soleil aussi, le ciel du couchant ne bleuit plus.
+        c = mix(c, vec3(luma(c)) * vec3(1.18, 0.97, 0.78), 0.5 * clear * exp(-max(d.y, 0.0) * 3.0));
     }
     // Sous la pluie, un gris beige, celui des nuages chargés (Recrafted : teinte 36-38°, saturation 0,11-0,18).
     c = mix(c, vec3(luma(c)) * vec3(0.92, 0.83, 0.72) * 0.9, rainStrength * 0.85);
