@@ -130,8 +130,9 @@ vec3 skyAt(vec3 d) {
     // plus sombre que le zénith, pas un mur clair et froid derrière les collines.
     c *= mix(1.0, mix(1.2, 4.5, smoothstep(0.0, 0.7, d.y)), night);
     c *= mix(vec3(1.0), vec3(1.15, 1.0, 0.85), night * exp(-max(d.y, 0.0) * 5.0));
-    // Et tout le ciel de nuit d'un gris neutre, à peine chaud, sans le bleu qui restait au zénith.
-    c = mix(c, vec3(luma(c)) * vec3(1.03, 1.0, 0.95), 0.8 * night);
+    // Et tout le ciel de nuit d'un gris olive, sans le bleu qui restait au zénith : chez Recrafted, un gris à peine vert
+    // et chaud (rouge/bleu 1,04, vert/bleu 1,10) ; un gris pur se lisait en noir et blanc.
+    c = mix(c, vec3(luma(c)) * vec3(1.04, 1.16, 0.90), 0.8 * night);
     c += night * vec3(0.00105, 0.00108, 0.0009) * exp(-max(d.y, 0.0) * 7.0);
     c = mix(c, vec3(luma(c)) * gLunar * 1.1, 0.6 * gLunarK);
     // Au couchant, le ciel autour du soleil moins blanc : le carré du soleil s'y détache.
@@ -151,6 +152,17 @@ vec3 skyAt(vec3 d) {
     // Au couchant, le haut du ciel pâlit lui aussi : un bleu lavande et laiteux au-dessus de la bande pêche, pas un
     // bleu franc (Recrafted : saturation vers 0,10 au zénith, ici 0,22-0,26 avant).
     c = mix(c, vec3(luma(c)) * vec3(1.0, 0.98, 1.02), 0.55 * gDusk * smoothstep(0.08, 0.40, d.y));
+    // Au couchant, tout le bas du ciel du côté du soleil se réchauffe, pas seulement autour du disque : chez Recrafted,
+    // à gauche et à droite du soleil, le ciel reste ambré (rouge/bleu 1,1 et plus) au lieu de bleuir. Et juste au-dessus
+    // de l'horizon, sous le soleil, une bande orangée.
+    {
+        vec2 az = normalize(d.xz + 1e-5);
+        vec2 sa = normalize(gSunDir.xz + 1e-5);
+        float toward = max(dot(az, sa), 0.0);
+        float clear = gDusk * (1.0 - rainStrength);
+        c = mix(c, vec3(luma(c)) * vec3(1.25, 0.97, 0.72), 0.8 * clear * toward * exp(-max(d.y, 0.0) * 5.0));
+        c = mix(c, vec3(luma(c)) * vec3(1.84, 1.06, 0.58), 0.9 * clear * pow(toward, 3.0) * exp(-abs(d.y) * 14.0));
+    }
     // Sous la pluie, un gris beige, celui des nuages chargés (Recrafted : teinte 36-38°, saturation 0,11-0,18).
     c = mix(c, vec3(luma(c)) * vec3(0.92, 0.83, 0.72) * 0.9, rainStrength * 0.85);
     return c + vec3(0.55, 0.60, 0.80) * gFlash * (0.6 + 0.4 * max(d.y, 0.0));

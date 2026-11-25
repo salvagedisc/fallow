@@ -132,7 +132,9 @@ float precipitation(vec3 dir, float len, float snow, float amount, out vec3 glow
 vec3 precipColor(float snow, vec3 dir) {
     float mu = max(dot(dir, gLightDir), 0.0);
     float lens = mix(pow(mu, 12.0) * 2.4, pow(mu, 3.0) * 0.6, snow) * (1.0 - 0.7 * rainStrength * (1.0 - snow));
-    vec3 light = gAmbient * 1.35 + gLightColor * (0.14 + lens) + vec3(0.02);
+    // Sous la pluie, la lumière du ciel est tombée au tiers (lib/common.glsl) : les gouttes la reprennent trois fois et
+    // demie, sans quoi elles tombaient en traits sombres sur le ciel clair ; chez Recrafted, des traits clairs.
+    vec3 light = gAmbient * 1.35 * mix(1.0, 3.5, rainStrength * (1.0 - snow)) + gLightColor * (0.14 + lens) + vec3(0.02);
     return light * mix(vec3(0.82, 0.85, 0.88), vec3(1.05), snow);
 }
 #endif
