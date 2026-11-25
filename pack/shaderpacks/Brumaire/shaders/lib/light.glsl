@@ -189,8 +189,9 @@ vec3 shade(vec3 albedo, vec3 normal, vec2 lm, float ao, vec3 pos, float leaf, ve
     if (distance(tint, lightTint(1)) < 0.2) weak = 10.0 / 15.0;
     else if (distance(tint, lightTint(7)) < 0.2) weak = 7.0 / 15.0;
     blockLm = min(blockLm / weak, 1.0) * mix(1.0, 0.9, step(weak, 0.99));
-    // Et moins saturées : un cyan franc bleuissait tout le sol d'une grotte.
-    tint = mix(tint, vec3(luma(tint)), 0.45 * step(weak, 0.99));
+    // Et un peu moins saturées : un cyan franc bleuissait tout le sol d'une grotte ; un quart seulement, pour garder
+    // le halo turquoise de Recrafted autour de la lanterne.
+    tint = mix(tint, vec3(luma(tint)), 0.25 * step(weak, 0.99));
 #endif
     float bl2 = blockLm * blockLm;
     float glow = bl2 * (0.42 + 3.9 * bl2 * bl2);

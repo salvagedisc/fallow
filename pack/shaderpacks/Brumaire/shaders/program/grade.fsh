@@ -366,9 +366,9 @@ void main() {
     // La nuit, il ne se ferme pas non plus devant un ciel clair : le sol reste sombre sous lui.
     exposure *= clamp(pow(0.10 / seen, 0.3 * EXPOSURE_AUTO_AMOUNT), mix(1.0, 0.75, smoothstep(-0.18, 0.12, sunUp)), openMax);
 #endif
-    // Au couchant, l'œil ouvre un quart de moins, après l'exposition automatique (elle l'aurait rouvert) : un crépuscule
+    // Au couchant, l'œil ouvre bien moins (×0,62), après l'exposition automatique (elle l'aurait rouvert) : un crépuscule
     // sombre sous un ciel coloré, pas une fin d'après-midi dorée.
-    exposure *= mix(1.0, 0.75, (1.0 - smoothstep(0.04, 0.3, abs(sunUp - 0.02))) * smoothstep(-0.12, 0.0, sunUp));
+    exposure *= mix(1.0, 0.62, (1.0 - smoothstep(0.04, 0.3, abs(sunUp - 0.02))) * smoothstep(-0.12, 0.0, sunUp));
 #if RAIN_GLOOM > 0
     // Sous la pluie, l'œil ne rouvre pas tout : un jour gris reste un jour sombre, d'un gris un peu chaud, celui des
     // nuages chargés. Seulement dehors : sous un toit ou sous terre, la pluie ne se voit pas.

@@ -313,13 +313,13 @@ void main() {
                 color = mix(color, mist, farVeil);
             }
             // La nuit, le lointain au ras de l'horizon se fond dans le bas du ciel, d'un gris un peu chaud, sur une
-            // pente d'une dizaine de degrés : plus de trait dur entre le ciel clair et le paysage lointain noir. Le
+            // pente d'une dizaine de degrés, à peine plus chaud que le ciel au-dessus (sans quoi sa teinte sautait sur une ligne) : plus de trait dur entre le ciel clair et le paysage lointain noir. Le
             // ciel lui-même, seulement sous l'horizon (là où rien n'est chargé). Le relief proche n'est pas touché.
             if (dir.y < 0.0 || !sky) {
                 float off = sky ? -dir.y : abs(dir.y);
                 float nh = (1.0 - gDay) * (1.0 - 0.5 * rainStrength) * smoothstep(120.0, 360.0, len)
                          * (1.0 - smoothstep(0.0, 0.12, off)) * 0.7;
-                color = mix(color, skyAt(normalize(vec3(dir.x, 0.02, dir.z))) * vec3(1.1, 1.0, 1.0 / 1.1), nh);
+                color = mix(color, skyAt(normalize(vec3(dir.x, 0.02, dir.z))) * vec3(1.03, 1.0, 1.0 / 1.03), nh);
             }
             vec4 fog = fogAt(uv);
             color = color * fog.a + fog.rgb;
