@@ -124,10 +124,12 @@ vec3 skyAt(vec3 d) {
     c = mix(c, vec3(luma(c)) * vec3(0.78, 0.88, 1.08), night * 0.3);
     // Puis la plus grande part de ce bleu repart : le ciel de nuit de Recrafted est un gris presque neutre.
     c = mix(c, vec3(luma(c)) * vec3(0.96, 1.0, 1.02), 0.6 * night);
-    // Un ciel de nuit quatre à cinq fois plus clair que le terrain (vers 0,40 sur une échelle de 0 à 1), avec une bande pâle au ras de l'horizon : les crêtes se
-    // découpent en noir dessus, comme dans Recrafted, au lieu de se fondre dans un ciel aussi sombre qu'elles.
-    c *= mix(1.0, 4.5, night);
-    c += night * vec3(0.0035, 0.0036, 0.0030) * exp(-max(d.y, 0.0) * 7.0);
+    // Un ciel de nuit quatre à cinq fois plus clair que le terrain (vers 0,40 sur une échelle de 0 à 1) : les crêtes se
+    // découpent en noir dessus, comme dans Recrafted, au lieu de se fondre dans un ciel aussi sombre qu'elles. Vers
+    // l'horizon, deux fois et demie seulement, avec une bande à peine plus pâle : chez Recrafted le bas du ciel de nuit
+    // est plus sombre que le zénith, pas un mur clair derrière les collines.
+    c *= mix(1.0, mix(2.5, 4.5, smoothstep(0.0, 0.4, d.y)), night);
+    c += night * vec3(0.00105, 0.00108, 0.0009) * exp(-max(d.y, 0.0) * 7.0);
     c = mix(c, vec3(luma(c)) * gLunar * 1.1, 0.6 * gLunarK);
     // Au couchant, le ciel autour du soleil moins blanc : le carré du soleil s'y détache.
     c *= 1.0 - 0.8 * gDusk * pow(max(dot(d, gSunDir), 0.0), 3.0);
