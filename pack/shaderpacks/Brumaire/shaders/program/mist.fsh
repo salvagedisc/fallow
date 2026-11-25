@@ -298,13 +298,17 @@ void main() {
             float beyond = mistNearDensity() * (1.0 - MIST_LIFT * brumaireMist.x)
                          * mistLayer(cameraPosition.y, dir.y, reach, len, MIST_HEIGHT, mistAnchor());
             // Au couchant, la brume lointaine est moitié moins épaisse : elle ne blanchit plus tout le côté du soleil.
-            // Sous la pluie, deux fois et demie plus : l'averse dissout l'horizon.
-            float far_ = (beyond + max(depth - nearOnly, 0.0)) * mix(1.0, 0.5, gDusk) * mix(1.0, 2.5, rainStrength);
+            // Sous la pluie, deux fois et demie plus : l'averse dissout l'horizon. La nuit, moitié moins : une bande grise
+            // barrait l'horizon.
+            float far_ = (beyond + max(depth - nearOnly, 0.0)) * mix(1.0, 0.5, gDusk) * mix(1.0, 2.5, rainStrength) * mix(0.5, 1.0, gDay);
             float farVeil = 1.0 - exp(-far_);
             if (farVeil > 0.003) {
                 vec3 mist = mistColor(dir, 1.0);
                 float ringShare = clamp((depth - nearOnly) / max(far_, 1e-4), 0.0, 1.0);
-                mist = mix(mist, skyAt(normalize(vec3(dir.x, 0.03, dir.z))) * mistTint() * 0.9, ringShare * 0.75 * mix(1.0, 0.3, gDusk));
+                mist = mix(mist, skyAt(normalize(vec3(dir.x, 0.03, dir.z))) * mistTint() * 0.9, ringShare * 0.75 * mix(1.0, 0.3, gDusk) * mix(0.3, 1.0, gDay));
+                // La nuit, sur le ciel lui-même, la brume prend la couleur du ciel : plus de bande grise qui coupait les nuages
+                // sur une ligne droite au-dessus de l'horizon.
+                if (sky) mist = mix(mist, skyAt(dir), 1.0 - gDay);
                 // (au couchant l'anneau prend peu le ciel clair de l'horizon : voile moins laiteux vers le soleil)
                 color = mix(color, mist, farVeil);
             }
