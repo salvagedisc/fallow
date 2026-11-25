@@ -188,7 +188,7 @@ vec3 shade(vec3 albedo, vec3 normal, vec2 lm, float ao, vec3 pos, float leaf, ve
     float weak = 1.0;
     if (distance(tint, lightTint(1)) < 0.2) weak = 10.0 / 15.0;
     else if (distance(tint, lightTint(7)) < 0.2) weak = 7.0 / 15.0;
-    blockLm = min(blockLm / weak, 1.0) * mix(1.0, 0.55, step(weak, 0.99));
+    blockLm = min(blockLm / weak, 1.0) * mix(1.0, 0.7, step(weak, 0.99));
 #endif
     float bl2 = blockLm * blockLm;
     float glow = bl2 * (0.42 + 3.9 * bl2 * bl2);

@@ -298,7 +298,8 @@ void main() {
             float beyond = mistNearDensity() * (1.0 - MIST_LIFT * brumaireMist.x)
                          * mistLayer(cameraPosition.y, dir.y, reach, len, MIST_HEIGHT, mistAnchor());
             // Au couchant, la brume lointaine est moitié moins épaisse : elle ne blanchit plus tout le côté du soleil.
-            float far_ = (beyond + max(depth - nearOnly, 0.0)) * mix(1.0, 0.5, gDusk);
+            // Sous la pluie, deux fois et demie plus : l'averse dissout l'horizon.
+            float far_ = (beyond + max(depth - nearOnly, 0.0)) * mix(1.0, 0.5, gDusk) * mix(1.0, 2.5, rainStrength);
             float farVeil = 1.0 - exp(-far_);
             if (farVeil > 0.003) {
                 vec3 mist = mistColor(dir, 1.0);

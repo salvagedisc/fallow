@@ -19,8 +19,9 @@ float mistAnchor() {
     float a = brumaireLink > 0.5 ? brumaireMist.y : cameraPosition.y - 3.0;
     // Le jour, la nappe redescend au fond des vallées (MIST_DAY_LEVEL) : vu d'une colline, les pentes et les cimes
     // restent nettes et la brume dort en bas, comme dans Recrafted, au lieu d'un voile pâle sur tout le paysage. À
-    // l'aube, au soir et la nuit, elle remonte au pied du joueur.
-    return mix(a, min(a, MIST_DAY_LEVEL), smoothstep(0.0, 0.3, gSunDir.y));
+    // l'aube et au soir, elle remonte au pied du joueur. En pleine nuit elle redescend dans les creux, où la lune
+    // l'éclaire : un voile pâle au fond des vallées, sans relever le terrain autour du joueur.
+    return mix(a, min(a, MIST_DAY_LEVEL), max(smoothstep(0.0, 0.3, gSunDir.y), 1.0 - smoothstep(-0.2, -0.05, gSunDir.y)));
 }
 
 float mistNearDensity() {
@@ -130,7 +131,8 @@ vec3 mistColor(vec3 dir, float sun) {
     body *= mix(vec3(1.0), vec3(0.97, 1.0, 1.04), gDay * (1.0 - gDusk));
     // La nuit, la brume ne reçoit que la lune et le ciel noir : elle reste sombre, un voile et pas un mur gris qui
     // éclaircirait tout le paysage : c'est elle qui relevait les noirs de la nuit (sol vers 0,086 au lieu de 0,06).
-    body *= mix(0.2, 1.0, gDay);
+    // Un peu moins de la moitié du jour : couchée dans les creux la nuit (mistAnchor), elle n'y pèse plus sur le sol.
+    body *= mix(0.45, 1.0, gDay);
     // Au couchant, la brume n'a plus que la lueur d'un ciel qui baisse : elle s'assombrit avec le paysage au lieu de
     // le noyer dans un halo orangé ; elle reste lisible, une bande plus claire au creux des vallées.
     body *= mix(1.0, 0.5, gDusk);
