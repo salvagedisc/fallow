@@ -130,10 +130,14 @@ vec3 skyAt(vec3 d) {
     // plus sombre que le zénith, pas un mur clair et froid derrière les collines.
     c *= mix(1.0, mix(1.2, 4.5, smoothstep(0.0, 0.7, d.y)), night);
     c *= mix(vec3(1.0), vec3(1.15, 1.0, 0.85), night * exp(-max(d.y, 0.0) * 5.0));
+    // Et tout le ciel de nuit d'un gris neutre, à peine chaud, sans le bleu qui restait au zénith.
+    c = mix(c, vec3(luma(c)) * vec3(1.03, 1.0, 0.95), 0.8 * night);
     c += night * vec3(0.00105, 0.00108, 0.0009) * exp(-max(d.y, 0.0) * 7.0);
     c = mix(c, vec3(luma(c)) * gLunar * 1.1, 0.6 * gLunarK);
     // Au couchant, le ciel autour du soleil moins blanc : le carré du soleil s'y détache.
     c *= 1.0 - 0.8 * gDusk * pow(max(dot(d, gSunDir), 0.0), 3.0);
+    // Ce ciel assombri vers le soleil prend aussi un peu d'or, sans quoi il virait au mauve terne.
+    c = mix(c, vec3(luma(c)) * vec3(1.2, 0.95, 0.75), 0.5 * gDusk * pow(max(dot(d, gSunDir), 0.0), 3.0));
     float nearSun = gDusk * pow(max(dot(d, gSunDir), 0.0), 12.0);
     // Tout près du soleil couchant, le ciel est plus sombre encore et doré, pas une tache crème autour du carré.
     c *= 1.0 - 0.7 * nearSun;
