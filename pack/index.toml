@@ -5037,7 +5037,7 @@ hash = "39b392b569f8f8d803db8985de51b56dbfd4b093cd489995dcc09200224efa3c"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/mist.glsl"
-hash = "10e983195acc1a3855e9c7b8f88733b4ef942145d5c24a65d84a805b8d2821aa"
+hash = "28ff5e30a3c41bfc97ba99d7f79d39d5419b64a22b3381394239bf2edaf6e10b"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/motes.glsl"
