@@ -134,6 +134,10 @@ vec3 skyAt(vec3 d) {
     c = mix(c, vec3(luma(c)) * gLunar * 1.1, 0.6 * gLunarK);
     // Au couchant, le ciel autour du soleil moins blanc : le carré du soleil s'y détache.
     c *= 1.0 - 0.8 * gDusk * pow(max(dot(d, gSunDir), 0.0), 3.0);
+    float nearSun = gDusk * pow(max(dot(d, gSunDir), 0.0), 12.0);
+    // Tout près du soleil couchant, le ciel est plus sombre encore et doré, pas une tache crème autour du carré.
+    c *= 1.0 - 0.7 * nearSun;
+    c = mix(c, vec3(luma(c)) * vec3(1.3, 0.9, 0.55), 0.8 * nearSun);
     // Un ciel d'été voilé, pâle, presque blanc vers l'horizon : jamais d'un bleu profond (celui d'une carte postale).
     // Au zénith, un bleu clair reste lisible (moitié grisé seulement).
     // Au couchant, le ciel reprend ses couleurs : une bande pêche et rose au-dessus d'un horizon clair.
