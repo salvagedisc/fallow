@@ -512,7 +512,9 @@ void main() {
         // Les averses passent : les rideaux sont plus épais là où il pleut fort.
         curtain *= mix(0.35, 1.3, showerAt(cameraPosition.xz + dir.xz * min(len, 160.0)));
 #endif
-        if (curtain > 0.0) color = mix(color, gAmbient * 1.25 + gLightColor * 0.1 + vec3(0.02), min(curtain * 0.2, 0.35));
+        // Les rideaux sont clairs sur le ciel gris, comme chez Recrafted : leur lumière compense la baisse de gAmbient sous
+        // la pluie, sans quoi ils traçaient des traits sombres.
+        if (curtain > 0.0) color = mix(color, gAmbient * 1.25 * mix(1.0, 2.2, rainStrength) + gLightColor * 0.1 + vec3(0.02), min(curtain * 0.14, 0.35));
 
         // Les tempêtes du pack (module climat) : le sable ou la neige soufflés ferment la vue et teintent l'air, comme
         // la brume sans shader (StormView) : à 22 blocs dans le sable, 36 dans la neige, le paysage est presque perdu.
