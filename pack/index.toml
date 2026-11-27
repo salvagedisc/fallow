@@ -5009,7 +5009,7 @@ hash = "aa5d6e99a19c200844e46f669b4d36e072a1e318b49d2689760e161d8f909bbc"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/fogmarch.glsl"
-hash = "21f7678202b34606cda39dc099de3c1a0652df4e41a71d2f5fc9cf6c19e30fa2"
+hash = "df4bd2bbb85f4eb4de369d08901790f78fa43d382c80d0972a392066bea9c4ac"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/glass.glsl"
@@ -5037,7 +5037,7 @@ hash = "39b392b569f8f8d803db8985de51b56dbfd4b093cd489995dcc09200224efa3c"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/mist.glsl"
-hash = "4ad1fe08cce124de9293048e2d0b547f81ab7b3e287b22a046abc398d2ff21b9"
+hash = "78668ce74877b927420587de1e10a34eb4817bd54f62e3f83fc5ac4d1d882d99"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/lib/motes.glsl"

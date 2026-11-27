@@ -37,9 +37,7 @@ float mistNearDensity() {
     float eye = float(eyeBrightnessSmooth.y) / 240.0;
     float under = (1.0 - smoothstep(0.86, 0.99, eye)) * smoothstep(0.25, 0.45, eye) * smoothstep(0.0, 0.3, gSunDir.y);
     // Au couchant, une nappe moitié moins épaisse : le paysage reste sombre et coloré, pas noyé dans un voile laiteux.
-    // La nuit, deux fois et demie plus épaisse : couchée dans les creux (mistAnchor), elle y fait sous la lune la nappe
-    // pâle des vallées de Recrafted.
-    return 0.010 * mix(1.0, 0.5, gDusk) * MIST_DENSITY * hour * biome * (1.0 + 3.0 * rainStrength) * open * (1.0 + 1.5 * under) * mix(2.5, 1.0, gDay);
+    return 0.010 * mix(1.0, 0.5, gDusk) * MIST_DENSITY * hour * biome * (1.0 + 3.0 * rainStrength) * open * (1.0 + 1.5 * under);
 }
 
 /** Brume retirée par une clairière : un cylindre vertical, au bord adouci par deux rayons. */
@@ -133,8 +131,8 @@ vec3 mistColor(vec3 dir, float sun) {
     body *= mix(vec3(1.0), vec3(0.97, 1.0, 1.04), gDay * (1.0 - gDusk));
     // La nuit, la brume ne reçoit que la lune et le ciel noir : elle reste sombre, un voile et pas un mur gris qui
     // éclaircirait tout le paysage : c'est elle qui relevait les noirs de la nuit (sol vers 0,086 au lieu de 0,06). La
-    // part de celle du jour (0,8) : assez pour un voile clair au clair de lune dans les vallées, le sol vers 0,09.
-    body *= mix(0.8, 1.0, gDay);
+    // moitié de celle du jour : assez pour un voile clair au clair de lune, le sol vers 0,08.
+    body *= mix(0.5, 1.0, gDay);
     // Et chaude, comme la lune de Recrafted dans la brume : un gris brun, pas un mur froid à l'horizon.
     body *= mix(vec3(1.12, 1.0, 0.85), vec3(1.0), gDay);
     // Sous la pluie, le ciel éclaire moins le sol (gAmbient) mais la brume reste claire : l'averse dissout le lointain
