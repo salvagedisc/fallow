@@ -135,13 +135,13 @@ vec3 skyAt(vec3 d) {
     c = mix(c, vec3(luma(c)) * vec3(1.04, 1.16, 0.90), 0.8 * night);
     c += night * vec3(0.00105, 0.00108, 0.0009) * exp(-max(d.y, 0.0) * 7.0);
     c = mix(c, vec3(luma(c)) * gLunar * 1.1, 0.6 * gLunarK);
-    // Au couchant, le ciel autour du soleil moins blanc : le carré du soleil s'y détache.
-    c *= 1.0 - 0.8 * gDusk * pow(max(dot(d, gSunDir), 0.0), 3.0);
+    // Au couchant, le ciel autour du soleil à peine moins blanc : il reste une lueur claire derrière les nuages sombres,
+    // comme chez Recrafted, et le carré du soleil s'en détache encore par son cadre.
+    c *= 1.0 - 0.2 * gDusk * pow(max(dot(d, gSunDir), 0.0), 3.0);
     // Ce ciel assombri vers le soleil prend aussi un peu d'or, sans quoi il virait au mauve terne.
     c = mix(c, vec3(luma(c)) * vec3(1.2, 0.95, 0.75), 0.5 * gDusk * pow(max(dot(d, gSunDir), 0.0), 3.0));
     float nearSun = gDusk * pow(max(dot(d, gSunDir), 0.0), 12.0);
-    // Tout près du soleil couchant, le ciel est plus sombre encore et doré, pas une tache crème autour du carré.
-    c *= 1.0 - 0.7 * nearSun;
+    // Tout près du soleil couchant, le ciel est doré, pas une tache crème autour du carré.
     c = mix(c, vec3(luma(c)) * vec3(1.3, 0.9, 0.55), 0.8 * nearSun);
     // Un ciel d'été voilé, pâle, presque blanc vers l'horizon : jamais d'un bleu profond (celui d'une carte postale).
     // Au zénith, un bleu clair reste lisible (moitié grisé seulement).
