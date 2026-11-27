@@ -14,6 +14,16 @@ float mistLayer(float y0, float dy, float t0, float t1, float h, float base) {
     return min(start * mean, 2.2) * span;
 }
 
+/**
+ * Épaisseur de la nappe (blocs pour un facteur e). La nuit, une nappe mince (5 blocs) et dense : elle remplit les
+ * creux, les vallées et les lacs, où la lune l'éclaire, et laisse les crêtes noires au-dessus, comme chez Recrafted,
+ * au lieu d'un voile gris uniforme sur tout le paysage.
+ */
+float mistHeight() {
+    float night = 1.0 - smoothstep(-0.2, -0.05, gSunDir.y);
+    return mix(MIST_HEIGHT, 5.0, night);
+}
+
 float mistAnchor() {
     // Altitude du pied de la nappe : le sol autour du joueur, sinon un peu sous la caméra.
     float a = brumaireLink > 0.5 ? brumaireMist.y : cameraPosition.y - 3.0;
@@ -37,7 +47,8 @@ float mistNearDensity() {
     float eye = float(eyeBrightnessSmooth.y) / 240.0;
     float under = (1.0 - smoothstep(0.86, 0.99, eye)) * smoothstep(0.25, 0.45, eye) * smoothstep(0.0, 0.3, gSunDir.y);
     // Au couchant, une nappe moitié moins épaisse : le paysage reste sombre et coloré, pas noyé dans un voile laiteux.
-    return 0.010 * mix(1.0, 0.5, gDusk) * MIST_DENSITY * hour * biome * (1.0 + 3.0 * rainStrength) * open * (1.0 + 1.5 * under);
+    // La nuit, quatre fois plus dense au fond, mais mince (mistHeight) : elle ne monte pas sur les crêtes.
+    return 0.010 * mix(1.0, 0.5, gDusk) * MIST_DENSITY * hour * biome * (1.0 + 3.0 * rainStrength) * open * (1.0 + 1.5 * under) * mix(4.0, 1.0, smoothstep(-0.2, -0.05, gSunDir.y));
 }
 
 /** Brume retirée par une clairière : un cylindre vertical, au bord adouci par deux rayons. */
@@ -70,7 +81,7 @@ float mistHole(vec4 c, vec3 dir, float len, float y0, float h, float base) {
 float mistDepth(vec3 dir, float len, out float nearOnly) {
     float y0 = cameraPosition.y;
     float base = mistAnchor();
-    float h = MIST_HEIGHT;
+    float h = mistHeight();
     float density = mistNearDensity() * (1.0 - MIST_LIFT * brumaireMist.x);
     float through = mistLayer(y0, dir.y, 0.0, len, h, base);
     through -= mistHole(brumaireClearing0, dir, len, y0, h, base);
@@ -131,8 +142,9 @@ vec3 mistColor(vec3 dir, float sun) {
     body *= mix(vec3(1.0), vec3(0.97, 1.0, 1.04), gDay * (1.0 - gDusk));
     // La nuit, la brume ne reçoit que la lune et le ciel noir : elle reste sombre, un voile et pas un mur gris qui
     // éclaircirait tout le paysage : c'est elle qui relevait les noirs de la nuit (sol vers 0,086 au lieu de 0,06). La
-    // moitié de celle du jour : assez pour un voile clair au clair de lune, le sol vers 0,08.
-    body *= mix(0.5, 1.0, gDay);
+    // nappe de nuit étant mince et couchée dans les creux (mistHeight), elle peut prendre toute la lune (1,2) : une nappe
+    // pâle au fond des vallées, les crêtes restant noires.
+    body *= mix(1.2, 1.0, gDay);
     // Et chaude, comme la lune de Recrafted dans la brume : un gris brun, pas un mur froid à l'horizon.
     body *= mix(vec3(1.12, 1.0, 0.85), vec3(1.0), gDay);
     // Sous la pluie, le ciel éclaire moins le sol (gAmbient) mais la brume reste claire : l'averse dissout le lointain

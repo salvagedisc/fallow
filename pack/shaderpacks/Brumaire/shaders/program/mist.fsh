@@ -91,7 +91,7 @@ vec3 shaftMarch(vec3 dir, float reach, float density, out float mistSun) {
         vec3 p = origin + dir * t;
         vec3 uv = shadowWarp((shadowProjection * (shadowModelView * vec4(p, 1.0))).xyz) * 0.5 + 0.5;
         float s = uv.z < 1.0 ? texture(shadowtex1, vec3(uv.xy, uv.z - 0.0002)) : 1.0;
-        float w = exp((base - cameraPosition.y - p.y) / MIST_HEIGHT - density * t);
+        float w = exp((base - cameraPosition.y - p.y) / mistHeight() - density * t);
         sum += w * s;
         weight += w;
         if (s > 0.0) lit += s * tintAt(uv);
@@ -296,7 +296,7 @@ void main() {
             // Au-delà de la portée de la marche : la nappe et l'anneau, en une fois, derrière la brume proche.
             float reach = min(len, FOG_RANGE);
             float beyond = mistNearDensity() * (1.0 - MIST_LIFT * brumaireMist.x)
-                         * mistLayer(cameraPosition.y, dir.y, reach, len, MIST_HEIGHT, mistAnchor());
+                         * mistLayer(cameraPosition.y, dir.y, reach, len, mistHeight(), mistAnchor());
             // Au couchant, la brume lointaine est moitié moins épaisse : elle ne blanchit plus tout le côté du soleil.
             // Sous la pluie, deux fois et demie plus : l'averse dissout l'horizon. La nuit, moitié moins : une bande grise
             // barrait l'horizon.

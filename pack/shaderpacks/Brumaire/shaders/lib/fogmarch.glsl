@@ -35,7 +35,7 @@ float fogMarch(vec3 dir, float reach, float sunAmount, out vec3 light) {
 #if FOG_STEPS > 0
     vec3 origin = gbufferModelViewInverse[3].xyz;
     float base = mistAnchor();
-    float h = MIST_HEIGHT;
+    float h = mistHeight();
     float open = smoothstep(0.0, 0.55, float(eyeBrightnessSmooth.y) / 240.0);
     float dens0 = mistNearDensity() * (1.0 - MIST_LIFT * brumaireMist.x);
     // Sous terre, une poussière que seules les torches font voir.
@@ -43,7 +43,7 @@ float fogMarch(vec3 dir, float reach, float sunAmount, out vec3 light) {
     float mu = dot(dir, gLightDir);
     float phaseMist = 0.75 * mistPhase(mu, 0.5) + 0.25 * mistPhase(mu, -0.3);
     float phaseAir = 0.7 * mistPhase(mu, 0.75) + 0.3 * mistPhase(mu, 0.2);
-    vec3 body = mix(gAmbient, vec3(luma(gAmbient)), 0.75) * vec3(1.03, 1.0, 0.95) * 0.95 * mistTint() * mix(0.5, 1.0, gDay) * mix(vec3(1.12, 1.0, 0.85), vec3(1.0), gDay) * mix(1.0, 2.2, rainStrength) * mix(1.0, 0.5, gDusk)
+    vec3 body = mix(gAmbient, vec3(luma(gAmbient)), 0.75) * vec3(1.03, 1.0, 0.95) * 0.95 * mistTint() * mix(1.2, 1.0, gDay) * mix(vec3(1.12, 1.0, 0.85), vec3(1.0), gDay) * mix(1.0, 2.2, rainStrength) * mix(1.0, 0.5, gDusk)
         * mix(vec3(1.0), vec3(0.97, 1.0, 1.04), gDay * (1.0 - gDusk));
     // Au couchant, ambrée (voir mistColor).
     body = mix(body, vec3(luma(body)) * vec3(1.3, 0.95, 0.6), 0.8 * gDusk * (1.0 - rainStrength));
