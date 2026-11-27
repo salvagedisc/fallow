@@ -1,0 +1,166 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Pocky-l/diegesis/main/docs/schema/scene.schema.json",
+  "$comment": "La table d'empennage est le bloc de vanilla, qu'Overgeared fait travailler. Son dessus est à y = 16 (z de 0 devant à 16 au fond) ; vu de devant, x grand est à gauche. La flèche se monte sur le plateau en diagonale, comme dans la fenêtre d'Overgeared : plume devant à gauche, hampe au milieu, pointe au fond à droite. fiole : la potion qui trempe la pointe, debout au fond à gauche. resultat : les flèches faites, debout devant à droite. La caméra se tient au-dessus du bord avant, comme aux tables de Hands-On Vanilla.",
+  "work_plane": 16,
+  "idle_visible": false,
+  "camera": {
+    "position": [
+      8,
+      40,
+      -15
+    ],
+    "target": [
+      8,
+      16.5,
+      8
+    ],
+    "fov": 40,
+    "interactive_at": 0.6
+  },
+  "interface": {
+    "hide_player": true,
+    "inventory_panel": false,
+    "sounds": false,
+    "carry_lift": 1.5,
+    "highlight_color": "#26FFFFFF",
+    "hover_outline": false
+  },
+  "inventory_drawer": {
+    "layout": "hotbar",
+    "always_open": true,
+    "carry_size": 2.6
+  },
+  "carry_planes": [
+    {
+      "from": [
+        -6,
+        -6
+      ],
+      "to": [
+        22,
+        22
+      ],
+      "height": 16,
+      "blend": 3
+    }
+  ],
+  "nodes": [
+    {
+      "id": "plume",
+      "pos": [
+        12.4,
+        16.02,
+        4.4
+      ],
+      "slot": {
+        "slot": "plume[0]",
+        "count_facing": "camera",
+        "size": 4.0,
+        "item_size": 3.44,
+        "idle_highlight": 0.55,
+        "ghost": [
+          "minecraft:feather"
+        ],
+        "ghost_alpha": 0.35
+      }
+    },
+    {
+      "id": "hampe",
+      "pos": [
+        8.6,
+        16.02,
+        8.0
+      ],
+      "slot": {
+        "slot": "hampe[0]",
+        "count_facing": "camera",
+        "size": 4.0,
+        "item_size": 3.44,
+        "idle_highlight": 0.55,
+        "ghost": [
+          "minecraft:stick"
+        ],
+        "ghost_alpha": 0.35
+      }
+    },
+    {
+      "id": "pointe",
+      "pos": [
+        4.8,
+        16.02,
+        11.6
+      ],
+      "slot": {
+        "slot": "pointe[0]",
+        "count_facing": "camera",
+        "size": 4.0,
+        "item_size": 3.44,
+        "idle_highlight": 0.55,
+        "ghost": [
+          "minecraft:flint",
+          "overgeared:iron_arrow_head",
+          "overgeared:steel_arrow_head"
+        ],
+        "ghost_alpha": 0.35
+      }
+    },
+    {
+      "id": "fiole",
+      "pos": [
+        12.6,
+        16,
+        12.2
+      ],
+      "slot": {
+        "slot": "fiole[0]",
+        "display": "upright",
+        "size": 3.0,
+        "count_facing": "front",
+        "idle_highlight": 0.55,
+        "ghost": [
+          "minecraft:potion"
+        ],
+        "ghost_alpha": 0.35
+      },
+      "collider": {
+        "from": [
+          -2.0,
+          0,
+          -2.0
+        ],
+        "to": [
+          2.0,
+          4.4,
+          2.0
+        ]
+      }
+    },
+    {
+      "id": "resultat",
+      "pos": [
+        3.6,
+        16,
+        4.2
+      ],
+      "slot": {
+        "slot": "resultat[0]",
+        "display": "upright",
+        "size": 3.4,
+        "count_facing": "front",
+        "idle_highlight": 0.55
+      },
+      "collider": {
+        "from": [
+          -2.2,
+          0,
+          -2.2
+        ],
+        "to": [
+          2.2,
+          4.4,
+          2.2
+        ]
+      }
+    }
+  ]
+}

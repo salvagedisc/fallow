@@ -1,0 +1,249 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Pocky-l/diegesis/main/docs/schema/scene.schema.json",
+  "$comment": "La chaudière de Cold Sweat est le bloc lui-même. La façade est à z = 0, le dessus à y = 16 (z de 0 devant à 16 au fond) ; vu de devant, x grand est à gauche. outre_0 à outre_8 : les neuf outres qu'elle chauffe, à plat sur le dessus, trois rangs de trois ; combustible : debout devant la grille du foyer, en bas de la façade. avancement : la jauge du combustible, peinte par le code sur la bande de pierre du haut de la façade. feu : un pivot pour les flammes et la fumée du foyer ; souffle : d'où monte la vapeur, au-dessus des outres. La caméra se tient devant, au-dessus, et voit le dessus et la façade.",
+  "work_plane": 16,
+  "idle_visible": false,
+  "camera": {
+    "position": [
+      8,
+      27,
+      -27
+    ],
+    "target": [
+      8,
+      7.5,
+      6
+    ],
+    "fov": 40,
+    "interactive_at": 0.6
+  },
+  "interface": {
+    "hide_player": true,
+    "inventory_panel": false,
+    "sounds": false,
+    "carry_lift": 1.5,
+    "highlight_color": "#26FFFFFF",
+    "hover_outline": false
+  },
+  "inventory_drawer": {
+    "layout": "hotbar",
+    "always_open": true,
+    "carry_size": 3.0
+  },
+  "carry_planes": [
+    {
+      "from": [
+        -6,
+        -6
+      ],
+      "to": [
+        22,
+        22
+      ],
+      "height": 16,
+      "blend": 3
+    }
+  ],
+  "nodes": [
+    {
+      "id": "outre_0",
+      "pos": [
+        12.6,
+        16.02,
+        12.6
+      ],
+      "slot": {
+        "slot": "outre[0]",
+        "count_facing": "camera",
+        "size": 3.8,
+        "item_size": 3.27,
+        "idle_highlight": 0.55
+      }
+    },
+    {
+      "id": "outre_1",
+      "pos": [
+        8.0,
+        16.02,
+        12.6
+      ],
+      "slot": {
+        "slot": "outre[1]",
+        "count_facing": "camera",
+        "size": 3.8,
+        "item_size": 3.27,
+        "idle_highlight": 0.55
+      }
+    },
+    {
+      "id": "outre_2",
+      "pos": [
+        3.4,
+        16.02,
+        12.6
+      ],
+      "slot": {
+        "slot": "outre[2]",
+        "count_facing": "camera",
+        "size": 3.8,
+        "item_size": 3.27,
+        "idle_highlight": 0.55
+      }
+    },
+    {
+      "id": "outre_3",
+      "pos": [
+        12.6,
+        16.02,
+        8.0
+      ],
+      "slot": {
+        "slot": "outre[3]",
+        "count_facing": "camera",
+        "size": 3.8,
+        "item_size": 3.27,
+        "idle_highlight": 0.55
+      }
+    },
+    {
+      "id": "outre_4",
+      "pos": [
+        8.0,
+        16.02,
+        8.0
+      ],
+      "slot": {
+        "slot": "outre[4]",
+        "count_facing": "camera",
+        "size": 3.8,
+        "item_size": 3.27,
+        "idle_highlight": 0.55,
+        "ghost": [
+          "cold_sweat:waterskin",
+          "cold_sweat:filled_waterskin"
+        ],
+        "ghost_alpha": 0.35
+      }
+    },
+    {
+      "id": "outre_5",
+      "pos": [
+        3.4,
+        16.02,
+        8.0
+      ],
+      "slot": {
+        "slot": "outre[5]",
+        "count_facing": "camera",
+        "size": 3.8,
+        "item_size": 3.27,
+        "idle_highlight": 0.55
+      }
+    },
+    {
+      "id": "outre_6",
+      "pos": [
+        12.6,
+        16.02,
+        3.4
+      ],
+      "slot": {
+        "slot": "outre[6]",
+        "count_facing": "camera",
+        "size": 3.8,
+        "item_size": 3.27,
+        "idle_highlight": 0.55
+      }
+    },
+    {
+      "id": "outre_7",
+      "pos": [
+        8.0,
+        16.02,
+        3.4
+      ],
+      "slot": {
+        "slot": "outre[7]",
+        "count_facing": "camera",
+        "size": 3.8,
+        "item_size": 3.27,
+        "idle_highlight": 0.55
+      }
+    },
+    {
+      "id": "outre_8",
+      "pos": [
+        3.4,
+        16.02,
+        3.4
+      ],
+      "slot": {
+        "slot": "outre[8]",
+        "count_facing": "camera",
+        "size": 3.8,
+        "item_size": 3.27,
+        "idle_highlight": 0.55
+      }
+    },
+    {
+      "id": "combustible",
+      "pos": [
+        8,
+        1.0,
+        -0.8
+      ],
+      "slot": {
+        "slot": "combustible[0]",
+        "display": "upright",
+        "size": 3.4,
+        "count_facing": "front",
+        "idle_highlight": 0.55,
+        "ghost": [
+          "minecraft:coal",
+          "minecraft:charcoal",
+          "minecraft:lava_bucket"
+        ],
+        "ghost_alpha": 0.35
+      },
+      "collider": {
+        "from": [
+          -2.6,
+          0,
+          -1.6
+        ],
+        "to": [
+          2.6,
+          4.4,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": "avancement",
+      "pos": [
+        8,
+        14.0,
+        -0.05
+      ],
+      "pickable": false
+    },
+    {
+      "id": "feu",
+      "pos": [
+        8,
+        1,
+        -0.3
+      ],
+      "pickable": false
+    },
+    {
+      "id": "souffle",
+      "pos": [
+        8,
+        17,
+        8
+      ],
+      "pickable": false
+    }
+  ]
+}

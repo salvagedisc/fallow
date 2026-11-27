@@ -1,0 +1,299 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Pocky-l/diegesis/main/docs/schema/scene.schema.json",
+  "$comment": "La table à dessin d'Overgeared est le bloc lui-même ; son dessus est sa feuille quadrillée, à y = 16 (z de 0 devant à 16 au fond) ; vu de devant, x grand est à gauche. papier : le plan vierge, à gauche ; plan : le plan tracé, à droite, comme dans la fenêtre d'Overgeared. modele_0 à modele_7 : au fond, en rang, une tête d'outil pour chaque sorte d'outil qu'un plan peut dire ; PostePlans les range et les montre, et un clic sur l'une trace son plan (leur boîte de clic est dans leur échelle : 7 sur 0,17, soit 1,2 pixel). La caméra se tient au-dessus du bord avant.",
+  "work_plane": 16,
+  "idle_visible": false,
+  "camera": {
+    "position": [
+      8,
+      40,
+      -15
+    ],
+    "target": [
+      8,
+      16.5,
+      8
+    ],
+    "fov": 40,
+    "interactive_at": 0.6
+  },
+  "interface": {
+    "hide_player": true,
+    "inventory_panel": false,
+    "sounds": false,
+    "carry_lift": 1.5,
+    "highlight_color": "#26FFFFFF",
+    "hover_outline": false
+  },
+  "inventory_drawer": {
+    "layout": "hotbar",
+    "always_open": true,
+    "carry_size": 2.6
+  },
+  "carry_planes": [
+    {
+      "from": [
+        -6,
+        -6
+      ],
+      "to": [
+        22,
+        22
+      ],
+      "height": 16,
+      "blend": 3
+    }
+  ],
+  "nodes": [
+    {
+      "id": "papier",
+      "pos": [
+        11.0,
+        16.02,
+        5.6
+      ],
+      "slot": {
+        "slot": "papier[0]",
+        "count_facing": "camera",
+        "size": 5.0,
+        "item_size": 4.3,
+        "idle_highlight": 0.55,
+        "ghost": [
+          "overgeared:empty_blueprint"
+        ],
+        "ghost_alpha": 0.35
+      }
+    },
+    {
+      "id": "plan",
+      "pos": [
+        5.0,
+        16.02,
+        5.6
+      ],
+      "slot": {
+        "slot": "plan[0]",
+        "count_facing": "camera",
+        "size": 5.0,
+        "item_size": 4.3,
+        "idle_highlight": 0.55
+      }
+    },
+    {
+      "id": "modele_0",
+      "pos": [
+        8,
+        16.05,
+        13
+      ],
+      "rotation": [
+        -90,
+        0,
+        0
+      ],
+      "scale": 0.17,
+      "hidden": true,
+      "collider": {
+        "from": [
+          -7,
+          -7,
+          -7
+        ],
+        "to": [
+          7,
+          7,
+          7
+        ]
+      }
+    },
+    {
+      "id": "modele_1",
+      "pos": [
+        8,
+        16.05,
+        13
+      ],
+      "rotation": [
+        -90,
+        0,
+        0
+      ],
+      "scale": 0.17,
+      "hidden": true,
+      "collider": {
+        "from": [
+          -7,
+          -7,
+          -7
+        ],
+        "to": [
+          7,
+          7,
+          7
+        ]
+      }
+    },
+    {
+      "id": "modele_2",
+      "pos": [
+        8,
+        16.05,
+        13
+      ],
+      "rotation": [
+        -90,
+        0,
+        0
+      ],
+      "scale": 0.17,
+      "hidden": true,
+      "collider": {
+        "from": [
+          -7,
+          -7,
+          -7
+        ],
+        "to": [
+          7,
+          7,
+          7
+        ]
+      }
+    },
+    {
+      "id": "modele_3",
+      "pos": [
+        8,
+        16.05,
+        13
+      ],
+      "rotation": [
+        -90,
+        0,
+        0
+      ],
+      "scale": 0.17,
+      "hidden": true,
+      "collider": {
+        "from": [
+          -7,
+          -7,
+          -7
+        ],
+        "to": [
+          7,
+          7,
+          7
+        ]
+      }
+    },
+    {
+      "id": "modele_4",
+      "pos": [
+        8,
+        16.05,
+        13
+      ],
+      "rotation": [
+        -90,
+        0,
+        0
+      ],
+      "scale": 0.17,
+      "hidden": true,
+      "collider": {
+        "from": [
+          -7,
+          -7,
+          -7
+        ],
+        "to": [
+          7,
+          7,
+          7
+        ]
+      }
+    },
+    {
+      "id": "modele_5",
+      "pos": [
+        8,
+        16.05,
+        13
+      ],
+      "rotation": [
+        -90,
+        0,
+        0
+      ],
+      "scale": 0.17,
+      "hidden": true,
+      "collider": {
+        "from": [
+          -7,
+          -7,
+          -7
+        ],
+        "to": [
+          7,
+          7,
+          7
+        ]
+      }
+    },
+    {
+      "id": "modele_6",
+      "pos": [
+        8,
+        16.05,
+        13
+      ],
+      "rotation": [
+        -90,
+        0,
+        0
+      ],
+      "scale": 0.17,
+      "hidden": true,
+      "collider": {
+        "from": [
+          -7,
+          -7,
+          -7
+        ],
+        "to": [
+          7,
+          7,
+          7
+        ]
+      }
+    },
+    {
+      "id": "modele_7",
+      "pos": [
+        8,
+        16.05,
+        13
+      ],
+      "rotation": [
+        -90,
+        0,
+        0
+      ],
+      "scale": 0.17,
+      "hidden": true,
+      "collider": {
+        "from": [
+          -7,
+          -7,
+          -7
+        ],
+        "to": [
+          7,
+          7,
+          7
+        ]
+      }
+    }
+  ]
+}

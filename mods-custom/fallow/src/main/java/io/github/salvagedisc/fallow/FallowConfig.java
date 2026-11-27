@@ -82,6 +82,11 @@ public final class FallowConfig {
     private static final ModConfigSpec.BooleanValue POSTES_TANNERIE;
     private static final ModConfigSpec.BooleanValue POSTES_FORGE;
     private static final ModConfigSpec.BooleanValue POSTES_FOYER;
+    private static final ModConfigSpec.BooleanValue POSTES_FOURS;
+    private static final ModConfigSpec.BooleanValue POSTES_TABLES;
+    private static final ModConfigSpec.BooleanValue POSTES_CHAUDIERES;
+    private static final ModConfigSpec.BooleanValue POSTES_LABO;
+    private static final ModConfigSpec.BooleanValue POSTES_TAILLE;
     private static final ModConfigSpec.BooleanValue PATINE_ENABLED;
     private static final ModConfigSpec.IntValue PATINE_MINUTES;
     private static final ModConfigSpec.BooleanValue CLIMAT_ENABLED;
@@ -461,6 +466,30 @@ public final class FallowConfig {
                         "froid) sur la façade. Un combustible en main se jette toujours au foyer d'un clic. Faux : la fenêtre de Cold Sweat.",
                         "Lu par le jeu de chaque joueur (son propre fichier), pas imposé par le serveur.")
                 .define("foyer", true);
+        POSTES_FOURS = common
+                .comment("Les fours d'Overgeared (à alliage, à alliage de magma, de moulage) s'ouvrent en postes : les métaux sur le",
+                        "dessus du four, le combustible devant son foyer, l'ouvrage à côté. Faux : la fenêtre d'Overgeared.",
+                        "Lu par le jeu de chaque joueur (son propre fichier), pas imposé par le serveur.")
+                .define("fours", true);
+        POSTES_TABLES = common
+                .comment("La table d'empennage et la table à dessin d'Overgeared, la table de couture de Cold Sweat s'ouvrent en postes :",
+                        "on pose les pièces sur le plateau. Faux : leurs fenêtres.",
+                        "Lu par le jeu de chaque joueur (son propre fichier), pas imposé par le serveur.")
+                .define("tables", true);
+        POSTES_CHAUDIERES = common
+                .comment("La chaudière et la glacière de Cold Sweat s'ouvrent en postes : les outres sur le dessus, le combustible devant.",
+                        "Faux : leurs fenêtres. Lu par le jeu de chaque joueur (son propre fichier), pas imposé par le serveur.")
+                .define("chaudieres", true);
+        POSTES_LABO = common
+                .comment("Le labo photo d'Exposure s'ouvre en poste : la pellicule, le papier et les teintures sur le plateau, le négatif",
+                        "de la vue choisie entre eux. Faux : sa fenêtre.",
+                        "Lu par le jeu de chaque joueur (son propre fichier), pas imposé par le serveur.")
+                .define("labo", true);
+        POSTES_TAILLE = common
+                .comment("La taille de pierre d'Overgeared (une pierre dans chaque main) se fait sur la pierre tenue, sans fenêtre : on en",
+                        "détache les éclats d'un clic. Faux : sa fenêtre.",
+                        "Lu par le jeu de chaque joueur (son propre fichier), pas imposé par le serveur.")
+                .define("taille", true);
         common.pop();
 
         common.comment("Module patine : les armures portées se salissent (marche, terre, combat) et se lavent dans l'eau ; la pluie",
@@ -760,6 +789,26 @@ public final class FallowConfig {
 
     public static boolean postesFoyer() {
         return read(COMMON_SPEC, POSTES_FOYER);
+    }
+
+    public static boolean postesFours() {
+        return read(COMMON_SPEC, POSTES_FOURS);
+    }
+
+    public static boolean postesTables() {
+        return read(COMMON_SPEC, POSTES_TABLES);
+    }
+
+    public static boolean postesChaudieres() {
+        return read(COMMON_SPEC, POSTES_CHAUDIERES);
+    }
+
+    public static boolean postesLabo() {
+        return read(COMMON_SPEC, POSTES_LABO);
+    }
+
+    public static boolean postesTaille() {
+        return read(COMMON_SPEC, POSTES_TAILLE);
     }
 
     public static int tannerieStrokes() {

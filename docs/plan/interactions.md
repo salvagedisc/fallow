@@ -8,7 +8,7 @@ Status: written on 2026-11-21, after Cinematic Interactions left the pack ([0040
 
 | Register | What it is for | How it feels |
 |---|---|---|
-| **Menu** (« le menu ») | Choosing among many things: a recipe grid or a pattern, a trade, a line of dialogue, a book; storing and sorting; machines that work on their own (Overgeared's alloy and casting furnaces, Exposure's lightroom) | A window that opens at once and closes at once; nothing in it asks for timing |
+| **Menu** (« le menu ») | Choosing among many things: a recipe grid or a pattern, a trade, a line of dialogue, a book; storing and sorting | A window that opens at once and closes at once; nothing in it asks for timing |
 | **Gesture** (« le geste ») | Transforming a few items oneself at a station where the work shows on the block: cut, scrape, stir, fry, pour, stretch, hammer | Right clicks in the world, with the item or the tool in hand; the block shows what lies on it and how far it is |
 | **Craft skill** (« le savoir-faire ») | The few moments where the quality of one result is worth a test: forging a part, landing a fish, stirring a pot | A short timing test on the click; it earns a bonus, it is never the only way to get the result |
 
@@ -42,15 +42,16 @@ Waiting happens on the block, never with the player held: the vat soaks, the fra
 - **Voice.** Fallow's own texts address the player as « vous », like the quests and the other mods' French: « Il vous faut une hache. » (the tool hints used « tu » until 2026-11-21).
 - **One book per domain.** Recipes in EMI (R and U on any item; Hands-On Delight's book beside its stations shows the same recipes with their times); fauna and the zoo in Archie's guidebook (J); fish in Starcatcher's guide; quests in Questlog; places on the atlas; enchantments in each item's own tooltip (its awakenings, [eveil](eveil.md)). A new mod does not bring a second book for a domain that has one.
 - **At a station.** As in Hands-On Vanilla and Hands-On Delight: a faint ghost shows what to lay next; each step has its sound and its particles (a splash, scraps, sparks, a puff of snow); the tool in hand is drawn on the work where it strikes; the work shows how far it is on the block itself (the water browns, the hide pales, the leather lightens), with the exact share on hover.
-- **Windows.** A mod's station window is a sheet of the books' paper (wells pressed in, pictograms in brown ink, vanilla's buttons as paper cards) laid on the inventory's wooden case, which the base resource pack draws as its chests (`fiches` module, [0057](../decisions/0057-station-windows-as-sheets.md)); a new station window follows the same manner, never a flat dark or grey panel.
+- **Stations.** A crafting station, whichever mod brings it, is worked on its block as at Hands-On Vanilla's: the camera over it, its slots laid on it, its choices made by clicks on the block ([0058](../decisions/0058-mod-stations-on-the-block.md)); a new one follows the same manner.
+- **Windows.** What stays a window (storage, a chest under another name, a station whose switch is off) is a sheet of the books' paper (wells pressed in, pictograms in brown ink, vanilla's buttons as paper cards) laid on the inventory's wooden case, which the base resource pack draws as its chests (`fiches` module, [0057](../decisions/0057-station-windows-as-sheets.md)); never a flat dark or grey panel.
 - **Pace.** Opening an everyday window (chest, barrel, the grindstone) costs well under half a second: Spatial GUI's camera move and scale animation are 150 ms (300 ms by default) and closing has no animation (shipped as defaults for new installs in `pack/config/defaultoptions/extra/config/spatial-gui.json5`). The camera leaves the player only at Hands-On Delight's stations, where the hands are the point, and one key brings it back.
 
 ## The pack's loops, register by register
 
 | Vanilla mechanic | In Fallow | Register |
 |---|---|---|
-| Crafting | Crafting table worked by hand with its recipe book beside it (Hands-On Vanilla, [0043](../decisions/0043-hands-on-vanilla.md)); knapping grid of Overgeared (a rock in each hand), drafting table | Gesture at the crafting table; menu elsewhere |
-| Smelting | Furnace, smoker, blast furnace worked by hand (Hands-On Vanilla); Overgeared's alloy and casting furnaces | Gesture; menu for Overgeared's |
+| Crafting | Crafting table worked by hand with its recipe book beside it (Hands-On Vanilla, [0043](../decisions/0043-hands-on-vanilla.md)); Overgeared's fletching table (the arrow laid on its top) and drafting table (a click on a tool head draws its blueprint) worked on the block; Overgeared's knapping (a rock in each hand) on the rock held, its flakes knocked off by clicks (`postes` module, [0058](../decisions/0058-mod-stations-on-the-block.md)) | Gesture |
+| Smelting | Furnace, smoker, blast furnace worked by hand (Hands-On Vanilla); Overgeared's alloy, nether alloy and casting furnaces worked on the block (`postes` module): metals on the top, fuel in the firebox, the cooking bar on the front | Gesture |
 | Cooking a dish | Farmer's Delight's pot, board, skillet and stove through Hands-On Delight; campfire | Gesture, stirring as craft skill |
 | Smithing | Overgeared's anvil worked as a station (`postes` module): pieces, hammer and blueprint laid on it, a forge book beside it; then sneak + use with the hammer and strikes in the world | Gesture, then craft skill |
 | Fishing | Starcatcher | Craft skill (classic bobber: none) |
@@ -61,8 +62,9 @@ Waiting happens on the block, never with the player held: the vat soaks, the fra
 | Storage | Chests, the bag, sacks | Menu |
 | Trading, talking | Archie's trades, the emissaries of the Peoples | Menu |
 | Writing | Book and quill or written book in hand, on two pages (Scholar); a book on a lectern is read on the lectern (Hands-On Vanilla) | Menu in hand; gesture at the lectern |
-| Photography | Exposure's camera in the world, the lightroom | Gesture, then menu (machine) |
-| Heating, cooling | Cold Sweat's hearth worked as a station (`postes` module): fuel laid before its grate, its gauges on its front; fuel in hand still thrown in by a click | Gesture |
+| Photography | Exposure's camera in the world, its lightroom worked on the block (`postes` module): film, paper and dyes on the table, the negative leaning between them, a click prints | Gesture |
+| Heating, cooling | Cold Sweat's hearth, boiler and icebox worked as stations (`postes` module): fuel laid before the grate, waterskins on the boiler's top or in the open icebox, gauges on the front; fuel in hand still thrown in by a click | Gesture |
+| Sewing | Cold Sweat's sewing table worked on the block (`postes` module): the piece on the cushion, the lining beside it, the result standing | Gesture |
 | Rest, sleep, drink | Rest by the hearth, beds and Comforts, Thirst Was Reclaimed | In the world, no station |
 
 ## Divergences kept on purpose

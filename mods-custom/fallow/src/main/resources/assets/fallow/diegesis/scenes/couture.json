@@ -1,0 +1,118 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Pocky-l/diegesis/main/docs/schema/scene.schema.json",
+  "$comment": "La table de couture de Cold Sweat est le bloc lui-même ; son dessus (le coussin rouge, les cisailles) est à y = 16 (z de 0 devant à 16 au fond) ; vu de devant, x grand est à gauche. piece : l'armure à garnir, à plat sur le coussin à gauche ; garniture : ce qui la garnit, ou les cisailles qui la dégarnissent, à droite ; resultat : la pièce garnie (ou la garniture ôtée), debout au fond. La caméra se tient au-dessus du bord avant.",
+  "work_plane": 16,
+  "idle_visible": false,
+  "camera": {
+    "position": [
+      8,
+      40,
+      -15
+    ],
+    "target": [
+      8,
+      16.5,
+      8
+    ],
+    "fov": 40,
+    "interactive_at": 0.6
+  },
+  "interface": {
+    "hide_player": true,
+    "inventory_panel": false,
+    "sounds": false,
+    "carry_lift": 1.5,
+    "highlight_color": "#26FFFFFF",
+    "hover_outline": false
+  },
+  "inventory_drawer": {
+    "layout": "hotbar",
+    "always_open": true,
+    "carry_size": 2.6
+  },
+  "carry_planes": [
+    {
+      "from": [
+        -6,
+        -6
+      ],
+      "to": [
+        22,
+        22
+      ],
+      "height": 16,
+      "blend": 3
+    }
+  ],
+  "nodes": [
+    {
+      "id": "piece",
+      "pos": [
+        10.8,
+        16.02,
+        6.0
+      ],
+      "slot": {
+        "slot": "piece[0]",
+        "count_facing": "camera",
+        "size": 5.0,
+        "item_size": 4.3,
+        "idle_highlight": 0.55,
+        "ghost": [
+          "minecraft:leather_chestplate",
+          "minecraft:iron_helmet",
+          "minecraft:leather_boots"
+        ],
+        "ghost_alpha": 0.35
+      }
+    },
+    {
+      "id": "garniture",
+      "pos": [
+        4.8,
+        16.02,
+        6.0
+      ],
+      "slot": {
+        "slot": "garniture[0]",
+        "count_facing": "camera",
+        "size": 4.2,
+        "item_size": 3.61,
+        "idle_highlight": 0.55,
+        "ghost": [
+          "minecraft:white_wool",
+          "minecraft:rabbit_hide",
+          "minecraft:shears"
+        ],
+        "ghost_alpha": 0.35
+      }
+    },
+    {
+      "id": "resultat",
+      "pos": [
+        8.0,
+        16,
+        12.4
+      ],
+      "slot": {
+        "slot": "resultat[0]",
+        "display": "upright",
+        "size": 3.6,
+        "count_facing": "front",
+        "idle_highlight": 0.55
+      },
+      "collider": {
+        "from": [
+          -2.4,
+          0,
+          -2.4
+        ],
+        "to": [
+          2.4,
+          4.4,
+          2.4
+        ]
+      }
+    }
+  ]
+}

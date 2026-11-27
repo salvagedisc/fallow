@@ -7,6 +7,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientChatReceivedEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.common.NeoForge;
@@ -28,7 +30,7 @@ public final class PostesClient {
     private PostesClient() {
     }
 
-    public static void init() {
+    public static void init(IEventBus modBus) {
         DiegesisClient.registerBehavior(PostesTannerie.CHEVALET, view -> new TannerieBehavior(TannerieBook.RACLAGE, new ChevaletAllure()));
         DiegesisClient.registerBehavior(PostesTannerie.CUVE, view -> new TannerieBehavior(TannerieBook.TANNAGE, new CuveAllure()));
         DiegesisClient.registerBehavior(PostesTannerie.SECHOIR, view -> new TannerieBehavior(TannerieBook.SECHAGE, new SechoirAllure()));
@@ -37,9 +39,17 @@ public final class PostesClient {
         NeoForge.EVENT_BUS.addListener(InputEvent.InteractionKeyMappingTriggered.class, PostesClient::usage);
         if (ModIds.isLoaded(ModIds.OVERGEARED)) {
             PostesForge.register();
+            PostesFours.register();
+            PostesTables.register();
+            // Après les écouteurs de Diegesis, posés quand il se charge : au démarrage du client, tous les mods sont chargés.
+            modBus.addListener(FMLClientSetupEvent.class, event -> PostesTables.ecouter());
         }
         if (ModIds.isLoaded(ModIds.COLD_SWEAT)) {
             PostesFoyer.register();
+            PostesColdSweat.register();
+        }
+        if (ModIds.isLoaded(ModIds.EXPOSURE)) {
+            PostesLabo.register();
         }
     }
 

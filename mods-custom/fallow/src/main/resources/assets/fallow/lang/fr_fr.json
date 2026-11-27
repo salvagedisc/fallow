@@ -454,5 +454,18 @@
   "screen.fallow.hote.sables.comble": "Les trois tas ! Le Grand-Adossé va devoir se retourner, pour une fois. Reviens voir la natte à l'aube.",
   "screen.fallow.hote.silence.don.2": "Ce qui étouffe. Ce qui éclaire bas. Tu as ça ?",
   "screen.fallow.hote.silence.encore": "Autre chose. Bas.",
-  "screen.fallow.hote.silence.comble": "Tout. Bien. À l'aube, la natte."
+  "screen.fallow.hote.silence.comble": "Tout. Bien. À l'aube, la natte.",
+  "postes.fallow.plans.vierge": "Posez d'abord un plan vierge sur la feuille",
+  "postes.fallow.plans.prenez": "Prenez d'abord le plan déjà tracé",
+  "postes.fallow.labo.vue": "Vue %s sur %s\nClic : tirer · molette : changer de vue",
+  "postes.fallow.labo.vue_procede": "Vue %s sur %s · %s\nClic : tirer · molette : changer de vue · clic droit : procédé",
+  "postes.fallow.labo.procede.regular": "tirage simple",
+  "postes.fallow.labo.procede.chromatic": "tirage chromatique",
+  "postes.fallow.labo.pellicule": "Posez une pellicule développée",
+  "postes.fallow.labo.papier": "Il faut du papier photo",
+  "postes.fallow.labo.lumiere": "Il faut de la lumière au-dessus du labo",
+  "postes.fallow.labo.teintures": "Il manque des teintures pour ce tirage",
+  "postes.fallow.labo.tirage": "Prenez d'abord le tirage d'avant",
+  "postes.fallow.labo.papier_procede": "Ce papier ne convient pas à ce procédé",
+  "postes.fallow.taille.eclat": "Détacher cet éclat"
 }

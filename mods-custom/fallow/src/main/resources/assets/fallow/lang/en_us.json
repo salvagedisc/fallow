@@ -454,5 +454,18 @@
   "screen.fallow.hote.sables.comble": "All three heaps! The Great Leaner will have to turn around, for once. Come and see the mat at dawn.",
   "screen.fallow.hote.silence.don.2": "What muffles. What glows low. You have that?",
   "screen.fallow.hote.silence.encore": "Something else. Quietly.",
-  "screen.fallow.hote.silence.comble": "All of it. Good. At dawn, the mat."
+  "screen.fallow.hote.silence.comble": "All of it. Good. At dawn, the mat.",
+  "postes.fallow.plans.vierge": "Lay a blank blueprint on the sheet first",
+  "postes.fallow.plans.prenez": "Take the drawn blueprint first",
+  "postes.fallow.labo.vue": "Frame %s of %s\nClick: print · scroll: change frame",
+  "postes.fallow.labo.vue_procede": "Frame %s of %s · %s\nClick: print · scroll: change frame · right click: process",
+  "postes.fallow.labo.procede.regular": "regular print",
+  "postes.fallow.labo.procede.chromatic": "chromatic print",
+  "postes.fallow.labo.pellicule": "Lay a developed film",
+  "postes.fallow.labo.papier": "Photo paper is needed",
+  "postes.fallow.labo.lumiere": "The lightroom needs light above it",
+  "postes.fallow.labo.teintures": "Dyes are missing for this print",
+  "postes.fallow.labo.tirage": "Take the last print first",
+  "postes.fallow.labo.papier_procede": "This paper does not suit this process",
+  "postes.fallow.taille.eclat": "Knock off this flake"
 }

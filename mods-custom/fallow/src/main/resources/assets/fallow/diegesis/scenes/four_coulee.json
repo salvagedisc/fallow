@@ -1,0 +1,162 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Pocky-l/diegesis/main/docs/schema/scene.schema.json",
+  "$comment": "Le four de moulage d'Overgeared est le bloc lui-même. entree : le métal à fondre, sur le dessus au fond à gauche ; moule : le moule de la fenêtre d'Overgeared, devant lui ; c'est dans le moule que coule l'ouvrage. La façade du four est à z = 0, son dessus à y = 16 (z de 0 devant à 16 au fond) ; vu de devant, x grand est à gauche. combustible : debout dans la bouche du foyer, en bas de la façade. resultat : debout sur le dessus, à droite. avancement : la jauge de cuisson, peinte par le code sur la bande de brique entre les bouches et le foyer. feu : un pivot pour les flammes et la fumée du foyer. La caméra se tient devant, au-dessus, et voit le dessus et la façade.",
+  "work_plane": 16,
+  "idle_visible": false,
+  "camera": {
+    "position": [
+      8,
+      27,
+      -27
+    ],
+    "target": [
+      8,
+      7.5,
+      6
+    ],
+    "fov": 40,
+    "interactive_at": 0.6
+  },
+  "interface": {
+    "hide_player": true,
+    "inventory_panel": false,
+    "sounds": false,
+    "carry_lift": 1.5,
+    "highlight_color": "#26FFFFFF",
+    "hover_outline": false
+  },
+  "inventory_drawer": {
+    "layout": "hotbar",
+    "always_open": true,
+    "carry_size": 3.0
+  },
+  "carry_planes": [
+    {
+      "from": [
+        -6,
+        -6
+      ],
+      "to": [
+        22,
+        22
+      ],
+      "height": 16,
+      "blend": 3
+    }
+  ],
+  "nodes": [
+    {
+      "id": "entree",
+      "pos": [
+        11,
+        16.02,
+        11
+      ],
+      "slot": {
+        "slot": "entree[0]",
+        "count_facing": "camera",
+        "size": 3.4,
+        "item_size": 3.0,
+        "ghost": [
+          "minecraft:iron_ingot",
+          "minecraft:copper_ingot"
+        ],
+        "ghost_alpha": 0.35
+      }
+    },
+    {
+      "id": "moule",
+      "pos": [
+        11,
+        16.02,
+        6.5
+      ],
+      "slot": {
+        "slot": "moule[0]",
+        "count_facing": "camera",
+        "size": 3.4,
+        "item_size": 3.0,
+        "ghost": [
+          "overgeared:clay_tool_cast",
+          "overgeared:nether_tool_cast"
+        ],
+        "ghost_alpha": 0.35
+      }
+    },
+    {
+      "id": "resultat",
+      "pos": [
+        4.2,
+        16,
+        8.5
+      ],
+      "slot": {
+        "slot": "resultat[0]",
+        "display": "upright",
+        "size": 3.2,
+        "count_facing": "front"
+      },
+      "collider": {
+        "from": [
+          -2.2,
+          0,
+          -2.2
+        ],
+        "to": [
+          2.2,
+          4.4,
+          2.2
+        ]
+      }
+    },
+    {
+      "id": "combustible",
+      "pos": [
+        8,
+        1.0,
+        -0.8
+      ],
+      "slot": {
+        "slot": "combustible[0]",
+        "display": "upright",
+        "size": 3.4,
+        "count_facing": "front",
+        "ghost": [
+          "minecraft:coal",
+          "minecraft:charcoal"
+        ],
+        "ghost_alpha": 0.35
+      },
+      "collider": {
+        "from": [
+          -2.6,
+          0,
+          -1.6
+        ],
+        "to": [
+          2.6,
+          4.4,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": "avancement",
+      "pos": [
+        8,
+        8,
+        -0.05
+      ],
+      "pickable": false
+    },
+    {
+      "id": "feu",
+      "pos": [
+        8,
+        1,
+        -0.3
+      ],
+      "pickable": false
+    }
+  ]
+}

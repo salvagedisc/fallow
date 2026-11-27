@@ -1,0 +1,273 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Pocky-l/diegesis/main/docs/schema/scene.schema.json",
+  "$comment": "Le labo d'Exposure est le bloc lui-même. Son dessus (l'agrandisseur) est à y = 16 (z de 0 devant à 16 au fond), sa façade à z = 0 ; vu de devant, x grand est à gauche. pellicule : la pellicule développée, à plat à gauche ; papier : le papier photo, à droite ; teinture_0 à teinture_3 : les teintures d'impression cyan, magenta, jaune et noire, debout en rang au fond à gauche ; resultat : le tirage, debout au fond à droite. negatif : la vue choisie, peinte par Exposure, penchée vers la caméra au milieu ; un clic tire, la molette change de vue, un clic droit change de procédé. avancement : la jauge du tirage, sur la façade. La caméra se tient au-dessus du bord avant.",
+  "work_plane": 16,
+  "idle_visible": false,
+  "camera": {
+    "position": [
+      8,
+      40,
+      -15
+    ],
+    "target": [
+      8,
+      16.5,
+      8
+    ],
+    "fov": 40,
+    "interactive_at": 0.6
+  },
+  "interface": {
+    "hide_player": true,
+    "inventory_panel": false,
+    "sounds": false,
+    "carry_lift": 1.5,
+    "highlight_color": "#26FFFFFF",
+    "hover_outline": false
+  },
+  "inventory_drawer": {
+    "layout": "hotbar",
+    "always_open": true,
+    "carry_size": 2.6
+  },
+  "carry_planes": [
+    {
+      "from": [
+        -6,
+        -6
+      ],
+      "to": [
+        22,
+        22
+      ],
+      "height": 16,
+      "blend": 3
+    }
+  ],
+  "nodes": [
+    {
+      "id": "pellicule",
+      "pos": [
+        12.6,
+        16.02,
+        4.6
+      ],
+      "slot": {
+        "slot": "pellicule[0]",
+        "count_facing": "camera",
+        "size": 4.2,
+        "item_size": 3.61,
+        "idle_highlight": 0.55,
+        "ghost": [
+          "exposure:developed_black_and_white_film",
+          "exposure:developed_color_film"
+        ],
+        "ghost_alpha": 0.35
+      }
+    },
+    {
+      "id": "papier",
+      "pos": [
+        3.4,
+        16.02,
+        4.6
+      ],
+      "slot": {
+        "slot": "papier[0]",
+        "count_facing": "camera",
+        "size": 4.2,
+        "item_size": 3.61,
+        "idle_highlight": 0.55,
+        "ghost": [
+          "minecraft:paper"
+        ],
+        "ghost_alpha": 0.35
+      }
+    },
+    {
+      "id": "teinture_0",
+      "pos": [
+        14.4,
+        16,
+        14.2
+      ],
+      "slot": {
+        "slot": "teinture[0]",
+        "display": "upright",
+        "size": 2.4,
+        "count_facing": "front",
+        "idle_highlight": 0.55,
+        "ghost": [
+          "minecraft:cyan_dye"
+        ],
+        "ghost_alpha": 0.35
+      },
+      "collider": {
+        "from": [
+          -1.3,
+          0,
+          -1.3
+        ],
+        "to": [
+          1.3,
+          3.0,
+          1.3
+        ]
+      }
+    },
+    {
+      "id": "teinture_1",
+      "pos": [
+        12.0,
+        16,
+        14.2
+      ],
+      "slot": {
+        "slot": "teinture[1]",
+        "display": "upright",
+        "size": 2.4,
+        "count_facing": "front",
+        "idle_highlight": 0.55,
+        "ghost": [
+          "minecraft:magenta_dye"
+        ],
+        "ghost_alpha": 0.35
+      },
+      "collider": {
+        "from": [
+          -1.3,
+          0,
+          -1.3
+        ],
+        "to": [
+          1.3,
+          3.0,
+          1.3
+        ]
+      }
+    },
+    {
+      "id": "teinture_2",
+      "pos": [
+        9.6,
+        16,
+        14.2
+      ],
+      "slot": {
+        "slot": "teinture[2]",
+        "display": "upright",
+        "size": 2.4,
+        "count_facing": "front",
+        "idle_highlight": 0.55,
+        "ghost": [
+          "minecraft:yellow_dye"
+        ],
+        "ghost_alpha": 0.35
+      },
+      "collider": {
+        "from": [
+          -1.3,
+          0,
+          -1.3
+        ],
+        "to": [
+          1.3,
+          3.0,
+          1.3
+        ]
+      }
+    },
+    {
+      "id": "teinture_3",
+      "pos": [
+        7.2,
+        16,
+        14.2
+      ],
+      "slot": {
+        "slot": "teinture[3]",
+        "display": "upright",
+        "size": 2.4,
+        "count_facing": "front",
+        "idle_highlight": 0.55,
+        "ghost": [
+          "minecraft:black_dye"
+        ],
+        "ghost_alpha": 0.35
+      },
+      "collider": {
+        "from": [
+          -1.3,
+          0,
+          -1.3
+        ],
+        "to": [
+          1.3,
+          3.0,
+          1.3
+        ]
+      }
+    },
+    {
+      "id": "resultat",
+      "pos": [
+        3.2,
+        16,
+        12.6
+      ],
+      "slot": {
+        "slot": "resultat[0]",
+        "display": "upright",
+        "size": 3.4,
+        "count_facing": "front",
+        "idle_highlight": 0.55
+      },
+      "collider": {
+        "from": [
+          -2.2,
+          0,
+          -2.2
+        ],
+        "to": [
+          2.2,
+          4.4,
+          2.2
+        ]
+      }
+    },
+    {
+      "id": "negatif",
+      "pos": [
+        8,
+        16.9,
+        8.0
+      ],
+      "rotation": [
+        58,
+        0,
+        0
+      ],
+      "collider": {
+        "from": [
+          -3.2,
+          -3.6,
+          -0.6
+        ],
+        "to": [
+          3.2,
+          3.6,
+          0.6
+        ]
+      }
+    },
+    {
+      "id": "avancement",
+      "pos": [
+        8,
+        13.5,
+        -0.05
+      ],
+      "pickable": false
+    }
+  ]
+}

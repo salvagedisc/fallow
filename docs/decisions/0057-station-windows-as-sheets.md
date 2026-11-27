@@ -1,7 +1,7 @@
 # 0057 — The mods' station windows as sheets of the books' paper
 
 - **Date**: 2026-11-23
-- **Status**: kept; checked on a NeoForge 1.21.1 client with Spatial GUI, without Forager (its terms, [0056](0056-forager.md#licence)); the wooden case under Forager is to be checked in game
+- **Status**: kept for the windows that are not crafting stations; superseded for the crafting stations by [0058](0058-mod-stations-on-the-block.md) (worked on their block, Hands-On style). Checked on a NeoForge 1.21.1 client with Spatial GUI, without Forager (its terms, [0056](0056-forager.md#licence)); the wooden case under Forager is to be checked in game
 
 ## Context
 The team asked for every crafting station's window and the other menus to be rethought so that they feel part of the world and in harmony with the rest: the books (cream paper, brown inks never black, the rubric red), the emissaries' dialogue, and Forager's wooden interface ([0056](0056-forager.md)). Vanilla's windows are drawn by Forager. The mods' station windows (Overgeared's furnaces and tables, Cold Sweat's, Farmer's Delight's cooking pot, Quark's trough and crate, Supplementaries', Exposure's lightroom, Chalk's box, Envelope's packing) copy vanilla's grey panel and stayed grey beside Forager's wood. The stations that are worked by hand (the crafting table, the furnaces, the tannery, the forge, the hearth: [0042](0042-interaction-language.md)) already have no window.

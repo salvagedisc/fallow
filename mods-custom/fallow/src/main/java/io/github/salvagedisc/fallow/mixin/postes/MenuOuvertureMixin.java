@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import io.github.salvagedisc.fallow.postes.client.MenusAvecDonnees;
 
-/** L'ouverture d'une enclume de forge d'Overgeared passe par le paquet vanilla, que Diegesis écoute ({@link MenusAvecDonnees}). */
+/** L'ouverture d'un menu de poste ouvert avec des données passe par le paquet vanilla, que Diegesis écoute ({@link MenusAvecDonnees}). */
 @Mixin(value = ClientPayloadHandler.class, remap = false)
 abstract class MenuOuvertureMixin {
     @Inject(method = "handle(Lnet/neoforged/neoforge/network/payload/AdvancedOpenScreenPayload;Lnet/neoforged/neoforge/network/handling/IPayloadContext;)V",

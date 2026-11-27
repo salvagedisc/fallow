@@ -14,7 +14,7 @@ public final class PostesModule {
     public static void start(IEventBus modBus) {
         PostesTannerie.register();
         if (FMLEnvironment.dist.isClient()) {
-            io.github.salvagedisc.fallow.postes.client.PostesClient.init();
+            io.github.salvagedisc.fallow.postes.client.PostesClient.init(modBus);
         }
     }
 }
