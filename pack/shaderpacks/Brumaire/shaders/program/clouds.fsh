@@ -198,7 +198,9 @@ float marchLayer(vec3 eye, vec3 dir, float sceneLen, float coverage, float noise
             float strength = 1.0, ext = 1.0, spread = 1.0;
             for (int n = 0; n < CLOUD_MULTISCATTER; n++) {
                 direct += strength * exp(-od * CLOUD_SIGMA * ext) * dropletPhase(mu, spread);
-                strength *= 0.5;
+                // Au couchant, la lumière diffusée plusieurs fois traverse mal un nuage épais sous un soleil rasant :
+                // le cœur reste sombre, seuls les bords minces s'allument (Recrafted : bancs ardoise bordés d'or).
+                strength *= mix(0.5, 0.2, gDusk);
                 ext *= 0.38;
                 spread *= 0.55;
             }
@@ -276,7 +278,8 @@ void main() {
     float cloudPass = 1.0;
     float seen = marchLayer(eye, dir, sceneLen, coverage, noise, cloudLight, cloudPass);
     // Au loin, les nuages se fondent dans le ciel bas : la perspective aérienne, à la distance où on les voit vraiment.
-    float fade = exp(-seen / (CLOUD_RANGE * 0.5));
+    // Au couchant, ils s'y fondent deux fois et demie moins vite : les bancs lointains restent sombres devant la lueur.
+    float fade = exp(-seen / (CLOUD_RANGE * 0.5 * mix(1.0, 2.5, gDusk)));
     vec3 horizon = skyAt(normalize(vec3(dir.x, max(dir.y, 0.03), dir.z)));
     cloudLight = mix(horizon * (1.0 - cloudPass), cloudLight, fade);
     // Sous la pluie, des nuages gris.

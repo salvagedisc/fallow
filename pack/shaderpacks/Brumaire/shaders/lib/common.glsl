@@ -162,6 +162,8 @@ vec3 skyAt(vec3 d) {
         float clear = gDusk * (1.0 - rainStrength);
         c = mix(c, vec3(luma(c)) * vec3(1.25, 0.97, 0.72), 0.8 * clear * toward * exp(-max(d.y, 0.0) * 5.0));
         c = mix(c, vec3(luma(c)) * vec3(1.84, 1.06, 0.58), 0.9 * clear * pow(toward, 3.0) * exp(-abs(d.y) * 14.0));
+        // Et plus claire sous le soleil : une lueur à l'horizon, derrière les nuages sombres.
+        c *= 1.0 + 0.8 * clear * pow(toward, 4.0) * exp(-abs(d.y) * 12.0);
         // Et tout le bas du ciel, de tous côtés, un peu ambré : loin du soleil aussi, le ciel du couchant ne bleuit plus.
         c = mix(c, vec3(luma(c)) * vec3(1.18, 0.97, 0.78), 0.5 * clear * exp(-max(d.y, 0.0) * 3.0));
     }
