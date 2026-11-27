@@ -166,6 +166,10 @@ vec3 skyAt(vec3 d) {
         c *= 1.0 + 0.8 * clear * pow(toward, 4.0) * exp(-abs(d.y) * 12.0);
         // Et tout le bas du ciel, de tous côtés, un peu ambré : loin du soleil aussi, le ciel du couchant ne bleuit plus.
         c = mix(c, vec3(luma(c)) * vec3(1.18, 0.97, 0.78), 0.5 * clear * exp(-max(d.y, 0.0) * 3.0));
+        // Le ciel ouvert du couchant, derrière les bancs ardoise, est un crème clair (Recrafted : vers 0,6, rouge/bleu
+        // 1,1), surtout vers le bas : c'est lui qui fait lire les nuages en sombre.
+        c = mix(c, vec3(luma(c)) * vec3(1.12, 1.0, 0.86), 0.6 * clear);
+        c *= 1.0 + 0.8 * clear * exp(-max(d.y, 0.0) * 2.0);
     }
     // Sous la pluie, un gris beige, celui des nuages chargés (Recrafted : teinte 36-38°, saturation 0,11-0,18).
     c = mix(c, vec3(luma(c)) * vec3(0.92, 0.83, 0.72) * 0.9, rainStrength * 0.85);
