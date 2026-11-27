@@ -208,6 +208,9 @@ float marchLayer(vec3 eye, vec3 dir, float sceneLen, float coverage, float noise
             // Le ciel : vu d'en haut un nuage est plein, dessous il en reçoit moins ; un nuage au-dessus l'assombrit.
             float above = cloudDensity(p + vec3(0.0, CLOUD_TOP_SPAN * 0.22, 0.0), coverage, false) * CLOUD_TOP_SPAN * 0.22;
             vec3 skyLit = gAmbient * mix(0.22, 1.0, h) * exp(-above * CLOUD_SIGMA * 0.35) * 0.95;
+            // Au couchant, le ciel qui éclaire le ventre des nuages est celui de l'est, déjà froid : un gris ardoise, et plus
+            // faible ; seul le soleil rasant dore leurs bords.
+            skyLit = mix(skyLit, vec3(luma(skyLit)) * vec3(0.85, 0.92, 1.08), 0.8 * gDusk) * mix(1.0, 0.6, gDusk);
             vec3 bounce = ground * sq(1.0 - h) * 1.4;
             vec3 inscatter = direct + skyLit + bounce + cloudLightning(p, h);
             float sigma = d * CLOUD_SIGMA;
@@ -284,8 +287,6 @@ void main() {
     cloudLight = mix(horizon * (1.0 - cloudPass), cloudLight, fade);
     // Sous la pluie, des nuages gris.
     cloudLight = mix(cloudLight, vec3(luma(cloudLight)) * vec3(1.05, 0.98, 0.86) * 0.85, rainStrength * 0.6);
-    // Au couchant, des nuages crème et pastel plutôt que pêche vif (Recrafted).
-    cloudLight = mix(cloudLight, vec3(luma(cloudLight)) * vec3(1.06, 0.97, 0.80), 0.5 * gDusk);
     // Au couchant, des nuages bien plus sombres que le ciel qui les éclaire de dos : des bancs ardoise à contre-jour.
     cloudLight *= mix(1.0, 0.25, gDusk);
     // De jour, des nuages d'un blanc gris, sans crème : moins vifs vers le soleil, comme les bancs voilés de Recrafted.

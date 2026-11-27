@@ -142,9 +142,9 @@ vec3 mistColor(vec3 dir, float sun) {
     body *= mix(vec3(1.0), vec3(0.97, 1.0, 1.04), gDay * (1.0 - gDusk));
     // La nuit, la brume ne reçoit que la lune et le ciel noir : elle reste sombre, un voile et pas un mur gris qui
     // éclaircirait tout le paysage : c'est elle qui relevait les noirs de la nuit (sol vers 0,086 au lieu de 0,06). La
-    // nappe de nuit étant mince et couchée dans les creux (mistHeight), elle peut prendre toute la lune (1,2) : une nappe
+    // nappe de nuit étant mince et couchée dans les creux (mistHeight), elle peut prendre toute la lune (2,8) : une nappe
     // pâle au fond des vallées, les crêtes restant noires.
-    body *= mix(1.2, 1.0, gDay);
+    body *= mix(2.8, 1.0, gDay);
     // Et chaude, comme la lune de Recrafted dans la brume : un gris brun, pas un mur froid à l'horizon.
     body *= mix(vec3(1.12, 1.0, 0.85), vec3(1.0), gDay);
     // Sous la pluie, le ciel éclaire moins le sol (gAmbient) mais la brume reste claire : l'averse dissout le lointain
