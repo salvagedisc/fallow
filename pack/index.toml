@@ -5177,7 +5177,7 @@ hash = "e0378f5a186a3cef879133e919f9d254e60511e9aa8ce0da8c539633c883e507"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/program/clouds.fsh"
-hash = "e343822342e51eb1c1fc7ba651c35118f03912ddfc4c849230cbe963f4ed1d84"
+hash = "3c7f153a47b5e3d1ff729293c52f8b79db0e6b15d37e8a698865b7b7d36f5d85"
 
 [[files]]
 file = "shaderpacks/Brumaire/shaders/program/clrwl_shadow.fsh"
